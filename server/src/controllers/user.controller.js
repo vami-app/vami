@@ -4,6 +4,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess, ApiError } = require("../utils/apiResponse");
 const User = require("../models/User");
 const Post = require("../models/Post");
+const { streamExport } = require("../utils/exportAccount");
 
 /**
  * GET /api/users/:username — public profile + published post count.
@@ -109,10 +110,91 @@ const getBookmarks = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, { posts });
 });
 
+const RESERVED_SUBDOMAINS = [
+  "www", "api", "admin", "mail", "app", "blog", "static",
+  "cdn", "assets", "help", "support", "status", "dev", "staging"
+];
+
+/**
+ * POST /api/users/me/export/request
+ * Request a full account export. Throttled to 1 per 24 hours.
+ * @type {import('express').RequestHandler}
+ */
+const requestExport = asyncHandler(async (req, res) => {
+  const user = req.user;
+  const now = new Date();
+  
+  if (user.exportRequestedAt) {
+    const hoursSinceLast = (now - user.exportRequestedAt) / (1000 * 60 * 60);
+    if (hoursSinceLast < 24) {
+      throw new ApiError(429, "You can only request one export every 24 hours.");
+    }
+  }
+
+  user.exportRequestedAt = now;
+  user.exportStatus = "ready";
+  await user.save();
+
+  return sendSuccess(res, 200, { status: "ready" }, "Export ready for download.");
+});
+
+/**
+ * GET /api/users/me/export/download
+ * Download the zipped account export.
+ * @type {import('express').RequestHandler}
+ */
+const downloadExport = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (user.exportStatus !== "ready") {
+    throw new ApiError(400, "Please request an export before downloading.");
+  }
+
+  const posts = await Post.find({ author: user._id });
+
+  res.attachment(`inkwell-export-${user.username}.zip`);
+  await streamExport(res, user, posts);
+});
+
+/**
+ * PATCH /api/users/me/subdomain
+ * Claim a unique username subdomain.
+ * @type {import('express').RequestHandler}
+ */
+const updateSubdomain = asyncHandler(async (req, res) => {
+  const subdomain = String(req.body.subdomain).toLowerCase().trim();
+  const user = req.user;
+
+  if (!subdomain) {
+    throw new ApiError(400, "Subdomain name is required.");
+  }
+
+  if (!/^[a-z0-9-]+$/.test(subdomain)) {
+    throw new ApiError(400, "Subdomain can only contain lowercase letters, numbers, and hyphens.");
+  }
+
+  if (RESERVED_SUBDOMAINS.includes(subdomain)) {
+    throw new ApiError(400, "That subdomain is reserved.");
+  }
+
+  const existing = await User.findOne({ subdomain, _id: { $ne: user._id } });
+  if (existing) {
+    throw new ApiError(409, "That subdomain is already taken.");
+  }
+
+  user.subdomain = subdomain;
+  await user.save();
+
+  return sendSuccess(res, 200, { user: user.toPublicJSON(true) }, "Subdomain updated successfully.");
+});
+
 module.exports = {
   getProfile,
   updateMe,
   uploadAvatar,
   toggleFollow,
   getBookmarks,
+  requestExport,
+  downloadExport,
+  updateSubdomain,
 };

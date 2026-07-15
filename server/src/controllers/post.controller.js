@@ -260,6 +260,25 @@ const trendingTags = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, { tags });
 });
 
+/**
+ * GET /api/posts/sitemap-data — minimal fields for sitemap.xml.
+ * @type {import('express').RequestHandler}
+ */
+const listSitemapData = asyncHandler(async (req, res) => {
+  const posts = await Post.find({ status: "published", indexable: true })
+    .select("slug updatedAt author")
+    .populate("author", "username")
+    .sort({ updatedAt: -1 });
+
+  const formattedPosts = posts.map(p => ({
+    slug: p.slug,
+    updatedAt: p.updatedAt,
+    authorUsername: p.author ? p.author.username : "deleted",
+  }));
+
+  return sendSuccess(res, 200, { posts: formattedPosts });
+});
+
 module.exports = {
   listPosts,
   getPost,
@@ -269,4 +288,5 @@ module.exports = {
   clapPost,
   toggleBookmark,
   trendingTags,
+  listSitemapData,
 };

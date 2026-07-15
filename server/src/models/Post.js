@@ -38,6 +38,12 @@ const postSchema = new Schema(
     views: { type: Number, default: 0 },
     readTimeMinutes: { type: Number, default: 1 },
     publishedAt: { type: Date, default: null },
+    seo: {
+      metaTitle: { type: String, trim: true, maxlength: 160 },
+      metaDescription: { type: String, trim: true, maxlength: 200 },
+      canonicalUrl: { type: String },
+    },
+    indexable: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
@@ -47,10 +53,20 @@ postSchema.index({ title: "text", subtitle: "text", tags: "text" });
 // Common feed sort
 postSchema.index({ status: 1, publishedAt: -1 });
 
-// Recompute read time whenever content changes
-postSchema.pre("save", function computeReadTime(next) {
+// Recompute read time whenever content changes, and sync SEO indexability / canonical URL
+postSchema.pre("save", function computePostDetails(next) {
   if (this.isModified("contentHtml")) {
     this.readTimeMinutes = estimateReadTime(this.contentHtml);
+  }
+  if (this.status === "published") {
+    this.indexable = true;
+    if (!this.seo || !this.seo.canonicalUrl) {
+      const env = require("../config/env");
+      if (!this.seo) this.seo = {};
+      this.seo.canonicalUrl = `${env.clientUrl}/p/${this.slug}`;
+    }
+  } else {
+    this.indexable = false;
   }
   next();
 });
@@ -90,6 +106,8 @@ postSchema.methods.toCardJSON = function toCardJSON(viewerId = null) {
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
     viewerClapCount: viewerClap ? viewerClap.count : 0,
+    seo: this.seo || { metaTitle: "", metaDescription: "", canonicalUrl: "" },
+    indexable: this.indexable,
   };
 };
 

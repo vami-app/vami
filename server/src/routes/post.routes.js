@@ -10,6 +10,7 @@ const {
   clapPost,
   toggleBookmark,
   trendingTags,
+  listSitemapData,
 } = require("../controllers/post.controller");
 const {
   listComments,
@@ -26,6 +27,7 @@ const {
 const router = express.Router();
 
 router.get("/tags/trending", trendingTags);
+router.get("/sitemap-data", listSitemapData);
 
 router.get("/", optionalAuth, listPosts);
 router.post("/", requireAuth, createPostRules, validate, createPost);

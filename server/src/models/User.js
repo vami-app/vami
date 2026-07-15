@@ -34,6 +34,10 @@ const userSchema = new Schema(
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: Schema.Types.ObjectId, ref: "User" }],
     bookmarks: [{ type: Schema.Types.ObjectId, ref: "Post" }],
+    subdomain: { type: String, lowercase: true, trim: true, unique: true, sparse: true },
+    customDomain: { type: String, default: null },
+    exportRequestedAt: { type: Date },
+    exportStatus: { type: String, enum: ["idle", "pending", "ready", "failed"], default: "idle" },
   },
   { timestamps: true }
 );
@@ -68,6 +72,8 @@ userSchema.methods.toPublicJSON = function toPublicJSON(includeEmail = false) {
     avatarUrl: this.avatarUrl,
     followersCount: this.followers ? this.followers.length : 0,
     followingCount: this.following ? this.following.length : 0,
+    subdomain: this.subdomain,
+    customDomain: this.customDomain,
     ...(includeEmail ? { email: this.email } : {}),
     createdAt: this.createdAt,
   };

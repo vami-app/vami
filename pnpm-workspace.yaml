@@ -2,6 +2,9 @@ packages:
   - "client"
   - "server"
 
+allowBuilds:
+  sharp: set this to true or false
+
 # sharp ships optional native binaries; Next.js 15 runs fine without them in
 # local dev. Mark its build as intentionally skipped and disable the pre-run
 # deps verification so `pnpm dev` / `pnpm seed` don't error on the ignored build.
