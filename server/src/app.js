@@ -1,0 +1,61 @@
+"use strict";
+
+const path = require("path");
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+
+const env = require("./config/env");
+const { notFound, errorHandler } = require("./middlewares/error.middleware");
+const { authLimiter, generalLimiter } = require("./middlewares/rateLimiter");
+
+const authRoutes = require("./routes/auth.routes");
+const userRoutes = require("./routes/user.routes");
+const postRoutes = require("./routes/post.routes");
+const commentRoutes = require("./routes/comment.routes");
+const uploadRoutes = require("./routes/upload.routes");
+
+const app = express();
+
+app.set("trust proxy", 1);
+
+// CORS — allow the Next.js client with credentials (cookies)
+app.use(
+  cors({
+    origin: env.clientUrl,
+    credentials: true,
+  })
+);
+
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Serve uploaded images
+app.use(
+  "/uploads",
+  express.static(path.resolve(__dirname, "../uploads"), {
+    maxAge: "7d",
+    setHeaders: (res) => res.set("Cross-Origin-Resource-Policy", "cross-origin"),
+  })
+);
+
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({ success: true, data: { status: "ok" }, message: "Inkwell API is running" });
+});
+
+app.use("/api", generalLimiter);
+
+// Routes
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/uploads", uploadRoutes);
+
+// 404 + centralized error handler
+app.use(notFound);
+app.use(errorHandler);
+
+module.exports = app;

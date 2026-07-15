@@ -1,0 +1,16 @@
+{
+  "name": "inkwell",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Inkwell — a Medium-inspired publishing MVP (Next.js + Express + MongoDB)",
+  "scripts": {
+    "dev": "concurrently -n server,client -c magenta,cyan \"pnpm --filter server dev\" \"pnpm --filter client dev\"",
+    "build": "pnpm --filter server build && pnpm --filter client build",
+    "start": "concurrently -n server,client -c magenta,cyan \"pnpm --filter server start\" \"pnpm --filter client start\"",
+    "seed": "pnpm --filter server seed"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "packageManager": "pnpm@11.12.0"
+}
