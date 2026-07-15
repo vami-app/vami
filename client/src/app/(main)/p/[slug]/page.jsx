@@ -31,7 +31,11 @@ export async function generateMetadata({ params }) {
     const rawContent = post.contentHtml ? post.contentHtml.replace(/<[^>]*>/g, " ") : "";
     const description = post.seo?.metaDescription || rawContent.trim().slice(0, 160);
     const canonicalUrl = post.seo?.canonicalUrl || `${siteUrl}/p/${post.slug}`;
-    const coverImage = post.coverImage ? `${apiUrl}${post.coverImage}` : "";
+    const coverImage = post.coverImage
+      ? (post.coverImage.startsWith("http://") || post.coverImage.startsWith("https://")
+        ? post.coverImage
+        : `${apiUrl}${post.coverImage}`)
+      : "";
 
     return {
       title: `${title} — Inkwell`,
@@ -110,13 +114,19 @@ export default async function StoryPage({ params }) {
   const authorName = post.author ? post.author.name : "Anonymous";
   const authorUsername = post.author ? post.author.username : "deleted";
 
+  const coverImageVal = post.coverImage
+    ? (post.coverImage.startsWith("http://") || post.coverImage.startsWith("https://")
+      ? post.coverImage
+      : `${apiUrl}${post.coverImage}`)
+    : null;
+
   // Build JSON-LD Structured Data
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: title,
     description: post.subtitle || "",
-    image: post.coverImage ? [`${apiUrl}${post.coverImage}`] : [],
+    image: coverImageVal ? [coverImageVal] : [],
     datePublished: post.publishedAt || post.createdAt,
     dateModified: post.updatedAt,
     author: {

@@ -132,12 +132,15 @@ async function testSuite() {
 - **Result**: ${test2Passed ? "✅ Passed (Zero status-indexable drift)" : "❌ Failed"}
 `);
 
-  // --- TEST 3: Canonical & Slug Immutability ---
-  console.log("🏃 Running Test 3: Canonical & Slug Immutability...");
+  // --- TEST 3: Canonical & Slug Immutability & Cycle Stability ---
+  console.log("🏃 Running Test 3: Canonical & Slug Immutability & Cycle Stability...");
+  
+  // 1. Initial Publish & capture canonical
   await makeRequest(`/api/posts/${postSlug}`, "PATCH", { status: "published" }, adaCookie);
-  const originalPost = await Post.findOne({ slug: postSlug });
-  const originalCanonical = originalPost.seo.canonicalUrl;
+  const firstPost = await Post.findOne({ slug: postSlug });
+  const firstCanonical = firstPost.seo.canonicalUrl;
 
+  // 2. Try to override canonical and slug via PATCH body
   const patchOverrideRes = await makeRequest(`/api/posts/${postSlug}`, "PATCH", {
     seo: {
       metaTitle: "New SEO Title",
@@ -146,17 +149,27 @@ async function testSuite() {
     slug: "new-custom-slug-hijack",
   }, adaCookie);
 
-  const finalPost = await Post.findOne({ slug: postSlug });
-  const canonicalUntouched = finalPost.seo.canonicalUrl === originalCanonical;
-  const slugUntouched = finalPost.slug === postSlug;
+  const afterHackPost = await Post.findOne({ slug: postSlug });
+  const hijackBlocked = afterHackPost.seo.canonicalUrl === firstCanonical && afterHackPost.slug === postSlug;
 
-  const test3Passed = canonicalUntouched && slugUntouched;
+  // 3. Unpublish to draft
+  await makeRequest(`/api/posts/${postSlug}`, "PATCH", { status: "draft" }, adaCookie);
+
+  // 4. Publish again and capture final canonical
+  await makeRequest(`/api/posts/${postSlug}`, "PATCH", { status: "published" }, adaCookie);
+  const secondPost = await Post.findOne({ slug: postSlug });
+  const secondCanonical = secondPost.seo.canonicalUrl;
+
+  const cycleStable = firstCanonical === secondCanonical;
+  const test3Passed = hijackBlocked && cycleStable;
+
   console.log(test3Passed ? "✅ Test 3 Passed" : "❌ Test 3 Failed");
-  report.push(`### 3. Canonical URL & Slug Immutability
-- **Security Check**: Attempting to override canonical and slug via PATCH body
-- **Slug After Hack**: \`${finalPost.slug}\` (Expected: \`${postSlug}\`)
-- **Canonical After Hack**: \`${finalPost.seo.canonicalUrl}\` (Expected: \`${originalCanonical}\`)
-- **Result**: ${test3Passed ? "✅ Passed (System-only canonical URL locked down)" : "❌ Failed"}
+  report.push(`### 3. Canonical URL & Slug Immutability & Cycle Stability
+- **Security Check**: Attempting to override canonical and slug via PATCH body is blocked: \`${hijackBlocked}\`
+- **Cycle Check**: Canonical identical across draft ➔ publish ➔ draft ➔ publish cycle: \`${cycleStable}\`
+- **First Publish Canonical**: \`${firstCanonical}\`
+- **Second Publish Canonical**: \`${secondCanonical}\`
+- **Result**: ${test3Passed ? "✅ Passed (Canonical is permanently locked and stable)" : "❌ Failed"}
 `);
 
   // --- TEST 4: Subdomain Input Validation (PATCH) ---
