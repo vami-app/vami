@@ -39,7 +39,7 @@ router.delete("/:slug", requireAuth, deletePost);
 router.post("/:slug/clap", requireAuth, clapPost);
 router.post("/:slug/bookmark", requireAuth, toggleBookmark);
 
-router.get("/:slug/comments", listComments);
+router.get("/:slug/comments", optionalAuth, listComments);
 router.post("/:slug/comments", requireAuth, commentRules, validate, addComment);
 
 module.exports = router;

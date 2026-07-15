@@ -25,9 +25,13 @@ const updateSubdomainRules = [
       return true;
     })
     .custom(async (value, { req }) => {
-      const existing = await User.findOne({ subdomain: value, _id: { $ne: req.user._id } });
-      if (existing) {
+      const existingSub = await User.findOne({ subdomain: value, _id: { $ne: req.user._id } });
+      if (existingSub) {
         throw new Error("That subdomain is already taken");
+      }
+      const existingUser = await User.findOne({ username: value, _id: { $ne: req.user._id } });
+      if (existingUser) {
+        throw new Error("That subdomain matches another user's username");
       }
       return true;
     }),

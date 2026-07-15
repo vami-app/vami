@@ -206,7 +206,17 @@ const clapPost = asyncHandler(async (req, res) => {
   const inc = Math.max(1, Math.min(parseInt(req.body.count, 10) || 1, MAX_CLAPS_PER_USER));
   const post = await Post.findOne({ slug: req.params.slug });
   if (!post) throw new ApiError(404, "Story not found");
-  if (post.status !== "published") throw new ApiError(400, "Cannot clap an unpublished story");
+
+  const viewerId = req.user ? req.user._id : null;
+  const isAuthor = viewerId && post.author && String(post.author._id || post.author) === String(viewerId);
+
+  if (post.status === "draft" && !isAuthor) {
+    throw new ApiError(404, "Story not found");
+  }
+
+  if (post.status !== "published") {
+    throw new ApiError(400, "Cannot clap an unpublished story");
+  }
 
   let entry = post.claps.find((c) => String(c.user) === String(req.user._id));
   if (!entry) {
@@ -238,8 +248,15 @@ const clapPost = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const toggleBookmark = asyncHandler(async (req, res) => {
-  const post = await Post.findOne({ slug: req.params.slug }).select("_id status");
+  const post = await Post.findOne({ slug: req.params.slug }).select("_id status author");
   if (!post) throw new ApiError(404, "Story not found");
+
+  const viewerId = req.user ? req.user._id : null;
+  const isAuthor = viewerId && post.author && String(post.author._id || post.author) === String(viewerId);
+
+  if (post.status === "draft" && !isAuthor) {
+    throw new ApiError(404, "Story not found");
+  }
 
   const user = req.user;
   const idx = user.bookmarks.findIndex((b) => String(b) === String(post._id));

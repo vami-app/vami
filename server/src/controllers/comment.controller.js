@@ -33,8 +33,15 @@ function commentJSON(c) {
  * @type {import('express').RequestHandler}
  */
 const listComments = asyncHandler(async (req, res) => {
-  const post = await Post.findOne({ slug: req.params.slug }).select("_id");
+  const post = await Post.findOne({ slug: req.params.slug }).select("_id status author");
   if (!post) throw new ApiError(404, "Story not found");
+
+  const viewerId = req.user ? req.user._id : null;
+  const isAuthor = viewerId && post.author && String(post.author._id || post.author) === String(viewerId);
+
+  if (post.status === "draft" && !isAuthor) {
+    throw new ApiError(404, "Story not found");
+  }
 
   const comments = await Comment.find({ post: post._id })
     .sort({ _id: -1 })
@@ -48,8 +55,15 @@ const listComments = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const addComment = asyncHandler(async (req, res) => {
-  const post = await Post.findOne({ slug: req.params.slug }).select("_id status");
+  const post = await Post.findOne({ slug: req.params.slug }).select("_id status author");
   if (!post) throw new ApiError(404, "Story not found");
+
+  const viewerId = req.user ? req.user._id : null;
+  const isAuthor = viewerId && post.author && String(post.author._id || post.author) === String(viewerId);
+
+  if (post.status === "draft" && !isAuthor) {
+    throw new ApiError(404, "Story not found");
+  }
 
   const comment = await Comment.create({
     post: post._id,

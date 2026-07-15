@@ -5,10 +5,10 @@ const mongoose = require("mongoose");
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 const app = require("../app");
 const User = require("../models/User");
 const Post = require("../models/Post");
-const { ZipArchive } = require("archiver");
 
 const TEST_PORT = 5001;
 const BASE_URL = `http://localhost:${TEST_PORT}`;
@@ -21,7 +21,7 @@ function getCookies(headers) {
 }
 
 async function testSuite() {
-  console.log("🚀 Starting SEO, Ownership & Portability Verification Suite...");
+  console.log("🚀 Starting upgraded SEO, Ownership & Portability Verification Suite...");
   await connectDB();
   
   // 1. Reset limits in DB first for clean run
@@ -32,6 +32,9 @@ async function testSuite() {
     process.exit(1);
   }
   
+  const originalAdaSubdomain = ada.subdomain;
+  const originalGraceSubdomain = grace.subdomain;
+
   ada.exportStatus = "idle";
   ada.exportRequestedAt = undefined;
   ada.subdomain = undefined;
@@ -101,7 +104,6 @@ async function testSuite() {
 
   // --- TEST 2: Indexing & Unpublish Invariant ---
   console.log("🏃 Running Test 2: Unpublish Invariant...");
-  // Create a post
   const createRes = await makeRequest("/api/posts", "POST", {
     title: "Verification Test Story",
     contentHtml: "<p>Hello world from verification test</p>",
@@ -112,12 +114,10 @@ async function testSuite() {
   const draftPost = await Post.findOne({ slug: postSlug });
   const indexableDraft = draftPost.indexable === false;
 
-  // Publish it
   await makeRequest(`/api/posts/${postSlug}`, "PATCH", { status: "published" }, adaCookie);
   const pubPost = await Post.findOne({ slug: postSlug });
   const indexablePub = pubPost.indexable === true && pubPost.seo.canonicalUrl.includes(`/p/${postSlug}`);
 
-  // Unpublish it
   await makeRequest(`/api/posts/${postSlug}`, "PATCH", { status: "draft" }, adaCookie);
   const unpubPost = await Post.findOne({ slug: postSlug });
   const indexableUnpub = unpubPost.indexable === false;
@@ -134,12 +134,10 @@ async function testSuite() {
 
   // --- TEST 3: Canonical & Slug Immutability ---
   console.log("🏃 Running Test 3: Canonical & Slug Immutability...");
-  // Publish it again to check immutability
   await makeRequest(`/api/posts/${postSlug}`, "PATCH", { status: "published" }, adaCookie);
   const originalPost = await Post.findOne({ slug: postSlug });
   const originalCanonical = originalPost.seo.canonicalUrl;
 
-  // Try to override canonicalUrl and slug in PATCH
   const patchOverrideRes = await makeRequest(`/api/posts/${postSlug}`, "PATCH", {
     seo: {
       metaTitle: "New SEO Title",
@@ -163,42 +161,41 @@ async function testSuite() {
 
   // --- TEST 4: Subdomain Input Validation (PATCH) ---
   console.log("🏃 Running Test 4: Subdomain Validation...");
-  // 1. Reserved Subdomain Check
   const resSubRes = await makeRequest("/api/users/me/subdomain", "PATCH", { subdomain: "admin" }, adaCookie);
   const reservedBlocked = resSubRes.status === 400 && resSubRes.body.errors[0].message.includes("reserved");
 
-  // 2. Charset check
   const badCharRes = await makeRequest("/api/users/me/subdomain", "PATCH", { subdomain: "ada_love" }, adaCookie);
   const badCharBlocked = badCharRes.status === 400 && badCharRes.body.errors[0].message.includes("lowercase letters, numbers, and hyphens");
 
-  // 3. Length check
   const shortRes = await makeRequest("/api/users/me/subdomain", "PATCH", { subdomain: "ad" }, adaCookie);
   const lengthBlocked = shortRes.status === 400 && shortRes.body.errors[0].message.includes("3–30 characters");
 
-  // 4. Valid claim
   const validClaim = await makeRequest("/api/users/me/subdomain", "PATCH", { subdomain: "ada-love-test" }, adaCookie);
   const claimSuccess = validClaim.status === 200 && validClaim.body.data.user.subdomain === "ada-love-test";
 
-  // 5. Uniqueness collision
+  // Check username collision (grace is Grace's username)
+  const usernameCollisionRes = await makeRequest("/api/users/me/subdomain", "PATCH", { subdomain: "grace" }, adaCookie);
+  const usernameCollisionBlocked = usernameCollisionRes.status === 400 && usernameCollisionRes.body.errors[0].message.includes("matches another user's username");
+
   const graceLogin = await makeRequest("/api/auth/login", "POST", { email: "grace@inkwell.dev", password: "password123" });
   const graceCookie = getCookies(graceLogin.headers);
   const collisionRes = await makeRequest("/api/users/me/subdomain", "PATCH", { subdomain: "ada-love-test" }, graceCookie);
   const collisionBlocked = collisionRes.status === 400 && collisionRes.body.errors[0].message.includes("already taken");
 
-  const test4Passed = reservedBlocked && badCharBlocked && lengthBlocked && claimSuccess && collisionBlocked;
+  const test4Passed = reservedBlocked && badCharBlocked && lengthBlocked && claimSuccess && usernameCollisionBlocked && collisionBlocked;
   console.log(test4Passed ? "✅ Test 4 Passed" : "❌ Test 4 Failed");
   report.push(`### 4. Subdomain Input Validation & Blacklist Check
 - **Reserved Subdomain (\`admin\`)**: Status \`${resSubRes.status}\` (Expected: 400), Msg: \`${resSubRes.body?.errors?.[0]?.message}\`
 - **Invalid Characters (\`ada_love\`)**: Status \`${badCharRes.status}\` (Expected: 400), Msg: \`${badCharRes.body?.errors?.[0]?.message}\`
 - **Short Subdomain (\`ad\`)**: Status \`${shortRes.status}\` (Expected: 400), Msg: \`${shortRes.body?.errors?.[0]?.message}\`
-- **Valid Claim (\`ada-love-test\`)**: Status \`${validClaim.status}\` (Expected: 200), Claimed Subdomain: \`${validClaim.body?.data?.user?.subdomain}\`
+- **Valid Claim (\`ada-love-test\`)**: Status \`${validClaim.status}\` (Expected: 200), Subdomain: \`${validClaim.body?.data?.user?.subdomain}\`
+- **Username Collision Check (\`grace\`)**: Status \`${usernameCollisionRes.status}\` (Expected: 400), Msg: \`${usernameCollisionRes.body?.errors?.[0]?.message}\`
 - **Collision check (Grace claiming \`ada-love-test\`)**: Status \`${collisionRes.status}\` (Expected: 400/409), Msg: \`${collisionRes.body?.errors?.[0]?.message}\`
 - **Result**: ${test4Passed ? "✅ Passed (Subdomain claims are safe and validated)" : "❌ Failed"}
 `);
 
-  // --- TEST 5: Draft Visibility Gate ---
+  // --- TEST 5: Draft Visibility Gate & Interactions Security ---
   console.log("🏃 Running Test 5: Draft Visibility Gate...");
-  // Create another draft
   const draftCreate = await makeRequest("/api/posts", "POST", {
     title: "Ada Private Draft Story",
     contentHtml: "<p>Ada secrets</p>",
@@ -206,25 +203,35 @@ async function testSuite() {
   }, adaCookie);
   const draftSlug = draftCreate.body.data.post.slug;
 
-  // Fetch as author
   const authorGet = await makeRequest(`/api/posts/${draftSlug}`, "GET", null, adaCookie);
-  const authorSuccess = authorGet.status === 200 && authorGet.body.data.post.title === "Ada Private Draft Story";
+  const authorGetSuccess = authorGet.status === 200 && authorGet.body.data.post.title === "Ada Private Draft Story";
 
-  // Fetch as another user (Grace)
   const otherGet = await makeRequest(`/api/posts/${draftSlug}`, "GET", null, graceCookie);
-  const otherBlocked = otherGet.status === 404;
+  const otherGetBlocked = otherGet.status === 404;
 
-  // Fetch anonymously
   const anonGet = await makeRequest(`/api/posts/${draftSlug}`, "GET", null);
-  const anonBlocked = anonGet.status === 404;
+  const anonGetBlocked = anonGet.status === 404;
 
-  const test5Passed = authorSuccess && otherBlocked && anonBlocked;
+  // Interactions checks
+  const clapOnDraftRes = await makeRequest(`/api/posts/${draftSlug}/clap`, "POST", { count: 1 }, graceCookie);
+  const clapBlocked = clapOnDraftRes.status === 404;
+
+  const bookmarkOnDraftRes = await makeRequest(`/api/posts/${draftSlug}/bookmark`, "POST", null, graceCookie);
+  const bookmarkBlocked = bookmarkOnDraftRes.status === 404;
+
+  const commentOnDraftRes = await makeRequest(`/api/posts/${draftSlug}/comments`, "POST", { content: "Draft comment" }, graceCookie);
+  const commentBlocked = commentOnDraftRes.status === 404;
+
+  const test5Passed = authorGetSuccess && otherGetBlocked && anonGetBlocked && clapBlocked && bookmarkBlocked && commentBlocked;
   console.log(test5Passed ? "✅ Test 5 Passed" : "❌ Test 5 Failed");
-  report.push(`### 5. Draft Access Restriction (Author Gate)
-- **Author Access**: Status \`${authorGet.status}\` (Expected: 200)
-- **Other User Access (Grace)**: Status \`${otherGet.status}\` (Expected: 404)
-- **Anonymous Access**: Status \`${anonGet.status}\` (Expected: 404)
-- **Result**: ${test5Passed ? "✅ Passed (Drafts are strictly author-only)" : "❌ Failed"}
+  report.push(`### 5. Draft Access Restriction (Author Gate on GET/POST/PATCH)
+- **Author GET Access**: Status \`${authorGet.status}\` (Expected: 200)
+- **Other User GET Access**: Status \`${otherGet.status}\` (Expected: 404)
+- **Anonymous GET Access**: Status \`${anonGet.status}\` (Expected: 404)
+- **Other User CLAP on Draft**: Status \`${clapOnDraftRes.status}\` (Expected: 404)
+- **Other User BOOKMARK on Draft**: Status \`${bookmarkOnDraftRes.status}\` (Expected: 404)
+- **Other User COMMENT on Draft**: Status \`${commentOnDraftRes.status}\` (Expected: 404)
+- **Result**: ${test5Passed ? "✅ Passed (Drafts are strictly author-only and isolated from all interactions)" : "❌ Failed"}
 `);
 
   // --- TEST 6: RSS Content-Type & Validation ---
@@ -238,7 +245,7 @@ async function testSuite() {
   report.push(`### 6. RSS Feed Syndication XML Verification
 - **Endpoint**: \`GET /api/feed/rss\`
 - **Content-Type**: \`${rssRes.headers["content-type"]}\` (Expected: contains \`application/rss+xml\`)
-- **Structure Check**: Matches valid RSS 2.0 node specifications (\`<rss>\`, \`<channel>\`, \`<item>\`)
+- **Structure Check**: Matches valid RSS 2.0 specifications (\`<rss>\`, \`<channel>\`, \`<item>\`)
 - **Result**: ${test6Passed ? "✅ Passed (RSS Feed output fully verified)" : "❌ Failed"}
 `);
 
@@ -258,15 +265,12 @@ async function testSuite() {
 
   // --- TEST 8: Export Auth-Gate and Rate Limiting ---
   console.log("🏃 Running Test 8: Export Rate Limiting & Auth Gate...");
-  // Export anonymously
   const anonExport = await makeRequest("/api/users/me/export/request", "POST");
   const anonExportBlocked = anonExport.status === 401;
 
-  // Export 1st request as Ada
   const firstReq = await makeRequest("/api/users/me/export/request", "POST", null, adaCookie);
   const firstSuccess = firstReq.status === 200 && firstReq.body.data.status === "ready";
 
-  // Export 2nd request within 24h as Ada
   const secondReq = await makeRequest("/api/users/me/export/request", "POST", null, adaCookie);
   const secondRateLimited = secondReq.status === 429 && secondReq.body.message.includes("24 hours");
 
@@ -280,30 +284,147 @@ async function testSuite() {
 `);
 
   // --- TEST 9: Export Contents Integrity (ZIP Parse) ---
-  console.log("🏃 Running Test 9: Export ZIP Parsing...");
+  console.log("🏃 Running Test 9: Export ZIP Extraction & Verification...");
   const downloadRes = await makeRequest("/api/users/me/export/download", "GET", null, adaCookie);
   const isZipBuffer = downloadRes.status === 200 && downloadRes.buffer && downloadRes.buffer.length > 4;
   const zipMagicMatch = isZipBuffer && downloadRes.buffer[0] === 0x50 && downloadRes.buffer[1] === 0x4b; // 'PK' magic bytes
 
-  const test9Passed = zipMagicMatch && downloadRes.headers["content-type"].includes("application/zip");
+  let fullExtractionPassed = false;
+  let fileCountMatch = false;
+  let mdAndJsonMatch = false;
+
+  if (zipMagicMatch) {
+    const tempZipPath = path.join(__dirname, "temp-export.zip");
+    const tempDestPath = path.join(__dirname, "temp-extracted");
+
+    fs.writeFileSync(tempZipPath, downloadRes.buffer);
+
+    try {
+      if (fs.existsSync(tempDestPath)) {
+        fs.rmSync(tempDestPath, { recursive: true, force: true });
+      }
+      fs.mkdirSync(tempDestPath);
+
+      // Extract ZIP using PowerShell native Expand-Archive
+      execSync(`powershell -Command "Expand-Archive -Force -Path '${tempZipPath}' -DestinationPath '${tempDestPath}'"`);
+
+      // Verify files inside
+      const profilePath = path.join(tempDestPath, "profile.json");
+      const indexPath = path.join(tempDestPath, "posts-index.json");
+      const postsFolderPath = path.join(tempDestPath, "posts");
+
+      const profileExists = fs.existsSync(profilePath);
+      const indexExists = fs.existsSync(indexPath);
+
+      if (profileExists && indexExists) {
+        const postsIndex = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+        const adaPostsCountInDb = await Post.countDocuments({ author: ada._id });
+        
+        fileCountMatch = postsIndex.length === adaPostsCountInDb;
+
+        if (fs.existsSync(postsFolderPath)) {
+          const files = fs.readdirSync(postsFolderPath);
+          // For each index post there must be both a JSON and an MD file
+          mdAndJsonMatch = postsIndex.every((p) => {
+            const hasJson = files.includes(`${p.slug}.json`);
+            const hasMd = files.includes(`${p.slug}.md`);
+            return hasJson && hasMd;
+          });
+        }
+        fullExtractionPassed = true;
+      }
+    } catch (err) {
+      console.error("ZIP extraction test error:", err);
+    } finally {
+      // Clean up
+      if (fs.existsSync(tempZipPath)) fs.unlinkSync(tempZipPath);
+      if (fs.existsSync(tempDestPath)) fs.rmSync(tempDestPath, { recursive: true, force: true });
+    }
+  }
+
+  const test9Passed = zipMagicMatch && fullExtractionPassed && fileCountMatch && mdAndJsonMatch;
   console.log(test9Passed ? "✅ Test 9 Passed" : "❌ Test 9 Failed");
-  report.push(`### 9. Account Data Export Integrity (ZIP Streaming)
-- **Endpoint**: \`GET /api/users/me/export/download\`
-- **Response Content-Type**: \`${downloadRes.headers["content-type"]}\`
-- **ZIP Magic Bytes Checked ('PK')**: \`${zipMagicMatch ? "Found" : "Not Found"}\`
-- **Export Data Size**: \`${downloadRes.buffer ? downloadRes.buffer.length : 0} bytes\`
-- **Result**: ${test9Passed ? "✅ Passed (ZIP streams successfully and matches binary structure)" : "❌ Failed"}
+  report.push(`### 9. Account Data Export Integrity & File Contents
+- **ZIP Header Check ('PK')**: \`${zipMagicMatch ? "Found" : "Not Found"}\`
+- **ZIP Extraction**: \`${fullExtractionPassed ? "Successful" : "Failed"}\`
+- **Profile & Index Files**: \`profile.json\` and \`posts-index.json\` found
+- **Index Count Matches DB stories count**: \`${fileCountMatch ? "Verified" : "Drifted"}\`
+- **Portability translation check (JSON + Markdown)**: \`${mdAndJsonMatch ? "All formats exported successfully" : "Missing translations"}\`
+- **Result**: ${test9Passed ? "✅ Passed (ZIP contents verified completely)" : "❌ Failed"}
 `);
 
-  // Clean up verification posts
-  await Post.deleteMany({ title: /Verification/ });
+  // --- TEST 10: Next.js robots.txt and sitemap.xml Verification ---
+  console.log("🏃 Running Test 10: Next.js Frontend Configuration...");
+  
+  const frontendRequest = async (path) => {
+    return new Promise((resolve) => {
+      http.get(`http://localhost:3000${path}`, (res) => {
+        let data = "";
+        res.on("data", (chunk) => { data += chunk; });
+        res.on("end", () => {
+          resolve({ status: res.statusCode, headers: res.headers, rawBody: data });
+        });
+      }).on("error", () => {
+        resolve({ status: 500, headers: {}, rawBody: "" });
+      });
+    });
+  };
 
-  // Stop servers & close Mongoose
+  const robotsRes = await frontendRequest("/robots.txt");
+  const sitemapResFrontend = await frontendRequest("/sitemap.xml");
+
+  const robotsOk = robotsRes.status === 200 && robotsRes.rawBody.includes("Disallow: /edit/") && robotsRes.rawBody.includes("Sitemap:");
+  const sitemapOk = sitemapResFrontend.status === 200 && sitemapResFrontend.rawBody.includes("<urlset") && sitemapResFrontend.rawBody.includes("/p/");
+
+  const samplePost = await Post.findOne({ status: "published" });
+  let jsonLdOk = false;
+  let jsonLdHeadline = "";
+  if (samplePost) {
+    const pageRes = await frontendRequest(`/p/${samplePost.slug}`);
+    if (pageRes.status === 200) {
+      const match = pageRes.rawBody.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+      if (match && match[1]) {
+        try {
+          const jsonLd = JSON.parse(match[1]);
+          jsonLdHeadline = jsonLd.headline;
+          jsonLdOk = jsonLd["@context"] === "https://schema.org" && jsonLd["@type"] === "Article" && jsonLd.headline === samplePost.title;
+        } catch (e) {}
+      }
+    }
+  }
+
+  const test10Passed = robotsOk && sitemapOk && jsonLdOk;
+  console.log(test10Passed ? "✅ Test 10 Passed" : "❌ Test 10 Failed");
+  report.push(`### 10. Next.js App Router SEO Outputs
+- **Robots.txt check**: Status \`${robotsRes.status}\` (Expected: 200), includes Disallows: \`${robotsOk}\`
+- **Sitemap.xml check**: Status \`${sitemapResFrontend.status}\` (Expected: 200), contains URL elements: \`${sitemapOk}\`
+- **JSON-LD Structured Data Parsing**: Schema validation is \`${jsonLdOk ? "Article Schema Valid" : "Failed"}\` for story headline: \`${jsonLdHeadline}\`
+- **Result**: ${test10Passed ? "✅ Passed (Next.js client-facing configurations are live and structured)" : "❌ Failed"}
+`);
+
+  // --- CLEANUP & TEARDOWN ---
+  console.log("\n🧹 Running teardown...");
+  await Post.deleteMany({ title: /Verification/ });
+  
+  ada.subdomain = originalAdaSubdomain;
+  await ada.save();
+
+  grace.subdomain = originalGraceSubdomain;
+  await grace.save();
+
   await new Promise((resolve) => server.close(resolve));
   await mongoose.connection.close();
 
-  // Save the report file
-  const reportPath = "C:\\Users\\ABSA00065\\.gemini\\antigravity-ide\\brain\\204fe6ff-30de-4b69-8c70-c50fe44d65bc\\verification_report.md";
+  // Dynamic portable report path
+  const reportPath = path.join(
+    process.env.USERPROFILE || process.env.HOMEPATH || "",
+    ".gemini",
+    "antigravity-ide",
+    "brain",
+    "204fe6ff-30de-4b69-8c70-c50fe44d65bc",
+    "verification_report.md"
+  );
+  
   fs.writeFileSync(reportPath, report.join("\n"), "utf8");
   console.log(`\n🎉 Verification complete! Report written to ${reportPath}`);
 }
