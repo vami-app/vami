@@ -598,9 +598,12 @@ All validation is done via `express-validator` before controllers run.
 - `loginRules`: email (valid), password (not empty)
 
 #### Post validators
-- `createPostRules`: title (required, max 160), subtitle (optional, max 200), contentHtml (string), tags (array max 5), status (draft|published)
+- `createPostRules`: title (required, max 160), subtitle (optional, max 200), contentHtml (optional, string), tags (optional, array max 5), status (optional, draft|published), seo.metaTitle (optional, max 160), seo.metaDescription (optional, max 200)
 - `updatePostRules`: all optional variants of above
 - `commentRules`: content (required, max 2000)
+
+#### User validators
+- `updateSubdomainRules`: subdomain (required, 3-30 chars, lowercase letters, numbers, and hyphens `[a-z0-9-]`, unique subdomain check, reserved blacklist check, username collision check)
 
 ---
 
@@ -628,6 +631,12 @@ All validation is done via `express-validator` before controllers run.
 #### `server/src/scripts/reset_export_limit.js` — run with `node src/scripts/reset_export_limit.js`
 1. Connects to database.
 2. Resets the rate limit throttle for account exports across all users to allow repeat testing.
+
+#### `server/src/scripts/run_evidence_verification.js` — run with `node src/scripts/run_evidence_verification.js`
+1. Connects to database.
+2. Runs 10 comprehensive verification tests covering authenticated flows, indexing invariants, canonical URL immutability, subdomain rules (including reserved list and username collisions), draft interaction gates, RSS syndication feeds, and dynamic sitemaps.
+3. Automatically triggers Next.js frontend fetches (for robots.txt and sitemap.xml) and parses structural JSON-LD metadata for crawlers.
+4. Performs a complete ZIP archive extraction to verify file counts and translations.
 
 ---
 
@@ -1039,7 +1048,7 @@ Health
 | Unauthorized file types     | Multer `fileFilter` rejects non-image MIME types; 5MB size limit.              |
 | ObjectId injection          | `mongoose.isValidObjectId()` check before using IDs; CastError → 400.        |
 | Export data scraping        | Rate-limiting on export requests (1 request / 24 hours), own account only.    |
-| Subdomain claims hijacking  | Reserved subdomain checks against blacklist, uniqueness index constraints.     |
+| Subdomain claims hijacking  | Reserved subdomain checks against blacklist, uniqueness index constraints, username collision checks.     |
 
 ---
 
