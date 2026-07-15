@@ -92,7 +92,7 @@ const getPost = asyncHandler(async (req, res) => {
   if (!post) throw new ApiError(404, "Story not found");
 
   const viewerId = req.user ? req.user._id : null;
-  const isAuthor = viewerId && String(post.author._id) === String(viewerId);
+  const isAuthor = viewerId && post.author && String(post.author._id || post.author) === String(viewerId);
 
   // Drafts are visible only to their author
   if (post.status === "draft" && !isAuthor) {
@@ -122,7 +122,7 @@ const getPost = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const createPost = asyncHandler(async (req, res) => {
-  const { title, subtitle, contentHtml, coverImage, tags, status } = req.body;
+  const { title, subtitle, contentHtml, coverImage, tags, status, seo } = req.body;
 
   const post = new Post({
     title,
@@ -133,6 +133,10 @@ const createPost = asyncHandler(async (req, res) => {
     tags: normalizeTags(tags),
     author: req.user._id,
     status: status === "published" ? "published" : "draft",
+    seo: {
+      metaTitle: (seo && seo.metaTitle) ? String(seo.metaTitle).trim().slice(0, 160) : undefined,
+      metaDescription: (seo && seo.metaDescription) ? String(seo.metaDescription).trim().slice(0, 200) : undefined,
+    }
   });
   if (post.status === "published") post.publishedAt = new Date();
 
@@ -152,7 +156,7 @@ const updatePost = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You can only edit your own stories");
   }
 
-  const { title, subtitle, contentHtml, coverImage, tags, status } = req.body;
+  const { title, subtitle, contentHtml, coverImage, tags, status, seo } = req.body;
 
   if (title !== undefined) post.title = title;
   if (subtitle !== undefined) post.subtitle = subtitle;
@@ -163,6 +167,14 @@ const updatePost = asyncHandler(async (req, res) => {
   if (status !== undefined && status !== post.status) {
     post.status = status;
     if (status === "published" && !post.publishedAt) post.publishedAt = new Date();
+  }
+
+  if (seo !== undefined) {
+    post.seo = {
+      metaTitle: seo.metaTitle !== undefined ? String(seo.metaTitle).trim().slice(0, 160) : (post.seo ? post.seo.metaTitle : undefined),
+      metaDescription: seo.metaDescription !== undefined ? String(seo.metaDescription).trim().slice(0, 200) : (post.seo ? post.seo.metaDescription : undefined),
+      canonicalUrl: post.seo ? post.seo.canonicalUrl : undefined
+    };
   }
 
   await post.save();

@@ -1,0 +1,36 @@
+"use strict";
+
+const { body } = require("express-validator");
+const User = require("../models/User");
+
+const RESERVED_SUBDOMAINS = [
+  "www", "api", "admin", "mail", "app", "blog", "static",
+  "cdn", "assets", "help", "support", "status", "dev", "staging"
+];
+
+const updateSubdomainRules = [
+  body("subdomain")
+    .trim()
+    .toLowerCase()
+    .notEmpty()
+    .withMessage("Subdomain name is required")
+    .isLength({ min: 3, max: 30 })
+    .withMessage("Subdomain must be 3–30 characters")
+    .matches(/^[a-z0-9-]+$/)
+    .withMessage("Subdomain can only contain lowercase letters, numbers, and hyphens")
+    .custom((value) => {
+      if (RESERVED_SUBDOMAINS.includes(value)) {
+        throw new Error("That subdomain is reserved");
+      }
+      return true;
+    })
+    .custom(async (value, { req }) => {
+      const existing = await User.findOne({ subdomain: value, _id: { $ne: req.user._id } });
+      if (existing) {
+        throw new Error("That subdomain is already taken");
+      }
+      return true;
+    }),
+];
+
+module.exports = { updateSubdomainRules };

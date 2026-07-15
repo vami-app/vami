@@ -81,7 +81,9 @@ All five seeded users share the password `password123`.
 
 | Var | Default | Purpose |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:5000` | backend base URL |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:5000` | Backend API base URL |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | Frontend site URL (for canonical tags) |
+| `NEXT_PUBLIC_ENABLE_SUBDOMAINS` | `false` | Enable wildcard subdomain routing middleware |
 
 ---
 

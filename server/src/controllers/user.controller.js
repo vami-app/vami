@@ -162,25 +162,8 @@ const downloadExport = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const updateSubdomain = asyncHandler(async (req, res) => {
-  const subdomain = String(req.body.subdomain).toLowerCase().trim();
+  const subdomain = req.body.subdomain.toLowerCase().trim();
   const user = req.user;
-
-  if (!subdomain) {
-    throw new ApiError(400, "Subdomain name is required.");
-  }
-
-  if (!/^[a-z0-9-]+$/.test(subdomain)) {
-    throw new ApiError(400, "Subdomain can only contain lowercase letters, numbers, and hyphens.");
-  }
-
-  if (RESERVED_SUBDOMAINS.includes(subdomain)) {
-    throw new ApiError(400, "That subdomain is reserved.");
-  }
-
-  const existing = await User.findOne({ subdomain, _id: { $ne: user._id } });
-  if (existing) {
-    throw new ApiError(409, "That subdomain is already taken.");
-  }
 
   user.subdomain = subdomain;
   await user.save();

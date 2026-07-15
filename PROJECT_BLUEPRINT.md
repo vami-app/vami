@@ -1105,10 +1105,11 @@ Express: GET /api/users/me/export/download
 
 ### Client (`client/.env.local`)
 
-| Variable               | Default                  | Notes                           |
-|------------------------|--------------------------|---------------------------------|
-| `NEXT_PUBLIC_API_URL`  | `http://localhost:5000`  | Backend base URL                |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000`  | Frontend base URL               |
+| Variable                       | Default                  | Notes                           |
+|--------------------------------|--------------------------|---------------------------------|
+| `NEXT_PUBLIC_API_URL`          | `http://localhost:5000`  | Backend base URL                |
+| `NEXT_PUBLIC_SITE_URL`          | `http://localhost:3000`  | Frontend base URL               |
+| `NEXT_PUBLIC_ENABLE_SUBDOMAINS` | `false`                  | Enable wildcard subdomain routing middleware |
 
 ---
 

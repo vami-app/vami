@@ -6,6 +6,11 @@ const RESERVED_SUBDOMAINS = [
 ];
 
 export function middleware(req) {
+  const enableSubdomains = process.env.NEXT_PUBLIC_ENABLE_SUBDOMAINS === "true";
+  if (!enableSubdomains) {
+    return NextResponse.next();
+  }
+
   const url = req.nextUrl;
   const hostname = req.headers.get("host") || "";
 
