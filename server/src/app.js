@@ -21,9 +21,27 @@ const app = express();
 app.set("trust proxy", 1);
 
 // CORS — allow the Next.js client with credentials (cookies)
+const allowedOriginCheck = (origin, callback) => {
+  // Allow server-to-server or local script requests
+  if (!origin) return callback(null, true);
+  
+  // Exact match with configured URL
+  if (origin === env.clientUrl) return callback(null, true);
+  
+  // Allow localhost for dev
+  if (origin.startsWith("http://localhost:")) return callback(null, true);
+  
+  // Allow dynamic Vercel preview deployments (matching vami-client or inkwell)
+  if (origin.endsWith(".vercel.app") && (origin.includes("vami-client") || origin.includes("inkwell") || origin.includes("vami"))) {
+    return callback(null, true);
+  }
+  
+  callback(new Error("Not allowed by CORS"));
+};
+
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin: allowedOriginCheck,
     credentials: true,
   })
 );
