@@ -1037,14 +1037,14 @@ Health
 | Weak passwords              | Minimum 8 characters enforced via express-validator.                           |
 | Password cracking           | bcrypt with cost factor 12 (~250ms/hash — makes brute force impractical).     |
 | Token theft (XSS)           | All tokens live only in `httpOnly` cookies — inaccessible to JavaScript.      |
-| CSRF                        | `sameSite: lax` on cookies — protects state-changing cross-site requests.      |
+| CSRF                        | SameSite dynamic configuration: `lax` in local development to guard against CSRF, and `none` with forced `secure: true` in production (cross-site) to support secure cookie transfer across domains. |
 | Token replay after logout   | Logout clears cookies client-side. Stateless design (no server-side blacklist). |
 | Expired access tokens       | 15m TTL; client silently refreshes via `/api/auth/refresh` on 401.            |
 | Long-lived token abuse      | Refresh token expires in 7 days; rotation on each refresh call.               |
 | API abuse / DoS             | Rate limiting: 50/15m on auth, 1000/15m general.                              |
 | Unauthorized edits          | Author-only guards on PATCH/DELETE for posts and DELETE for comments.         |
 | Invalid input               | express-validator rules on all mutating endpoints + validate middleware.       |
-| CORS misconfiguration       | Origin locked to `CLIENT_URL`; `credentials: true`.                           |
+| CORS misconfiguration       | Origin checker validates local dev hosts, custom production domain, and wildcard Vercel preview domains (`*.vercel.app` matching `vami-client` or `vami` or `inkwell`); `credentials: true`. |
 | Unauthorized file types     | Multer `fileFilter` rejects non-image MIME types; 5MB size limit.              |
 | ObjectId injection          | `mongoose.isValidObjectId()` check before using IDs; CastError → 400.        |
 | Export data scraping        | Rate-limiting on export requests (1 request / 24 hours), own account only.    |

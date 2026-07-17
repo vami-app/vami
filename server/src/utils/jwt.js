@@ -57,10 +57,11 @@ const REFRESH_COOKIE_MAXAGE = 7 * 24 * 60 * 60 * 1000; // 7 days
  * @returns {import('express').CookieOptions}
  */
 function baseCookieOptions() {
+  const isProd = env.nodeEnv === "production";
   return {
     httpOnly: true,
-    secure: env.cookieSecure,
-    sameSite: "lax",
+    secure: isProd || env.cookieSecure,
+    sameSite: isProd ? "none" : "lax",
     path: "/",
   };
 }
