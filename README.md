@@ -147,6 +147,9 @@ inkwell/
 | `/bookmarks` | Saved stories |
 | `/terms` | Terms of Service |
 | `/privacy` | Privacy Policy |
+| `/admin` | Admin dashboard stats overview |
+| `/admin/users` | Admin user management (role/ban toggles) |
+| `/admin/reports` | Admin moderation reports queue |
 
 ### API endpoints
 
@@ -173,13 +176,29 @@ POST   /api/posts                      GET    /api/posts/tags/trending
 GET    /api/posts/:slug                POST   /api/posts/:slug/clap
 PATCH  /api/posts/:slug  (author)      POST   /api/posts/:slug/bookmark
 DELETE /api/posts/:slug  (author)      GET    /api/posts/:slug/comments
-                                        POST   /api/posts/:slug/comments
+                                       POST   /api/posts/:slug/comments
 DELETE /api/comments/:id  (author)
+
+Post Revisions
+GET    /api/posts/:slug/revisions
+GET    /api/posts/:slug/revisions/:revisionId
+POST   /api/posts/:slug/revisions/:revisionId/restore
+
+Reports
+POST   /api/reports
+
+Admin Tools
+GET    /api/admin/stats                PATCH  /api/admin/posts/:id/unhide
+GET    /api/admin/reports              PATCH  /api/admin/comments/:id/unhide
+PATCH  /api/admin/reports/:id          GET    /api/admin/users
+PATCH  /api/admin/users/:id/role       PATCH  /api/admin/users/:id/ban
+                                       PATCH  /api/admin/users/:id/unban
 
 Feeds + Uploads
 GET    /api/feed/rss                   POST   /api/uploads/image
 GET    /api/feed/user/:username/rss    GET    /api/health
 GET    /api/feed/tag/:tag/rss
+
 ```
 
 
@@ -199,7 +218,8 @@ GET    /api/feed/tag/:tag/rss
 - **Password-reset:** forgot-password flow uses a cryptographically random token, SHA-256 hashed
   before storage, 30-minute TTL, enumeration-safe (same response whether email exists or not).
 - **Account deletion:** two-step flow — confirmation email sent first, then `DELETE /api/users/me`
-  with token. Full cascade: posts, comments, bookmarks, follows, claps, avatar file.
+  with token. Full 13-step cascade: post revisions, reports (own & targeted), comments on own posts, own comments (soft/hard deleted based on replies), posts, bookmarks, follows, claps, avatar file. AuditLog logs are preserved.
+- **Immediate Ban Check:** Banned users are immediately blocked (403) from accessing all authenticated routes on their very next request.
 - **Unsubscribe:** all marketing/notification emails carry a CAN-SPAM-compliant one-click
   unsubscribe link. Security emails (reset, delete confirmation) are never suppressible.
 
@@ -216,7 +236,7 @@ GET    /api/feed/tag/:tag/rss
   `@ada` string and strips the leading `@` (static routes like `/search`, `/p` take precedence).
 - Password-reset email is supported via Mailtrap sandbox or Resend API, falling back to console logging in local development.
 
-## Current status — Phase A complete
+## Current status — Phase B complete
 
 **MVP core** (auth, posts, comments, claps, bookmarks, follow, search, RSS, SEO, export) — Done.
 
@@ -231,7 +251,14 @@ GET    /api/feed/tag/:tag/rss
 - `Follow` model — attributed follow history powering sovereign export
 - Sovereign export upgraded — `followers.json` with `followedAt` + `sourcePost`
 
-**Phases B–G** are planned. See `INKWELL_FULL_PRODUCT_ROADMAP.md` for the full breakdown.
+**Phase B (Safety & Integrity)** — Done:
+- Moderation Queue & Report APIs — POST report, 3x priority auto-flagging, admin resolution (dismiss/action), RSS/Weekly-digest/Feed filter, AuditLog
+- Admin Dashboard UI — stats overview, user role/ban control, report list queue
+- Post Edit Revision History — 50-limit snapshot database compare on update, diff render slideover panel, content restore
+- Threaded Comments — 5-depth nesting clamp, recursive UI rendering, soft-delete branch preserving child replies
+- Account Deletion Cascade Overhaul — strict 13-step sequence
+
+**Phases C–G** are planned. See `INKWELL_FULL_PRODUCT_ROADMAP.md` for the full breakdown.
 
 ---
 
@@ -249,6 +276,13 @@ All items below were exercised against the running app (`pnpm dev`, client :3000
 - [x] Bookmark toggle persists and shows on `/bookmarks`
 - [x] `<script>alert(1)</script>` submitted in the editor does **not** execute on the story page
       (sanitized to inert text server-side; `javascript:` links stripped)
+- [x] Banned user is immediately blocked (403) from authenticated requests (verified via login and token lookup)
+- [x] Admin stats page, users table with role/ban controls, and reports queue show correct real-time data
+- [x] 3x user reports auto-elevate a post to high-priority inside the queue
+- [x] Resolving report as actioned hides content, writes AuditLog, and excludes post from feeds (sitemaps, feeds, digests)
+- [x] Post edits trigger snapshots under revisions, showing word-level LCS diffs and allowing full restores
+- [x] Comment replying depth clamps to 5; deleting a parent comment with replies converts it to soft-deleted placeholder
+- [x] Cascade account deletion clears reports, post revisions, comments (soft/hard deleted), bookmarks, follows, and claps
 - [x] No horizontal scroll / broken layout at 320 / 375 / 768 / 1024 / 1440 / 1920px
 - [x] Production build (`pnpm --filter client build`) compiles all routes with no type/lint errors
 ```

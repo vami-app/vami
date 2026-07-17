@@ -395,6 +395,7 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `tags`           | [String]            | max 5, indexed                               |
 | `author`         | ObjectId â†’ User     | required, indexed                            |
 | `status`         | `"draft"` \| `"published"` | default `"draft"`, indexed          |
+| `moderationStatus` | `"visible"` \| `"hidden"` | default `"visible"`, indexed        |
 | `claps`          | [clapSchema]        | embedded `{ user, count (0â€“50) }` subdocs    |
 | `totalClaps`     | Number              | denormalized sum                             |
 | `views`          | Number              | incremented on published reads (non-author)  |
@@ -402,25 +403,29 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `publishedAt`    | Date                | set on first publish                         |
 | `notifiedAt`     | Date                | default `null`, set when followers are notified of publication |
 | `seo`            | subdocument         | contains optional override metadata (`metaTitle`, `metaDescription`, `canonicalUrl`) |
-| `indexable`      | Boolean             | default `false`, sets to `true` on publish   |
+| `indexable`      | Boolean             | default `false`, sets to `true` on publish (unless moderated hidden)   |
 
 **Indexes:**
 - Full-text: `{ title: 'text', subtitle: 'text', tags: 'text' }` â€” powers `?q=` search.
 - Compound: `{ status: 1, publishedAt: -1 }` â€” powers feed sort.
 
 **Hooks & methods:**
-- `pre('save')` â€” recomputes `readTimeMinutes` when `contentHtml` changes, forces `indexable = true` and generates the unique `canonicalUrl` based on site env values on the first published save. Reverts `indexable` to `false` if post status flips back to draft.
+- `pre('save')` â€” recomputes `readTimeMinutes` when `contentHtml` changes, forces `indexable = true` (unless moderationStatus is hidden) and generates the unique `canonicalUrl` based on site env values on the first published save. Reverts `indexable` to `false` if post status flips back to draft.
 - `toCardJSON(viewerId)` â€” feed-safe response shape including viewer-specific clap count, indexable state, and custom SEO configurations.
 
 ---
 
 #### `Comment` model â€” `server/src/models/Comment.js`
 
-| Field     | Type            | Constraints                |
-|-----------|-----------------|----------------------------|
-| `post`    | ObjectId â†’ Post | required, indexed          |
-| `author`  | ObjectId â†’ User | required                   |
-| `content` | String          | required, maxlength 2000   |
+| Field                  | Type            | Constraints                |
+|------------------------|-----------------|----------------------------|
+| `post`                 | ObjectId â†’ Post | required, indexed          |
+| `author`               | ObjectId â†’ User | required                   |
+| `content`              | String          | required, maxlength 2000   |
+| `parentComment`        | ObjectId â†’ Comment | nullable, default `null`, indexed |
+| `depth`                | Number          | default `0`, max clamped at `5` |
+| `deletedButHasReplies` | Boolean          | default `false`            |
+| `moderationStatus`     | `"visible"` \| `"hidden"` | default `"visible"`, indexed |
 
 ---
 
@@ -438,7 +443,50 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 
 ---
 
-### 5.4 Middleware Chain
+#### `Report` model â€” `server/src/models/Report.js`
+
+| Field | Type | Constraints / Notes |
+|---|---|---|
+| `reporter` | ObjectId â†’ User | required, indexed |
+| `targetType` | `"post"` \| `"comment"` | required |
+| `targetId` | ObjectId | required, index |
+| `reason` | `"spam"` \| `"harassment"` \| `"misinformation"` \| `"other"` | required |
+| `details` | String | optional, max 1000 |
+| `priorityFlag` | Boolean | default `false`, set `true` automatically on 3+ reports on same target |
+| `status` | `"pending"` \| `"actioned"` \| `"dismissed"` | default `"pending"`, indexed |
+
+**Indexes:**
+- Compound: `{ reporter: 1, targetType: 1, targetId: 1 }` (unique to prevent duplicate reporting)
+
+---
+
+#### `AuditLog` model â€” `server/src/models/AuditLog.js`
+
+| Field | Type | Constraints / Notes |
+|---|---|---|
+| `action` | String | enum: `post_hidden`, `post_unhidden`, `comment_hidden`, `comment_unhidden`, `user_banned`, `user_unbanned`, `role_changed`, `report_dismissed`, `report_actioned` |
+| `actor` | ObjectId â†’ User | required, index |
+| `targetType` | `"post"` \| `"comment"` \| `"user"` \| `"report"` | required |
+| `targetId` | ObjectId | required, index |
+| `metadata` | Mixed | optional |
+
+---
+
+#### `PostRevision` model â€” `server/src/models/PostRevision.js`
+
+| Field | Type | Constraints / Notes |
+|---|---|---|
+| `post` | ObjectId â†’ Post | required, index |
+| `editedBy` | ObjectId â†’ User | required |
+| `title` | String | required |
+| `subtitle` | String | optional |
+| `contentHtml` | String | required |
+| `tags` | [String] | optional |
+| `coverImage` | String | optional |
+
+---
+
+## 5.4 Middleware Chain
 
 The request flows through:
 

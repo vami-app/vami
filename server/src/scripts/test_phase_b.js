@@ -320,6 +320,11 @@ async function runTests() {
     }
     console.log("✅ Post hidden and indexable flipped to false successfully.");
 
+    // Verify AuditLog creation
+    const log = await AuditLog.findOne({ action: "post_hidden", targetId: postId });
+    if (!log) throw new Error("AuditLog not created for post_hidden action.");
+    console.log("✅ AuditLog verification passed.");
+
     // Other pending reports on this post should be auto-marked as "actioned" too
     const pendingReportsCount = await Report.countDocuments({ targetId: postId, status: "pending" });
     if (pendingReportsCount !== 0) throw new Error("Sibling reports were not resolved automatically.");
@@ -375,6 +380,14 @@ async function runTests() {
     }
     console.log("✅ Revisions list endpoint returns correct count.");
 
+    // Set notifiedAt and canonicalUrl before restore to check if they are preserved
+    const testNotifiedAt = new Date(Date.now() - 10000);
+    const testCanonicalUrl = "http://localhost:3000/canonical-test-url";
+    await Post.updateOne(
+      { _id: postId },
+      { notifiedAt: testNotifiedAt, "seo.canonicalUrl": testCanonicalUrl, indexable: true }
+    );
+
     // Restore Revision 1
     const oldestRevId = revs[1]._id; // The first revision (holding original title)
     const restoreRes = await makeRequest(`/api/posts/${postSlug}/revisions/${oldestRevId}/restore`, "POST", null, user2Cookie);
@@ -384,7 +397,16 @@ async function runTests() {
     if (restoredPost.title !== "Violating Content Story") {
       throw new Error(`Restore did not overwrite title: ${restoredPost.title}`);
     }
-    console.log("✅ Restore successfully reverted post title to original.");
+    if (restoredPost.indexable !== true) {
+      throw new Error(`Restore reset indexable to false!`);
+    }
+    if (!restoredPost.seo || restoredPost.seo.canonicalUrl !== testCanonicalUrl) {
+      throw new Error(`Restore modified canonicalUrl! Expected ${testCanonicalUrl}, got ${restoredPost.seo?.canonicalUrl}`);
+    }
+    if (restoredPost.notifiedAt.getTime() !== testNotifiedAt.getTime()) {
+      throw new Error(`Restore modified notifiedAt!`);
+    }
+    console.log("✅ Restore successfully reverted post title to original, keeping notifiedAt, indexable, and canonicalUrl untouched.");
 
     // Restore should create an undo revision of pre-restored state ("Upgraded Title Story")
     const revsAfterRestore = await PostRevision.find({ post: postId }).sort({ createdAt: -1 });
