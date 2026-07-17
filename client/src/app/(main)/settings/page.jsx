@@ -12,6 +12,8 @@ function SettingsForm() {
   const { user, setUser } = useAuth();
   const [name, setName] = useState(user.name || "");
   const [bio, setBio] = useState(user.bio || "");
+  const [allEmails, setAllEmails] = useState(user.emailPrefs ? user.emailPrefs.allEmails : true);
+  const [digestFrequency, setDigestFrequency] = useState(user.emailPrefs ? user.emailPrefs.digestFrequency : "weekly");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +25,11 @@ function SettingsForm() {
     setMessage("");
     setError("");
     try {
-      const data = await api.patch("/api/users/me", { name, bio });
+      const data = await api.patch("/api/users/me", {
+        name,
+        bio,
+        emailPrefs: { allEmails, digestFrequency },
+      });
       setUser(data.user);
       setMessage("Profile saved.");
     } catch (err) {
@@ -80,7 +86,49 @@ function SettingsForm() {
           <p className="mt-1 text-right text-xs text-ink-faint">{bio.length}/200</p>
         </div>
 
-        <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-ink-soft">
+        {/* Email Preferences */}
+        <div className="border-t border-gray-200 pt-6 space-y-4">
+          <h2 className="text-lg font-medium text-ink">Email Preferences</h2>
+          
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={allEmails}
+              onChange={(e) => {
+                setAllEmails(e.target.checked);
+                if (!e.target.checked) {
+                  setDigestFrequency("off");
+                } else {
+                  setDigestFrequency("weekly");
+                }
+              }}
+              className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+            />
+            <div>
+              <span className="text-sm font-medium text-ink">Receive notifications and story updates</span>
+              <p className="text-xs text-ink-faint">Get emails when authors you follow publish new stories.</p>
+            </div>
+          </label>
+
+          <div className={`pl-7 transition-opacity ${allEmails ? "opacity-100" : "opacity-50 pointer-events-none"}`}>
+            <label className="block text-sm font-medium text-ink mb-1">Digest Frequency</label>
+            <select
+              value={digestFrequency}
+              disabled={!allEmails}
+              onChange={(e) => setDigestFrequency(e.target.value)}
+              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500"
+            >
+              <option value="weekly">Weekly digest of top stories</option>
+              <option value="off">No digest (notifications only)</option>
+            </select>
+          </div>
+          
+          <p className="text-xs text-ink-faint italic">
+            You'll still receive account security and password reset emails even if other notifications are turned off.
+          </p>
+        </div>
+
+        <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-ink-soft border-t border-gray-200">
           <p><strong>Username:</strong> @{user.username}</p>
           <p><strong>Email:</strong> {user.email}</p>
         </div>

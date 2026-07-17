@@ -5,6 +5,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess, ApiError } = require("../utils/apiResponse");
 const { makeSlug } = require("../utils/slugify");
 const { sanitizeContent } = require("../utils/sanitize");
+const { notifyFollowersOfNewPost } = require("../utils/notify");
 const Post = require("../models/Post");
 const User = require("../models/User");
 
@@ -124,6 +125,10 @@ const getPost = asyncHandler(async (req, res) => {
 const createPost = asyncHandler(async (req, res) => {
   const { title, subtitle, contentHtml, coverImage, tags, status, seo } = req.body;
 
+  if (status === "published" && !req.user.emailVerified) {
+    throw new ApiError(403, "Please verify your email address before publishing stories.");
+  }
+
   const post = new Post({
     title,
     subtitle: subtitle || "",
@@ -142,6 +147,13 @@ const createPost = asyncHandler(async (req, res) => {
 
   await post.save();
   await post.populate("author", AUTHOR_FIELDS);
+
+  if (post.status === "published" && !post.notifiedAt) {
+    post.notifiedAt = new Date();
+    await Post.updateOne({ _id: post._id }, { notifiedAt: post.notifiedAt });
+    notifyFollowersOfNewPost(post).catch((err) => console.error("Notification failed:", err));
+  }
+
   return sendSuccess(res, 201, { post: post.toCardJSON(req.user._id) }, "Story saved");
 });
 
@@ -164,6 +176,10 @@ const updatePost = asyncHandler(async (req, res) => {
   if (coverImage !== undefined) post.coverImage = coverImage;
   if (tags !== undefined) post.tags = normalizeTags(tags);
 
+  if (status === "published" && post.status !== "published" && !req.user.emailVerified) {
+    throw new ApiError(403, "Please verify your email address before publishing stories.");
+  }
+
   if (status !== undefined && status !== post.status) {
     post.status = status;
     if (status === "published" && !post.publishedAt) post.publishedAt = new Date();
@@ -179,6 +195,13 @@ const updatePost = asyncHandler(async (req, res) => {
 
   await post.save();
   await post.populate("author", AUTHOR_FIELDS);
+
+  if (post.status === "published" && !post.notifiedAt) {
+    post.notifiedAt = new Date();
+    await Post.updateOne({ _id: post._id }, { notifiedAt: post.notifiedAt });
+    notifyFollowersOfNewPost(post).catch((err) => console.error("Notification failed:", err));
+  }
+
   return sendSuccess(res, 200, { post: post.toCardJSON(req.user._id) }, "Story updated");
 });
 
@@ -308,6 +331,45 @@ const listSitemapData = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, { posts: formattedPosts });
 });
 
+/**
+ * POST /api/tags/:tag/follow — follow/unfollow a tag.
+ * @type {import('express').RequestHandler}
+ */
+const toggleTagFollow = asyncHandler(async (req, res) => {
+  const tag = req.params.tag.toLowerCase().trim();
+  if (!tag) throw new ApiError(400, "Tag parameter is required");
+
+  // Check if tag exists (is previously used in a published post)
+  const tagExists = await Post.findOne({ status: "published", tags: tag });
+  if (!tagExists) {
+    throw new ApiError(400, "That tag does not exist or has no published stories");
+  }
+
+  const user = req.user;
+  if (!user.followedTags) {
+    user.followedTags = [];
+  }
+
+  const idx = user.followedTags.indexOf(tag);
+  let followed;
+  if (idx >= 0) {
+    user.followedTags.splice(idx, 1);
+    followed = false;
+  } else {
+    user.followedTags.push(tag);
+    followed = true;
+  }
+
+  await user.save();
+
+  return sendSuccess(
+    res,
+    200,
+    { followed },
+    followed ? `Following tag #${tag}` : `Unfollowed tag #${tag}`
+  );
+});
+
 module.exports = {
   listPosts,
   getPost,
@@ -318,4 +380,5 @@ module.exports = {
   toggleBookmark,
   trendingTags,
   listSitemapData,
+  toggleTagFollow,
 };

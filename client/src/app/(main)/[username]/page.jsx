@@ -57,7 +57,16 @@ export default function ProfilePage({ params }) {
         <div className="flex items-center gap-4">
           <Avatar src={profile.avatarUrl} name={profile.name} size="xl" />
           <div>
-            <h1 className="font-serif text-2xl font-bold text-ink sm:text-3xl">{profile.name}</h1>
+            <h1 className="flex items-center gap-1.5 font-serif text-2xl font-bold text-ink sm:text-3xl">
+              {profile.name}
+              {profile.emailVerified && (
+                <span className="inline-flex items-center text-indigo-600" title="Verified Author">
+                  <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                    <path fillRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12c0 1.357-.6 2.573-1.549 3.397a4.49 4.49 0 01-1.307 3.498 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75c-1.357 0-2.573-.6-3.397-1.549a4.49 4.49 0 01-3.498-1.307 4.491 4.491 0 01-1.307-3.497A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.498 4.49 4.49 0 013.497-1.307zm7.147 6.452a.75.75 0 00-1.06-1.06l-4.25 4.25-2.25-2.25a.75.75 0 00-1.06 1.06l2.78 2.78a.75.75 0 001.06 0l4.78-4.78z" clipRule="evenodd" />
+                  </svg>
+                </span>
+              )}
+            </h1>
             <p className="text-ink-soft">@{profile.username}</p>
             <p className="mt-1 text-sm text-ink-soft">
               {formatCount(profile.followersCount)} followers · {formatCount(profile.postCount)} stories

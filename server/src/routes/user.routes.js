@@ -10,6 +10,8 @@ const {
   requestExport,
   downloadExport,
   updateSubdomain,
+  requestDeleteAccount,
+  deleteAccount,
 } = require("../controllers/user.controller");
 const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
 const { upload } = require("../middlewares/upload.middleware");
@@ -25,6 +27,8 @@ router.post("/me/avatar", requireAuth, upload.single("avatar"), uploadAvatar);
 router.post("/me/export/request", requireAuth, requestExport);
 router.get("/me/export/download", requireAuth, downloadExport);
 router.patch("/me/subdomain", requireAuth, updateSubdomainRules, validate, updateSubdomain);
+router.post("/me/delete-request", requireAuth, requestDeleteAccount);
+router.delete("/me", requireAuth, deleteAccount);
 
 router.get("/:username", optionalAuth, getProfile);
 router.post("/:username/follow", requireAuth, toggleFollow);

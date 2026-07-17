@@ -104,6 +104,7 @@ async function seed() {
       ...u,
       password: DEMO_PASSWORD,
       avatarUrl: `https://i.pravatar.cc/200?img=${(i + 1) * 7}`,
+      emailVerified: true,
     });
     users.push(user);
   }

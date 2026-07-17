@@ -9,6 +9,7 @@ const { execSync } = require("child_process");
 const app = require("../app");
 const User = require("../models/User");
 const Post = require("../models/Post");
+const Follow = require("../models/Follow");
 
 const TEST_PORT = 5001;
 const BASE_URL = `http://localhost:${TEST_PORT}`;
@@ -415,9 +416,208 @@ async function testSuite() {
 - **Result**: ${test10Passed ? "✅ Passed (Next.js client-facing configurations are live and structured)" : "❌ Failed"}
 `);
 
+  // --- TEST 11: Email Verification Gate for Publishing ---
+  console.log("🏃 Running Test 11: Email Verification Gate...");
+  // Register an unverified user
+  const unverifiedRegRes = await makeRequest("/api/auth/register", "POST", {
+    name: "Unverified Writer",
+    username: "unverifiedwriter",
+    email: "unverified@inkwell.dev",
+    password: "password123",
+  });
+  const unverifiedCookie = getCookies(unverifiedRegRes.headers);
+  
+  // Try to create a published story immediately -> should be blocked by 403
+  const blockedPubRes = await makeRequest("/api/posts", "POST", {
+    title: "Verification Gated Story",
+    contentHtml: "<p>Should be blocked</p>",
+    status: "published",
+  }, unverifiedCookie);
+  
+  const publishBlocked = blockedPubRes.status === 403;
+  
+  // Check that draft creation is NOT blocked
+  const draftOkRes = await makeRequest("/api/posts", "POST", {
+    title: "Verification Gated Story Draft",
+    contentHtml: "<p>Draft should be fine</p>",
+    status: "draft",
+  }, unverifiedCookie);
+  
+  const draftCreated = draftOkRes.status === 201;
+  const gatedDraftSlug = draftOkRes.body?.data?.post?.slug;
+  
+  // Try to update draft to published -> should be blocked by 403
+  const blockedUpdateRes = await makeRequest(`/api/posts/${gatedDraftSlug}`, "PATCH", {
+    status: "published"
+  }, unverifiedCookie);
+  
+  const updateBlocked = blockedUpdateRes.status === 403;
+  
+  const test11Passed = publishBlocked && draftCreated && updateBlocked;
+  console.log(test11Passed ? "✅ Test 11 Passed" : "❌ Test 11 Failed");
+  report.push(`### 11. Email Verification Gate
+- **Unverified Publish POST**: Status \`${blockedPubRes.status}\` (Expected: 403)
+- **Unverified Draft POST**: Status \`${draftOkRes.status}\` (Expected: 201)
+- **Unverified Publish PATCH**: Status \`${blockedUpdateRes.status}\` (Expected: 403)
+- **Result**: ${test11Passed ? "✅ Passed (Unverified accounts restricted from publishing)" : "❌ Failed"}
+`);
+
+  // --- TEST 12: Email Verification Activation Flow ---
+  console.log("🏃 Running Test 12: Email Verification Activation...");
+  // Find unverified user in DB to grab verification token hash (since it's emailed)
+  const unverifiedUser = await User.findOne({ username: "unverifiedwriter" }).select("+emailVerifyTokenHash");
+  
+  const crypto = require("crypto");
+  const testVerifyToken = crypto.randomBytes(32).toString("hex");
+  unverifiedUser.emailVerifyTokenHash = crypto.createHash("sha256").update(testVerifyToken).digest("hex");
+  unverifiedUser.emailVerifyExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+  await unverifiedUser.save();
+  
+  // Verify email
+  const verifyEmailRes = await makeRequest(`/api/auth/verify-email?token=${testVerifyToken}`, "GET");
+  const verifySuccess = verifyEmailRes.status === 200 && verifyEmailRes.body?.success === true;
+  
+  // Try to publish draft again with verified account -> should succeed!
+  const allowedPubRes = await makeRequest(`/api/posts/${gatedDraftSlug}`, "PATCH", {
+    status: "published"
+  }, unverifiedCookie);
+  
+  const publishAllowed = allowedPubRes.status === 200;
+  const test12Passed = verifySuccess && publishAllowed;
+  console.log(test12Passed ? "✅ Test 12 Passed" : "❌ Test 12 Failed");
+  report.push(`### 12. Email Verification Activation
+- **Verify Link GET**: Status \`${verifyEmailRes.status}\` (Expected: 200)
+- **Verified Publish PATCH**: Status \`${allowedPubRes.status}\` (Expected: 200)
+- **Result**: ${test12Passed ? "✅ Passed (Verification unlocks publishing functionality)" : "❌ Failed"}
+`);
+
+  // --- TEST 13: Unsubscribe & Preference Persistance ---
+  console.log("🏃 Running Test 13: Unsubscribe & Preference Persistance...");
+  const { signUnsubscribeToken } = require("../utils/unsubscribeToken");
+  const unsubToken = signUnsubscribeToken(String(unverifiedUser._id));
+  
+  // Request unsubscribe
+  const unsubRes = await makeRequest(`/api/auth/unsubscribe?token=${unsubToken}`, "GET");
+  const unsubSuccess = unsubRes.status === 200 && unsubRes.rawBody.includes("You've been unsubscribed");
+  
+  // Re-fetch user in DB to verify preferences
+  const unsubUserDb = await User.findById(unverifiedUser._id);
+  const prefsOptedOut = unsubUserDb.emailPrefs?.allEmails === false;
+  
+  const test13Passed = unsubSuccess && prefsOptedOut;
+  console.log(test13Passed ? "✅ Test 13 Passed" : "❌ Test 13 Failed");
+  report.push(`### 13. One-Click Unsubscribe Preference
+- **Unsubscribe Link GET**: Status \`${unsubRes.status}\` (Expected: 200)
+- **Database emailPrefs.allEmails**: \`${unsubUserDb.emailPrefs?.allEmails}\` (Expected: false)
+- **Result**: ${test13Passed ? "✅ Passed (One-click unsubscribe updates preferences securely)" : "❌ Failed"}
+`);
+
+  // --- TEST 14: Sovereign Export Followers JSON ---
+  console.log("🏃 Running Test 14: Sovereign Export Followers JSON...");
+  // Make Ada follow Leo (since Ada does not follow Leo in seed data)
+  await makeRequest("/api/users/leo/follow", "POST", null, adaCookie);
+  
+  // Login as Leo to request his export
+  const leoLogin = await makeRequest("/api/auth/login", "POST", { email: "leo@inkwell.dev", password: "password123" });
+  const leoCookie = getCookies(leoLogin.headers);
+
+  // Trigger Leo's export request
+  const graceExportReq = await makeRequest("/api/users/me/export/request", "POST", null, leoCookie);
+  const graceExportDownload = await makeRequest("/api/users/me/export/download", "GET", null, leoCookie);
+  
+  let followersJsonOk = false;
+  if (graceExportDownload.status === 200 && graceExportDownload.buffer) {
+    const tempZipPath = path.join(__dirname, "temp-leo-export.zip");
+    const tempDestPath = path.join(__dirname, "temp-leo-extracted");
+    fs.writeFileSync(tempZipPath, graceExportDownload.buffer);
+    try {
+      if (fs.existsSync(tempDestPath)) fs.rmSync(tempDestPath, { recursive: true, force: true });
+      fs.mkdirSync(tempDestPath);
+      execSync(`powershell -Command "Expand-Archive -Force -Path '${tempZipPath}' -DestinationPath '${tempDestPath}'"`);
+      
+      const followersPath = path.join(tempDestPath, "followers.json");
+      if (fs.existsSync(followersPath)) {
+        const followers = JSON.parse(fs.readFileSync(followersPath, "utf8"));
+        const adaFollower = followers.find(f => f.email === "ada@inkwell.dev");
+        followersJsonOk = adaFollower && adaFollower.name === "Ada Lovelace";
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      if (fs.existsSync(tempZipPath)) fs.unlinkSync(tempZipPath);
+      if (fs.existsSync(tempDestPath)) fs.rmSync(tempDestPath, { recursive: true, force: true });
+    }
+  }
+  
+  const test14Passed = followersJsonOk;
+  console.log(test14Passed ? "✅ Test 14 Passed" : "❌ Test 14 Failed");
+  report.push(`### 14. Sovereign Export Followers Metadata
+- **Followers JSON Verification**: \`${followersJsonOk ? "Followers index exported correctly" : "Failed"}\`
+- **Result**: ${test14Passed ? "✅ Passed (Follower data exported in followers.json correctly)" : "❌ Failed"}
+`);
+
+  // --- TEST 15: Account Deletion Cascade ---
+  console.log("🏃 Running Test 15: Account Deletion Cascade...");
+  // Create a second test user
+  const delUserReg = await makeRequest("/api/auth/register", "POST", {
+    name: "To Be Deleted",
+    username: "tobedeleted",
+    email: "deleteduser@inkwell.dev",
+    password: "password123",
+  });
+  const delUserCookie = getCookies(delUserReg.headers);
+  const delUserDb = await User.findOne({ username: "tobedeleted" });
+  
+  // Follow Ada
+  await makeRequest("/api/users/ada/follow", "POST", null, delUserCookie);
+  
+  // Create a post and comment on Ada's story
+  const sampleAdaPost = await Post.findOne({ author: ada._id });
+  await makeRequest(`/api/posts/${sampleAdaPost.slug}/comments`, "POST", {
+    content: "Comment to be deleted/anonymized",
+  }, delUserCookie);
+  
+  // Clap on Ada's story
+  await makeRequest(`/api/posts/${sampleAdaPost.slug}/clap`, "POST", { count: 10 }, delUserCookie);
+  
+  // Generate delete token
+  const { signDeleteToken } = require("../utils/unsubscribeToken");
+  const delToken = signDeleteToken(String(delUserDb._id));
+  
+  // Confirm deletion in "erase" mode, passing variables in query string for full compatibility
+  const deleteRes = await makeRequest(`/api/users/me?token=${delToken}&mode=erase`, "DELETE", null, delUserCookie);
+  
+  // Verify erasure in DB
+  const userDeleted = (await User.findById(delUserDb._id)) === null;
+  const followCleaned = (await Follow.findOne({ follower: delUserDb._id })) === null;
+  
+  // Refresh Ada's post to verify comment/clap erasure
+  const updatedAdaPost = await Post.findById(sampleAdaPost._id).populate("claps.user");
+  const commentCleaned = (await mongoose.model("Comment").findOne({ author: delUserDb._id })) === null;
+  const clapCleaned = !updatedAdaPost.claps.some(c => String(c.user) === String(delUserDb._id));
+  
+  const test15Passed = deleteRes.status === 200 && userDeleted && followCleaned && commentCleaned && clapCleaned;
+  console.log(test15Passed ? "✅ Test 15 Passed" : "❌ Test 15 Failed");
+  report.push(`### 15. Account Deletion Cascade (Erasure)
+- **Delete Request DELETE**: Status \`${deleteRes.status}\` (Expected: 200)
+- **User Document Purged**: \`${userDeleted}\`
+- **Follow records Purged**: \`${followCleaned}\`
+- **Comments Purged**: \`${commentCleaned}\`
+- **Claps Purged**: \`${clapCleaned}\`
+- **Result**: ${test15Passed ? "✅ Passed (Account deletion cascade fully erases associated details)" : "❌ Failed"}
+`);
+
   // --- CLEANUP & TEARDOWN ---
   console.log("\n🧹 Running teardown...");
   await Post.deleteMany({ title: /Verification/ });
+  await User.deleteMany({ email: { $in: ["unverified@inkwell.dev", "deleteduser@inkwell.dev"] } });
+  await User.deleteMany({ username: "deleted" });
+  await Follow.deleteMany({
+    $or: [
+      { follower: { $in: [unverifiedUser ? unverifiedUser._id : null] } },
+      { followee: { $in: [unverifiedUser ? unverifiedUser._id : null] } }
+    ]
+  });
   
   ada.subdomain = originalAdaSubdomain;
   await ada.save();
@@ -434,7 +634,7 @@ async function testSuite() {
     ".gemini",
     "antigravity-ide",
     "brain",
-    "204fe6ff-30de-4b69-8c70-c50fe44d65bc",
+    "8665517a-2db9-4bfb-9311-f4252ec6e43d",
     "verification_report.md"
   );
   

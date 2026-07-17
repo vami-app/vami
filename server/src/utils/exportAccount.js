@@ -26,6 +26,19 @@ async function streamExport(res, user, posts) {
     name: "profile.json",
   });
 
+  // 1b. Add followers.json
+  const Follow = require("../models/Follow");
+  const follows = await Follow.find({ followee: user._id }).populate("follower");
+  const followersIndex = follows.map((f) => ({
+    name: f.follower ? f.follower.name : "Deleted User",
+    email: f.follower ? f.follower.email : "",
+    followedAt: f.followedAt,
+    sourcePost: f.sourcePost,
+  }));
+  archive.append(JSON.stringify(followersIndex, null, 2), {
+    name: "followers.json",
+  });
+
   // 2. Add posts-index.json
   const index = posts.map((p) => ({
     title: p.title,

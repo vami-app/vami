@@ -1,7 +1,7 @@
-# 🖋️ Inkwell — Project Blueprint
+﻿# ðŸ–‹ï¸ Inkwell â€” Project Blueprint
 
-> **Version:** 1.1.0 · **Stack:** Next.js 15 + Express + MongoDB · **Package Manager:** pnpm (v11)
-> A Medium-inspired publishing platform — read, write, and share stories. Optimized for SEO, subdomains, and data export portability.
+> **Version:** 1.1.0 Â· **Stack:** Next.js 15 + Express + MongoDB Â· **Package Manager:** pnpm (v11)
+> A Medium-inspired publishing platform â€” read, write, and share stories. Optimized for SEO, subdomains, and data export portability.
 
 ---
 
@@ -29,7 +29,7 @@
    - 6.6 [Custom Hooks](#66-custom-hooks)
    - 6.7 [Design System (Tailwind)](#67-design-system-tailwind)
 7. [Authentication & Subdomain Flow](#7-authentication--subdomain-flow)
-8. [Data Flow — End-to-End](#8-data-flow--end-to-end)
+8. [Data Flow â€” End-to-End](#8-data-flow--end-to-end)
 9. [API Reference](#9-api-reference)
 10. [Security Model](#10-security-model)
 11. [File Upload & Export Pipelines](#11-file-upload--export-pipelines)
@@ -50,7 +50,7 @@ JSON, and Markdown-rendered file exports.
 | Attribute       | Value                                          |
 |-----------------|------------------------------------------------|
 | Project name    | `inkwell`                                      |
-| Accent color    | Deep Indigo (`#4f46e5` — distinct from Medium) |
+| Accent color    | Deep Indigo (`#4f46e5` â€” distinct from Medium) |
 | Auth strategy   | JWT in httpOnly cookies (access + refresh)     |
 | Storage         | Local disk (MVP); upgrade path: Cloudinary     |
 | Database        | MongoDB (local or Atlas free M0)               |
@@ -61,129 +61,129 @@ JSON, and Markdown-rendered file exports.
 ## 2. Repository Layout (Monorepo)
 
 ```
-inkwell/                            ← pnpm workspace root
-│
-├── package.json                    ← Root scripts: dev, build, start, seed
-├── pnpm-workspace.yaml             ← Workspace: ["client", "server"]
-├── pnpm-lock.yaml                  ← Lockfile (pnpm v11)
-├── .npmrc                          ← pnpm settings
-├── .gitignore
-├── README.md
-├── PROJECT_BLUEPRINT.md            ← This document
-│
-├── client/                         ← Next.js 15 frontend (port 3000)
-│   ├── package.json
-│   ├── next.config.mjs             ← Image remote patterns, API URL
-│   ├── tailwind.config.js          ← Design tokens, typography plugin
-│   ├── postcss.config.mjs
-│   ├── jsconfig.json               ← Path alias: @/ → src/
-│   ├── .env.example / .env.local
-│   ├── public/
-│   │   └── google37b5f6fe1e66acb6.html ← Google Search Console site verification file
-│   └── src/
-│       ├── middleware.js           ← Subdomain rewrites (ada.inkwell.app → /@ada)
-│       ├── app/                    ← App Router root
-│       │   ├── layout.jsx          ← Root layout: fonts + AuthProvider
-│       │   ├── globals.css         ← Base CSS + Tailwind directives
-│       │   ├── sitemap.js          ← Dynamic sitemap.xml route generator
-│       │   ├── robots.js           ← Dynamic robots.txt route generator
-│       │   ├── (auth)/             ← Route group: no Navbar
-│       │   │   ├── layout.jsx      ← Centered logo header only
-│       │   │   ├── login/page.jsx
-│       │   │   └── register/page.jsx
-│       │   └── (main)/             ← Route group: Navbar + Footer
-│       │       ├── layout.jsx      ← Navbar + main + Footer wrapper
-│       │       ├── page.jsx        ← Home feed (/)
-│       │       ├── [username]/page.jsx    ← Profile (/@username)
-│       │       ├── bookmarks/page.jsx
-│       │       ├── edit/[slug]/page.jsx
-│       │       ├── new-story/page.jsx
-│       │       ├── p/[slug]/page.jsx      ← Server Component: dynamic metadata + JSON-LD
-│       │       │   └── StoryPageClient.jsx ← Client interactivity wrapper (claps, comments)
-│       │       ├── search/page.jsx
-│       │       ├── settings/page.jsx
-│       │       └── tag/[tag]/page.jsx
-│       ├── components/
-│       │   ├── editor/
-│       │   │   ├── StoryComposer.jsx     ← Full create/edit form
-│       │   │   └── StoryEditor.jsx       ← Tiptap WYSIWYG core
-│       │   ├── layout/
-│       │   │   ├── Navbar.jsx            ← Sticky header, search, avatar menu
-│       │   │   ├── Footer.jsx
-│       │   │   ├── Logo.jsx
-│       │   │   ├── MobileDrawer.jsx      ← Hamburger nav overlay
-│       │   │   └── RequireAuth.jsx       ← Auth gate wrapper
-│       │   ├── post/
-│       │   │   ├── PostCard.jsx          ← Feed card
-│       │   │   ├── PostList.jsx          ← Infinite-scroll list
-│       │   │   ├── ClapButton.jsx        ← Multi-clap + optimistic update
-│       │   │   ├── BookmarkButton.jsx    ← Toggle bookmark
-│       │   │   ├── CommentSection.jsx    ← Comments list + form
-│       │   │   └── TrendingTags.jsx      ← Sidebar tag cloud
-│       │   ├── profile/
-│       │   │   └── FollowButton.jsx      ← Toggle follow/unfollow
-│       │   └── ui/
-│       │       ├── Avatar.jsx            ← Image + initials fallback
-│       │       ├── Button.jsx            ← Variants: default, secondary, ghost, danger
-│       │       ├── Input.jsx             ← Styled form input
-│       │       └── Skeleton.jsx          ← Loading placeholder
-│       ├── context/
-│       │   └── AuthContext.jsx           ← Global auth state + actions
-77:       ├── hooks/
-│       │   └── useInfiniteScroll.js      ← IntersectionObserver sentinel
-│       └── lib/
-│           ├── api.js                    ← Fetch wrapper + token refresh
-│           └── utils.js                  ← formatDate, formatCount, cx, initials
-│
-└── server/                         ← Express API (port 5000)
-    ├── package.json
-    ├── nodemon.json                 ← Watch: src/**/*.js
-    ├── .env.example / .env
-    ├── uploads/                     ← Local image storage (gitignored)
-    └── src/
-        ├── server.js                ← Bootstrap: DB connect → listen
-        ├── app.js                   ← Express app: CORS, body parsers, routes
-        ├── config/
-        │   ├── env.js               ← Validated env object
-        │   └── db.js                ← Mongoose connect
-        ├── models/
-        │   ├── User.js              ← Schema + export, subdomain, bookmarks
-        │   ├── Post.js              ← Schema + seo fields, indexable, pre-save hooks
-        │   └── Comment.js           ← Schema
-        ├── controllers/
-        │   ├── auth.controller.js   ← register, login, logout, refresh, me
-        │   ├── post.controller.js   ← CRUD + sitemap-data, clap, bookmark, trendingTags
-        │   ├── user.controller.js   ← profile, updateMe, uploadAvatar, follow, bookmarks, export
-        │   └── comment.controller.js← list, add, delete
-        ├── routes/
-        │   ├── auth.routes.js
-        │   ├── post.routes.js
-        │   ├── user.routes.js
-        │   ├── comment.routes.js
-        │   ├── upload.routes.js
-        │   └── feed.routes.js       ← RSS feeds routes (global, author, tag)
-        ├── middlewares/
-        │   ├── auth.middleware.js   ← requireAuth / optionalAuth
-        │   ├── error.middleware.js  ← notFound + centralized errorHandler
-        │   ├── rateLimiter.js       ← authLimiter (50/15m), generalLimiter (1000/15m)
-        │   ├── upload.middleware.js ← Multer: disk storage, 5MB limit, image-only
-        │   └── validate.js          ← express-validator result handler
-        ├── utils/
-        │   ├── jwt.js               ← sign/verify tokens + cookie helpers
-        │   ├── apiResponse.js       ← sendSuccess() + ApiError class
-        │   ├── asyncHandler.js      ← try/catch wrapper for async controllers
-        │   ├── slugify.js           ← baseSlug() + makeSlug() (unique suffix)
-        │   ├── sanitize.js          ← sanitize-html: strips XSS from editor HTML
-        │   ├── readTime.js          ← estimateReadTime() at 200 WPM
-        │   ├── rss.js               ← RSS feed builder utilizing 'feed' library
-        │   └── exportAccount.js     ← ZIP stream export using 'archiver' + 'turndown'
-        ├── validators/
-        │   ├── auth.validator.js    ← registerRules, loginRules
-        │   └── post.validator.js    ← createPostRules, updatePostRules, commentRules
-        └── scripts/
-            ├── seed.js              ← Demo data: 5 users, 15 posts, comments, follows, claps
-            ├── test_seo_spec.js     ← Verification script for user/post model schemas
-            └── reset_export_limit.js ← Utility script to reset export limits for developer testing
+inkwell/                            â† pnpm workspace root
+â”‚
+â”œâ”€â”€ package.json                    â† Root scripts: dev, build, start, seed
+â”œâ”€â”€ pnpm-workspace.yaml             â† Workspace: ["client", "server"]
+â”œâ”€â”€ pnpm-lock.yaml                  â† Lockfile (pnpm v11)
+â”œâ”€â”€ .npmrc                          â† pnpm settings
+â”œâ”€â”€ .gitignore
+â”œâ”€â”€ README.md
+â”œâ”€â”€ PROJECT_BLUEPRINT.md            â† This document
+â”‚
+â”œâ”€â”€ client/                         â† Next.js 15 frontend (port 3000)
+â”‚   â”œâ”€â”€ package.json
+â”‚   â”œâ”€â”€ next.config.mjs             â† Image remote patterns, API URL
+â”‚   â”œâ”€â”€ tailwind.config.js          â† Design tokens, typography plugin
+â”‚   â”œâ”€â”€ postcss.config.mjs
+â”‚   â”œâ”€â”€ jsconfig.json               â† Path alias: @/ â†’ src/
+â”‚   â”œâ”€â”€ .env.example / .env.local
+â”‚   â”œâ”€â”€ public/
+â”‚   â”‚   â””â”€â”€ google37b5f6fe1e66acb6.html â† Google Search Console site verification file
+â”‚   â””â”€â”€ src/
+â”‚       â”œâ”€â”€ middleware.js           â† Subdomain rewrites (ada.inkwell.app â†’ /@ada)
+â”‚       â”œâ”€â”€ app/                    â† App Router root
+â”‚       â”‚   â”œâ”€â”€ layout.jsx          â† Root layout: fonts + AuthProvider
+â”‚       â”‚   â”œâ”€â”€ globals.css         â† Base CSS + Tailwind directives
+â”‚       â”‚   â”œâ”€â”€ sitemap.js          â† Dynamic sitemap.xml route generator
+â”‚       â”‚   â”œâ”€â”€ robots.js           â† Dynamic robots.txt route generator
+â”‚       â”‚   â”œâ”€â”€ (auth)/             â† Route group: no Navbar
+â”‚       â”‚   â”‚   â”œâ”€â”€ layout.jsx      â† Centered logo header only
+â”‚       â”‚   â”‚   â”œâ”€â”€ login/page.jsx
+â”‚       â”‚   â”‚   â””â”€â”€ register/page.jsx
+â”‚       â”‚   â””â”€â”€ (main)/             â† Route group: Navbar + Footer
+â”‚       â”‚       â”œâ”€â”€ layout.jsx      â† Navbar + main + Footer wrapper
+â”‚       â”‚       â”œâ”€â”€ page.jsx        â† Home feed (/)
+â”‚       â”‚       â”œâ”€â”€ [username]/page.jsx    â† Profile (/@username)
+â”‚       â”‚       â”œâ”€â”€ bookmarks/page.jsx
+â”‚       â”‚       â”œâ”€â”€ edit/[slug]/page.jsx
+â”‚       â”‚       â”œâ”€â”€ new-story/page.jsx
+â”‚       â”‚       â”œâ”€â”€ p/[slug]/page.jsx      â† Server Component: dynamic metadata + JSON-LD
+â”‚       â”‚       â”‚   â””â”€â”€ StoryPageClient.jsx â† Client interactivity wrapper (claps, comments)
+â”‚       â”‚       â”œâ”€â”€ search/page.jsx
+â”‚       â”‚       â”œâ”€â”€ settings/page.jsx
+â”‚       â”‚       â””â”€â”€ tag/[tag]/page.jsx
+â”‚       â”œâ”€â”€ components/
+â”‚       â”‚   â”œâ”€â”€ editor/
+â”‚       â”‚   â”‚   â”œâ”€â”€ StoryComposer.jsx     â† Full create/edit form
+â”‚       â”‚   â”‚   â””â”€â”€ StoryEditor.jsx       â† Tiptap WYSIWYG core
+â”‚       â”‚   â”œâ”€â”€ layout/
+â”‚       â”‚   â”‚   â”œâ”€â”€ Navbar.jsx            â† Sticky header, search, avatar menu
+â”‚       â”‚   â”‚   â”œâ”€â”€ Footer.jsx
+â”‚       â”‚   â”‚   â”œâ”€â”€ Logo.jsx
+â”‚       â”‚   â”‚   â”œâ”€â”€ MobileDrawer.jsx      â† Hamburger nav overlay
+â”‚       â”‚   â”‚   â””â”€â”€ RequireAuth.jsx       â† Auth gate wrapper
+â”‚       â”‚   â”œâ”€â”€ post/
+â”‚       â”‚   â”‚   â”œâ”€â”€ PostCard.jsx          â† Feed card
+â”‚       â”‚   â”‚   â”œâ”€â”€ PostList.jsx          â† Infinite-scroll list
+â”‚       â”‚   â”‚   â”œâ”€â”€ ClapButton.jsx        â† Multi-clap + optimistic update
+â”‚       â”‚   â”‚   â”œâ”€â”€ BookmarkButton.jsx    â† Toggle bookmark
+â”‚       â”‚   â”‚   â”œâ”€â”€ CommentSection.jsx    â† Comments list + form
+â”‚       â”‚   â”‚   â””â”€â”€ TrendingTags.jsx      â† Sidebar tag cloud
+â”‚       â”‚   â”œâ”€â”€ profile/
+â”‚       â”‚   â”‚   â””â”€â”€ FollowButton.jsx      â† Toggle follow/unfollow
+â”‚       â”‚   â””â”€â”€ ui/
+â”‚       â”‚       â”œâ”€â”€ Avatar.jsx            â† Image + initials fallback
+â”‚       â”‚       â”œâ”€â”€ Button.jsx            â† Variants: default, secondary, ghost, danger
+â”‚       â”‚       â”œâ”€â”€ Input.jsx             â† Styled form input
+â”‚       â”‚       â””â”€â”€ Skeleton.jsx          â† Loading placeholder
+â”‚       â”œâ”€â”€ context/
+â”‚       â”‚   â””â”€â”€ AuthContext.jsx           â† Global auth state + actions
+77:       â”œâ”€â”€ hooks/
+â”‚       â”‚   â””â”€â”€ useInfiniteScroll.js      â† IntersectionObserver sentinel
+â”‚       â””â”€â”€ lib/
+â”‚           â”œâ”€â”€ api.js                    â† Fetch wrapper + token refresh
+â”‚           â””â”€â”€ utils.js                  â† formatDate, formatCount, cx, initials
+â”‚
+â””â”€â”€ server/                         â† Express API (port 5000)
+    â”œâ”€â”€ package.json
+    â”œâ”€â”€ nodemon.json                 â† Watch: src/**/*.js
+    â”œâ”€â”€ .env.example / .env
+    â”œâ”€â”€ uploads/                     â† Local image storage (gitignored)
+    â””â”€â”€ src/
+        â”œâ”€â”€ server.js                â† Bootstrap: DB connect â†’ listen
+        â”œâ”€â”€ app.js                   â† Express app: CORS, body parsers, routes
+        â”œâ”€â”€ config/
+        â”‚   â”œâ”€â”€ env.js               â† Validated env object
+        â”‚   â””â”€â”€ db.js                â† Mongoose connect
+        â”œâ”€â”€ models/
+        â”‚   â”œâ”€â”€ User.js              â† Schema + export, subdomain, bookmarks
+        â”‚   â”œâ”€â”€ Post.js              â† Schema + seo fields, indexable, pre-save hooks
+        â”‚   â””â”€â”€ Comment.js           â† Schema
+        â”œâ”€â”€ controllers/
+        â”‚   â”œâ”€â”€ auth.controller.js   â† register, login, logout, refresh, me
+        â”‚   â”œâ”€â”€ post.controller.js   â† CRUD + sitemap-data, clap, bookmark, trendingTags
+        â”‚   â”œâ”€â”€ user.controller.js   â† profile, updateMe, uploadAvatar, follow, bookmarks, export
+        â”‚   â””â”€â”€ comment.controller.jsâ† list, add, delete
+        â”œâ”€â”€ routes/
+        â”‚   â”œâ”€â”€ auth.routes.js
+        â”‚   â”œâ”€â”€ post.routes.js
+        â”‚   â”œâ”€â”€ user.routes.js
+        â”‚   â”œâ”€â”€ comment.routes.js
+        â”‚   â”œâ”€â”€ upload.routes.js
+        â”‚   â””â”€â”€ feed.routes.js       â† RSS feeds routes (global, author, tag)
+        â”œâ”€â”€ middlewares/
+        â”‚   â”œâ”€â”€ auth.middleware.js   â† requireAuth / optionalAuth
+        â”‚   â”œâ”€â”€ error.middleware.js  â† notFound + centralized errorHandler
+        â”‚   â”œâ”€â”€ rateLimiter.js       â† authLimiter (50/15m), generalLimiter (1000/15m)
+        â”‚   â”œâ”€â”€ upload.middleware.js â† Multer: disk storage, 5MB limit, image-only
+        â”‚   â””â”€â”€ validate.js          â† express-validator result handler
+        â”œâ”€â”€ utils/
+        â”‚   â”œâ”€â”€ jwt.js               â† sign/verify tokens + cookie helpers
+        â”‚   â”œâ”€â”€ apiResponse.js       â† sendSuccess() + ApiError class
+        â”‚   â”œâ”€â”€ asyncHandler.js      â† try/catch wrapper for async controllers
+        â”‚   â”œâ”€â”€ slugify.js           â† baseSlug() + makeSlug() (unique suffix)
+        â”‚   â”œâ”€â”€ sanitize.js          â† sanitize-html: strips XSS from editor HTML
+        â”‚   â”œâ”€â”€ readTime.js          â† estimateReadTime() at 200 WPM
+        â”‚   â”œâ”€â”€ rss.js               â† RSS feed builder utilizing 'feed' library
+        â”‚   â””â”€â”€ exportAccount.js     â† ZIP stream export using 'archiver' + 'turndown'
+        â”œâ”€â”€ validators/
+        â”‚   â”œâ”€â”€ auth.validator.js    â† registerRules, loginRules
+        â”‚   â””â”€â”€ post.validator.js    â† createPostRules, updatePostRules, commentRules
+        â””â”€â”€ scripts/
+            â”œâ”€â”€ seed.js              â† Demo data: 5 users, 15 posts, comments, follows, claps
+            â”œâ”€â”€ test_seo_spec.js     â† Verification script for user/post model schemas
+            â””â”€â”€ reset_export_limit.js â† Utility script to reset export limits for developer testing
 ```
 
 ---
@@ -220,7 +220,7 @@ inkwell/                            ← pnpm workspace root
 | Styling       | Tailwind CSS               | 3.4.x     | Utility-first CSS                         |
 | Typography    | @tailwindcss/typography    | 0.5.x     | Prose styles for article content          |
 | Rich editor   | Tiptap + extensions        | 2.10.x    | ProseMirror-based WYSIWYG                 |
-| Fonts         | Google Fonts via next/font | —         | Inter (sans), Source Serif 4 (serif)      |
+| Fonts         | Google Fonts via next/font | â€”         | Inter (sans), Source Serif 4 (serif)      |
 
 ### Tooling
 
@@ -235,66 +235,66 @@ inkwell/                            ← pnpm workspace root
 ## 4. Architecture Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         BROWSER (User)                              │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐   │
-│  │              Next.js 15 Client  (localhost:3000)             │   │
-│  │                                                              │   │
-│  │  ┌──────────────┐  ┌─────────────────┐  ┌───────────────┐   │   │
-│  │  │  AuthContext  │  │  Route Pages    │  │  middleware   │   │   │
-│  │  │  (React ctx) │  │  (App Router)   │  │  (subdomains) │   │   │
-│  │  │  user state  │  │  sitemap.js     │  │               │   │   │
-│  │  │  login/logout│  │  robots.js      │  │               │   │   │
-│  │  └──────┬───────┘  └────────┬────────┘  └───────┬───────┘   │   │
-│  │         │                   │                    │            │   │
-│  │         └───────────────────┼────────────────────┘            │   │
-│  │                             │                                  │   │
-│  │                    lib/api.js (apiFetch)                       │   │
-│  │         fetch() with credentials + auto token refresh          │   │
-│  └─────────────────────────────┬────────────────────────────────┘   │
-│                                 │  httpOnly cookies                   │
-│                     HTTP + JSON │  (accessToken, refreshToken)        │
-└─────────────────────────────────┼───────────────────────────────────┘
-                                  │
-                    ┌─────────────▼──────────────┐
-                    │  Express API (localhost:5000) │
-                    │                              │
-                    │  CORS ← CLIENT_URL           │
-                    │  Rate limiters               │
-                    │  Cookie parser               │
-                    │  Body parser (JSON 1MB)       │
-                    │                              │
-                    │  /api/auth/*   authLimiter   │
-                    │  /api/posts/*                │
-                    │  /api/users/*                │
-                    │  /api/comments/*             │
-                    │  /api/feed/*                 │
-                    │  /api/uploads/*              │
-                    │  /uploads/*    static files  │
-                    │                              │
-                    │  ┌──────────────────────┐   │
-                    │  │   Middleware Chain    │   │
-                    │  │  requireAuth         │   │
-                    │  │  optionalAuth        │   │
-                    │  │  validate            │   │
-                    │  └──────────────────────┘   │
-                    │                              │
-                    │  Controllers → Models        │
-                    └──────────────┬───────────────┘
-                                   │
-                    ┌──────────────▼───────────────┐
-                    │         MongoDB               │
-                    │   Database: inkwell           │
-                    │                               │
-                    │  ┌────────┐  ┌─────────────┐ │
-                    │  │  User  │  │    Post      │ │
-                    │  │        │  │  (+ clapSub) │ │
-                    │  └────────┘  └─────────────┘ │
-                    │         ┌──────────┐          │
-                    │         │ Comment  │          │
-                    │         └──────────┘          │
-                    └───────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                         BROWSER (User)                              â”‚
+â”‚                                                                     â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚              Next.js 15 Client  (localhost:3000)             â”‚   â”‚
+â”‚  â”‚                                                              â”‚   â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚   â”‚
+â”‚  â”‚  â”‚  AuthContext  â”‚  â”‚  Route Pages    â”‚  â”‚  middleware   â”‚   â”‚   â”‚
+â”‚  â”‚  â”‚  (React ctx) â”‚  â”‚  (App Router)   â”‚  â”‚  (subdomains) â”‚   â”‚   â”‚
+â”‚  â”‚  â”‚  user state  â”‚  â”‚  sitemap.js     â”‚  â”‚               â”‚   â”‚   â”‚
+â”‚  â”‚  â”‚  login/logoutâ”‚  â”‚  robots.js      â”‚  â”‚               â”‚   â”‚   â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚   â”‚
+â”‚  â”‚         â”‚                   â”‚                    â”‚            â”‚   â”‚
+â”‚  â”‚         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜            â”‚   â”‚
+â”‚  â”‚                             â”‚                                  â”‚   â”‚
+â”‚  â”‚                    lib/api.js (apiFetch)                       â”‚   â”‚
+â”‚  â”‚         fetch() with credentials + auto token refresh          â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                 â”‚  httpOnly cookies                   â”‚
+â”‚                     HTTP + JSON â”‚  (accessToken, refreshToken)        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                  â”‚
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚  Express API (localhost:5000) â”‚
+                    â”‚                              â”‚
+                    â”‚  CORS â† CLIENT_URL           â”‚
+                    â”‚  Rate limiters               â”‚
+                    â”‚  Cookie parser               â”‚
+                    â”‚  Body parser (JSON 1MB)       â”‚
+                    â”‚                              â”‚
+                    â”‚  /api/auth/*   authLimiter   â”‚
+                    â”‚  /api/posts/*                â”‚
+                    â”‚  /api/users/*                â”‚
+                    â”‚  /api/comments/*             â”‚
+                    â”‚  /api/feed/*                 â”‚
+                    â”‚  /api/uploads/*              â”‚
+                    â”‚  /uploads/*    static files  â”‚
+                    â”‚                              â”‚
+                    â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+                    â”‚  â”‚   Middleware Chain    â”‚   â”‚
+                    â”‚  â”‚  requireAuth         â”‚   â”‚
+                    â”‚  â”‚  optionalAuth        â”‚   â”‚
+                    â”‚  â”‚  validate            â”‚   â”‚
+                    â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+                    â”‚                              â”‚
+                    â”‚  Controllers â†’ Models        â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                   â”‚
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚         MongoDB               â”‚
+                    â”‚   Database: inkwell           â”‚
+                    â”‚                               â”‚
+                    â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+                    â”‚  â”‚  User  â”‚  â”‚    Post      â”‚ â”‚
+                    â”‚  â”‚        â”‚  â”‚  (+ clapSub) â”‚ â”‚
+                    â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+                    â”‚         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”          â”‚
+                    â”‚         â”‚ Comment  â”‚          â”‚
+                    â”‚         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜          â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -305,13 +305,13 @@ inkwell/                            ← pnpm workspace root
 
 #### `server/src/server.js`
 The application bootstrap. Sequence:
-1. Call `connectDB()` — connects Mongoose to MongoDB.
-2. `app.listen(env.port)` — starts HTTP server.
+1. Call `connectDB()` â€” connects Mongoose to MongoDB.
+2. `app.listen(env.port)` â€” starts HTTP server.
 3. Register `SIGINT` / `SIGTERM` handlers for graceful shutdown.
 
 #### `server/src/app.js`
 Creates and configures the Express application:
-- `app.set('trust proxy', 1)` — trust reverse proxy (for rate limiter IP detection).
+- `app.set('trust proxy', 1)` â€” trust reverse proxy (for rate limiter IP detection).
 - CORS with `credentials: true` and origin locked to `env.clientUrl`.
 - JSON body parser (1 MB limit) + URL-encoded + cookie-parser.
 - `express.static` on `/uploads/` with 7-day cache + `Cross-Origin-Resource-Policy: cross-origin`.
@@ -348,71 +348,93 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 
 ### 5.3 Database Models
 
-#### `User` model — `server/src/models/User.js`
+#### `User` model â€” `server/src/models/User.js`
 
 | Field       | Type               | Constraints                                   |
 |-------------|--------------------|-----------------------------------------------|
 | `name`      | String             | required, maxlength 80                        |
-| `username`  | String             | required, unique, lowercase, 3–30 chars, indexed |
+| `username`  | String             | required, unique, lowercase, 3â€“30 chars, indexed |
 | `email`     | String             | required, unique, lowercase, indexed          |
 | `password`  | String             | required, `select: false` (never returned)    |
 | `bio`       | String             | maxlength 200, default `""`                   |
 | `avatarUrl` | String             | default `""`                                  |
-| `followers` | [ObjectId → User]  | Array of follower user refs                   |
-| `following` | [ObjectId → User]  | Array of following user refs                  |
-| `bookmarks` | [ObjectId → Post]  | Array of bookmarked post refs                 |
+| `followers` | [ObjectId â†’ User]  | Array of follower user refs                   |
+| `following` | [ObjectId â†’ User]  | Array of following user refs                  |
+| `bookmarks` | [ObjectId â†’ Post]  | Array of bookmarked post refs                 |
 | `subdomain` | String             | lowercase, unique, sparse index               |
 | `customDomain`| String           | default `null` (v2 BYO custom domain)         |
 | `exportRequestedAt` | Date       | Timestamp throttle for account zip downloads  |
 | `exportStatus` | String          | enum: `"idle" \| "pending" \| "ready" \| "failed"`, default `"idle"` |
-| `passwordResetTokenHash` | String | `select: false` — SHA-256 of the emailed reset token; raw token is never stored |
-| `passwordResetExpiresAt` | Date  | `select: false` — reset token TTL (30 min from request) |
+| `passwordResetTokenHash` | String | `select: false` â€” SHA-256 of the emailed reset token; raw token is never stored |
+| `passwordResetExpiresAt` | Date  | `select: false` â€” reset token TTL (30 min from request) |
+| `emailVerified` | Boolean | default `false` |
+| `emailVerifyTokenHash` | String | `select: false` â€” SHA-256 of the verification token |
+| `emailVerifyExpiresAt` | Date | `select: false` â€” verification token TTL (24 hours) |
+| `emailPrefs.allEmails` | Boolean | default `true` |
+| `emailPrefs.digestFrequency` | String | enum: `'weekly' \| 'off'`, default `'weekly'` |
+| `followedTags` | [String] | Array of followed tag strings, default `[]` |
+| `lastDigestSentAt` | Date | Timestamp of the last sent weekly digest, default `null` |
 | `createdAt` / `updatedAt` | Date | auto via timestamps                    |
 
 **Hooks & methods:**
-- `pre('save')` — bcrypt hash (cost 12) if password modified.
-- `comparePassword(candidate)` — bcrypt compare.
-- `toPublicJSON(includeEmail)` — safe API shape, includes subdomain/customDomain properties, never leaks password.
+- `pre('save')` â€” bcrypt hash (cost 12) if password modified.
+- `comparePassword(candidate)` â€” bcrypt compare.
+- `toPublicJSON(includeEmail)` â€” safe API shape, includes subdomain/customDomain properties, never leaks password.
 
 ---
 
-#### `Post` model — `server/src/models/Post.js`
+#### `Post` model â€” `server/src/models/Post.js`
 
 | Field            | Type                | Constraints / Notes                          |
 |------------------|---------------------|----------------------------------------------|
 | `title`          | String              | required, maxlength 160                      |
 | `subtitle`       | String              | maxlength 200, default `""`                  |
 | `slug`           | String              | required, unique, indexed                    |
-| `contentHtml`    | String              | required — sanitized HTML from Tiptap        |
+| `contentHtml`    | String              | required â€” sanitized HTML from Tiptap        |
 | `coverImage`     | String              | URL or relative `/uploads/` path             |
 | `tags`           | [String]            | max 5, indexed                               |
-| `author`         | ObjectId → User     | required, indexed                            |
+| `author`         | ObjectId â†’ User     | required, indexed                            |
 | `status`         | `"draft"` \| `"published"` | default `"draft"`, indexed          |
-| `claps`          | [clapSchema]        | embedded `{ user, count (0–50) }` subdocs    |
+| `claps`          | [clapSchema]        | embedded `{ user, count (0â€“50) }` subdocs    |
 | `totalClaps`     | Number              | denormalized sum                             |
 | `views`          | Number              | incremented on published reads (non-author)  |
 | `readTimeMinutes`| Number              | computed at 200 WPM                          |
 | `publishedAt`    | Date                | set on first publish                         |
+| `notifiedAt`     | Date                | default `null`, set when followers are notified of publication |
 | `seo`            | subdocument         | contains optional override metadata (`metaTitle`, `metaDescription`, `canonicalUrl`) |
 | `indexable`      | Boolean             | default `false`, sets to `true` on publish   |
 
 **Indexes:**
-- Full-text: `{ title: 'text', subtitle: 'text', tags: 'text' }` — powers `?q=` search.
-- Compound: `{ status: 1, publishedAt: -1 }` — powers feed sort.
+- Full-text: `{ title: 'text', subtitle: 'text', tags: 'text' }` â€” powers `?q=` search.
+- Compound: `{ status: 1, publishedAt: -1 }` â€” powers feed sort.
 
 **Hooks & methods:**
-- `pre('save')` — recomputes `readTimeMinutes` when `contentHtml` changes, forces `indexable = true` and generates the unique `canonicalUrl` based on site env values on the first published save. Reverts `indexable` to `false` if post status flips back to draft.
-- `toCardJSON(viewerId)` — feed-safe response shape including viewer-specific clap count, indexable state, and custom SEO configurations.
+- `pre('save')` â€” recomputes `readTimeMinutes` when `contentHtml` changes, forces `indexable = true` and generates the unique `canonicalUrl` based on site env values on the first published save. Reverts `indexable` to `false` if post status flips back to draft.
+- `toCardJSON(viewerId)` â€” feed-safe response shape including viewer-specific clap count, indexable state, and custom SEO configurations.
 
 ---
 
-#### `Comment` model — `server/src/models/Comment.js`
+#### `Comment` model â€” `server/src/models/Comment.js`
 
 | Field     | Type            | Constraints                |
 |-----------|-----------------|----------------------------|
-| `post`    | ObjectId → Post | required, indexed          |
-| `author`  | ObjectId → User | required                   |
+| `post`    | ObjectId â†’ Post | required, indexed          |
+| `author`  | ObjectId â†’ User | required                   |
 | `content` | String          | required, maxlength 2000   |
+
+---
+
+#### `Follow` model â€” `server/src/models/Follow.js`
+
+| Field | Type | Constraints / Notes |
+|---|---|---|
+| `follower` | ObjectId â†’ User | required, indexed |
+| `followee` | ObjectId â†’ User | required, indexed |
+| `followedAt` | Date | default `Date.now` |
+| `sourcePost` | ObjectId â†’ Post | nullable â€” set only if the follow originated from a post |
+
+**Indexes:**
+- Compound: `{ follower: 1, followee: 1 }` (unique)
 
 ---
 
@@ -422,43 +444,43 @@ The request flows through:
 
 ```
 Request
-  │
-  ├─ CORS (allow CLIENT_URL + credentials)
-  ├─ express.json() body parser (1 MB)
-  ├─ express.urlencoded()
-  ├─ cookieParser()
-  │
-  ├─ /uploads/* → express.static (served files)
-  ├─ /api/health → quick health check
-  │
-  ├─ /api/* → generalLimiter (1000 req / 15 min / IP)
-  │
-  ├─ /api/auth/* → authLimiter (50 req / 15 min / IP) → auth routes
-  ├─ /api/posts/* → post routes
-  ├─ /api/users/* → user routes
-  ├─ /api/comments/* → comment routes
-  ├─ /api/feed/* → feed routes (RSS feeds)
-  ├─ /api/uploads/* → upload routes
-  │
-  ├─ notFound (404 catcher)
-  └─ errorHandler (centralized)
+  â”‚
+  â”œâ”€ CORS (allow CLIENT_URL + credentials)
+  â”œâ”€ express.json() body parser (1 MB)
+  â”œâ”€ express.urlencoded()
+  â”œâ”€ cookieParser()
+  â”‚
+  â”œâ”€ /uploads/* â†’ express.static (served files)
+  â”œâ”€ /api/health â†’ quick health check
+  â”‚
+  â”œâ”€ /api/* â†’ generalLimiter (1000 req / 15 min / IP)
+  â”‚
+  â”œâ”€ /api/auth/* â†’ authLimiter (50 req / 15 min / IP) â†’ auth routes
+  â”œâ”€ /api/posts/* â†’ post routes
+  â”œâ”€ /api/users/* â†’ user routes
+  â”œâ”€ /api/comments/* â†’ comment routes
+  â”œâ”€ /api/feed/* â†’ feed routes (RSS feeds)
+  â”œâ”€ /api/uploads/* â†’ upload routes
+  â”‚
+  â”œâ”€ notFound (404 catcher)
+  â””â”€ errorHandler (centralized)
 ```
 
-#### `auth.middleware.js` — Two guard modes
+#### `auth.middleware.js` â€” Two guard modes
 
 | Middleware    | Behavior                                                        |
 |---------------|-----------------------------------------------------------------|
-| `requireAuth` | Reads `accessToken` cookie → verifies → loads user → `req.user`. Throws 401 if missing/invalid. |
+| `requireAuth` | Reads `accessToken` cookie â†’ verifies â†’ loads user â†’ `req.user`. Throws 401 if missing/invalid. |
 | `optionalAuth`| Same as above but silently ignores missing/invalid token. Used on public endpoints needing viewer personalization (clap state, bookmark state). |
 
-#### `error.middleware.js` — Centralized error handling
+#### `error.middleware.js` â€” Centralized error handling
 
 Normalizes all errors into `{ success: false, message, errors? }`:
-- `ValidationError` → 400 with field-level messages
-- MongoDB `code 11000` duplicate key → 409 "already taken"
-- Mongoose `CastError` (bad ObjectId) → 400
-- `ApiError` instances → their `statusCode`
-- Unknown → 500 (stack trace excluded in production)
+- `ValidationError` â†’ 400 with field-level messages
+- MongoDB `code 11000` duplicate key â†’ 409 "already taken"
+- Mongoose `CastError` (bad ObjectId) â†’ 400
+- `ApiError` instances â†’ their `statusCode`
+- Unknown â†’ 500 (stack trace excluded in production)
 
 #### `rateLimiter.js`
 
@@ -469,7 +491,7 @@ Normalizes all errors into `{ success: false, message, errors? }`:
 
 #### `upload.middleware.js`
 
-- Storage: `multer.diskStorage` → `server/uploads/` with random 24-hex filename.
+- Storage: `multer.diskStorage` â†’ `server/uploads/` with random 24-hex filename.
 - Allowed MIME types: `image/jpeg`, `image/png`, `image/webp`, `image/gif`.
 - File size limit: **5 MB**.
 
@@ -485,15 +507,15 @@ Runs `validationResult(req)` after express-validator rule arrays. Returns 422 wi
 
 | Method | Path       | Auth      | Description                                      |
 |--------|------------|-----------|--------------------------------------------------|
-| POST   | /register  | —         | Create account; issues access + refresh cookies  |
-| POST   | /login     | —         | Verify credentials; issues cookies               |
+| POST   | /register  | â€”         | Create account; issues access + refresh cookies  |
+| POST   | /login     | â€”         | Verify credentials; issues cookies               |
 | POST   | /logout    | required  | Clears both auth cookies                         |
-| POST   | /refresh   | —         | Reads refreshToken cookie → rotates both tokens  |
+| POST   | /refresh   | â€”         | Reads refreshToken cookie â†’ rotates both tokens  |
 | GET    | /me        | required  | Returns current user (`toPublicJSON(true)`)      |
 
 **Token strategy:**
-- `signAccessToken(userId)` → JWT signed with `jwtAccessSecret`, expires in `15m`.
-- `signRefreshToken(userId)` → JWT signed with `jwtRefreshSecret`, expires in `7d`.
+- `signAccessToken(userId)` â†’ JWT signed with `jwtAccessSecret`, expires in `15m`.
+- `signRefreshToken(userId)` â†’ JWT signed with `jwtRefreshSecret`, expires in `7d`.
 - Both set as `httpOnly`, `sameSite: lax`, `secure: env.cookieSecure` cookies.
 
 ---
@@ -502,12 +524,12 @@ Runs `validationResult(req)` after express-validator rule arrays. Returns 422 wi
 
 | Method | Path                | Auth              | Description                                      |
 |--------|---------------------|-------------------|--------------------------------------------------|
-| GET    | /tags/trending      | —                 | Top N tags by post count (MongoDB aggregation)   |
-| GET    | /sitemap-data       | —                 | Minimal public fields query for sitemap generation |
+| GET    | /tags/trending      | â€”                 | Top N tags by post count (MongoDB aggregation)   |
+| GET    | /sitemap-data       | â€”                 | Minimal public fields query for sitemap generation |
 | GET    | /                   | optional          | Cursor-paginated feed (filters: tag, author, q, status) |
 | POST   | /                   | required          | Create post (draft or publish immediately)       |
 | GET    | /:slug              | optional          | Single post (views++ if published + non-author)  |
-| PATCH  | /:slug              | required (author) | Update fields; change status draft↔published     |
+| PATCH  | /:slug              | required (author) | Update fields; change status draftâ†”published     |
 | DELETE | /:slug              | required (author) | Delete post + remove from all bookmarks          |
 | POST   | /:slug/clap         | required          | Multi-clap (capped at 50/user, batched)          |
 | POST   | /:slug/bookmark     | required          | Toggle bookmark on req.user                      |
@@ -658,20 +680,27 @@ RootLayout (app/layout.jsx)
 ├── AuthLayout ((auth)/layout.jsx)
 │   Centered logo-only header; no Navbar/Footer
 │   ├── /login
-│   └── /register
+│   ├── /register
+│   ├── /forgot-password     # Request password-reset email
+│   └── /reset-password      # Consume token → set new password
+│
+├── LegalLayout ((legal)/layout.jsx)
+│   Logo-only header + Footer; no search/write nav
+│   ├── /terms               # Terms of Service (static, real content)
+│   └── /privacy             # Privacy Policy (static, real content)
 │
 └── MainLayout ((main)/layout.jsx)
     Navbar + <main> + Footer
-    ├── /                    ← HomePage
-    ├── /@[username]         ← ProfilePage
-    ├── /bookmarks           ← BookmarksPage
-    ├── /edit/[slug]         ← EditPage
-    ├── /new-story           ← NewStoryPage
-    ├── /p/[slug]            ← StoryPage (Server Component)
-    │   └── StoryPageClient  ← Client Interactivity Wrapper
-    ├── /search              ← SearchPage
-    ├── /settings            ← SettingsPage
-    └── /tag/[tag]           ← TagPage
+    ├── /                    # HomePage
+    ├── /@[username]         # ProfilePage
+    ├── /bookmarks           # BookmarksPage
+    ├── /edit/[slug]         # EditPage
+    ├── /new-story           # NewStoryPage
+    ├── /p/[slug]            # StoryPage (Server Component)
+    │   └── StoryPageClient  # Client Interactivity Wrapper
+    ├── /search              # SearchPage
+    ├── /settings            # SettingsPage (profile + email prefs + account deletion)
+    └── /tag/[tag]           # TagPage
 ```
 
 **Note:** `/@[username]` is Next.js dynamic segment `[username]` capturing `@ada`; the page strips the `@` prefix. `/p/*`, `/search`, etc. take static precedence over `/@username`.
@@ -680,19 +709,23 @@ RootLayout (app/layout.jsx)
 
 ### 6.2 Route Pages
 
-| Route                  | Component         | Key Features                                         |
-|------------------------|-------------------|------------------------------------------------------|
-| `/`                    | HomePage          | Hero section + `<PostList>` feed + `<TrendingTags>` sidebar |
-| `/login`               | LoginPage         | Email/password form → `AuthContext.login()`          |
-| `/register`            | RegisterPage      | Name/username/email/password → `AuthContext.register()` |
-| `/@[username]`         | ProfilePage       | User bio, follow button, author's stories. Custom subdomain mapping rewrites resolve here. |
-| `/p/[slug]`            | StoryPage         | Server Component. Feeds metadata, embeds JSON-LD schema, renders `<StoryPageClient>`. |
-| `/new-story`           | NewStoryPage      | `<StoryComposer mode="create">`                     |
-| `/edit/[slug]`         | EditPage          | `<StoryComposer mode="edit">` (author-only guard)    |
-| `/settings`            | SettingsPage      | Profile edit form + avatar upload                    |
-| `/bookmarks`           | BookmarksPage     | User's bookmarked posts via `GET /api/users/me/bookmarks` |
-| `/search?q=`           | SearchPage        | Query `?q=` fed to `GET /api/posts?q=`               |
-| `/tag/[tag]`           | TagPage           | Filter feed by `GET /api/posts?tag=`                 |
+| Route                  | Component             | Key Features                                         |
+|------------------------|-----------------------|------------------------------------------------------|
+| `/`                    | HomePage              | Hero section + `<PostList>` feed + `<TrendingTags>` sidebar |
+| `/login`               | LoginPage             | Email/password form → `AuthContext.login()`          |
+| `/register`            | RegisterPage          | Name/username/email/password → `AuthContext.register()` |
+| `/forgot-password`     | ForgotPasswordPage    | Email input → POST `/api/auth/forgot-password` → triggers reset email |
+| `/reset-password`      | ResetPasswordPage     | Reads `?token=` from query, POSTs new password to `/api/auth/reset-password` |
+| `/@[username]`         | ProfilePage           | User bio, follow button, author's stories. Custom subdomain mapping rewrites resolve here. |
+| `/p/[slug]`            | StoryPage             | Server Component. Feeds metadata, embeds JSON-LD schema, renders `<StoryPageClient>`. |
+| `/new-story`           | NewStoryPage          | `<StoryComposer mode="create">`                     |
+| `/edit/[slug]`         | EditPage              | `<StoryComposer mode="edit">` (author-only guard)    |
+| `/settings`            | SettingsPage          | Profile edit + avatar upload + email prefs toggle + digest frequency + account deletion |
+| `/bookmarks`           | BookmarksPage         | User's bookmarked posts via `GET /api/users/me/bookmarks` |
+| `/search?q=`           | SearchPage            | Query `?q=` fed to `GET /api/posts?q=`               |
+| `/tag/[tag]`           | TagPage               | Filter feed by `GET /api/posts?tag=`                 |
+| `/terms`               | TermsPage             | Terms of Service — static, real drafted content cross-referenced to actual data flows |
+| `/privacy`             | PrivacyPage           | Privacy Policy — names real processors (Resend, Mailtrap, MongoDB), covers export/deletion rights |
 
 ---
 
@@ -728,6 +761,8 @@ RootLayout (app/layout.jsx)
 **`Logo.jsx`** — SVG Inkwell wordmark.
 
 **`RequireAuth.jsx`** — Client-side auth gate; redirects to `/login` if not authenticated.
+
+**`VerificationBanner.jsx`** — App-wide banner rendered in `MainLayout` when `user.emailVerified === false`. Shows a dismissible (per session) prompt with a "Resend verification email" action wired to `POST /api/auth/resend-verification`. Disappears permanently once verified.
 
 #### `components/post/`
 
@@ -793,7 +828,7 @@ AuthProvider
 ├── login(email, password)  → POST /api/auth/login
 ├── register(payload)       → POST /api/auth/register
 ├── logout()                → POST /api/auth/logout → user = null
-└── setUser(u)              ← escape hatch for settings updates
+└── setUser(u)              → escape hatch for settings updates
 ```
 
 - Bootstraps on app load by calling `/api/auth/me` (cookie auto-attached).
@@ -872,22 +907,22 @@ ink:
 ## 7. Authentication & Subdomain Flow
 
 ```
-┌──────────────┐              ┌──────────────┐              ┌──────────────┐
+┌──────────────┐              ┌─────────────┐              ┌─────────────┐
 │    Browser   │              │  Express API  │              │  MongoDB     │
-└──────┬───────┘              └──────┬───────┘              └──────┬───────┘
+└──────┬───────┘              └──────┬──────┘              └──────┬──────┘
        │                             │                             │
        │  POST /api/auth/login       │                             │
        │  { email, password }        │                             │
-       │────────────────────────────►│                             │
+       │────────────────────────────>│                             │
        │                             │  User.findOne({ email })    │
        │                             │  .select('+password')       │
-       │                             │────────────────────────────►│
-       │                             │◄────────────────────────────│
+       │                             │────────────────────────────>│
+       │                             │<────────────────────────────│
        │                             │  bcrypt.compare()           │
        │                             │                             │
        │                             │  signAccessToken(userId)    │
        │                             │  signRefreshToken(userId)   │
-       │◄────────────────────────────│                             │
+       │<────────────────────────────│                             │
        │  Set-Cookie: accessToken    │                             │
        │  Set-Cookie: refreshToken   │                             │
        │  { success, data: { user }} │                             │
@@ -895,45 +930,11 @@ ink:
        │  [Claim subdomain]          │                             │
        │  PATCH /api/users/me/sub    │                             │
        │  { subdomain: "ada-love" }  │                             │
-       │────────────────────────────►│                             │
+       │────────────────────────────>│                             │
        │                             │  CheckReserved()            │
        │                             │  User.save()                │
-       │◄────────────────────────────│                             │
-       │  200 OK                     │                             │
-       │                             │                             │
-       │  [HTTP Request with subdomain]                            │
-       │  GET ada-love.inkwell.app/  │                             │
-       │  Next.js middleware rewrites│                             │
-       │  internally to:             │                             │
-       │  → /@ada-love/              │                             │
+       │<────────────────────────────│                             │
 ```
-
-### Password Reset Flow
-
-```
-1. /forgot-password → POST /api/auth/forgot-password { email }
-   - Rate limited: 5/hour per IP (each request sends an email).
-   - If the account exists: 32-byte random token generated,
-     SHA-256 hash + 30-min expiry saved on the user, raw token emailed
-     as {CLIENT_URL}/reset-password?token=<raw>.
-   - Response is IDENTICAL whether or not the email exists
-     (no account enumeration). Email send failures are logged, never leaked.
-2. Email link → /reset-password?token=... → POST /api/auth/reset-password
-   - Looks up by hash(token) + unexpired TTL; 400 if invalid or expired.
-   - Sets new password (bcrypt via pre-save hook), clears token fields
-     (single-use), and issues a fresh session (auto-login).
-```
-
-**Email delivery** (`server/src/utils/email.js`) — provider picked from env, no code change needed:
-| Env keys set | Provider |
-|---|---|
-| `RESEND_API_KEY` | Resend HTTP API (production; requires SPF/DKIM on the sending domain) |
-| `MAILTRAP_API_TOKEN` + `MAILTRAP_INBOX_ID` | Mailtrap sandbox (dev — never reaches real inboxes) |
-| none | Console log (zero-credential local testing) |
-
-`EMAIL_FROM` sets the From header (default `Inkwell <onboarding@resend.dev>`). Templates live in `server/src/utils/emailTemplates.js` — table layout + inline CSS for email-client compatibility, with plaintext fallback.
-
----
 
 ## 8. Data Flow — End-to-End
 
@@ -941,56 +942,56 @@ ink:
 
 ```
 HomePage
-  └─ <PostList> mounts
+  └── <PostList> mounts
        │
-       ├─ apiFetch('GET /api/posts?limit=10')
-       │    └─ Express: optionalAuth → listPosts controller
-       │         ├─ filter: { status: 'published' }
-       │         ├─ Post.find().sort({_id: -1}).limit(11).populate('author')
-       │         ├─ hasMore = docs.length > 10
-       │         └─ posts.map(p => p.toCardJSON(viewerId))
+       ├── apiFetch('GET /api/posts?limit=10')
+       │    └── Express: optionalAuth → listPosts controller
+       │         ├── filter: { status: 'published' }
+       │         ├── Post.find().sort({_id: -1}).limit(11).populate('author')
+       │         ├── hasMore = docs.length > 10
+       │         └── posts.map(p => p.toCardJSON(viewerId))
        │
-       ├─ Renders PostCard list
-       └─ useInfiniteScroll sentinel
-            └─ On intersect → apiFetch('GET /api/posts?cursor=<lastId>')
-                 └─ [same flow with _id < cursor filter]
+       ├── Renders PostCard list
+       └── useInfiniteScroll sentinel
+            └── On intersect → apiFetch('GET /api/posts?cursor=<lastId>')
+                 └── [same flow with _id < cursor filter]
 ```
 
 ### Writing and Publishing a Story
 
 ```
 /new-story
-  └─ <StoryComposer mode="create">
-       ├─ User types title/subtitle in textarea
-       ├─ <StoryEditor> (Tiptap) → onChange(html)
-       ├─ [optional] Upload cover → POST /api/uploads/image
-       ├─ Add tags (Enter/comma)
+  └── <StoryComposer mode="create">
+       ├── User types title/subtitle in textarea
+       ├── <StoryEditor> (Tiptap) → onChange(html)
+       ├── [optional] Upload cover → POST /api/uploads/image
+       ├── Add tags (Enter/comma)
        │
-       ├─ "Save draft" → api.post('/api/posts', { status:'draft', ... })
-       │    └─ Server: sanitizeContent(html) → makeSlug(title) → Post.create()
-       │    └─ Client: router.replace('/edit/<slug>')
+       ├── "Save draft" → api.post('/api/posts', { status:'draft', ... })
+       │    └── Server: sanitizeContent(html) → makeSlug(title) → Post.create()
+       │    └── Client: router.replace('/edit/<slug>')
        │
-       └─ "Publish" → api.post('/api/posts', { status:'published', ... })
-            └─ Server: post.publishedAt = new Date() → Post.save()
-            └─ Client: router.push('/p/<slug>')
+       └── "Publish" → api.post('/api/posts', { status:'published', ... })
+            └── Server: post.publishedAt = new Date() → Post.save()
+            └── Client: router.push('/p/<slug>')
 ```
 
 ### Clapping
 
 ```
 User clicks ClapButton (optimistic)
-  ├─ setViewer(v + 1), setTotal(t + 1)
-  ├─ pending.current += 1
-  ├─ Start 500ms debounce timer
+  ├── setViewer(v + 1), setTotal(t + 1)
+  ├── pending.current += 1
+  ├── Start 500ms debounce timer
   │
   [500ms passes — timer fires]
-  └─ flush()
-       ├─ api.post('/api/posts/:slug/clap', { count: pending })
-       │    └─ Server: entry.count = min(50, entry.count + count)
+  └── flush()
+       ├── api.post('/api/posts/:slug/clap', { count: pending })
+       │    └── Server: entry.count = min(50, entry.count + count)
        │              applied = entry.count - previous
        │              post.totalClaps += applied → Post.save()
-       └─ setTotal(data.totalClaps), setViewer(data.viewerClapCount)
-            └─ [on error: rollback optimistic state]
+       └── setTotal(data.totalClaps), setViewer(data.viewerClapCount)
+            └── [on error: rollback optimistic state]
 ```
 
 ---
@@ -1017,6 +1018,8 @@ Auth
   GET    /api/auth/me                      (requireAuth)
   POST   /api/auth/forgot-password         (rate limit: 5/h per IP)
   POST   /api/auth/reset-password
+  GET    /api/auth/verify-email            (none, token query parameter)
+  POST   /api/auth/resend-verification     (requireAuth, rate-limited)
 
 Users
   GET    /api/users/:username              (optionalAuth)
@@ -1027,6 +1030,8 @@ Users
   POST   /api/users/me/export/request      (requireAuth, rate limit: 1/24h)
   GET    /api/users/me/export/download     (requireAuth)
   PATCH  /api/users/me/subdomain           (requireAuth)
+  POST   /api/users/me/delete-request      (requireAuth)
+  DELETE /api/users/me                     (requireAuth, token query parameter)
 
 Posts
   GET    /api/posts                        (optionalAuth, ?cursor,limit,tag,author,q,status)
@@ -1091,40 +1096,40 @@ Health
 ```
 Client browser
   │
-  ├─ User selects file (file picker)
-  ├─ new FormData() → form.append('image', file)
-  ├─ api.upload('/api/uploads/image', form)
-  │    └─ apiFetch: no Content-Type header (browser sets multipart boundary)
+  ├── User selects file (file picker)
+  ├── new FormData() → form.append('image', file)
+  ├── api.upload('/api/uploads/image', form)
+  │    └── apiFetch: no Content-Type header (browser sets multipart boundary)
   │
   ▼
 Express: POST /api/uploads/image
-  ├─ requireAuth (must be logged in)
-  ├─ multer.single('image')
-  │    ├─ Validates MIME: jpeg/png/webp/gif only
-  │    ├─ Max size: 5MB
-  │    └─ Stores to: server/uploads/<12-byte-hex>.<ext>
-  ├─ asyncHandler
-  └─ sendSuccess(201, { url: '/uploads/<filename>' })
+  ├── requireAuth (must be logged in)
+  ├── multer.single('image')
+  │    ├── Validates MIME: jpeg/png/webp/gif only
+  │    ├── Max size: 5MB
+  │    └── Stores to: server/uploads/<12-byte-hex>.<ext>
+  ├── asyncHandler
+  └── sendSuccess(201, { url: '/uploads/<filename>' })
 ```
 
 ### Zipped Data Export
 ```
 Client browser
   │
-  ├─ POST /api/users/me/export/request
-  │    └─ Throttles request (max 1/24h)
-  ├─ GET /api/users/me/export/download
+  ├── POST /api/users/me/export/request
+  │    └── Throttles request (max 1/24h)
+  ├── GET /api/users/me/export/download
   │
   ▼
 Express: GET /api/users/me/export/download
-  ├─ requireAuth (own account only)
-  ├─ Post.find({ author: req.user._id })
-  ├─ Stream zip construction via archiver
-  │    ├─ profile.json (User details)
-  │    ├─ posts-index.json (Manifest list)
-  │    ├─ posts/<slug>.json (Model dump)
-  │    └─ posts/<slug>.md (Markdown dump via turndown)
-  └─ Pipes ZIP buffer directly to Client response stream
+  ├── requireAuth (own account only)
+  ├── Post.find({ author: req.user._id })
+  ├── Stream zip construction via archiver
+  │    ├── profile.json (User details)
+  │    ├── posts-index.json (Manifest list)
+  │    ├── posts/<slug>.json (Model dump)
+  │    └── posts/<slug>.md (Markdown dump via turndown)
+  └── Pipes ZIP buffer directly to Client response stream
 ```
 
 ---
@@ -1133,25 +1138,31 @@ Express: GET /api/users/me/export/download
 
 ### Server (`server/.env`)
 
-| Variable             | Default                            | Required in Prod | Notes                            |
-|----------------------|------------------------------------|------------------|----------------------------------|
-| `PORT`               | `5000`                             | ✓                | API port                         |
-| `NODE_ENV`           | `development`                      | ✓                | `production` disables error stack|
-| `CLIENT_URL`         | `http://localhost:3000`            | ✓                | CORS origin                      |
-| `MONGO_URI`          | `mongodb://127.0.0.1:27017/inkwell`| ✓                | Full connection string           |
-| `JWT_ACCESS_SECRET`  | `dev_access_secret_change_me`      | ✓ CHANGE ME      | Min 32 random chars              |
-| `JWT_REFRESH_SECRET` | `dev_refresh_secret_change_me`     | ✓ CHANGE ME      | Different from access secret     |
-| `JWT_ACCESS_EXPIRES` | `15m`                              | —                | Short TTL                        |
-| `JWT_REFRESH_EXPIRES`| `7d`                               | —                | Long TTL                         |
-| `COOKIE_SECURE`      | `false`                            | Set `true`       | Must be `true` behind HTTPS      |
+| Variable             | Default                              | Required in Prod | Notes                                          |
+|----------------------|--------------------------------------|------------------|------------------------------------------------|
+| `PORT`               | `5000`                               | ✓                | API port                                       |
+| `NODE_ENV`           | `development`                        | ✓                | `production` disables error stack              |
+| `CLIENT_URL`         | `http://localhost:3000`              | ✓                | CORS origin                                    |
+| `MONGO_URI`          | `mongodb://127.0.0.1:27017/inkwell`  | ✓                | Full connection string                         |
+| `JWT_ACCESS_SECRET`  | `dev_access_secret_change_me`        | ✓ CHANGE ME      | Min 32 random chars                            |
+| `JWT_REFRESH_SECRET` | `dev_refresh_secret_change_me`       | ✓ CHANGE ME      | Different from access secret                   |
+| `JWT_ACCESS_EXPIRES` | `15m`                                | —                | Short TTL                                      |
+| `JWT_REFRESH_EXPIRES`| `7d`                                 | —                | Long TTL                                       |
+| `COOKIE_SECURE`      | `false`                              | Set `true`       | Must be `true` behind HTTPS                    |
+| `EMAIL_FROM`         | `Inkwell <onboarding@resend.dev>`    | ✓                | From address for all outgoing emails           |
+| `RESEND_API_KEY`     | (empty)                              | Prod only        | Resend API key for production email delivery   |
+| `MAILTRAP_API_TOKEN` | (empty)                              | Dev/test only    | Mailtrap API token for sandbox email testing   |
+| `MAILTRAP_INBOX_ID`  | (empty)                              | Dev/test only    | Mailtrap Inbox ID for sandbox email testing    |
+
+> **Email fallback priority:** Mailtrap (if token set) → Resend (if API key set) → console.log (local dev with neither configured).
 
 ### Client (`client/.env.local`)
 
-| Variable                       | Default                  | Notes                           |
-|--------------------------------|--------------------------|---------------------------------|
-| `NEXT_PUBLIC_API_URL`          | `http://localhost:5000`  | Backend base URL                |
-| `NEXT_PUBLIC_SITE_URL`          | `http://localhost:3000`  | Frontend base URL               |
-| `NEXT_PUBLIC_ENABLE_SUBDOMAINS` | `false`                  | Enable wildcard subdomain routing middleware |
+| Variable                        | Default                  | Notes                                               |
+|---------------------------------|--------------------------|-----------------------------------------------------|
+| `NEXT_PUBLIC_API_URL`           | `http://localhost:5000`  | Backend API base URL                                |
+| `NEXT_PUBLIC_SITE_URL`          | `http://localhost:3000`  | Frontend site URL (used for canonical tags)         |
+| `NEXT_PUBLIC_ENABLE_SUBDOMAINS` | `false`                  | Enable wildcard subdomain routing middleware        |
 
 ---
 
@@ -1175,6 +1186,17 @@ pnpm --filter server dev
 pnpm --filter server seed
 ```
 
+### Server utility scripts (run from `server/` with `node src/scripts/<name>.js`)
+
+| Script | Purpose |
+|---|---|
+| `seed.js` | Wipe DB + reseed 5 users, 15 posts, comments, follows, claps, bookmarks |
+| `test_seo_spec.js` | Verify subdomain + SEO field schemas and pre-save hook behavior |
+| `reset_export_limit.js` | Reset `exportRequestedAt` for all users (dev testing helper) |
+| `run_evidence_verification.js` | 10-suite E2E verification: auth flows, indexes, canonical URLs, subdomains, RSS, sitemap, ZIP export |
+| `backfill_follows.js` | One-time: create `Follow` docs from existing `User.following` arrays (Phase A migration) |
+| `send-weekly-digest.js` | Manual trigger for the weekly digest; production use: schedule with `node-cron` or OS cron |
+
 ### Development ports
 
 | Service | Port | URL                        |
@@ -1195,40 +1217,49 @@ pnpm --filter server seed
 
 ---
 
-## 14. Out of Scope (MVP)
+## 14. Feature Status — Phase A Complete
 
-The following were intentionally excluded to keep the MVP focused:
+The following were listed as intentionally excluded from the initial MVP. **Phase A (Ownership & Trust Foundation) has now been completed**, which resolves several items from this list. Updated status below:
 
-- Email verification
-- OAuth / social login (Google, GitHub)
-- Real-time notifications (WebSockets)
-- Writer analytics dashboard
-- Publications / multi-author collections
-- Membership / paywall
-- Text highlighting / inline responses
-- Admin dashboard
-- CI/CD pipeline
-- Post scheduling
-- Nested comments / threads
-- Dark mode
+| Item | Original Status | Current Status |
+|---|---|---|
+| Email verification | Excluded (MVP) | ✅ **Built** — full flow: token, 24h TTL, verified badge, gates publishing |
+| Password-reset email | Excluded (MVP) | ✅ **Built** — forgot/reset flow, Mailtrap/Resend, 30-min TTL, hash-not-raw |
+| Email notifications (follower alerts) | Excluded (MVP) | ✅ **Built** — new-content notification via `notify.js` + `notifiedAt` guard |
+| Weekly digest | Excluded (MVP) | ✅ **Built** — `send-weekly-digest.js` cron script, tag-follow aware, idempotent |
+| Account deletion cascade | Excluded (MVP) | ✅ **Built** — two-step (confirm email → DELETE), full erasure or anonymize |
+| Legal pages (ToS, Privacy) | Excluded (MVP) | ✅ **Built** — `/terms`, `/privacy` live, cross-referenced to real data practices |
+| Email preferences / unsubscribe | Excluded (MVP) | ✅ **Built** — CAN-SPAM one-click unsubscribe, master toggle, digest frequency |
+| OAuth / social login | Phase B+ | Pending (Phase E) |
+| Real-time notifications (WebSockets) | Phase B+ | Pending (Phase E) |
+| Writer analytics dashboard | Phase B+ | Pending (Phase F) |
+| Publications / multi-author | Phase B+ | Pending (Phase C) |
+| Membership / paywall | Phase B+ | Pending (Phase D) |
+| Text highlighting / inline responses | Phase B+ | Pending (Phase F) |
+| Admin dashboard | Phase B+ | Pending (Phase B) |
+| CI/CD pipeline | Phase B+ | Pending (Phase G) |
+| Post scheduling | Phase B+ | Pending (Phase E) |
+| Nested comments / threads | Phase B+ | Pending (Phase B) |
+| Dark mode | Phase B+ | Pending (Phase F) |
+| Moderation / reports / review queue | Not planned at MVP | Pending (Phase B) |
+| Revision history | Not planned at MVP | Pending (Phase B) |
+
+## 15. Full Development Roadmap
+
+Phase A (Ownership & Trust Foundation) is **complete**. The full phased development plan — covering Phases B through G — is documented in `INKWELL_FULL_PRODUCT_ROADMAP.md`.
+
+| Phase | Focus | Status |
+|---|---|---|
+| A — Ownership & Trust | Email verification, notifications, digest, legal pages, account deletion, sovereign export | **Completed** |
+| B — Safety & Integrity | Moderation/reports, admin dashboard, revision history, nested comments | Pending |
+| C — Growth Engine | Publications, algorithmic feed scoring, reading lists, related posts | Pending |
+| D — Monetization Mechanism | Paywall, Stripe test-mode membership, writer payout ledger | Pending |
+| E — Identity, Access, Real-time | OAuth (Google + GitHub), Socket.IO notifications, post scheduling | Pending |
+| F — Reader Experience Depth | Highlighting/annotations, writer analytics dashboard, dark mode | Pending |
+| G — Quality Infrastructure | Vitest unit tests, Playwright E2E suite (local-only) | Pending |
+
+See `INKWELL_FULL_PRODUCT_ROADMAP.md` for detailed feature specs, durations, and definitions of done.
 
 ---
 
-## 15. Future / Post-MVP Roadmap
-
-| Feature                    | Approach                                                   |
-|----------------------------|------------------------------------------------------------|
-| Cloud image hosting        | Cloudinary free tier — replace Multer `diskStorage`        |
-| Cloud database             | MongoDB Atlas M0 free tier — swap `MONGO_URI`              |
-| Real-time notifications    | Socket.IO or Server-Sent Events                            |
-| OAuth                      | Passport.js (Google/GitHub strategies)                     |
-| Analytics                  | Writer dashboard: views, claps, read-time trends           |
-| Search enhancement         | Elasticsearch or Atlas Search (fuzzy, stemming)            |
-| CDN                        | Cloudfront / Vercel edge caching for static assets         |
-| Testing                    | Vitest unit tests + Playwright E2E                         |
-| CI/CD                      | GitHub Actions: lint → test → build → deploy               |
-| Docker                     | `docker-compose.yml` for mongo + server + client           |
-
----
-
-*Blueprint updated: 2026-07-15 — Aligned with SEO, Ownership & Portability v1.1.0 specifications.*
+*Blueprint updated: 2026-07-17 — Synchronized with Phase A completion. v1.2.0.*

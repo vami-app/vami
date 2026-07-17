@@ -40,6 +40,15 @@ const userSchema = new Schema(
     exportStatus: { type: String, enum: ["idle", "pending", "ready", "failed"], default: "idle" },
     passwordResetTokenHash: { type: String, select: false },
     passwordResetExpiresAt: { type: Date, select: false },
+    emailPrefs: {
+      allEmails: { type: Boolean, default: true },
+      digestFrequency: { type: String, enum: ["weekly", "off"], default: "weekly" },
+    },
+    followedTags: { type: [String], default: [] },
+    lastDigestSentAt: { type: Date, default: null },
+    emailVerified: { type: Boolean, default: false },
+    emailVerifyTokenHash: { type: String, select: false },
+    emailVerifyExpiresAt: { type: Date, select: false },
   },
   { timestamps: true }
 );
@@ -76,7 +85,11 @@ userSchema.methods.toPublicJSON = function toPublicJSON(includeEmail = false) {
     followingCount: this.following ? this.following.length : 0,
     subdomain: this.subdomain,
     customDomain: this.customDomain,
-    ...(includeEmail ? { email: this.email } : {}),
+    emailVerified: this.emailVerified || false,
+    ...(includeEmail ? {
+      email: this.email,
+      emailPrefs: this.emailPrefs || { allEmails: true, digestFrequency: "weekly" },
+    } : {}),
     createdAt: this.createdAt,
   };
 };

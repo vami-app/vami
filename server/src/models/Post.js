@@ -44,6 +44,7 @@ const postSchema = new Schema(
       canonicalUrl: { type: String },
     },
     indexable: { type: Boolean, default: false },
+    notifiedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
@@ -67,6 +68,7 @@ postSchema.pre("save", function computePostDetails(next) {
     }
   } else {
     this.indexable = false;
+    this.notifiedAt = null;
   }
   next();
 });

@@ -9,6 +9,8 @@ export default function Footer() {
         <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
           <Link href="/" className="hover:text-ink">Home</Link>
           <Link href="/search" className="hover:text-ink">Explore</Link>
+          <Link href="/terms" className="hover:text-ink">Terms</Link>
+          <Link href="/privacy" className="hover:text-ink">Privacy</Link>
           <a href="https://tiptap.dev" target="_blank" rel="noopener noreferrer" className="hover:text-ink">Built with Tiptap</a>
         </nav>
       </div>

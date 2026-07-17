@@ -9,6 +9,9 @@ const {
   me,
   forgotPassword,
   resetPassword,
+  unsubscribe,
+  verifyEmail,
+  resendVerification,
 } = require("../controllers/auth.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
 const { validate } = require("../middlewares/validate");
@@ -29,5 +32,8 @@ router.post("/refresh", refresh);
 router.get("/me", requireAuth, me);
 router.post("/forgot-password", forgotPasswordLimiter, forgotPasswordRules, validate, forgotPassword);
 router.post("/reset-password", resetPasswordRules, validate, resetPassword);
+router.get("/unsubscribe", unsubscribe);
+router.get("/verify-email", verifyEmail);
+router.post("/resend-verification", requireAuth, resendVerification);
 
 module.exports = router;

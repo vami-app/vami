@@ -134,32 +134,53 @@ inkwell/
 |---|---|
 | `/` | Home feed (infinite scroll) |
 | `/login`, `/register` | Auth |
+| `/forgot-password` | Request password-reset email |
+| `/reset-password` | Consume reset token → set new password |
 | `/search?q=` | Search results |
 | `/tag/[tag]` | Tag-filtered feed |
 | `/@[username]` | Public profile + author's stories |
 | `/p/[slug]` | Read a story |
 | `/new-story` | Editor (create) |
 | `/edit/[slug]` | Editor (edit own) |
-| `/settings` | Edit profile + avatar |
+| `/settings` | Edit profile + avatar + email preferences + account deletion |
 | `/bookmarks` | Saved stories |
+| `/terms` | Terms of Service |
+| `/privacy` | Privacy Policy |
 
 ### API endpoints
 
 Standard envelope: `{ success, data, message }` (or `{ success:false, message, errors? }`).
 
 ```
-POST   /api/auth/register              POST   /api/posts
-POST   /api/auth/login                 GET    /api/posts/:slug
-POST   /api/auth/logout                PATCH  /api/posts/:slug      (author)
-POST   /api/auth/refresh               DELETE /api/posts/:slug      (author)
-GET    /api/auth/me                    POST   /api/posts/:slug/clap
-GET    /api/users/:username            POST   /api/posts/:slug/bookmark
-PATCH  /api/users/me                   GET    /api/posts/:slug/comments
-POST   /api/users/me/avatar            POST   /api/posts/:slug/comments
-POST   /api/users/:username/follow     DELETE /api/comments/:id     (author)
-GET    /api/users/me/bookmarks         GET    /api/posts/tags/trending
-GET    /api/posts   (cursor,limit,tag,author,q)   POST /api/uploads/image
+Auth
+POST   /api/auth/register              POST   /api/auth/forgot-password
+POST   /api/auth/login                 POST   /api/auth/reset-password
+POST   /api/auth/logout                GET    /api/auth/unsubscribe      (token)
+POST   /api/auth/refresh               GET    /api/auth/verify-email     (token)
+GET    /api/auth/me                    POST   /api/auth/resend-verification
+
+Users
+GET    /api/users/:username            PATCH  /api/users/me/subdomain
+PATCH  /api/users/me                   POST   /api/users/me/export/request
+POST   /api/users/me/avatar            GET    /api/users/me/export/download
+POST   /api/users/:username/follow     POST   /api/users/me/delete-request
+GET    /api/users/me/bookmarks         DELETE /api/users/me             (token)
+
+Posts + Comments
+GET    /api/posts  (?cursor,limit,tag,author,q,status)
+POST   /api/posts                      GET    /api/posts/tags/trending
+GET    /api/posts/:slug                POST   /api/posts/:slug/clap
+PATCH  /api/posts/:slug  (author)      POST   /api/posts/:slug/bookmark
+DELETE /api/posts/:slug  (author)      GET    /api/posts/:slug/comments
+                                        POST   /api/posts/:slug/comments
+DELETE /api/comments/:id  (author)
+
+Feeds + Uploads
+GET    /api/feed/rss                   POST   /api/uploads/image
+GET    /api/feed/user/:username/rss    GET    /api/health
+GET    /api/feed/tag/:tag/rss
 ```
+
 
 ---
 
@@ -172,6 +193,14 @@ GET    /api/posts   (cursor,limit,tag,author,q)   POST /api/uploads/image
   `localStorage`. The client transparently refreshes on a 401.
 - **Rate limiting** on `/api/auth/*`, **express-validator** on all mutating bodies, **author-only**
   guards on post/comment edit + delete.
+- **Email verification:** new accounts receive a verification email on registration. Publishing is
+  gated behind `emailVerified === true`. Token is single-use, 24-hour TTL, hash-not-raw stored.
+- **Password-reset:** forgot-password flow uses a cryptographically random token, SHA-256 hashed
+  before storage, 30-minute TTL, enumeration-safe (same response whether email exists or not).
+- **Account deletion:** two-step flow — confirmation email sent first, then `DELETE /api/users/me`
+  with token. Full cascade: posts, comments, bookmarks, follows, claps, avatar file.
+- **Unsubscribe:** all marketing/notification emails carry a CAN-SPAM-compliant one-click
+  unsubscribe link. Security emails (reset, delete confirmation) are never suppressible.
 
 ---
 
@@ -184,18 +213,24 @@ GET    /api/posts   (cursor,limit,tag,author,q)   POST /api/uploads/image
   without it in local dev; `verifyDepsBeforeRun: false` keeps `pnpm dev`/`seed` from erroring on it.
 - **`/@[username]`** is implemented as a `[username]` dynamic segment that captures the whole
   `@ada` string and strips the leading `@` (static routes like `/search`, `/p` take precedence).
-- Password-reset email is **out of scope** for the MVP (would log a token to console).
+- Password-reset email is supported via Mailtrap sandbox or Resend API, falling back to console logging in local development.
 
-## Not built (post-MVP, by design)
+## Current status — Phase A complete
 
-Publications, membership/paywall, real-time notifications, OAuth, writer stats dashboard, text
-highlighting, admin dashboard, CI/CD.
+**MVP core** (auth, posts, comments, claps, bookmarks, follow, search, RSS, SEO, export) — Done.
 
-## Future / stretch (free tiers, not wired up)
+**Phase A (Ownership & Trust Foundation)** — Done:
+- Forgot-password / reset-password email flow (Mailtrap sandbox or Resend)
+- Email verification — token, verified badge, gates publishing
+- New-content notification emails to followers (`notify.js`)
+- Weekly digest emails (`send-weekly-digest.js` cron script)
+- Email preferences — master toggle + digest frequency (CAN-SPAM unsubscribe)
+- Legal pages — `/terms` and `/privacy` with real drafted content
+- Account deletion — two-step cascade with full erasure or anonymize option
+- `Follow` model — attributed follow history powering sovereign export
+- Sovereign export upgraded — `followers.json` with `followedAt` + `sourcePost`
 
-- **Cloudinary** free tier for image hosting (replace local-disk Multer).
-- **MongoDB Atlas** free M0 tier for cloud persistence (swap `MONGO_URI`).
-- **Mailtrap** free sandbox for password-reset email testing.
+**Phases B–G** are planned. See `INKWELL_FULL_PRODUCT_ROADMAP.md` for the full breakdown.
 
 ---
 

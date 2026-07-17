@@ -11,6 +11,7 @@ const {
   toggleBookmark,
   trendingTags,
   listSitemapData,
+  toggleTagFollow,
 } = require("../controllers/post.controller");
 const {
   listComments,
@@ -38,6 +39,7 @@ router.delete("/:slug", requireAuth, deletePost);
 
 router.post("/:slug/clap", requireAuth, clapPost);
 router.post("/:slug/bookmark", requireAuth, toggleBookmark);
+router.post("/tags/:tag/follow", requireAuth, toggleTagFollow);
 
 router.get("/:slug/comments", optionalAuth, listComments);
 router.post("/:slug/comments", requireAuth, commentRules, validate, addComment);
