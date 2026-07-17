@@ -61,7 +61,7 @@ function baseCookieOptions() {
   return {
     httpOnly: true,
     secure: isProd || env.cookieSecure,
-    sameSite: isProd ? "none" : "lax",
+    sameSite: "lax",
     path: "/",
   };
 }

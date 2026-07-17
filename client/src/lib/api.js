@@ -2,7 +2,10 @@
  * API base URL for the Express backend.
  * @type {string}
  */
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+export const API_URL =
+  typeof window === "undefined"
+    ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000")
+    : "";
 
 /**
  * Resolve a possibly-relative upload path to an absolute URL on the API host.
@@ -12,7 +15,12 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000
 export function resolveMedia(path) {
   if (!path) return "";
   if (/^https?:\/\//.test(path)) return path;
-  return `${API_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+  
+  // If absolute API_URL is needed on server or if running in browser
+  const base = typeof window === "undefined"
+    ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000")
+    : "";
+  return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
 /**
