@@ -45,6 +45,12 @@ const postSchema = new Schema(
     },
     indexable: { type: Boolean, default: false },
     notifiedAt: { type: Date, default: null },
+    moderationStatus: {
+      type: String,
+      enum: ["visible", "hidden"],
+      default: "visible",
+      index: true,
+    },
   },
   { timestamps: true }
 );
@@ -59,7 +65,7 @@ postSchema.pre("save", function computePostDetails(next) {
   if (this.isModified("contentHtml")) {
     this.readTimeMinutes = estimateReadTime(this.contentHtml);
   }
-  if (this.status === "published") {
+  if (this.status === "published" && this.moderationStatus !== "hidden") {
     this.indexable = true;
     if (!this.seo || !this.seo.canonicalUrl) {
       const env = require("../config/env");
@@ -110,6 +116,7 @@ postSchema.methods.toCardJSON = function toCardJSON(viewerId = null) {
     viewerClapCount: viewerClap ? viewerClap.count : 0,
     seo: this.seo || { metaTitle: "", metaDescription: "", canonicalUrl: "" },
     indexable: this.indexable,
+    moderationStatus: this.moderationStatus || "visible",
   };
 };
 

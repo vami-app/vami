@@ -253,32 +253,84 @@ const deleteAccount = asyncHandler(async (req, res) => {
 
   const user = req.user;
 
-  // Let's implement the deletion cascade sequentially.
-  // 1. Delete or anonymize Posts & Comments
+  // Get deleted user placeholder (needed for anonymization and soft-delete comment reassignments)
+  let deletedUser = await User.findOne({ username: "deleted" });
+  if (!deletedUser) {
+    deletedUser = await User.create({
+      name: "Deleted User",
+      username: "deleted",
+      email: "deleted@inkwell.dev",
+      password: "system-placeholder-password-" + require("crypto").randomBytes(8).toString("hex"),
+      bio: "This account represents content from deleted authors.",
+      emailVerified: true,
+    });
+  }
+
+  // 1. Capture sets (essential for ordering)
+  const postsByUser = await Post.find({ author: user._id }).select("_id");
+  const postIds = postsByUser.map((p) => p._id);
+
+  const ownComments = await Comment.find({ author: user._id }).select("_id");
+  const ownCommentIds = ownComments.map((c) => c._id);
+
+  const ownPostComments = await Comment.find({ post: { $in: postIds } }).select("_id");
+  const commentsOnOwnPosts = ownPostComments.map((c) => c._id);
+
+  const targetCommentIds = [...new Set([...ownCommentIds.map(String), ...commentsOnOwnPosts.map(String)])];
+
+  const Report = require("../models/Report");
+  const PostRevision = require("../models/PostRevision");
+
   if (mode === "erase") {
-    // Erasure path: hard-delete posts and comments
-    await Post.deleteMany({ author: user._id });
-    await Comment.deleteMany({ author: user._id });
-  } else {
-    // Anonymization path: find or create "deleted" placeholder user
-    let deletedUser = await User.findOne({ username: "deleted" });
-    if (!deletedUser) {
-      deletedUser = await User.create({
-        name: "Deleted User",
-        username: "deleted",
-        email: "deleted@inkwell.dev",
-        password: "system-placeholder-password-" + require("crypto").randomBytes(8).toString("hex"),
-        bio: "This account represents content from deleted authors.",
-        emailVerified: true,
-      });
+    // 2. Delete revisions for posts that are going to be deleted
+    await PostRevision.deleteMany({ post: { $in: postIds } });
+
+    // 3. Delete own reports (reports submitted by the user)
+    await Report.deleteMany({ reporter: user._id });
+
+    // 4. Delete reports targeting the user's posts, their own comments, or comments left on their posts
+    await Report.deleteMany({
+      $or: [
+        { targetType: "post", targetId: { $in: postIds } },
+        { targetType: "comment", targetId: { $in: targetCommentIds } }
+      ]
+    });
+
+    // 5. Delete ALL comments on user's own posts (regardless of author)
+    await Comment.deleteMany({ post: { $in: postIds } });
+
+    // 6. Soft or hard delete user's comments on other people's posts
+    const otherComments = await Comment.find({ author: user._id, post: { $nin: postIds } });
+    for (const comment of otherComments) {
+      const hasReplies = await Comment.exists({ parentComment: comment._id });
+      if (hasReplies) {
+        comment.content = "[deleted]";
+        comment.deletedButHasReplies = true;
+        comment.author = deletedUser._id; // Reassign to system deleted user
+        await comment.save();
+      } else {
+        await comment.deleteOne();
+      }
     }
+
+    // 7. Delete Post docs where author = user
+    await Post.deleteMany({ author: user._id });
+
+  } else {
+    // Anonymize mode: reassign posts and comments to 'deleted' user
+    
+    // Reassign PostRevisions' author if they exist
+    await PostRevision.updateMany({ editedBy: user._id }, { editedBy: deletedUser._id });
+
+    // Reports: Delete reports submitted by the user
+    await Report.deleteMany({ reporter: user._id });
+
+    // Reassign posts and comments
     await Post.updateMany({ author: user._id }, { author: deletedUser._id });
     await Comment.updateMany({ author: user._id }, { author: deletedUser._id });
   }
 
-  // 2. Remove user references from other users' bookmarks
-  const postsByUser = await Post.find({ author: user._id }).select("_id");
-  const postIds = postsByUser.map((p) => p._id);
+  // 8. Pull from bookmarks
   if (postIds.length > 0) {
     await User.updateMany(
       { bookmarks: { $in: postIds } },
@@ -286,12 +338,10 @@ const deleteAccount = asyncHandler(async (req, res) => {
     );
   }
 
-  // 3. Delete Follow documents
+  // 9. Delete Follow docs both directions + pull legacy arrays
   await Follow.deleteMany({
     $or: [{ follower: user._id }, { followee: user._id }],
   });
-
-  // 4. Update denormalized followers / following arrays in other User documents
   await User.updateMany(
     { followers: user._id },
     { $pull: { followers: user._id } }
@@ -301,7 +351,7 @@ const deleteAccount = asyncHandler(async (req, res) => {
     { $pull: { following: user._id } }
   );
 
-  // 5. Remove user references from embedded claps on other users' posts
+  // 10. Pull claps and recompute totalClaps
   const clappedPosts = await Post.find({ "claps.user": user._id });
   for (const post of clappedPosts) {
     post.claps = post.claps.filter((c) => String(c.user) !== String(user._id));
@@ -309,7 +359,7 @@ const deleteAccount = asyncHandler(async (req, res) => {
     await post.save();
   }
 
-  // 6. Delete avatar file from disk if local
+  // 11. Delete avatar from disk
   if (user.avatarUrl && user.avatarUrl.startsWith("/uploads/")) {
     const fs = require("fs");
     const path = require("path");
@@ -323,10 +373,11 @@ const deleteAccount = asyncHandler(async (req, res) => {
     }
   }
 
-  // 7. Delete the User document itself
+  // 12. AuditLog preserve is a no-op (explicit no-op is handled by not modifying AuditLog here)
+
+  // 13. Delete User
   await user.deleteOne();
 
-  // 8. Clear response cookies
   const { clearAuthCookies } = require("../utils/jwt");
   clearAuthCookies(res);
 

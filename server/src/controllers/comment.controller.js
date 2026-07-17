@@ -13,23 +13,35 @@ const AUTHOR_FIELDS = "name username avatarUrl";
  * @returns {Object}
  */
 function commentJSON(c) {
+  const isSoftDeleted = c.deletedButHasReplies;
   return {
     id: c._id,
-    content: c.content,
-    author: c.author && c.author.username
+    content: isSoftDeleted ? "[deleted]" : c.content,
+    author: isSoftDeleted
       ? {
-          id: c.author._id,
-          name: c.author.name,
-          username: c.author.username,
-          avatarUrl: c.author.avatarUrl,
+          id: null,
+          name: "Deleted User",
+          username: "deleted",
+          avatarUrl: "",
         }
-      : c.author,
+      : (c.author && c.author.username
+          ? {
+              id: c.author._id,
+              name: c.author.name,
+              username: c.author.username,
+              avatarUrl: c.author.avatarUrl,
+            }
+          : c.author),
+    parentComment: c.parentComment || null,
+    depth: c.depth || 0,
+    deletedButHasReplies: isSoftDeleted,
+    moderationStatus: c.moderationStatus || "visible",
     createdAt: c.createdAt,
   };
 }
 
 /**
- * GET /api/posts/:slug/comments — flat list, newest first.
+ * GET /api/posts/:slug/comments — flat list, chronological.
  * @type {import('express').RequestHandler}
  */
 const listComments = asyncHandler(async (req, res) => {
@@ -43,8 +55,9 @@ const listComments = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Story not found");
   }
 
-  const comments = await Comment.find({ post: post._id })
-    .sort({ _id: -1 })
+  // Sort chronological (oldest first) so that parent comments are processed before children on client
+  const comments = await Comment.find({ post: post._id, moderationStatus: "visible" })
+    .sort({ createdAt: 1 })
     .populate("author", AUTHOR_FIELDS);
 
   return sendSuccess(res, 200, { comments: comments.map(commentJSON) });
@@ -65,10 +78,28 @@ const addComment = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Story not found");
   }
 
+  const { content, parentComment } = req.body;
+  let depth = 0;
+  let parentId = null;
+
+  if (parentComment) {
+    const parent = await Comment.findById(parentComment);
+    if (!parent) {
+      throw new ApiError(404, "Parent comment not found");
+    }
+    if (String(parent.post) !== String(post._id)) {
+      throw new ApiError(400, "Parent comment does not belong to this story");
+    }
+    parentId = parent._id;
+    depth = Math.min((parent.depth || 0) + 1, 5); // Clamped to max depth of 5
+  }
+
   const comment = await Comment.create({
     post: post._id,
     author: req.user._id,
-    content: req.body.content,
+    content: content,
+    parentComment: parentId,
+    depth: depth,
   });
   await comment.populate("author", AUTHOR_FIELDS);
 
@@ -85,8 +116,18 @@ const deleteComment = asyncHandler(async (req, res) => {
   if (String(comment.author) !== String(req.user._id)) {
     throw new ApiError(403, "You can only delete your own comments");
   }
-  await comment.deleteOne();
-  return sendSuccess(res, 200, null, "Comment deleted");
+
+  // If this comment has replies, soft-delete it. Otherwise, hard-delete it.
+  const hasReplies = await Comment.exists({ parentComment: comment._id });
+  if (hasReplies) {
+    comment.content = "[deleted]";
+    comment.deletedButHasReplies = true;
+    await comment.save();
+    return sendSuccess(res, 200, { comment: commentJSON(comment) }, "Comment soft-deleted");
+  } else {
+    await comment.deleteOne();
+    return sendSuccess(res, 200, null, "Comment deleted");
+  }
 });
 
 module.exports = { listComments, addComment, deleteComment };

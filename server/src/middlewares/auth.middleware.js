@@ -24,6 +24,9 @@ const requireAuth = asyncHandler(async (req, res, next) => {
   if (!user) {
     throw new ApiError(401, "User no longer exists");
   }
+  if (user.status !== "active") {
+    throw new ApiError(403, "Your account has been deactivated or banned");
+  }
   req.user = user;
   next();
 });
@@ -39,11 +42,30 @@ const optionalAuth = asyncHandler(async (req, res, next) => {
   try {
     const payload = verifyAccessToken(token);
     const user = await User.findById(payload.sub);
-    if (user) req.user = user;
+    if (user) {
+      if (user.status === "active") {
+        req.user = user;
+      }
+    }
   } catch (err) {
     // ignore — treat as anonymous
   }
   next();
 });
 
-module.exports = { requireAuth, optionalAuth };
+/**
+ * Require the authenticated user to be an admin.
+ * Must be placed after requireAuth.
+ * @type {import('express').RequestHandler}
+ */
+const requireAdmin = asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    throw new ApiError(401, "Authentication required");
+  }
+  if (req.user.role !== "admin") {
+    throw new ApiError(403, "Admin privileges required");
+  }
+  next();
+});
+
+module.exports = { requireAuth, optionalAuth, requireAdmin };

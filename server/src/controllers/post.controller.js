@@ -50,10 +50,12 @@ const listPosts = asyncHandler(async (req, res) => {
       filter.author = authorUser._id;
     } else {
       filter.status = "published";
+      filter.moderationStatus = "visible";
       if (authorUser) filter.author = authorUser._id;
     }
   } else {
     filter.status = "published";
+    filter.moderationStatus = "visible";
     if (author) {
       const authorUser = await User.findOne({ username: String(author).toLowerCase() });
       if (!authorUser) return sendSuccess(res, 200, { posts: [], nextCursor: null });
@@ -97,6 +99,12 @@ const getPost = asyncHandler(async (req, res) => {
 
   // Drafts are visible only to their author
   if (post.status === "draft" && !isAuthor) {
+    throw new ApiError(404, "Story not found");
+  }
+
+  // Hidden posts are visible only to their author or an admin
+  const isAdmin = req.user && req.user.role === "admin";
+  if (post.moderationStatus === "hidden" && !isAuthor && !isAdmin) {
     throw new ApiError(404, "Story not found");
   }
 
@@ -169,6 +177,41 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 
   const { title, subtitle, contentHtml, coverImage, tags, status, seo } = req.body;
+
+  const PostRevision = require("../models/PostRevision");
+  const titleChanged = title !== undefined && title !== post.title;
+  const subtitleChanged = subtitle !== undefined && subtitle !== post.subtitle;
+  const contentChanged = contentHtml !== undefined && sanitizeContent(contentHtml) !== post.contentHtml;
+  const coverImageChanged = coverImage !== undefined && coverImage !== post.coverImage;
+  
+  let tagsChanged = false;
+  if (tags !== undefined) {
+    const nextTags = normalizeTags(tags);
+    if (nextTags.length !== post.tags.length || !nextTags.every((val, index) => val === post.tags[index])) {
+      tagsChanged = true;
+    }
+  }
+
+  if (titleChanged || subtitleChanged || contentChanged || coverImageChanged || tagsChanged) {
+    await PostRevision.create({
+      post: post._id,
+      title: post.title,
+      subtitle: post.subtitle,
+      contentHtml: post.contentHtml,
+      tags: post.tags,
+      coverImage: post.coverImage,
+      editedBy: req.user._id,
+    });
+
+    const revisionsCount = await PostRevision.countDocuments({ post: post._id });
+    if (revisionsCount > 50) {
+      const oldestRevisions = await PostRevision.find({ post: post._id })
+        .sort({ createdAt: 1 })
+        .limit(revisionsCount - 50);
+      const oldestIds = oldestRevisions.map(r => r._id);
+      await PostRevision.deleteMany({ _id: { $in: oldestIds } });
+    }
+  }
 
   if (title !== undefined) post.title = title;
   if (subtitle !== undefined) post.subtitle = subtitle;
@@ -302,7 +345,7 @@ const toggleBookmark = asyncHandler(async (req, res) => {
 const trendingTags = asyncHandler(async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit, 10) || 10, 20);
   const tags = await Post.aggregate([
-    { $match: { status: "published" } },
+    { $match: { status: "published", moderationStatus: "visible" } },
     { $unwind: "$tags" },
     { $group: { _id: "$tags", count: { $sum: 1 } } },
     { $sort: { count: -1 } },
@@ -317,7 +360,7 @@ const trendingTags = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const listSitemapData = asyncHandler(async (req, res) => {
-  const posts = await Post.find({ status: "published", indexable: true })
+  const posts = await Post.find({ status: "published", indexable: true, moderationStatus: "visible" })
     .select("slug updatedAt author")
     .populate("author", "username")
     .sort({ updatedAt: -1 });
@@ -340,7 +383,7 @@ const toggleTagFollow = asyncHandler(async (req, res) => {
   if (!tag) throw new ApiError(400, "Tag parameter is required");
 
   // Check if tag exists (is previously used in a published post)
-  const tagExists = await Post.findOne({ status: "published", tags: tag });
+  const tagExists = await Post.findOne({ status: "published", moderationStatus: "visible", tags: tag });
   if (!tagExists) {
     throw new ApiError(400, "That tag does not exist or has no published stories");
   }
@@ -370,6 +413,104 @@ const toggleTagFollow = asyncHandler(async (req, res) => {
   );
 });
 
+/**
+ * GET /api/posts/:slug/revisions
+ * List revision metadata for a story (author-only).
+ * @type {import('express').RequestHandler}
+ */
+const listRevisions = asyncHandler(async (req, res) => {
+  const post = await Post.findOne({ slug: req.params.slug }).select("_id author");
+  if (!post) throw new ApiError(404, "Story not found");
+
+  if (String(post.author) !== String(req.user._id)) {
+    throw new ApiError(403, "You can only view revisions of your own stories");
+  }
+
+  const PostRevision = require("../models/PostRevision");
+  const revisions = await PostRevision.find({ post: post._id })
+    .sort({ createdAt: -1 })
+    .select("_id createdAt editedBy")
+    .populate("editedBy", "name username avatarUrl");
+
+  return sendSuccess(res, 200, { revisions });
+});
+
+/**
+ * GET /api/posts/:slug/revisions/:revisionId
+ * Fetch full snapshot content of a specific revision (author-only).
+ * @type {import('express').RequestHandler}
+ */
+const getRevisionDetails = asyncHandler(async (req, res) => {
+  const post = await Post.findOne({ slug: req.params.slug }).select("_id author");
+  if (!post) throw new ApiError(404, "Story not found");
+
+  if (String(post.author) !== String(req.user._id)) {
+    throw new ApiError(403, "You can only view revisions of your own stories");
+  }
+
+  const PostRevision = require("../models/PostRevision");
+  const revision = await PostRevision.findOne({ _id: req.params.revisionId, post: post._id })
+    .populate("editedBy", "name username avatarUrl");
+
+  if (!revision) {
+    throw new ApiError(404, "Revision not found");
+  }
+
+  return sendSuccess(res, 200, { revision });
+});
+
+/**
+ * POST /api/posts/:slug/revisions/:revisionId/restore
+ * Restores the post content to a prior revision snapshot (author-only).
+ * @type {import('express').RequestHandler}
+ */
+const restoreRevision = asyncHandler(async (req, res) => {
+  const post = await Post.findOne({ slug: req.params.slug });
+  if (!post) throw new ApiError(404, "Story not found");
+
+  if (String(post.author) !== String(req.user._id)) {
+    throw new ApiError(403, "You can only restore revisions of your own stories");
+  }
+
+  const PostRevision = require("../models/PostRevision");
+  const revision = await PostRevision.findOne({ _id: req.params.revisionId, post: post._id });
+  if (!revision) {
+    throw new ApiError(404, "Revision not found");
+  }
+
+  // Snapshot the CURRENT state as a new revision (making this restore action undoable)
+  await PostRevision.create({
+    post: post._id,
+    title: post.title,
+    subtitle: post.subtitle,
+    contentHtml: post.contentHtml,
+    tags: post.tags,
+    coverImage: post.coverImage,
+    editedBy: req.user._id,
+  });
+
+  // Apply revision content
+  post.title = revision.title;
+  post.subtitle = revision.subtitle;
+  post.contentHtml = revision.contentHtml;
+  post.tags = revision.tags;
+  post.coverImage = revision.coverImage;
+
+  await post.save();
+
+  // Prune revisions to keep max 50
+  const revisionsCount = await PostRevision.countDocuments({ post: post._id });
+  if (revisionsCount > 50) {
+    const oldestRevisions = await PostRevision.find({ post: post._id })
+      .sort({ createdAt: 1 })
+      .limit(revisionsCount - 50);
+    const oldestIds = oldestRevisions.map(r => r._id);
+    await PostRevision.deleteMany({ _id: { $in: oldestIds } });
+  }
+
+  return sendSuccess(res, 200, { post: post.toCardJSON(req.user._id) }, "Revision restored successfully.");
+});
+
 module.exports = {
   listPosts,
   getPost,
@@ -381,4 +522,7 @@ module.exports = {
   trendingTags,
   listSitemapData,
   toggleTagFollow,
+  listRevisions,
+  getRevisionDetails,
+  restoreRevision,
 };

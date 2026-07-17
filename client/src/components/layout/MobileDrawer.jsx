@@ -58,6 +58,9 @@ export default function MobileDrawer({ open, onClose, onLogout }) {
           {user ? (
             <>
               <DrawerLink href="/new-story" onClick={onClose}>Write a story</DrawerLink>
+              {user.role === "admin" && (
+                <DrawerLink href="/admin" onClick={onClose}>Admin Dashboard</DrawerLink>
+              )}
               <DrawerLink href={`/@${user.username}`} onClick={onClose}>Profile</DrawerLink>
               <DrawerLink href="/bookmarks" onClick={onClose}>Bookmarks</DrawerLink>
               <DrawerLink href="/settings" onClick={onClose}>Settings</DrawerLink>

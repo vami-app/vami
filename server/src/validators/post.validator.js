@@ -29,6 +29,10 @@ const commentRules = [
     .withMessage("Comment cannot be empty")
     .isLength({ max: 2000 })
     .withMessage("Comment is too long"),
+  body("parentComment")
+    .optional({ nullable: true, checkFalsy: true })
+    .isMongoId()
+    .withMessage("Invalid parent comment ID"),
 ];
 
 module.exports = { createPostRules, updatePostRules, commentRules };

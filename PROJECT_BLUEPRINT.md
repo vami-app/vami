@@ -1236,22 +1236,22 @@ The following were listed as intentionally excluded from the initial MVP. **Phas
 | Publications / multi-author | Phase B+ | Pending (Phase C) |
 | Membership / paywall | Phase B+ | Pending (Phase D) |
 | Text highlighting / inline responses | Phase B+ | Pending (Phase F) |
-| Admin dashboard | Phase B+ | Pending (Phase B) |
+| Admin dashboard | Phase B+ | ✅ **Built** — admin gate, stats view, user ban/role manager, report review queue |
 | CI/CD pipeline | Phase B+ | Pending (Phase G) |
 | Post scheduling | Phase B+ | Pending (Phase E) |
-| Nested comments / threads | Phase B+ | Pending (Phase B) |
+| Nested comments / threads | Phase B+ | ✅ **Built** — 5-level clamped depth, recursive UI rendering, soft-delete branch |
 | Dark mode | Phase B+ | Pending (Phase F) |
-| Moderation / reports / review queue | Not planned at MVP | Pending (Phase B) |
-| Revision history | Not planned at MVP | Pending (Phase B) |
+| Moderation / reports / review queue | Not planned at MVP | ✅ **Built** — POST report, 3x priority flag, RSS/Weekly-digest/Feed filter, AuditLog |
+| Revision history | Not planned at MVP | ✅ **Built** — 50-limit snapshot database compare on update, diff render side-over, content restore |
 
 ## 15. Full Development Roadmap
 
-Phase A (Ownership & Trust Foundation) is **complete**. The full phased development plan — covering Phases B through G — is documented in `INKWELL_FULL_PRODUCT_ROADMAP.md`.
+Phase B (Safety & Integrity) is **complete**. The full phased development plan — covering Phases C through G — is documented in `INKWELL_FULL_PRODUCT_ROADMAP.md`.
 
 | Phase | Focus | Status |
 |---|---|---|
 | A — Ownership & Trust | Email verification, notifications, digest, legal pages, account deletion, sovereign export | **Completed** |
-| B — Safety & Integrity | Moderation/reports, admin dashboard, revision history, nested comments | Pending |
+| B — Safety & Integrity | Moderation/reports, admin dashboard, revision history, nested comments | **Completed** |
 | C — Growth Engine | Publications, algorithmic feed scoring, reading lists, related posts | Pending |
 | D — Monetization Mechanism | Paywall, Stripe test-mode membership, writer payout ledger | Pending |
 | E — Identity, Access, Real-time | OAuth (Google + GitHub), Socket.IO notifications, post scheduling | Pending |
@@ -1262,4 +1262,4 @@ See `INKWELL_FULL_PRODUCT_ROADMAP.md` for detailed feature specs, durations, and
 
 ---
 
-*Blueprint updated: 2026-07-17 — Synchronized with Phase A completion. v1.2.0.*
+*Blueprint updated: 2026-07-17 — Synchronized with Phase A completion. v1.3.0.*

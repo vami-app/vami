@@ -102,6 +102,9 @@ export default function Navbar() {
                     >
                       <MenuLink href={`/@${user.username}`}>Profile</MenuLink>
                       <MenuLink href="/new-story">Write a story</MenuLink>
+                      {user.role === "admin" && (
+                        <MenuLink href="/admin">Admin Dashboard</MenuLink>
+                      )}
                       <MenuLink href="/bookmarks">Bookmarks</MenuLink>
                       <MenuLink href="/settings">Settings</MenuLink>
                       <button

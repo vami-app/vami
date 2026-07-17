@@ -51,6 +51,7 @@ async function run() {
     // where author is in user.following OR any tag in tags matches user.followedTags
     const query = {
       status: "published",
+      moderationStatus: "visible",
       publishedAt: { $gte: sevenDaysAgo },
       $or: [],
     };

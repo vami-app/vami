@@ -17,7 +17,7 @@ const AUTHOR_FIELDS = "name username avatarUrl bio";
 router.get(
   "/rss",
   asyncHandler(async (req, res) => {
-    const posts = await Post.find({ status: "published", indexable: true })
+    const posts = await Post.find({ status: "published", indexable: true, moderationStatus: "visible" })
       .sort({ publishedAt: -1, _id: -1 })
       .limit(50)
       .populate("author", AUTHOR_FIELDS);
@@ -58,6 +58,7 @@ router.get(
       author: user._id,
       status: "published",
       indexable: true,
+      moderationStatus: "visible",
     })
       .sort({ publishedAt: -1, _id: -1 })
       .limit(50)
@@ -86,6 +87,7 @@ router.get(
       tags: tag,
       status: "published",
       indexable: true,
+      moderationStatus: "visible",
     })
       .sort({ publishedAt: -1, _id: -1 })
       .limit(50)

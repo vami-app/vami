@@ -99,6 +99,7 @@ All five seeded users share the password `password123`.
 | `pnpm build` | Production build of the client |
 | `pnpm start` | Run both apps in production mode |
 | `pnpm seed` | Wipe + reseed the database |
+| `node server/src/scripts/promote_admin.js <email>` | Promote a user to admin role |
 
 Per-app: `pnpm --filter client <script>` / `pnpm --filter server <script>`.
 

@@ -49,6 +49,8 @@ const userSchema = new Schema(
     emailVerified: { type: Boolean, default: false },
     emailVerifyTokenHash: { type: String, select: false },
     emailVerifyExpiresAt: { type: Date, select: false },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
+    status: { type: String, enum: ["active", "banned"], default: "active" },
   },
   { timestamps: true }
 );
@@ -86,6 +88,8 @@ userSchema.methods.toPublicJSON = function toPublicJSON(includeEmail = false) {
     subdomain: this.subdomain,
     customDomain: this.customDomain,
     emailVerified: this.emailVerified || false,
+    role: this.role || "user",
+    status: this.status || "active",
     ...(includeEmail ? {
       email: this.email,
       emailPrefs: this.emailPrefs || { allEmails: true, digestFrequency: "weekly" },

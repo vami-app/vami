@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { api, ApiError, resolveMedia } from "@/lib/api";
 import Button from "@/components/ui/Button";
+import PostRevisions from "./PostRevisions";
 
 // Tiptap must be client-only (no SSR)
 const StoryEditor = dynamic(() => import("./StoryEditor"), {
@@ -40,6 +41,7 @@ export default function StoryComposer({ initial = {}, mode }) {
   const [status, setStatus] = useState(initial.status || "draft");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [showRevisions, setShowRevisions] = useState(false);
 
   const addTag = () => {
     const t = tagInput.trim().toLowerCase();
@@ -131,6 +133,11 @@ export default function StoryComposer({ initial = {}, mode }) {
         </span>
         <div className="flex items-center gap-2">
           {mode === "edit" && (
+            <Button variant="ghost" size="sm" onClick={() => setShowRevisions(true)}>
+              Revisions
+            </Button>
+          )}
+          {mode === "edit" && (
             <Button variant="danger" size="sm" onClick={remove} disabled={busy}>
               Delete
             </Button>
@@ -210,6 +217,23 @@ export default function StoryComposer({ initial = {}, mode }) {
           )}
         </div>
       </div>
+
+      {showRevisions && slug && (
+        <PostRevisions
+          slug={slug}
+          onClose={() => setShowRevisions(false)}
+          onRestore={(restoredPost) => {
+            setTitle(restoredPost.title || "");
+            setSubtitle(restoredPost.subtitle || "");
+            setContentHtml(restoredPost.contentHtml || "<p></p>");
+            setCoverImage(restoredPost.coverImage || "");
+            setTags(restoredPost.tags || []);
+          }}
+          currentTitle={title}
+          currentSubtitle={subtitle}
+          currentContent={contentHtml}
+        />
+      )}
     </div>
   );
 }
