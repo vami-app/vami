@@ -18,6 +18,10 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
  * @property {string} jwtAccessExpires
  * @property {string} jwtRefreshExpires
  * @property {boolean} cookieSecure
+ * @property {string} emailFrom
+ * @property {string} resendApiKey
+ * @property {string} mailtrapApiToken
+ * @property {string} mailtrapInboxId
  * @property {boolean} isProd
  */
 
@@ -32,6 +36,10 @@ const env = {
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES || "15m",
   jwtRefreshExpires: process.env.JWT_REFRESH_EXPIRES || "7d",
   cookieSecure: process.env.COOKIE_SECURE === "true",
+  emailFrom: process.env.EMAIL_FROM || "Inkwell <onboarding@resend.dev>",
+  resendApiKey: process.env.RESEND_API_KEY || "",
+  mailtrapApiToken: process.env.MAILTRAP_API_TOKEN || "",
+  mailtrapInboxId: process.env.MAILTRAP_INBOX_ID || "",
   get isProd() {
     return this.nodeEnv === "production";
   },

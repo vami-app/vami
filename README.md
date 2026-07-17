@@ -76,6 +76,10 @@ All five seeded users share the password `password123`.
 | `JWT_ACCESS_EXPIRES` | `15m` | access token TTL |
 | `JWT_REFRESH_EXPIRES` | `7d` | refresh token TTL |
 | `COOKIE_SECURE` | `false` | set `true` behind HTTPS |
+| `EMAIL_FROM` | `Inkwell <onboarding@resend.dev>` | From address for outgoing emails |
+| `RESEND_API_KEY` | (empty) | Resend API key (production email delivery) |
+| `MAILTRAP_API_TOKEN` | (empty) | Mailtrap API token (sandbox email testing) |
+| `MAILTRAP_INBOX_ID` | (empty) | Mailtrap Inbox ID (sandbox email testing) |
 
 **`client/.env.local`**
 

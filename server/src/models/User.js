@@ -38,6 +38,8 @@ const userSchema = new Schema(
     customDomain: { type: String, default: null },
     exportRequestedAt: { type: Date },
     exportStatus: { type: String, enum: ["idle", "pending", "ready", "failed"], default: "idle" },
+    passwordResetTokenHash: { type: String, select: false },
+    passwordResetExpiresAt: { type: Date, select: false },
   },
   { timestamps: true }
 );

@@ -365,6 +365,8 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `customDomain`| String           | default `null` (v2 BYO custom domain)         |
 | `exportRequestedAt` | Date       | Timestamp throttle for account zip downloads  |
 | `exportStatus` | String          | enum: `"idle" \| "pending" \| "ready" \| "failed"`, default `"idle"` |
+| `passwordResetTokenHash` | String | `select: false` — SHA-256 of the emailed reset token; raw token is never stored |
+| `passwordResetExpiresAt` | Date  | `select: false` — reset token TTL (30 min from request) |
 | `createdAt` / `updatedAt` | Date | auto via timestamps                    |
 
 **Hooks & methods:**
@@ -598,6 +600,8 @@ All validation is done via `express-validator` before controllers run.
 #### Auth validators
 - `registerRules`: name (required), username (3–30, `[a-z0-9_]`), email (valid format), password (min 8)
 - `loginRules`: email (valid), password (not empty)
+- `forgotPasswordRules`: email (valid format)
+- `resetPasswordRules`: token (64-char hex), password (min 8)
 
 #### Post validators
 - `createPostRules`: title (required, max 160), subtitle (optional, max 200), contentHtml (optional, string), tags (optional, array max 5), status (optional, draft|published), seo.metaTitle (optional, max 160), seo.metaDescription (optional, max 200)
@@ -904,6 +908,31 @@ ink:
        │  → /@ada-love/              │                             │
 ```
 
+### Password Reset Flow
+
+```
+1. /forgot-password → POST /api/auth/forgot-password { email }
+   - Rate limited: 5/hour per IP (each request sends an email).
+   - If the account exists: 32-byte random token generated,
+     SHA-256 hash + 30-min expiry saved on the user, raw token emailed
+     as {CLIENT_URL}/reset-password?token=<raw>.
+   - Response is IDENTICAL whether or not the email exists
+     (no account enumeration). Email send failures are logged, never leaked.
+2. Email link → /reset-password?token=... → POST /api/auth/reset-password
+   - Looks up by hash(token) + unexpired TTL; 400 if invalid or expired.
+   - Sets new password (bcrypt via pre-save hook), clears token fields
+     (single-use), and issues a fresh session (auto-login).
+```
+
+**Email delivery** (`server/src/utils/email.js`) — provider picked from env, no code change needed:
+| Env keys set | Provider |
+|---|---|
+| `RESEND_API_KEY` | Resend HTTP API (production; requires SPF/DKIM on the sending domain) |
+| `MAILTRAP_API_TOKEN` + `MAILTRAP_INBOX_ID` | Mailtrap sandbox (dev — never reaches real inboxes) |
+| none | Console log (zero-credential local testing) |
+
+`EMAIL_FROM` sets the From header (default `Inkwell <onboarding@resend.dev>`). Templates live in `server/src/utils/emailTemplates.js` — table layout + inline CSS for email-client compatibility, with plaintext fallback.
+
 ---
 
 ## 8. Data Flow — End-to-End
@@ -986,6 +1015,8 @@ Auth
   POST   /api/auth/logout                  (requireAuth)
   POST   /api/auth/refresh
   GET    /api/auth/me                      (requireAuth)
+  POST   /api/auth/forgot-password         (rate limit: 5/h per IP)
+  POST   /api/auth/reset-password
 
 Users
   GET    /api/users/:username              (optionalAuth)
@@ -1168,7 +1199,6 @@ pnpm --filter server seed
 
 The following were intentionally excluded to keep the MVP focused:
 
-- Password reset / forgot password (would log token to console)
 - Email verification
 - OAuth / social login (Google, GitHub)
 - Real-time notifications (WebSockets)
@@ -1190,7 +1220,6 @@ The following were intentionally excluded to keep the MVP focused:
 |----------------------------|------------------------------------------------------------|
 | Cloud image hosting        | Cloudinary free tier — replace Multer `diskStorage`        |
 | Cloud database             | MongoDB Atlas M0 free tier — swap `MONGO_URI`              |
-| Password reset email       | Mailtrap free sandbox — add `POST /api/auth/forgot-password` |
 | Real-time notifications    | Socket.IO or Server-Sent Events                            |
 | OAuth                      | Passport.js (Google/GitHub strategies)                     |
 | Analytics                  | Writer dashboard: views, claps, read-time trends           |

@@ -22,4 +22,18 @@ const loginRules = [
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
-module.exports = { registerRules, loginRules };
+const forgotPasswordRules = [
+  body("email").trim().isEmail().withMessage("A valid email is required").normalizeEmail(),
+];
+
+const resetPasswordRules = [
+  body("token")
+    .isHexadecimal()
+    .isLength({ min: 64, max: 64 })
+    .withMessage("Invalid reset token"),
+  body("password")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters"),
+];
+
+module.exports = { registerRules, loginRules, forgotPasswordRules, resetPasswordRules };

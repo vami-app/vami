@@ -65,6 +65,11 @@ function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
         />
+        <p className="text-right text-sm">
+          <Link href="/forgot-password" className="text-ink-soft hover:text-accent-600 hover:underline">
+            Forgot password?
+          </Link>
+        </p>
         <Button type="submit" size="lg" className="w-full" disabled={submitting}>
           {submitting ? "Signing in…" : "Sign in"}
         </Button>

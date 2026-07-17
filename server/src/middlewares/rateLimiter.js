@@ -17,6 +17,21 @@ const authLimiter = rateLimit({
 });
 
 /**
+ * Tight limiter for password-reset requests — each one triggers an outbound
+ * email, so the ceiling is much lower than for login attempts.
+ */
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 reset emails per window per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many reset requests. Please try again later.",
+  },
+});
+
+/**
  * Generous general limiter to protect the API from abuse.
  */
 const generalLimiter = rateLimit({
@@ -26,4 +41,4 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, generalLimiter };
+module.exports = { authLimiter, forgotPasswordLimiter, generalLimiter };
