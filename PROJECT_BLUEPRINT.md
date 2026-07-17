@@ -78,6 +78,8 @@ inkwell/                            ← pnpm workspace root
 │   ├── postcss.config.mjs
 │   ├── jsconfig.json               ← Path alias: @/ → src/
 │   ├── .env.example / .env.local
+│   ├── public/
+│   │   └── google37b5f6fe1e66acb6.html ← Google Search Console site verification file
 │   └── src/
 │       ├── middleware.js           ← Subdomain rewrites (ada.inkwell.app → /@ada)
 │       ├── app/                    ← App Router root
