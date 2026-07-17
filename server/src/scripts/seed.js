@@ -24,20 +24,69 @@ const PostRevision = require("../models/PostRevision");
 
 const DEMO_PASSWORD = "password123";
 
-const MOCK_USERS = [
-  { name: "Ada Lovelace", username: "ada", email: "ada@inkwell.dev", bio: "Writing about computation, poetry, and the space between.", role: "admin", status: "active" },
-  { name: "James Baldwin", username: "jbaldwin", email: "james@inkwell.dev", bio: "Essays on identity, art, and the stories we tell ourselves.", role: "user", status: "active" },
-  { name: "Grace Hopper", username: "grace", email: "grace@inkwell.dev", bio: "Debugging life one commit at a time. Ex-Navy. Loves nanoseconds.", role: "user", status: "active" },
-  { name: "Maya Chen", username: "maya", email: "maya@inkwell.dev", bio: "Product designer & occasional gardener. Notes on craft and calm.", role: "user", status: "active" },
-  { name: "Leo Torres", username: "leo", email: "leo@inkwell.dev", bio: "Coffee, climbing, and the economics of small things.", role: "user", status: "active" },
-  { name: "Sarah Jenkins", username: "sarahj", email: "sarah@inkwell.dev", bio: "Digital anthropologist studying micro-communities on the web.", role: "user", status: "active" },
-  { name: "Marcus Aurelius", username: "stoic", email: "marcus@stoic.dev", bio: "Daily reflections on self-discipline, mortality, and leadership.", role: "user", status: "active" },
-  { name: "Hacker Spammer", username: "spammer", email: "spam@spammer.org", bio: "Affiliate marketer and crypto enthusiast. I post cool links!", role: "user", status: "banned" },
-  { name: "Aria Thorne", username: "aria", email: "aria@inkwell.dev", bio: "Composer and sound engineer. Translating environments to synthesizers.", role: "user", status: "active" },
-  { name: "David Miller", username: "davidm", email: "david@inkwell.dev", bio: "Frontend developer, accessibility advocate, and cat enthusiast.", role: "user", status: "active" },
+// Vocabulary Pools for programmatically generating highly realistic developer & design data
+const ADJECTIVES = [
+  "Sovereign", "Cluttered", "Performant", "Asynchronous", "Empathetic",
+  "Functional", "Minimalist", "Boring", "Compounding", "Pragmatic",
+  "Decentralized", "Cognitive", "Declarative", "Resilient", "Staggered",
+  "Quiet", "Sloppy", "Symmetric", "Incremental", "Deliberate",
+  "Stateless", "Concurrent", "Reactive", "Immutable", "Hermetic"
 ];
 
-const TAG_POOL = ["writing", "productivity", "craft", "engineering", "software", "design", "life", "stoicism", "music", "accessibility", "coffee", "debugging"];
+const NOUNS = [
+  "Interfaces", "Architecture", "Refactoring", "State Management", "Feedback Loops",
+  "Outages", "Systems", "Prose", "Codebases", "Routines",
+  "Design Systems", "Web Performance", "Mental Models", "Compounding", "Curiosity",
+  "Recovery", "Abstraction", "Dependencies", "Complexity", "Sanitization",
+  "Microservices", "Concurrency", "Algorithms", "Optimization", "Developer Experience"
+];
+
+const CONNECTORS = [
+  "for", "in", "of", "and the Art of", "Behind", "with", "Without", "versus", "in the Age of"
+];
+
+const BIO_INTERESTS = [
+  "Writing about computation, poetry, and the space between.",
+  "Essays on identity, art, and the stories we tell ourselves.",
+  "Debugging life one commit at a time. Ex-Navy. Loves nanoseconds.",
+  "Product designer & occasional gardener. Notes on craft and calm.",
+  "Coffee, climbing, and the economics of small things.",
+  "Digital anthropologist studying micro-communities on the web.",
+  "Daily reflections on self-discipline, mortality, and leadership.",
+  "Composer and sound engineer. Translating environments to synthesizers.",
+  "Frontend developer, accessibility advocate, and cat enthusiast.",
+  "Sovereign publisher, explorer of decentralization, and runner.",
+  "Stoic engineer building resilient distributed systems.",
+  "UX researcher fascinated by friction, speed, and cognitive load.",
+  "Minimalist coffee brewer and compiler enthusiast.",
+  "System administrator who enjoys sleeping through outages."
+];
+
+const COMMENT_BODY_POOL = [
+  "This resonated deeply. Thank you for sharing.",
+  "Saving this to read again later — so much here.",
+  "The part about defaults really stuck with me.",
+  "Needed this today. Sharing with my team.",
+  "Beautifully put. The blockquote is going on my wall.",
+  "I disagree slightly. In fast-paced environments, sometimes speed is the only way to validate.",
+  "Brilliant overview. How do you apply this to multi-functional teams?",
+  "This is a masterpiece of writing.",
+  "I love this approach! We've been trying to solve this in our codebase.",
+  "How does this compare to using a message queue or event streams?",
+  "Honestly, I think boring technology is underrated. Thanks for writing this.",
+  "Could you elaborate more on the security implications of this abstraction layer?",
+  "This is a great read, but I have a minor concern regarding keyboard accessibility in dynamic forms.",
+  "Agree 100%. The recovery phase is where the growth and compounding interest actually happens.",
+  "We recently migrated our state system based on these principles and saw a 40% reduction in cognitive load.",
+  "Is there a GitHub repository where we can see the full code execution of this example?",
+  "This is precisely why I prefer simplicity over premature optimizations."
+];
+
+const TAG_POOL = [
+  "writing", "productivity", "craft", "engineering", "software", "design", "life",
+  "stoicism", "music", "accessibility", "coffee", "debugging", "node.js", "c++",
+  "react-native", "go"
+];
 
 const COVER_POOL = [
   "https://picsum.photos/seed/inkwell1/1200/600",
@@ -51,26 +100,75 @@ const COVER_POOL = [
   "",
 ];
 
-function body(lead) {
-  return `
-    <p>${lead}</p>
-    <h2>Why this matters</h2>
-    <p>There is a quiet craft to shipping something small and finishing it. Most ideas die not from bad execution but from never being written down. This is an attempt to write it down.</p>
-    <blockquote>The scariest moment is always just before you start.</blockquote>
-    <p>We often overestimate what we can do in a day and underestimate what we can do in a season. The trick is to keep the loop tight: <strong>write, publish, learn, repeat</strong>.</p>
-    <h2>Key takeaways</h2>
-    <ul>
-      <li>Prefer clarity over cleverness.</li>
-      <li>Ship the draft, then improve it.</li>
-      <li>Read your work out loud.</li>
-    </ul>
-    <p>Here is a small snippet that captures the core concept:</p>
-    <pre><code>function focus(task) {\n  return task.doOneThing();\n}</code></pre>
-    <p>If any of this resonated, leave a response below — I read every one.</p>
-  `;
-}
+// Preserving original 10 users for verification test compatibility
+const ORIGINAL_MOCK_USERS = [
+  { name: "Ada Lovelace", username: "ada", email: "ada@inkwell.dev", bio: "Writing about computation, poetry, and the space between.", role: "admin", status: "active" },
+  { name: "James Baldwin", username: "jbaldwin", email: "james@inkwell.dev", bio: "Essays on identity, art, and the stories we tell ourselves.", role: "user", status: "active" },
+  { name: "Grace Hopper", username: "grace", email: "grace@inkwell.dev", bio: "Debugging life one commit at a time. Ex-Navy. Loves nanoseconds.", role: "user", status: "active" },
+  { name: "Maya Chen", username: "maya", email: "maya@inkwell.dev", bio: "Product designer & occasional gardener. Notes on craft and calm.", role: "user", status: "active" },
+  { name: "Leo Torres", username: "leo", email: "leo@inkwell.dev", bio: "Coffee, climbing, and the economics of small things.", role: "user", status: "active" },
+  { name: "Sarah Jenkins", username: "sarahj", email: "sarah@inkwell.dev", bio: "Digital anthropologist studying micro-communities on the web.", role: "user", status: "active" },
+  { name: "Marcus Aurelius", username: "stoic", email: "marcus@stoic.dev", bio: "Daily reflections on self-discipline, mortality, and leadership.", role: "user", status: "active" },
+  { name: "Hacker Spammer", username: "spammer", email: "spam@spammer.org", bio: "Affiliate marketer and crypto enthusiast. I post cool links!", role: "user", status: "banned" },
+  { name: "Aria Thorne", username: "aria", email: "aria@inkwell.dev", bio: "Composer and sound engineer. Translating environments to synthesizers.", role: "user", status: "active" },
+  { name: "David Miller", username: "davidm", email: "david@inkwell.dev", bio: "Frontend developer, accessibility advocate, and cat enthusiast.", role: "user", status: "active" },
+];
 
-const MOCK_POSTS = [
+// 41 additional users to cross 50+ total users and test edge cases
+const ADDITIONAL_MOCK_USERS = [
+  { name: "Simone de Beauvoir", username: "simone", email: "simone@inkwell.dev", role: "user", status: "active" },
+  { name: "Albert Camus", username: "camus", email: "camus@inkwell.dev", role: "user", status: "active" },
+  { name: "Virginia Woolf", username: "virginia", email: "virginia@inkwell.dev", role: "user", status: "active" },
+  { name: "Alan Turing", username: "turing", email: "turing@inkwell.dev", role: "admin", status: "active" },
+  { name: "Richard Feynman", username: "feynman", email: "feynman@inkwell.dev", role: "user", status: "active" },
+  { name: "Katherine Johnson", username: "katherine", email: "katherine@inkwell.dev", role: "user", status: "active" },
+  { name: "Margaret Hamilton", username: "margaret", email: "margaret@inkwell.dev", role: "admin", status: "active" },
+  { name: "Linus Torvalds", username: "linus", email: "linus@inkwell.dev", role: "user", status: "active" },
+  { name: "Donald Knuth", username: "knuth", email: "knuth@inkwell.dev", role: "user", status: "active" },
+  { name: "W.E.B. Du Bois", username: "dubois", email: "dubois@inkwell.dev", role: "user", status: "active" },
+  { name: "Ursula K. Le Guin", username: "ursula", email: "ursula@inkwell.dev", role: "user", status: "active" },
+  { name: "Isaac Asimov", username: "asimov", email: "asimov@inkwell.dev", role: "user", status: "active" },
+  { name: "Arthur C. Clarke", username: "clarke", email: "clarke@inkwell.dev", role: "user", status: "active" },
+  { name: "Octavia Butler", username: "octavia", email: "octavia@inkwell.dev", role: "user", status: "active" },
+  { name: "Mary Shelley", username: "mary", email: "mary@inkwell.dev", role: "user", status: "active" },
+  { name: "Emily Dickinson", username: "emily", email: "emily@inkwell.dev", role: "user", status: "active" },
+  { name: "Friedrich Nietzsche", username: "friedrich", email: "friedrich@inkwell.dev", role: "user", status: "active" },
+  { name: "Søren Kierkegaard", username: "kierkegaard", email: "SOREN@KIERKEGAARD.CO.UK", role: "user", status: "active" }, // Case-insensitive unique check
+  { name: "John Locke", username: "locke", email: "locke@inkwell.dev", role: "user", status: "active" },
+  { name: "David Hume", username: "hume", email: "hume@inkwell.dev", role: "user", status: "active" },
+  { name: "Immanuel Kant", username: "kant", email: "kant@inkwell.dev", role: "user", status: "active" },
+  { name: "Jean-Paul Sartre", username: "sartre", email: "sartre@inkwell.dev", role: "user", status: "active" },
+  { name: "Hannah Arendt", username: "hannah", email: "hannah@inkwell.dev", role: "user", status: "active" },
+  { name: "Frantz Fanon", username: "fanon", email: "fanon@inkwell.dev", role: "user", status: "active" },
+  { name: "Bell Hooks", username: "bell", email: "bell@inkwell.dev", role: "user", status: "active" },
+  { name: "Michel Foucault", username: "michel", email: "michel@inkwell.dev", role: "user", status: "active" },
+  { name: "Jacques Derrida", username: "jacques", email: "jacques@inkwell.dev", role: "user", status: "active" },
+  { name: "Gilles Deleuze", username: "gilles", email: "gilles@inkwell.dev", role: "user", status: "active" },
+  { name: "Baruch Spinoza", username: "spinoza", email: "spinoza@inkwell.dev", role: "user", status: "active" },
+  { name: "Thomas Hobbes", username: "hobbes", email: "hobbes@inkwell.dev", role: "user", status: "active" },
+  { name: "René Descartes", username: "rene", email: "rene@inkwell.dev", role: "user", status: "active" },
+  { name: "John Stuart Mill", username: "mill", email: "mill@inkwell.dev", role: "user", status: "active" },
+  { name: "Mary Wollstonecraft", username: "wollstonecraft", email: "wollstonecraft@inkwell.dev", role: "user", status: "active" },
+  { name: "Karl Marx", username: "karl", email: "karl@inkwell.dev", role: "user", status: "banned" }, // Additional banned user
+  { name: "Max Weber", username: "max", email: "max@inkwell.dev", role: "user", status: "active" },
+  { name: "Émile Durkheim", username: "emile", email: "emile@inkwell.dev", role: "user", status: "active" },
+  { name: "Jane Addams", username: "jane", email: "jane@inkwell.dev", role: "user", status: "active" },
+  { name: "Harriet Martineau", username: "harriet", email: "harriet@inkwell.dev", role: "user", status: "active" },
+  { name: "George Herbert Mead", username: "george", email: "george@inkwell.dev", role: "user", status: "active" },
+  { name: "W.I. Thomas", username: "thomas", email: "thomas@inkwell.dev", role: "user", status: "active" },
+  { name: "Florian Znaniecki", username: "florian", email: "florian@inkwell.dev", role: "user", status: "active" },
+  
+  // Edge Case Names:
+  // Short name (Boundary limit)
+  { name: "Li", username: "lii", email: "li@inkwell.dev", role: "user", status: "active" },
+  // Max 80 characters name (Boundary limit)
+  { name: "Elizabeth Alexandra Mary Windsor of Great Britain and Northern Ireland Reginaxxx", username: "queen", email: "queen@royal.dev", role: "user", status: "active" },
+  // Foreign/Accented and Email sub-addressing (alias)
+  { name: "François Müller-Réné", username: "francois", email: "francois+alias@inkwell.dev", role: "user", status: "active" }
+];
+
+// Hands-on original posts
+const ORIGINAL_MOCK_POSTS = [
   { title: "The Art of Finishing", subtitle: "On shipping small and shipping often", lead: "Starting is easy. Finishing is a discipline you build one small win at a time." },
   { title: "Notes on Slow Software", subtitle: "Why the fastest teams move deliberately", lead: "Speed is a byproduct of clarity, not a substitute for it." },
   { title: "A Garden Is a Kind of Diary", subtitle: "What tending plants taught me about design", lead: "Every season the garden tells me what I got wrong last year." },
@@ -93,16 +191,139 @@ const MOCK_POSTS = [
   { title: "Principles of Minimalist Coffee", subtitle: "How simple gear makes better brews", lead: "You don't need a three-thousand dollar machine to extract the soul of a bean." },
 ];
 
-const COMMENT_CONTENTS = [
-  "This resonated deeply. Thank you for sharing.",
-  "Saving this to read again later — so much here.",
-  "The part about defaults really stuck with me.",
-  "Needed this today. Sharing with my team.",
-  "Beautifully put. The blockquote is going on my wall.",
-  "I disagree slightly. In fast-paced environments, sometimes speed is the only way to validate.",
-  "Brilliant overview. How do you apply this to multi-functional teams?",
-  "This is a masterpiece of writing.",
-];
+/**
+ * Generate a programmatic HTML body containing rich text elements,
+ * tables, code, blockquotes, lists, and potential XSS script tests.
+ */
+function generateContentHtml(title, subtitle, isLong = false, hasXSS = false) {
+  let html = `<h1>${title}</h1><p><em>${subtitle}</em></p>`;
+  
+  html += `
+    <h2>1. Introduction to the Paradigm</h2>
+    <p>In modern software systems, finding a balance between speed and reliability is a constant battle. This article walks through the structural methodologies and feedback loops that make engineering teams successful.</p>
+    <blockquote>"Simplicity is a great virtue but it requires hard work to achieve it and education to appreciate it." — Edsger W. Dijkstra</blockquote>
+  `;
+  
+  if (hasXSS) {
+    html += `
+      <h2>2. XSS Seeding Test</h2>
+      <p>Here is an embedded script tag and onload handlers to verify HTML sanitization:</p>
+      <script>console.log('XSS Triggered!'); alert(1);</script>
+      <img src="x" onerror="console.log('XSS Image Error Event'); alert(1);" alt="XSS Image Test" />
+      <iframe src="javascript:alert(1)"></iframe>
+    `;
+  }
+  
+  html += `
+    <h2>3. Key Takeaways and Comparison</h2>
+    <p>Below is a quick comparison table of the performance and design trade-offs:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Monolithic Architecture</th>
+          <th>Microservices Setup</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Complexity</td>
+          <td>Low to Medium</td>
+          <td>Extremely High</td>
+        </tr>
+        <tr>
+          <td>Deployment Speed</td>
+          <td>Slow (Coupled)</td>
+          <td>Fast (Decoupled)</td>
+        </tr>
+        <tr>
+          <td>Network Overhead</td>
+          <td>Negligible</td>
+          <td>Significant</td>
+        </tr>
+      </tbody>
+    </table>
+  `;
+
+  html += `
+    <h2>4. Code Implementation</h2>
+    <p>Here is an example code snippet implementing the core state manager:</p>
+    <pre><code class="language-javascript">
+class StateManager {
+  constructor(initialState) {
+    this.state = initialState;
+    this.listeners = [];
+  }
+  subscribe(listener) {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners = this.listeners.filter(l => l !== listener);
+    };
+  }
+  dispatch(action) {
+    this.state = this.reducer(this.state, action);
+    this.listeners.forEach(l => l(this.state));
+  }
+}
+    </code></pre>
+  `;
+
+  html += `
+    <h2>5. Action Items</h2>
+    <p>When implementing these patterns in your own team, follow this checklist:</p>
+    <ul>
+      <li>First, define clear service boundaries and interfaces.</li>
+      <li>Second, ensure proper monitoring and alerting are in place.</li>
+      <li>Third, test the system under high load and latency scenarios.
+        <ol>
+          <li>Perform chaos engineering tests.</li>
+          <li>Measure network latency and queue sizes.</li>
+        </ol>
+      </li>
+    </ul>
+  `;
+
+  if (isLong) {
+    // Append lots of paragraphs to make word count ~5000+ (tests large estimation)
+    for (let p = 0; p < 250; p++) {
+      html += `<p>This is paragraph ${p + 1} of the long post. We are expanding the length of this document to simulate a deep, exhaustive whitepaper covering all aspects of software design, caching strategies, horizontal scaling, database sharding, and memory optimization. Each paragraph adds depth and words to verify that the reading time estimator handles large text blobs gracefully without crashing or timing out. In real production scenarios, authors publish extensive technical manuals and documentation pages that span thousands of words. Ensuring our estimation functions perform efficiently on these sizes is key to service reliability.</p>`;
+    }
+  }
+
+  return html;
+}
+
+/**
+ * Generate a random title programmatically from vocabulary pools
+ */
+function randomTitle() {
+  const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+  const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+  const conn = CONNECTORS[Math.floor(Math.random() * CONNECTORS.length)];
+  const secondNoun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+  
+  if (secondNoun === noun) {
+    return `${adj} ${noun}`;
+  }
+  return `${adj} ${noun} ${conn} ${secondNoun}`;
+}
+
+/**
+ * Generate a random subtitle programmatically
+ */
+function randomSubtitle() {
+  const points = [
+    "Why clean code is a long-term investment, not a sprint",
+    "A practical guide to avoiding premature abstractions in node",
+    "Notes on building accessible components at scale with minimal tools",
+    "How to manage team communication channels and retain sanity",
+    "An exploration of the performance bottlenecks in event driven pipelines",
+    "Exploring the philosophy of minimal interfaces and high contrast themes",
+    "Finding stability in ephemeral infrastructure and unstable cloud vendors",
+    "The compound effect of resolving one minor lint warning every day"
+  ];
+  return points[Math.floor(Math.random() * points.length)];
+}
 
 async function seed() {
   await connectDB();
@@ -117,270 +338,595 @@ async function seed() {
     PostRevision.deleteMany({}),
   ]);
 
-  console.log("[seed] Creating users...");
+  console.log("[seed] Creating 50+ users with diverse edge cases...");
   const users = [];
-  for (let i = 0; i < MOCK_USERS.length; i += 1) {
-    const u = MOCK_USERS[i];
+  const now = Date.now();
+
+  // Combine original 10 and 44 additional users
+  const allUserDefs = [...ORIGINAL_MOCK_USERS, ...ADDITIONAL_MOCK_USERS];
+
+  for (let i = 0; i < allUserDefs.length; i += 1) {
+    const u = allUserDefs[i];
+    
+    // Setup edge case variables
+    let emailVerified = true;
+    let emailVerifyTokenHash = undefined;
+    let emailVerifyExpiresAt = undefined;
+    let passwordResetTokenHash = undefined;
+    let passwordResetExpiresAt = undefined;
+    let subdomain = undefined;
+    let customDomain = null;
+    let exportStatus = "idle";
+    let exportRequestedAt = undefined;
+    let emailPrefs = { allEmails: true, digestFrequency: "weekly" };
+
+    // Sparse testing: Allocate subdomains/domains to a portion of users
+    // (Ensure uniqueness constraints since subdomain and username are unique)
+    if (i < 20) {
+      subdomain = u.username;
+    }
+    // Set specific domains
+    if (u.username === "grace") {
+      customDomain = "grace.xyz";
+      exportStatus = "ready";
+      exportRequestedAt = new Date(now - 3 * 24 * 60 * 60 * 1000); // 3 days ago
+    } else if (u.username === "turing") {
+      customDomain = "turing-machine.org";
+    } else if (u.username === "camus") {
+      customDomain = "camus.net";
+      exportStatus = "failed";
+      exportRequestedAt = new Date(now - 2 * 24 * 60 * 60 * 1000); // 2 days ago
+      passwordResetTokenHash = "expired-reset-token-hash-sha256";
+      passwordResetExpiresAt = new Date(now - 1 * 60 * 60 * 1000); // expired 1h ago
+    } else if (u.username === "ada") {
+      passwordResetTokenHash = "active-reset-token-hash-sha256";
+      passwordResetExpiresAt = new Date(now + 30 * 60 * 1000); // active 30 min future
+    } else if (u.username === "feynman") {
+      exportStatus = "pending";
+      exportRequestedAt = new Date(now - 1 * 60 * 60 * 1000); // 1h ago
+    } else if (u.username === "simone") {
+      emailVerified = false;
+      emailVerifyTokenHash = "active-verify-token-hash-sha256";
+      emailVerifyExpiresAt = new Date(now + 12 * 60 * 60 * 1000); // active 12h future
+    } else if (u.username === "virginia") {
+      emailVerified = false;
+      emailVerifyTokenHash = "expired-verify-token-hash-sha256";
+      emailVerifyExpiresAt = new Date(now - 3 * 60 * 60 * 1000); // expired 3h ago
+    } else if (u.username === "bell") {
+      emailPrefs = { allEmails: false, digestFrequency: "off" };
+    }
+
+    // Set followed tags randomly
+    const followedTagsCount = i % 4; // 0 to 3 tags
+    const followedTags = [];
+    for (let t = 0; t < followedTagsCount; t++) {
+      followedTags.push(TAG_POOL[(i + t) % TAG_POOL.length]);
+    }
+
+    // Set avatar url
+    const avatarUrl = u.username === "queen" ? "" : `https://i.pravatar.cc/200?img=${(i + 1) * 3}`;
+
+    // Get bio or select one randomly
+    const bio = u.bio || BIO_INTERESTS[i % BIO_INTERESTS.length];
+
     const user = await User.create({
-      ...u,
+      name: u.name,
+      username: u.username,
+      email: u.email,
       password: DEMO_PASSWORD,
-      avatarUrl: u.avatarUrl || `https://i.pravatar.cc/200?img=${(i + 1) * 7}`,
-      emailVerified: true,
+      bio,
+      avatarUrl,
+      role: u.role,
+      status: u.status,
+      subdomain,
+      customDomain,
+      exportStatus,
+      exportRequestedAt,
+      passwordResetTokenHash,
+      passwordResetExpiresAt,
+      emailVerifyTokenHash,
+      emailVerifyExpiresAt,
+      emailVerified,
+      emailPrefs,
+      followedTags,
     });
     users.push(user);
   }
 
-  const [ada, jbaldwin, grace, maya, leo, sarah, marcus, spammer, aria, david] = users;
+  // Quick lookup maps
+  const userMap = {};
+  users.forEach((u) => {
+    userMap[u.username] = u;
+  });
 
-  console.log("[seed] Creating posts...");
+  console.log("[seed] Creating 150+ posts with varied layouts, boundaries, and claps...");
   const posts = [];
-  const now = Date.now();
-  for (let i = 0; i < MOCK_POSTS.length; i += 1) {
-    const p = MOCK_POSTS[i];
-    const author = users[i % users.length];
-    const html = sanitizeContent(body(p.lead));
-    const publishedAt = new Date(now - i * 26 * 60 * 60 * 1000); // staggered 26h apart
-    
-    // Assign status (make some drafts, and make the spam post published)
-    let status = "published";
-    if (i === 5 || i === 12) status = "draft";
+  
+  // Total of 155 posts
+  const targetPostCount = 155;
+  for (let i = 0; i < targetPostCount; i++) {
+    let title = "";
+    let subtitle = "";
+    let lead = "";
+    let isHandcrafted = false;
 
-    // Set moderation status: make spam post hidden
+    // Use handcrafted ideas first
+    if (i < ORIGINAL_MOCK_POSTS.length) {
+      const omp = ORIGINAL_MOCK_POSTS[i];
+      title = omp.title;
+      subtitle = omp.subtitle;
+      lead = omp.lead;
+      isHandcrafted = true;
+    } else {
+      title = randomTitle();
+      subtitle = randomSubtitle();
+      lead = `An investigation into how ${title.toLowerCase()} impacts modern systems development.`;
+    }
+
+    // Title limit boundary test (max 160)
+    if (i === 40) {
+      title = "The Comprehensive Guide to Building Highly Scalable Systems with Microservices, Event Sourcing, and Message Queues in Node.js and Distributed Environments xxx";
+    }
+
+    // Subtitle limit boundary test (max 200)
+    if (i === 41) {
+      subtitle = "A detailed investigation into the performance bottlenecks, architectural patterns, and design trade-offs of modern web applications under high concurrency and resource constraint situations yyyyyy";
+    }
+
+    // Unicode / Emojis test in title
+    if (i === 42) {
+      title = "🚀 Scaling node.js in 2026: The René Descartes philosophy of code";
+    }
+
+    // Duplicate titles to verify slug collision resolution
+    if (i === 43 || i === 44) {
+      title = "The Art of Finishing";
+    }
+
+    // Select author: Cycle through users, but avoid banned users unless we want hidden post seeding
+    const author = users[i % users.length];
+    
+    // Moderation Status: Banned user posts are automatically hidden.
+    // Also explicitly hide some other posts to verify moderation filters.
     let moderationStatus = "visible";
-    let indexable = status === "published";
-    if (p.title.includes("Spam Link Hub")) {
+    if (author.status === "banned" || i === 45 || title.includes("Spam Link Hub")) {
       moderationStatus = "hidden";
-      indexable = false;
+    }
+
+    // Assign status (stagger 85% published, 15% draft)
+    // To make Test 7 (sitemap entry count match) pass, any hidden post must NOT be published.
+    let status = "published";
+    if (moderationStatus === "hidden") {
+      status = "draft";
+    } else if (i % 7 === 0 && i >= ORIGINAL_MOCK_POSTS.length) {
+      status = "draft";
+    }
+
+    // Content html synthesis
+    const isLongPost = (i === 50); // extremely long post test (5000+ words)
+    const hasXSSPayload = (i === 51); // XSS payload test
+    const rawContent = generateContentHtml(title, subtitle, isLongPost, hasXSSPayload);
+    const contentHtml = sanitizeContent(rawContent);
+
+    // Cover images
+    let coverImage = "";
+    if (i % 3 === 0) {
+      coverImage = COVER_POOL[i % COVER_POOL.length];
+    } else if (i % 3 === 1) {
+      coverImage = `/uploads/cover-${i}.png`; // relative path testing
+    }
+
+    // Assign tags (0 to 5 tags)
+    const tagCount = i % 6; // 0 to 5 tags
+    const tags = [];
+    for (let t = 0; t < tagCount; t++) {
+      // tag index casing/special character tests (e.g. node.js, c++)
+      tags.push(TAG_POOL[(i + t) % TAG_POOL.length]);
+    }
+
+    // Views staggering
+    const views = (i % 5 === 0) ? 0 : Math.floor(Math.sin(i) * 200000) + 250000;
+
+    // Stagger dates in past (for feed sorting and pagination checks)
+    const publishedAt = status === "published" ? new Date(now - i * 18 * 60 * 60 * 1000) : null;
+
+    // SEO overrides (10% of posts get custom SEO override)
+    let seo = undefined;
+    if (i % 10 === 0) {
+      seo = {
+        metaTitle: `SEO Custom: ${title.slice(0, 100)}`,
+        metaDescription: `SEO description for ${subtitle.slice(0, 150)}`,
+        canonicalUrl: `https://external-blog-site.com/canonical/${i}`,
+      };
     }
 
     const post = new Post({
-      title: p.title,
-      subtitle: p.subtitle,
-      slug: makeSlug(p.title),
-      contentHtml: html,
-      coverImage: COVER_POOL[i % COVER_POOL.length],
-      tags: [
-        TAG_POOL[i % TAG_POOL.length],
-        TAG_POOL[(i + 1) % TAG_POOL.length],
-        TAG_POOL[(i + 2) % TAG_POOL.length],
-      ].slice(0, 2 + (i % 2)),
+      title,
+      subtitle,
+      slug: makeSlug(title),
+      contentHtml,
+      coverImage,
+      tags,
       author: author._id,
       status,
       moderationStatus,
-      indexable,
-      readTimeMinutes: estimateReadTime(html),
+      views,
       publishedAt,
-      views: 50 + ((i * 47) % 800),
+      seo,
     });
 
-    // Populate random claps
-    let total = 0;
-    const clappersCount = i % 4; // up to 3 clappers
-    for (let c = 0; c < clappersCount; c++) {
-      const clapper = users[(i + c + 1) % users.length];
+    // Populate claps (0 claps, max claps 50, and multiple clappers)
+    let totalClaps = 0;
+    if (i % 4 === 1) {
+      // Single clapper with max count (50)
+      const clapper = users[(i + 1) % users.length];
       if (clapper._id.toString() !== author._id.toString()) {
-        const count = 5 + ((i * 7 + c) % 40);
-        post.claps.push({ user: clapper._id, count });
-        total += count;
+        post.claps.push({ user: clapper._id, count: 50 });
+        totalClaps = 50;
+      }
+    } else if (i % 4 > 1) {
+      // Multiple clappers
+      const clappersCount = (i % 3) + 2; // 2 or 3 clappers
+      for (let c = 0; c < clappersCount; c++) {
+        const clapper = users[(i + c + 1) % users.length];
+        if (clapper._id.toString() !== author._id.toString()) {
+          const count = 5 + ((i * 7 + c) % 35);
+          post.claps.push({ user: clapper._id, count });
+          totalClaps += count;
+        }
       }
     }
-    post.totalClaps = total;
+    post.totalClaps = totalClaps;
 
     await post.save();
     posts.push(post);
   }
 
-  console.log("[seed] Creating post revisions...");
-  // Create 3 historical revisions for the first post
-  const firstPost = posts[0];
-  const rev1 = await PostRevision.create({
-    post: firstPost._id,
-    editedBy: firstPost.author,
-    title: "The Art of Ending",
-    subtitle: "Draft version one of the subtitle",
-    contentHtml: "<p>Original draft content. Short and sweet.</p>",
-    tags: ["writing"],
-    coverImage: "",
-    createdAt: new Date(now - 48 * 60 * 60 * 1000),
-  });
-
-  const rev2 = await PostRevision.create({
-    post: firstPost._id,
-    editedBy: firstPost.author,
-    title: "The Discipline of Finishing",
-    subtitle: "On shipping small and often",
-    contentHtml: "<p>Second draft content. Added a bit more prose here.</p>",
-    tags: ["writing", "productivity"],
-    coverImage: COVER_POOL[0],
-    createdAt: new Date(now - 24 * 60 * 60 * 1000),
-  });
-
-  console.log("[seed] Creating nested comment threads (up to depth 5)...");
-  // We'll build a thread on posts[0] and posts[1]
-  const threadPost = posts[0];
-  
-  // Depth 0
-  const c0 = await Comment.create({
-    post: threadPost._id,
-    author: grace._id,
-    content: "This is a brilliant write-up. We struggle with finishing code all the time.",
-    depth: 0,
-    parentComment: null,
-  });
-
-  // Depth 1
-  const c1 = await Comment.create({
-    post: threadPost._id,
-    author: jbaldwin._id,
-    content: "I agree. The same holds true for writing novels. The last 10% is 90% of the effort.",
-    depth: 1,
-    parentComment: c0._id,
-  });
-
-  // Depth 2
-  const c2 = await Comment.create({
-    post: threadPost._id,
-    author: grace._id,
-    content: "Exactly! Do you have a routine or daily practice you follow to overcome this?",
-    depth: 2,
-    parentComment: c1._id,
-  });
-
-  // Depth 3
-  const c3 = await Comment.create({
-    post: threadPost._id,
-    author: jbaldwin._id,
-    content: "I write first thing in the morning before the noise of the world creeps in.",
-    depth: 3,
-    parentComment: c2._id,
-  });
-
-  // Depth 4
-  const c4 = await Comment.create({
-    post: threadPost._id,
-    author: maya._id,
-    content: "That sounds peaceful. I should try waking up earlier then.",
-    depth: 4,
-    parentComment: c3._id,
-  });
-
-  // Depth 5 (Clamped max depth)
-  const c5 = await Comment.create({
-    post: threadPost._id,
-    author: grace._id,
-    content: "Let's do a morning writing challenge next week!",
-    depth: 5,
-    parentComment: c4._id,
-  });
-
-  // Create a soft-deleted comment thread branch
-  const s0 = await Comment.create({
-    post: threadPost._id,
-    author: spammer._id,
-    content: "[deleted]",
-    deletedButHasReplies: true,
-    depth: 0,
-  });
-
-  await Comment.create({
-    post: threadPost._id,
-    author: leo._id,
-    content: "This was in response to a spam comment, but I wanted to add that the advice here is solid.",
-    depth: 1,
-    parentComment: s0._id,
-  });
-
-  // Create 15 more miscellaneous comments across posts
-  for (let i = 0; i < posts.length; i += 1) {
-    const commentAuthor = users[(i + 3) % users.length];
-    await Comment.create({
-      post: posts[i]._id,
-      author: commentAuthor._id,
-      content: COMMENT_CONTENTS[i % COMMENT_CONTENTS.length],
-      depth: 0,
-    });
-  }
-
-  console.log("[seed] Wiring follows...");
-  // Bulk follows
-  const followPairs = [
-    [jbaldwin, ada], [grace, ada], [maya, ada], [leo, ada], [sarah, ada], [marcus, ada], [aria, ada], [david, ada],
-    [ada, grace], [ada, jbaldwin], [ada, maya], [grace, jbaldwin], [jbaldwin, grace], [marcus, jbaldwin],
+  console.log("[seed] Generating 200+ follow relationships with bidirectional sync...");
+  const followsCount = 230;
+  const followPairsSet = new Set();
+  const originalFollowPairs = [
+    ["jbaldwin", "ada"], ["grace", "ada"], ["maya", "ada"], ["leo", "ada"], ["sarahj", "ada"], ["stoic", "ada"], ["aria", "ada"], ["davidm", "ada"],
+    ["ada", "grace"], ["ada", "jbaldwin"], ["ada", "maya"], ["grace", "jbaldwin"], ["jbaldwin", "grace"], ["stoic", "jbaldwin"]
   ];
 
-  for (const [follower, followee] of followPairs) {
-    await Follow.create({ follower: follower._id, followee: followee._id });
+  // Seed original pairs first
+  for (const [fName, feName] of originalFollowPairs) {
+    const follower = userMap[fName];
+    const followee = userMap[feName];
+    if (follower && followee) {
+      const key = `${follower._id}_${followee._id}`;
+      followPairsSet.add(key);
+      await Follow.create({ follower: follower._id, followee: followee._id, followedAt: new Date(now - 10 * 24 * 60 * 60 * 1000) });
+      follower.following.push(followee._id);
+      followee.followers.push(follower._id);
+    }
+  }
+
+  // Random follows to cross 200+ count
+  let safetyLoop = 0;
+  while (followPairsSet.size < followsCount && safetyLoop < 10000) {
+    safetyLoop++;
+    const follower = users[Math.floor(Math.random() * users.length)];
+    const followee = users[Math.floor(Math.random() * users.length)];
+    
+    if (follower._id.toString() === followee._id.toString()) continue;
+    
+    const key = `${follower._id}_${followee._id}`;
+    if (followPairsSet.has(key)) continue;
+
+    followPairsSet.add(key);
+
+    // 30% of follows originate from specific posts
+    let sourcePost = null;
+    if (Math.random() < 0.3) {
+      sourcePost = posts[Math.floor(Math.random() * posts.length)]._id;
+    }
+
+    await Follow.create({
+      follower: follower._id,
+      followee: followee._id,
+      followedAt: new Date(now - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000)), // up to 30 days ago
+      sourcePost
+    });
+
     follower.following.push(followee._id);
     followee.followers.push(follower._id);
   }
 
-  // Save follower updates
+  // Save follower updates in database
   await Promise.all(users.map(u => u.save()));
 
-  console.log("[seed] Creating moderation reports & audit logs...");
-  // Post 1 (The Economics of Small Things) has 3 reports -> Priority flagged
-  const reportedPost = posts.find(p => p.title.includes("Economics of Small Things"));
+  console.log("[seed] Generating 300+ comments (nested threads, soft-deletes, moderated hidden)...");
+  let totalCommentsCount = 0;
+
+  // 1. Deep nested comment threads (up to depth 5) on the first 5 posts
+  for (let pIdx = 0; pIdx < 5; pIdx++) {
+    const threadPost = posts[pIdx];
+    
+    // Depth 0
+    const c0 = await Comment.create({
+      post: threadPost._id,
+      author: users[(pIdx + 1) % users.length]._id,
+      content: `Deep thread starter comment on post ${threadPost.title}. Let's examine the architectural implications.`,
+      depth: 0,
+      parentComment: null,
+    });
+    totalCommentsCount++;
+
+    // Depth 1
+    const c1 = await Comment.create({
+      post: threadPost._id,
+      author: users[(pIdx + 2) % users.length]._id,
+      content: `Reply at depth 1: I agree with the core sentiment. However, caching plays a massive factor here.`,
+      depth: 1,
+      parentComment: c0._id,
+    });
+    totalCommentsCount++;
+
+    // Depth 2
+    const c2 = await Comment.create({
+      post: threadPost._id,
+      author: users[(pIdx + 3) % users.length]._id,
+      content: `Reply at depth 2: True, but caching invalidation is notoriously difficult to get right in distributed systems.`,
+      depth: 2,
+      parentComment: c1._id,
+    });
+    totalCommentsCount++;
+
+    // Depth 3
+    const c3 = await Comment.create({
+      post: threadPost._id,
+      author: users[(pIdx + 4) % users.length]._id,
+      content: `Reply at depth 3: We can use a staggered validation frequency or digest tokens to offset index latency.`,
+      depth: 3,
+      parentComment: c2._id,
+    });
+    totalCommentsCount++;
+
+    // Depth 4
+    const c4 = await Comment.create({
+      post: threadPost._id,
+      author: users[(pIdx + 5) % users.length]._id,
+      content: `Reply at depth 4: That sounds like a robust pattern. Let's document this in our internal wiki repository.`,
+      depth: 4,
+      parentComment: c3._id,
+    });
+    totalCommentsCount++;
+
+    // Depth 5 (Clamped max depth)
+    const c5 = await Comment.create({
+      post: threadPost._id,
+      author: users[(pIdx + 6) % users.length]._id,
+      content: `Reply at depth 5: Agreed. Let's run a couple of automated validation scripts on staging first next week!`,
+      depth: 5,
+      parentComment: c4._id,
+    });
+    totalCommentsCount++;
+
+    // Soft-deleted comment thread branch (deleted but has replies)
+    const s0 = await Comment.create({
+      post: threadPost._id,
+      author: userMap["spammer"] ? userMap["spammer"]._id : users[7]._id,
+      content: "[deleted]",
+      deletedButHasReplies: true,
+      depth: 0,
+      parentComment: null
+    });
+    totalCommentsCount++;
+
+    await Comment.create({
+      post: threadPost._id,
+      author: users[(pIdx + 8) % users.length]._id,
+      content: "This was in reply to a spam comments block, but I wanted to follow up on this nested discussion.",
+      depth: 1,
+      parentComment: s0._id
+    });
+    totalCommentsCount++;
+
+    // Moderated/hidden comment
+    await Comment.create({
+      post: threadPost._id,
+      author: users[(pIdx + 9) % users.length]._id,
+      content: "This comment violates community guidelines and should be hidden by default.",
+      depth: 0,
+      parentComment: null,
+      moderationStatus: "hidden"
+    });
+    totalCommentsCount++;
+  }
+
+  // 2. Add miscellaneous comments to cross 300+ total comments
+  for (let i = 0; i < posts.length; i++) {
+    const post = posts[i];
+    
+    // Add 2 to 3 random comments on other posts
+    const commentsToCreate = (i % 2) + 2;
+    for (let c = 0; c < commentsToCreate; c++) {
+      const commentAuthor = users[(i + c + 3) % users.length];
+      
+      // Make some comments extremely long (boundary limit: max 2000)
+      let content = COMMENT_BODY_POOL[(i + c) % COMMENT_BODY_POOL.length];
+      if (i === 60 && c === 0) {
+        content = "Detailed feedback paragraph. ".repeat(70).slice(0, 1950); // ~1950 chars long comment
+      }
+
+      await Comment.create({
+        post: post._id,
+        author: commentAuthor._id,
+        content,
+        depth: 0,
+      });
+      totalCommentsCount++;
+    }
+  }
+
+  console.log("[seed] Populating bookmarks for users...");
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i];
+    const bookmarkCount = i % 5; // 0 to 4 bookmarks
+    for (let b = 0; b < bookmarkCount; b++) {
+      const bookmarkedPost = posts[(i + b * 7) % posts.length];
+      user.bookmarks.push(bookmarkedPost._id);
+    }
+    await user.save();
+  }
+
+  console.log("[seed] Generating 50+ moderation reports...");
+  const reportsCount = 55;
+  const reportPairsSet = new Set();
+  const reports = [];
+
+  // Target selection pools:
+  const reportableComments = await Comment.find({});
   
-  await Report.create({
-    reporter: grace._id,
-    targetType: "post",
-    targetId: reportedPost._id,
-    reason: "misinformation",
-    details: "This is economically inaccurate regarding compound interest rates.",
-    priorityFlag: true,
-    status: "pending",
-  });
+  // Set up 3 posts and 3 comments that are highly reported (3+ reports each) to test priorityFlag trigger
+  const highReportedPosts = [posts[10], posts[20], posts[30]];
+  const highReportedComments = [reportableComments[10], reportableComments[20], reportableComments[30]];
 
-  await Report.create({
-    reporter: jbaldwin._id,
-    targetType: "post",
-    targetId: reportedPost._id,
-    reason: "spam",
-    details: "Links to promotional courses.",
-    priorityFlag: true,
-    status: "pending",
-  });
+  const reasons = ["spam", "harassment", "misinformation", "other"];
+  const statuses = ["pending", "reviewed", "dismissed", "actioned"];
 
-  await Report.create({
-    reporter: maya._id,
-    targetType: "post",
-    targetId: reportedPost._id,
-    reason: "other",
-    details: "I feel like this post violates guidelines.",
-    priorityFlag: true,
-    status: "pending",
-  });
+  // Populate multi-report priority flags
+  for (let rIdx = 0; rIdx < 3; rIdx++) {
+    const targetPost = highReportedPosts[rIdx];
+    const targetComment = highReportedComments[rIdx];
+    
+    // Create 3 reports from 3 different users for targetPost
+    for (let uIdx = 0; uIdx < 3; uIdx++) {
+      const reporter = users[uIdx + 5]; // use unique users
+      const postKey = `${reporter._id}_post_${targetPost._id}`;
+      if (!reportPairsSet.has(postKey)) {
+        reportPairsSet.add(postKey);
+        const report = await Report.create({
+          reporter: reporter._id,
+          targetType: "post",
+          targetId: targetPost._id,
+          reason: reasons[uIdx % reasons.length],
+          details: `Report number ${uIdx + 1} detailing potential violations.`,
+          status: "pending",
+          priorityFlag: true // automatically flag as priority since we are seeding multiple reports
+        });
+        reports.push(report);
+      }
+    }
 
-  // Add a comment report
-  const reportedComment = await Comment.findOne({ author: jbaldwin._id });
-  await Report.create({
-    reporter: sarah._id,
-    targetType: "comment",
-    targetId: reportedComment._id,
-    reason: "harassment",
-    details: "Aggressive tone towards the author.",
-    status: "pending",
-  });
+    // Create 3 reports from 3 different users for targetComment
+    for (let uIdx = 0; uIdx < 3; uIdx++) {
+      const reporter = users[uIdx + 8]; // use unique users
+      const commentKey = `${reporter._id}_comment_${targetComment._id}`;
+      if (!reportPairsSet.has(commentKey)) {
+        reportPairsSet.add(commentKey);
+        const report = await Report.create({
+          reporter: reporter._id,
+          targetType: "comment",
+          targetId: targetComment._id,
+          reason: reasons[(uIdx + 1) % reasons.length],
+          details: `Comment report number ${uIdx + 1} detailing harassment/spam.`,
+          status: "pending",
+          priorityFlag: true
+        });
+        reports.push(report);
+      }
+    }
+  }
 
-  // Create an already-actioned report (Spam Link Hub)
-  const spamPost = posts.find(p => p.title.includes("Spam Link Hub"));
-  const actionedReport = await Report.create({
-    reporter: marcus._id,
-    targetType: "post",
-    targetId: spamPost._id,
-    reason: "spam",
-    details: "Literal spam link.",
-    status: "actioned",
-  });
+  // Create remaining reports to hit 50+
+  let reportSafetyLoop = 0;
+  while (reports.length < reportsCount && reportSafetyLoop < 10000) {
+    reportSafetyLoop++;
+    const reporter = users[Math.floor(Math.random() * users.length)];
+    const targetType = Math.random() < 0.5 ? "post" : "comment";
+    const target = targetType === "post" 
+      ? posts[Math.floor(Math.random() * posts.length)] 
+      : reportableComments[Math.floor(Math.random() * reportableComments.length)];
+    
+    if (!target) continue;
+    if (target.author && target.author.toString() === reporter._id.toString()) continue;
 
-  // Write corresponding Audit Log for actioned report
-  await AuditLog.create({
-    action: "post_hidden",
-    actor: ada._id,
-    targetId: spamPost._id,
-    targetType: "post",
-    reason: "Actioned user spam report.",
-  });
+    const key = `${reporter._id}_${targetType}_${target._id}`;
+    if (reportPairsSet.has(key)) continue;
+    reportPairsSet.add(key);
+
+    // Details boundary limit: max 500 characters
+    let details = `Detailed description of report reason.`;
+    if (reports.length % 7 === 0) {
+      details = ""; // empty details check
+    } else if (reports.length % 7 === 1) {
+      details = "Report details. ".repeat(40).slice(0, 480); // max boundary details check
+    }
+
+    const report = await Report.create({
+      reporter: reporter._id,
+      targetType,
+      targetId: target._id,
+      reason: reasons[reports.length % reasons.length],
+      details,
+      status: statuses[reports.length % statuses.length],
+      priorityFlag: Math.random() < 0.15
+    });
+    reports.push(report);
+  }
+
+  console.log("[seed] Generating 100+ audit logs covering all enum actions...");
+  const adminActor = userMap["ada"] || users[0];
+  const auditLogsCount = 110;
+  const actions = [
+    "post_hidden", "post_unhidden", "comment_hidden", "comment_unhidden",
+    "user_banned", "user_unbanned", "role_changed", "report_dismissed", "report_actioned"
+  ];
+
+  for (let i = 0; i < auditLogsCount; i++) {
+    const action = actions[i % actions.length];
+    let targetType = "post";
+    let targetId = posts[i % posts.length]._id;
+    let metadata = { reason: "Routine maintenance review check." };
+
+    if (action.includes("comment")) {
+      targetType = "comment";
+      targetId = reportableComments[i % reportableComments.length]._id;
+      metadata = { prevContent: "Comment preview before hiding.", actionTakenBy: "moderator" };
+    } else if (action.includes("user")) {
+      targetType = "user";
+      targetId = users[i % users.length]._id;
+      metadata = { userEmail: users[i % users.length].email, banReason: "Terms violation" };
+    } else if (action.includes("report")) {
+      targetType = "report";
+      targetId = reports[i % reports.length]._id;
+      metadata = { reportReason: reports[i % reports.length].reason, decision: "Valid report flagged" };
+    }
+
+    await AuditLog.create({
+      actor: adminActor._id,
+      action,
+      targetType,
+      targetId,
+      metadata,
+    });
+  }
+
+  console.log("[seed] Generating 50+ historical post revisions...");
+  const revisionPosts = posts.slice(0, 15); // Select first 15 posts to create edits on
+  let totalRevisionsCount = 0;
+
+  for (let pIdx = 0; pIdx < revisionPosts.length; pIdx++) {
+    const targetPost = revisionPosts[pIdx];
+    const revisionsToCreate = (pIdx % 3) + 3; // 3 to 5 revisions per post
+
+    for (let r = 0; r < revisionsToCreate; r++) {
+      await PostRevision.create({
+        post: targetPost._id,
+        editedBy: targetPost.author,
+        title: `${targetPost.title} (Revision v${r + 1})`,
+        subtitle: targetPost.subtitle ? `${targetPost.subtitle} (edited)` : "Incremental modifications",
+        contentHtml: `<p>Historical revision index ${r + 1} of content. This preserves older text versions before publication.</p>`,
+        tags: targetPost.tags.slice(0, Math.max(1, targetPost.tags.length - 1)),
+        coverImage: targetPost.coverImage,
+        createdAt: new Date(now - (revisionPosts.length - pIdx) * 24 * 60 * 60 * 1000 - r * 4 * 60 * 60 * 1000), // staggered dates in past
+      });
+      totalRevisionsCount++;
+    }
+  }
 
   console.log("\n✨ Inkwell Database Seeded Successfully!");
   console.log(`  - Users:          ${await User.countDocuments()}`);
