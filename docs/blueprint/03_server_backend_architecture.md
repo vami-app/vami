@@ -359,6 +359,7 @@ Request
 | Middleware | Behavior |
 |---|---|
 | `requireAuth` | Reads `accessToken` cookie → verifies → loads user → `req.user`. Throws 401 if missing/invalid. Banned users get 403. |
+| `login` / `refresh` / `oauthCallback` | Checks `user.status === "banned"`. Throws 403 or redirects to `/login?error=account_banned`, preventing banned accounts from issuing sessions or logging in. |
 | `optionalAuth` | Same as above but silently ignores missing/invalid token. |
 
 ### `error.middleware.js` — Centralized error handling

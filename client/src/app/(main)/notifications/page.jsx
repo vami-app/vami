@@ -17,9 +17,9 @@ export default function NotificationsPage() {
   const loadNotifications = async () => {
     try {
       setLoading(true);
-      const res = await apiFetch("/notifications?limit=50");
-      if (res.data) {
-        setList(res.data.notifications || []);
+      const data = await apiFetch("/notifications?limit=50");
+      if (data) {
+        setList(data.notifications || []);
       }
     } catch (err) {
       console.error("Failed to load notifications:", err);

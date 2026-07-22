@@ -68,10 +68,10 @@ pnpm --filter server seed
 
 | Script | Purpose |
 |---|---|
-| `seed.js` | Orchestrator: wipes DB & calls seed-data, seed-content, seed-moderation in sequence |
-| `seed-data.js` | Seeds 120 users, 500 posts, 800 follows, 1200 comments |
-| `seed-content.js` | Seeds 75 reading lists, 1186 read events, 37 member payments, 103 payout ledger entries, publications |
-| `seed-moderation.js` | Seeds reports, audit logs, and hidden content for admin flow testing |
+| `seed.js` | Orchestrator: wipes DB (all 15 collections) & calls seed-data, seed-content, seed-moderation in sequence |
+| `seed-data.js` | Seeds 120 users (including OAuth users with googleId/githubId, OAuth-only accounts, admins, power users, banned, unverified), 500 posts, 800 follows, 1200 comments |
+| `seed-content.js` | Seeds 77 reading lists, 1192 read events, 37 member payments, 95 payout ledger entries, publications, 763 Notifications, 4 WebhookEvents, scheduled posts |
+| `seed-moderation.js` | Seeds 120 reports (51 priority), 200 audit logs, and 168 post revisions for admin flow testing |
 | `backfill_follows.js` | One-time migration utility: backfill `Follow` model from `User.followers/following` arrays |
 | `check_scheduled_posts.js` | Auto-publishes scheduled draft posts (`scheduledAt <= now`); run as cron job |
 | `promote_admin.js <email>` | Promotes a specified user account to admin role |

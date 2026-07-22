@@ -20,11 +20,14 @@ async function runPhaseETests() {
   await connectDB();
 
   // Clean test artifacts
+  const testUsers = await User.find({ email: { $regex: /@test-phase-e\.dev$/ } }).distinct("_id");
+  if (testUsers.length > 0) {
+    await Notification.deleteMany({ $or: [{ recipient: { $in: testUsers } }, { actor: { $in: testUsers } }] });
+    await Follow.deleteMany({ $or: [{ follower: { $in: testUsers } }, { followee: { $in: testUsers } }] });
+  }
   await User.deleteMany({ email: { $regex: /@test-phase-e\.dev$/ } });
   await Post.deleteMany({ title: { $regex: /^\[Phase E Test\]/ } });
-  await Notification.deleteMany({});
   await Comment.deleteMany({ content: { $regex: /^\[Phase E Test\]/ } });
-  await Follow.deleteMany({});
 
   // -------------------------------------------------------------------
   // 1. Schema Foundation & Password Validation
@@ -278,9 +281,12 @@ async function runPhaseETests() {
   console.log("  ✓ Account deletion notification cascade verified.");
 
   // Clean test artifacts
+  const cleanUsers = await User.find({ email: { $regex: /@test-phase-e\.dev$/ } }).distinct("_id");
+  if (cleanUsers.length > 0) {
+    await Notification.deleteMany({ $or: [{ recipient: { $in: cleanUsers } }, { actor: { $in: cleanUsers } }] });
+  }
   await User.deleteMany({ email: { $regex: /@test-phase-e\.dev$/ } });
   await Post.deleteMany({ title: { $regex: /^\[Phase E Test\]/ } });
-  await Notification.deleteMany({});
   await Comment.deleteMany({ content: { $regex: /^\[Phase E Test\]/ } });
 
   console.log("\n=========================================");

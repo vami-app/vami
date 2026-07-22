@@ -23,10 +23,10 @@ export function SocketProvider({ children }) {
   const fetchNotifications = async () => {
     if (!user) return;
     try {
-      const res = await apiFetch("/notifications?limit=10");
-      if (res.data) {
-        setNotifications(res.data.notifications || []);
-        setUnreadCount(res.data.unreadCount || 0);
+      const data = await apiFetch("/notifications?limit=10");
+      if (data) {
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
       }
     } catch (err) {
       console.error("[SocketContext] fetch notifications failed:", err);

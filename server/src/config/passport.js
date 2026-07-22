@@ -49,12 +49,18 @@ async function handleOAuthUser(provider, providerId, email, name, avatarUrl, don
     // 1. Check if user already exists by providerId
     let user = await User.findOne({ [providerField]: providerId });
     if (user) {
+      if (user.status === "banned") {
+        return done(new Error("Your account has been banned. Please contact support."));
+      }
       return done(null, user);
     }
 
     // 2. Search by email
     const emailUser = await User.findOne({ email: email.toLowerCase() });
     if (emailUser) {
+      if (emailUser.status === "banned") {
+        return done(new Error("Your account has been banned. Please contact support."));
+      }
       // Check if providerId is already linked to someone else (edge case)
       if (emailUser[providerField] && emailUser[providerField] !== providerId) {
         return done(new Error("Conflict: Account already linked to a different provider identity."));

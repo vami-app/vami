@@ -143,10 +143,22 @@ async function seedContent(ctx) {
 
     const locked = status === "published" && moderationStatus === "visible" && i % 5 === 0;
 
+    // Scheduled posts — ~5% of draft posts have scheduledAt dates
+    let scheduledAt = null;
+    if (status === "draft") {
+      if (i % 20 === 0) {
+        // Scheduled in the future (pending publication)
+        scheduledAt = new Date(NOW + randInt(1, 7) * 86400000);
+      } else if (i % 20 === 1) {
+        // Overdue scheduled post (ready for auto-publish runner)
+        scheduledAt = new Date(NOW - randInt(1, 60) * 60000);
+      }
+    }
+
     const post = new Post({
       title, subtitle: subtitle || "", slug, contentHtml, coverImage,
       tags: uniqueTags, author: author._id, status, moderationStatus, locked,
-      views, publishedAt, notifiedAt, seo, publication, submissionStatus, reviewNote,
+      views, publishedAt, notifiedAt, scheduledAt, seo, publication, submissionStatus, reviewNote,
     });
 
     // Claps — power-law: 25% no claps, 25% single clapper (50), 50% multiple clappers
@@ -394,6 +406,164 @@ async function seedContent(ctx) {
   const mpCount  = await MembershipPayment.countDocuments();
   const pleCount = await PayoutLedgerEntry.countDocuments();
   console.log(`[seed] Phase D: ${reCount} ReadEvents, ${mpCount} MembershipPayments, ${pleCount} PayoutLedgerEntries`);
+
+  // ──────────────────────────────────────────────────────────
+  //  7. PHASE E: NOTIFICATIONS & WEBHOOK EVENTS
+  // ──────────────────────────────────────────────────────────
+  console.log("[seed] Seeding Phase E Notifications & WebhookEvents...");
+  const Notification = require("../models/Notification");
+  const WebhookEvent = require("../models/WebhookEvent");
+  const notificationDocs = [];
+
+  // 7a. Curated Notifications for ALL Primary Demo Accounts (ada, jbaldwin, grace, maya, leo, turing, margaret, stoic, etc.)
+  const demoUsernames = ["ada", "jbaldwin", "grace", "maya", "leo", "turing", "margaret", "sarahj", "stoic", "aria", "davidm"];
+  const otherActors = activeUsers.filter(u => !demoUsernames.includes(u.username));
+
+  for (const targetUname of demoUsernames) {
+    const targetUser = userMap[targetUname];
+    if (!targetUser) continue;
+
+    const userPosts = publishedVisible.filter(p => String(p.author._id || p.author) === String(targetUser._id));
+    const samplePost = userPosts[0] || publishedVisible[0];
+
+    // Seed 3 unread follows
+    const followActors = pickN(otherActors, 3);
+    for (const actor of followActors) {
+      notificationDocs.push({
+        recipient: targetUser._id,
+        actor: actor._id,
+        type: "follow",
+        targetType: "user",
+        targetId: targetUser._id,
+        read: false,
+        createdAt: new Date(NOW - randInt(1, 24) * 3600000),
+      });
+    }
+
+    // Seed 3 unread claps
+    if (samplePost) {
+      const clapActors = pickN(otherActors.filter(a => !followActors.includes(a)), 3);
+      for (const actor of clapActors) {
+        notificationDocs.push({
+          recipient: targetUser._id,
+          actor: actor._id,
+          type: "clap",
+          targetType: "post",
+          targetId: samplePost._id,
+          read: false,
+          createdAt: new Date(NOW - randInt(1, 48) * 3600000),
+        });
+      }
+    }
+
+    // Seed 2 unread comments
+    if (samplePost) {
+      const commentActors = pickN(otherActors, 2);
+      for (const actor of commentActors) {
+        notificationDocs.push({
+          recipient: targetUser._id,
+          actor: actor._id,
+          type: "comment",
+          targetType: "post",
+          targetId: samplePost._id,
+          read: false,
+          createdAt: new Date(NOW - randInt(2, 72) * 3600000),
+        });
+      }
+    }
+
+    // Seed 4 read notifications (historical inbox activity)
+    const histActors = pickN(otherActors, 4);
+    for (let h = 0; h < histActors.length; h++) {
+      notificationDocs.push({
+        recipient: targetUser._id,
+        actor: histActors[h]._id,
+        type: h % 2 === 0 ? "clap" : "follow",
+        targetType: h % 2 === 0 ? "post" : "user",
+        targetId: h % 2 === 0 && samplePost ? samplePost._id : targetUser._id,
+        read: true,
+        createdAt: new Date(NOW - (h + 3) * 86400000),
+      });
+    }
+  }
+
+  // 7b. General Follow notifications for wider platform graph
+  const follows = await Follow.find({}).limit(250).lean();
+  for (const f of follows) {
+    notificationDocs.push({
+      recipient: f.followee,
+      actor: f.follower,
+      type: "follow",
+      targetType: "user",
+      targetId: f.followee,
+      read: rand() < 0.6,
+      createdAt: f.followedAt || new Date(NOW - randInt(1, 30) * 86400000),
+    });
+  }
+
+  // 7c. General Clap notifications on published posts
+  for (let p = 0; p < Math.min(100, publishedVisible.length); p++) {
+    const targetPost = publishedVisible[p];
+    if (!targetPost.claps || targetPost.claps.length === 0) continue;
+    for (const c of targetPost.claps.slice(0, 3)) {
+      notificationDocs.push({
+        recipient: targetPost.author,
+        actor: c.user,
+        type: "clap",
+        targetType: "post",
+        targetId: targetPost._id,
+        read: rand() < 0.5,
+        createdAt: new Date(NOW - randInt(1, 20) * 86400000),
+      });
+    }
+  }
+
+  // 7d. General Comment & Reply notifications
+  const comments = await Comment.find({ moderationStatus: "visible" }).limit(200).populate("post").lean();
+  for (const c of comments) {
+    if (!c.post) continue;
+    if (c.parentComment) {
+      const parentComm = await Comment.findById(c.parentComment).lean();
+      if (parentComm && String(parentComm.author) !== String(c.author)) {
+        notificationDocs.push({
+          recipient: parentComm.author,
+          actor: c.author,
+          type: "reply",
+          targetType: "comment",
+          targetId: c._id,
+          read: rand() < 0.4,
+          createdAt: c.createdAt || new Date(NOW - randInt(1, 15) * 86400000),
+        });
+      }
+    } else {
+      if (String(c.post.author) !== String(c.author)) {
+        notificationDocs.push({
+          recipient: c.post.author,
+          actor: c.author,
+          type: "comment",
+          targetType: "post",
+          targetId: c.post._id,
+          read: rand() < 0.5,
+          createdAt: c.createdAt || new Date(NOW - randInt(1, 25) * 86400000),
+        });
+      }
+    }
+  }
+
+  await Notification.insertMany(notificationDocs);
+
+  // 7e. WebhookEvents (Razorpay test-mode webhooks)
+  const webhookDocs = [
+    { eventId: "evt_seed_charged_001", eventType: "subscription.charged", receivedAt: new Date(NOW - 10 * 86400000) },
+    { eventId: "evt_seed_charged_002", eventType: "subscription.charged", receivedAt: new Date(NOW - 5 * 86400000) },
+    { eventId: "evt_seed_activated_001", eventType: "subscription.activated", receivedAt: new Date(NOW - 15 * 86400000) },
+    { eventId: "evt_seed_halted_001", eventType: "subscription.halted", receivedAt: new Date(NOW - 2 * 86400000) },
+  ];
+  await WebhookEvent.insertMany(webhookDocs);
+
+  const notifCount = await Notification.countDocuments();
+  const wheCount   = await WebhookEvent.countDocuments();
+  console.log(`[seed] Phase E: ${notifCount} Notifications, ${wheCount} WebhookEvents`);
 
   return { posts, publishedVisible };
 }

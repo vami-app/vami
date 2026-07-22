@@ -92,6 +92,10 @@ const login = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid email or password");
   }
 
+  if (user.status === "banned") {
+    throw new ApiError(403, "Your account has been banned. Please contact support.");
+  }
+
   issueSession(res, user._id);
   return sendSuccess(res, 200, { user: user.toPublicJSON(true) }, "Logged in");
 });
@@ -125,6 +129,11 @@ const refresh = asyncHandler(async (req, res) => {
   if (!user) {
     clearAuthCookies(res);
     throw new ApiError(401, "User no longer exists");
+  }
+
+  if (user.status === "banned") {
+    clearAuthCookies(res);
+    throw new ApiError(403, "Your account has been banned. Please contact support.");
   }
 
   issueSession(res, user._id);
@@ -323,6 +332,9 @@ const resendVerification = asyncHandler(async (req, res) => {
 const oauthCallback = asyncHandler(async (req, res) => {
   if (!req.user) {
     return res.redirect(`${env.clientUrl}/login?error=oauth_failed`);
+  }
+  if (req.user.status === "banned") {
+    return res.redirect(`${env.clientUrl}/login?error=account_banned`);
   }
   issueSession(res, req.user._id);
   return res.redirect(env.clientUrl);

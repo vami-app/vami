@@ -1568,18 +1568,21 @@ function weightedReason() {
 // ── Named users — stable for test-suite compatibility ────────
 const NAMED_USERS = [
   // Admins
-  { name: "Ada Lovelace",       username: "ada",          email: "ada@inkwell.dev",           role: "admin", status: "active",  bio: "Writing about computation, poetry, and the space between." },
-  { name: "Alan Turing",        username: "turing",       email: "turing@inkwell.dev",         role: "admin", status: "active",  bio: "Formalising the informal. Building the universal machine.", customDomain: "turing-machine.org" },
-  { name: "Margaret Hamilton",  username: "margaret",     email: "margaret@inkwell.dev",       role: "admin", status: "active",  bio: "Software engineering is not just a job it is a discipline." },
+  { name: "Ada Lovelace",       username: "ada",          email: "ada@inkwell.dev",           role: "admin", status: "active",  bio: "Writing about computation, poetry, and the space between.", googleId: "google_seed_ada", githubId: "github_seed_ada" },
+  { name: "Alan Turing",        username: "turing",       email: "turing@inkwell.dev",         role: "admin", status: "active",  bio: "Formalising the informal. Building the universal machine.", customDomain: "turing-machine.org", githubId: "github_seed_turing" },
+  { name: "Margaret Hamilton",  username: "margaret",     email: "margaret@inkwell.dev",       role: "admin", status: "active",  bio: "Software engineering is not just a job it is a discipline.", googleId: "google_seed_margaret" },
   // Power users
-  { name: "James Baldwin",      username: "jbaldwin",     email: "james@inkwell.dev",          role: "user",  status: "active",  bio: "Essays on identity, art, and the stories we tell ourselves." },
-  { name: "Grace Hopper",       username: "grace",        email: "grace@inkwell.dev",          role: "user",  status: "active",  bio: "Debugging life one commit at a time. Ex-Navy. Loves nanoseconds.", customDomain: "grace.xyz", exportStatus: "ready", _exportOffset: 3 },
-  { name: "Maya Chen",          username: "maya",         email: "maya@inkwell.dev",           role: "user",  status: "active",  bio: "Product designer and occasional gardener. Notes on craft and calm." },
+  { name: "James Baldwin",      username: "jbaldwin",     email: "james@inkwell.dev",          role: "user",  status: "active",  bio: "Essays on identity, art, and the stories we tell ourselves.", githubId: "github_seed_jbaldwin" },
+  { name: "Grace Hopper",       username: "grace",        email: "grace@inkwell.dev",          role: "user",  status: "active",  bio: "Debugging life one commit at a time. Ex-Navy. Loves nanoseconds.", customDomain: "grace.xyz", exportStatus: "ready", _exportOffset: 3, googleId: "google_seed_grace" },
+  { name: "Maya Chen",          username: "maya",         email: "maya@inkwell.dev",           role: "user",  status: "active",  bio: "Product designer and occasional gardener. Notes on craft and calm.", googleId: "google_seed_maya", githubId: "github_seed_maya" },
   { name: "Leo Torres",         username: "leo",          email: "leo@inkwell.dev",            role: "user",  status: "active",  bio: "Coffee, climbing, and the economics of small things." },
   { name: "Sarah Jenkins",      username: "sarahj",       email: "sarah@inkwell.dev",          role: "user",  status: "active",  bio: "Digital anthropologist studying micro-communities on the web." },
   { name: "Marcus Aurelius",    username: "stoic",        email: "marcus@stoic.dev",           role: "user",  status: "active",  bio: "Daily reflections on self-discipline, mortality, and leadership." },
   { name: "Aria Thorne",        username: "aria",         email: "aria@inkwell.dev",           role: "user",  status: "active",  bio: "Composer and sound engineer. Translating environments to synthesizers." },
   { name: "David Miller",       username: "davidm",       email: "david@inkwell.dev",          role: "user",  status: "active",  bio: "Frontend developer, accessibility advocate, and cat enthusiast." },
+  // OAuth-only Users (no password set, googleId / githubId sparse index test)
+  { name: "Google OAuth User",  username: "googleuser",   email: "googleuser@inkwell.dev",     role: "user",  status: "active",  bio: "Authenticated purely via Google OAuth 2.0.", googleId: "google_seed_oauth_only", emailVerified: true, noPassword: true },
+  { name: "GitHub OAuth User",  username: "githubuser",   email: "githubuser@inkwell.dev",     role: "user",  status: "active",  bio: "Authenticated purely via GitHub OAuth 2.0.", githubId: "github_seed_oauth_only", emailVerified: true, noPassword: true },
   // Banned (2 variants)
   { name: "Hacker Spammer",     username: "spammer",      email: "spam@spammer.org",           role: "user",  status: "banned",  bio: "Affiliate marketer and crypto enthusiast." },
   { name: "Karl Marx",          username: "karl",         email: "karl@inkwell.dev",           role: "user",  status: "banned",  bio: "From each according to his ability." },

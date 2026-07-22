@@ -35,6 +35,7 @@ const ReadEvent         = require("../models/ReadEvent");
 const MembershipPayment = require("../models/MembershipPayment");
 const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
 const WebhookEvent      = require("../models/WebhookEvent");
+const Notification      = require("../models/Notification");
 
 const { seedContent }    = require("./seed-content");
 const { seedModeration } = require("./seed-moderation");
@@ -63,7 +64,7 @@ async function seed() {
   await Promise.all([
     User, Post, Comment, Follow, Report, AuditLog,
     PostRevision, Publication, PublicationMember, ReadingList,
-    ReadEvent, MembershipPayment, PayoutLedgerEntry, WebhookEvent,
+    ReadEvent, MembershipPayment, PayoutLedgerEntry, WebhookEvent, Notification,
   ].map(M => M.deleteMany({})));
 
   // ──────────────────────────────────────────────────────────
@@ -85,7 +86,9 @@ async function seed() {
       name:          def.name,
       username:      def.username,
       email:         def.email,
-      password:      hashedPassword,
+      password:      def.noPassword ? undefined : hashedPassword,
+      googleId:      def.googleId || undefined,
+      githubId:      def.githubId || undefined,
       bio:           def.bio || "",
       avatarUrl,
       role:          def.role   || "user",
@@ -290,11 +293,12 @@ async function seed() {
   // ──────────────────────────────────────────────────────────
   //  FINAL STATS
   // ──────────────────────────────────────────────────────────
-  const [uC, pC, cC, fC, rC, alC, prC, pubC, pmC, rlC, reC, mpC, pleC] = await Promise.all([
+  const [uC, pC, cC, fC, rC, alC, prC, pubC, pmC, rlC, reC, mpC, pleC, nC, weC] = await Promise.all([
     User.countDocuments(), Post.countDocuments(), Comment.countDocuments(), Follow.countDocuments(),
     Report.countDocuments(), AuditLog.countDocuments(), PostRevision.countDocuments(),
     Publication.countDocuments(), PublicationMember.countDocuments(), ReadingList.countDocuments(),
     ReadEvent.countDocuments(), MembershipPayment.countDocuments(), PayoutLedgerEntry.countDocuments(),
+    Notification.countDocuments(), WebhookEvent.countDocuments(),
   ]);
 
   const line = "=".repeat(54);
@@ -314,6 +318,8 @@ async function seed() {
   console.log(`  Read Events       ${reC}`);
   console.log(`  Member Payments   ${mpC}`);
   console.log(`  Payout Ledger     ${pleC}`);
+  console.log(`  Notifications     ${nC}`);
+  console.log(`  Webhook Events    ${weC}`);
   console.log(line);
   console.log("  Demo accounts  (password: password123)");
   console.log("  [Admin]   ada@inkwell.dev");
