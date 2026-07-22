@@ -357,7 +357,7 @@ const getStats = asyncHandler(async (req, res) => {
   ]);
 
   const postsAgg = await Post.aggregate([
-    { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+    { $match: { status: "published", createdAt: { $gte: thirtyDaysAgo } } },
     {
       $group: {
         _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },

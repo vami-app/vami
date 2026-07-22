@@ -192,106 +192,180 @@ const ORIGINAL_MOCK_POSTS = [
 ];
 
 /**
- * Generate a programmatic HTML body containing rich text elements,
- * tables, code, blockquotes, lists, and potential XSS script tests.
+ * Generate a programmatic HTML body containing rich, realistic prose,
+ * subheadings, code snippets, blockquotes, lists, and takeaways tailored to hit
+ * target read times from 1 min read to 10 min read.
  */
-function generateContentHtml(title, subtitle, isLong = false, hasXSS = false) {
+function generateContentHtml(title, subtitle, targetMinutes = 3, isLong = false, hasXSS = false) {
+  if (isLong) {
+    let html = `<h1>${title}</h1><p><em>${subtitle}</em></p>`;
+    html += `<h2>Exhaustive Architecture Blueprint</h2>`;
+    html += `<p>In modern software systems, finding a balance between speed and reliability is a constant battle.</p>`;
+    for (let p = 0; p < 250; p++) {
+      html += `<p>This is paragraph ${p + 1} of the long post. We are expanding the length of this document to simulate a deep, exhaustive whitepaper covering all aspects of software design, caching strategies, horizontal scaling, database sharding, and memory optimization. Each paragraph adds depth and words to verify that the reading time estimator handles large text blobs gracefully without crashing or timing out. In real production scenarios, authors publish extensive technical manuals and documentation pages that span thousands of words. Ensuring our estimation functions perform efficiently on these sizes is key to service reliability.</p>`;
+    }
+    return html;
+  }
+
+  // WPM = 200 => Math.ceil(words / 200) === targetMinutes
+  const minWordsForTarget = (targetMinutes - 1) * 200 + 1;
+  const maxWordsForTarget = targetMinutes * 200;
+  const targetWords = Math.floor((minWordsForTarget + maxWordsForTarget) / 2);
+
+  const TOPIC_PARAGRAPHS = [
+    [
+      "Software architecture is fundamentally about managing trade-offs under conditions of uncertainty. When building complex systems, engineers must weigh immediate development velocity against long-term operational maintainability.",
+      "A clean abstraction isolates internal state mutations, providing consumers with a predictable contract. As applications grow in scale, unconstrained coupling between components becomes the primary vector for system instability and regression bugs.",
+      "To mitigate architectural debt, leading engineering organizations emphasize strict module boundaries, declarative state flows, and continuous automated verification across deployment environments.",
+      "When evaluating new dependencies, consider the maintenance lifecycle and performance footprint. Adding a lightweight, zero-dependency utility often beats pulling in heavy monolithic frameworks that dictate application structure.",
+      "Refactoring should not be viewed as a standalone project, but rather as an ongoing hygiene practice integrated seamlessly into daily pull requests and code review workflows.",
+    ],
+    [
+      "Modern web applications demand exceptional responsiveness across varying network conditions and hardware profiles. Optimizing perceived latency requires a holistic strategy encompassing server-side rendering, asset compression, and intelligent caching.",
+      "The critical rendering path begins with network socket establishment and document parsing. Minimizing render-blocking JavaScript and CSS resources directly correlates with improvements in Interaction to Next Paint (INP) and Largest Contentful Paint (LCP).",
+      "Hydration overhead remains one of the largest bottlenecks in client-heavy applications. Progressive hydration and server component streaming allow users to interact with visible UI elements long before background JavaScript completes execution.",
+      "Profiling performance with browser developer tools reveals hidden memory leaks, forced reflows, and excessive garbage collection pauses. Addressing these issues early prevents degraded user experiences during prolonged user sessions.",
+      "Establishing quantitative performance budgets within CI/CD pipelines ensures that new feature deployments do not silently erode hard-won loading speed optimizations.",
+    ],
+    [
+      "Database performance is the bedrock of application scalability. As data volume expands from gigabytes to terabytes, unindexed collection scans and unoptimized join operations quickly overwhelm database hardware.",
+      "Designing efficient indexes requires analyzing query access patterns. Compound indexes structured according to the Equality, Sort, Range (ESR) rule allow database query engines to serve results directly from index b-trees with minimal disk I/O.",
+      "Connection pooling and query timeouts prevent connection starvation during peak traffic spikes. Isolating read-heavy reporting queries onto secondary read replicas preserves primary node capacity for transactional writes.",
+      "Data sharding and partitioning strategies introduce operational complexity, but become mandatory when single-node memory and storage boundaries are reached. Planning for horizontal scale early prevents painful emergency schema migrations.",
+      "Regularly auditing query execution plans with explain tools highlights missing indexes, redundant index prefixes, and inefficient sorting operations before they manifest as production outages.",
+    ],
+    [
+      "Building resilient distributed systems requires accepting that hardware, network, and third-party dependency failures are inevitable. Designing for failure ensures that localized glitches do not escalate into catastrophic system-wide outages.",
+      "The Circuit Breaker pattern isolates failing remote dependencies by short-circuiting calls during error spikes. This prevents socket pool exhaustion and allows downstream services time to recover under reduced load.",
+      "Idempotency tokens in asynchronous API endpoints guarantee that retried operations do not create duplicate transactions or corrupted state records when network timeouts interrupt client responses.",
+      "Event-driven messaging architectures using message queues like Kafka or RabbitMQ decouple service execution, enabling asynchronous background processing and smoothing out sudden traffic surges.",
+      "Comprehensive telemetry, structured JSON logging, and distributed tracing provide end-to-end visibility across microservice boundaries, enabling rapid root-cause diagnosis during incident responses.",
+    ],
+    [
+      "Design systems serve as the shared language between product designers and frontend engineers. By codifying visual tokens, component behaviors, and layout constraints, teams accelerate delivery while maintaining visual consistency.",
+      "Semantic design tokens for color, typography, spacing, and elevation abstract raw CSS values into meaningful context tags. This enables seamless dark mode toggling, white-label branding, and accessibility contrast adjustments.",
+      "Component APIs should favor composition over rigid configuration props. Flexible slot patterns and polymorphic component definitions allow developers to adapt UI elements without modifying core design system source code.",
+      "Accessibility is an essential aspect of design system quality. Ensuring keyboard focus visibility, screen reader ARIA roles, and WCAG AAA color contrast standards makes applications usable for everyone.",
+      "Documenting component usage patterns, accessibility guidelines, and interactive code sandboxes empowers feature teams to ship polished interfaces independently without introducing design fragmentation.",
+    ],
+  ];
+
+  const QUOTES = [
+    `"Simplicity is prerequisite for reliability." — Edsger W. Dijkstra`,
+    `"Make it work, make it right, make it fast." — Kent Beck`,
+    `"Boring technology is a feature, not a drawback." — Dan McKinley`,
+    `"Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away." — Antoine de Saint-Exupéry`,
+    `"Software is a process of learning, not a process of building." — Dan North`,
+  ];
+
+  const CODE_SNIPPETS = [
+    `<pre><code class="language-javascript">
+// Optimized state dispatch pattern with immutable update safety
+const updateState = (state, action) => {
+  switch (action.type) {
+    case 'SET_DATA':
+      return { ...state, data: action.payload, loading: false };
+    case 'SET_ERROR':
+      return { ...state, error: action.payload, loading: false };
+    default:
+      return state;
+  }
+};
+</code></pre>`,
+    `<pre><code class="language-javascript">
+// Resilient fetch wrapper with retry backoff and timeout
+async function fetchWithRetry(url, options = {}, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, { ...options, timeout: 3000 });
+      if (response.ok) return await response.json();
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i)));
+    }
+  }
+}
+</code></pre>`,
+    `<pre><code class="language-javascript">
+// High-performance compound index specification
+const postSchema = new Schema({
+  status: { type: String, enum: ['draft', 'published'], index: true },
+  author: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+  publishedAt: { type: Date, default: Date.now },
+});
+postSchema.index({ status: 1, publishedAt: -1 });
+</code></pre>`,
+  ];
+
   let html = `<h1>${title}</h1><p><em>${subtitle}</em></p>`;
-  
-  html += `
-    <h2>1. Introduction to the Paradigm</h2>
-    <p>In modern software systems, finding a balance between speed and reliability is a constant battle. This article walks through the structural methodologies and feedback loops that make engineering teams successful.</p>
-    <blockquote>"Simplicity is a great virtue but it requires hard work to achieve it and education to appreciate it." — Edsger W. Dijkstra</blockquote>
-  `;
-  
+
   if (hasXSS) {
     html += `
-      <h2>2. XSS Seeding Test</h2>
+      <h2>Security Sanitization Test Section</h2>
       <p>Here is an embedded script tag and onload handlers to verify HTML sanitization:</p>
       <script>console.log('XSS Triggered!'); alert(1);</script>
       <img src="x" onerror="console.log('XSS Image Error Event'); alert(1);" alt="XSS Image Test" />
       <iframe src="javascript:alert(1)"></iframe>
     `;
   }
+
+  let hash = 0;
+  for (let char of title) hash += char.charCodeAt(0);
+  const topicPool = TOPIC_PARAGRAPHS[hash % TOPIC_PARAGRAPHS.length];
+  const quote = QUOTES[hash % QUOTES.length];
+  const code = CODE_SNIPPETS[hash % CODE_SNIPPETS.length];
+
+  html += `<h2>1. Architectural Foundations and Context</h2>`;
+  html += `<p>${topicPool[0]}</p>`;
   
-  html += `
-    <h2>3. Key Takeaways and Comparison</h2>
-    <p>Below is a quick comparison table of the performance and design trade-offs:</p>
-    <table>
-      <thead>
-        <tr>
-          <th>Metric</th>
-          <th>Monolithic Architecture</th>
-          <th>Microservices Setup</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Complexity</td>
-          <td>Low to Medium</td>
-          <td>Extremely High</td>
-        </tr>
-        <tr>
-          <td>Deployment Speed</td>
-          <td>Slow (Coupled)</td>
-          <td>Fast (Decoupled)</td>
-        </tr>
-        <tr>
-          <td>Network Overhead</td>
-          <td>Negligible</td>
-          <td>Significant</td>
-        </tr>
-      </tbody>
-    </table>
-  `;
-
-  html += `
-    <h2>4. Code Implementation</h2>
-    <p>Here is an example code snippet implementing the core state manager:</p>
-    <pre><code class="language-javascript">
-class StateManager {
-  constructor(initialState) {
-    this.state = initialState;
-    this.listeners = [];
+  if (targetMinutes >= 2) {
+    html += `<p>${topicPool[1]}</p>`;
+    html += `<blockquote>${quote}</blockquote>`;
   }
-  subscribe(listener) {
-    this.listeners.push(listener);
-    return () => {
-      this.listeners = this.listeners.filter(l => l !== listener);
-    };
-  }
-  dispatch(action) {
-    this.state = this.reducer(this.state, action);
-    this.listeners.forEach(l => l(this.state));
-  }
-}
-    </code></pre>
-  `;
 
-  html += `
-    <h2>5. Action Items</h2>
-    <p>When implementing these patterns in your own team, follow this checklist:</p>
-    <ul>
-      <li>First, define clear service boundaries and interfaces.</li>
-      <li>Second, ensure proper monitoring and alerting are in place.</li>
-      <li>Third, test the system under high load and latency scenarios.
-        <ol>
-          <li>Perform chaos engineering tests.</li>
-          <li>Measure network latency and queue sizes.</li>
-        </ol>
-      </li>
-    </ul>
-  `;
+  if (targetMinutes >= 3) {
+    html += `<h2>2. Core Implementation Strategy</h2>`;
+    html += `<p>${topicPool[2]}</p>`;
+    html += code;
+    html += `<p>${topicPool[3]}</p>`;
+  }
 
-  if (isLong) {
-    // Append lots of paragraphs to make word count ~5000+ (tests large estimation)
-    for (let p = 0; p < 250; p++) {
-      html += `<p>This is paragraph ${p + 1} of the long post. We are expanding the length of this document to simulate a deep, exhaustive whitepaper covering all aspects of software design, caching strategies, horizontal scaling, database sharding, and memory optimization. Each paragraph adds depth and words to verify that the reading time estimator handles large text blobs gracefully without crashing or timing out. In real production scenarios, authors publish extensive technical manuals and documentation pages that span thousands of words. Ensuring our estimation functions perform efficiently on these sizes is key to service reliability.</p>`;
+  if (targetMinutes >= 4) {
+    html += `<h2>3. Key Takeaways and Checklist</h2>`;
+    html += `<ul>
+      <li>Establish clear boundary constraints and interface contracts early in development.</li>
+      <li>Automate regression testing and performance benchmarking within continuous integration.</li>
+      <li>Monitor operational telemetry to detect performance degradation before user impact occurs.</li>
+    </ul>`;
+  }
+
+  let currentWords = html.replace(/<[^>]*>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+
+  let sectionIndex = 4;
+  let pCounter = 0;
+  while (currentWords < targetWords) {
+    if (pCounter % 3 === 0) {
+      html += `<h2>${sectionIndex}. Deep Dive Analysis: Phase ${sectionIndex - 3}</h2>`;
+      sectionIndex++;
     }
+    const paraText = topicPool[pCounter % topicPool.length];
+    
+    const remainingNeeded = targetWords - currentWords;
+    if (remainingNeeded < 25) {
+      html += `<p>Evaluating these metrics under heavy load ensures application stability.</p>`;
+      break;
+    } else {
+      const extraSentence = ` Furthermore, evaluating these structural considerations against production telemetry ensures that system performance remains stable under fluctuating load profiles.`;
+      html += `<p>${paraText}${extraSentence}</p>`;
+    }
+    
+    currentWords = html.replace(/<[^>]*>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+    pCounter++;
   }
 
   return html;
 }
+
 
 /**
  * Generate a random title programmatically from vocabulary pools
@@ -503,9 +577,10 @@ async function seed() {
     }
 
     // Content html synthesis
+    const targetMinutes = (i % 10) + 1; // Cycle evenly from 1 min to 10 min read times
     const isLongPost = (i === 50); // extremely long post test (5000+ words)
     const hasXSSPayload = (i === 51); // XSS payload test
-    const rawContent = generateContentHtml(title, subtitle, isLongPost, hasXSSPayload);
+    const rawContent = generateContentHtml(title, subtitle, targetMinutes, isLongPost, hasXSSPayload);
     const contentHtml = sanitizeContent(rawContent);
 
     // Cover images
