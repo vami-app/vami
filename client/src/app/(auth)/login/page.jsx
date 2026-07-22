@@ -13,11 +13,18 @@ function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/";
+  const errorParam = params.get("error");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (errorParam) {
+      setError(errorParam);
+    }
+  }, [errorParam]);
 
   useEffect(() => {
     if (!loading && user) router.replace(next);

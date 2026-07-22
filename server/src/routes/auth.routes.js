@@ -40,8 +40,19 @@ router.get("/verify-email", verifyEmail);
 router.post("/resend-verification", requireAuth, resendVerification);
 
 // OAuth Routes
-router.get("/google", passport.authenticate("google", { scope: ["profile", "email"], session: false }));
+router.get("/google", (req, res, next) => {
+  if (!passport._strategies || !passport._strategies.google) {
+    const msg = encodeURIComponent("Google OAuth is not configured on this server.");
+    return res.redirect(`${env.clientUrl}/login?error=${msg}`);
+  }
+  passport.authenticate("google", { scope: ["profile", "email"], session: false })(req, res, next);
+});
+
 router.get("/google/callback", (req, res, next) => {
+  if (!passport._strategies || !passport._strategies.google) {
+    const msg = encodeURIComponent("Google OAuth is not configured on this server.");
+    return res.redirect(`${env.clientUrl}/login?error=${msg}`);
+  }
   passport.authenticate("google", { session: false }, (err, user, info) => {
     if (err || !user) {
       const msg = err ? encodeURIComponent(err.message) : "oauth_failed";
@@ -52,8 +63,19 @@ router.get("/google/callback", (req, res, next) => {
   })(req, res, next);
 });
 
-router.get("/github", passport.authenticate("github", { scope: ["user:email"], session: false }));
+router.get("/github", (req, res, next) => {
+  if (!passport._strategies || !passport._strategies.github) {
+    const msg = encodeURIComponent("GitHub OAuth is not configured on this server.");
+    return res.redirect(`${env.clientUrl}/login?error=${msg}`);
+  }
+  passport.authenticate("github", { scope: ["user:email"], session: false })(req, res, next);
+});
+
 router.get("/github/callback", (req, res, next) => {
+  if (!passport._strategies || !passport._strategies.github) {
+    const msg = encodeURIComponent("GitHub OAuth is not configured on this server.");
+    return res.redirect(`${env.clientUrl}/login?error=${msg}`);
+  }
   passport.authenticate("github", { session: false }, (err, user, info) => {
     if (err || !user) {
       const msg = err ? encodeURIComponent(err.message) : "oauth_failed";

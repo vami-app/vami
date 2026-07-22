@@ -48,6 +48,7 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 - Account-linking helper `handleOAuthUser`: first searches by provider ID, then by email. If an email match is found, it links the provider ID and sets `emailVerified = true`. Otherwise creates a new user with `generateUniqueUsername()` and auto-verified email.
 - GitHub strategy handles private primary email via `GET https://api.github.com/user/emails` as a fallback using the OAuth access token.
 - OAuth callback URL is derived from `env.clientUrl` (localhost vs. production domain).
+- Route handlers in `auth.routes.js` check `passport._strategies` before attempting authentication; if an OAuth provider is unconfigured, requests are safely redirected to `/login?error=...` rather than throwing an unhandled 500 error.
 
 ### `server/src/config/socket.js`
 - Initializes a Socket.IO `Server` attached to the HTTP server returned by `app.listen()`.

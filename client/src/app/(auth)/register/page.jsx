@@ -1,21 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { ApiError } from "@/lib/api";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const { register, user, loading } = useAuth();
   const router = useRouter();
+  const params = useSearchParams();
+  const errorParam = params.get("error");
 
   const [form, setForm] = useState({ name: "", username: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState(/** @type {Record<string,string>} */ ({}));
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (errorParam) {
+      setError(errorParam);
+    }
+  }, [errorParam]);
 
   useEffect(() => {
     if (!loading && user) router.replace("/");
@@ -130,5 +138,13 @@ export default function RegisterPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   );
 }
