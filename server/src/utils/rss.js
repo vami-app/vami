@@ -24,13 +24,23 @@ function buildFeed({ title, id, link, posts }) {
 
   posts.forEach((p) => {
     const authorName = p.author ? p.author.name : "Anonymous";
+    let itemContent = p.contentHtml || "";
+
+    if (p.locked) {
+      const pMatches = itemContent.match(/<p[\s\S]*?<\/p>/gi);
+      const count = p.previewParagraphCount || 3;
+      if (pMatches && pMatches.length > count) {
+        itemContent = pMatches.slice(0, count).join("");
+      }
+      itemContent += `<p><em>This story is subscriber-only. Visit Inkwell to read the full story.</em></p>`;
+    }
     
     feed.addItem({
       title: p.title,
       id: `${link}/p/${p.slug}`,
       link: `${link}/p/${p.slug}`,
       description: p.subtitle || "",
-      content: p.contentHtml || "",
+      content: itemContent,
       date: p.publishedAt || p.createdAt || new Date(),
       author: [
         {

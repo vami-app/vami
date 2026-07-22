@@ -198,6 +198,12 @@ GET    /api/lists/mine                 POST   /api/lists/:id/posts
 GET    /api/users/:username/lists      DELETE /api/lists/:id/posts/:postId
 GET    /api/lists/:username/:slug      DELETE /api/lists/:id
 
+Membership & Payout Ledger (Razorpay Test Mode)
+POST   /api/membership/subscribe       POST   /api/telemetry/read-event
+POST   /api/membership/verify          GET    /api/writer/payout-ledger
+POST   /api/membership/cancel
+POST   /api/webhooks/razorpay          (HMAC raw-body)
+
 Post Revisions
 GET    /api/posts/:slug/revisions
 GET    /api/posts/:slug/revisions/:revisionId
@@ -276,15 +282,14 @@ GET    /api/feed/tag/:tag/rss
 - Threaded Comments — 5-depth nesting clamp, recursive UI rendering, soft-delete branch preserving child replies
 - Account Deletion Cascade Overhaul — strict 13-step sequence
 
-**Phase C (Growth Engine)** — Done:
-- Shared Visibility Filter — `Post.visibleQuery()` canonical helper refactoring all read paths across RSS, sitemap, search, feeds, publications, and recommendations
-- Publications & Submission Review Workflow — multi-author collections, owner/editor/writer roles, submit/review/withdraw workflow, public profile pages, and member dashboard
-- Transparent Discovery ("For You" Tab) — interest-based recommendation scoring (tag overlap + author follows + recency decay + engagement) as an explicit second tab alongside chronological "Latest" feed, with in-product transparency disclosure
-- Reading Lists — named public/private lists, draft/hidden post interaction blocks, dangling reference placeholders
-- Related Posts & 7-Day Trending Tags — same-tag story recommendations on article page + last-7-days window on trending tags
-- Account Deletion Cascade Updates — publication owner transfer to senior member / soft-archival, reading list deletion
+**Phase D (Monetization Mechanism - Razorpay Test Mode)** — Done:
+- Read-Time Telemetry Foundation — `ReadEvent` active foreground reading seconds via Page Visibility API (capped at 30 mins/session)
+- Paywall Gating & Entitlement — `locked` paywall toggle respects Phase C's `Post.visibleQuery()` shared visibility filter (stories remain 100% discoverable across feeds/search/RSS/recommendations; truncation applies strictly on single story view and RSS XML for non-members)
+- Razorpay Test-Mode Integration — client checkout modal (`checkout.js`), HMAC verification (`POST /api/membership/verify`), first-party cancellation (`POST /api/membership/cancel`), raw-body webhook signature verification (`POST /api/webhooks/razorpay`), idempotency deduplication (`WebhookEvent`)
+- Engagement-Weighted Writer Payout Ledger — proportional pool revenue allocation calculated from subscriber active read time (`MembershipPayment`, `PayoutLedgerEntry`, `GET /api/writer/payout-ledger`)
+- Account Deletion Cascade Updates — 14-step sequence auto-canceling active test subscriptions and deleting viewer `ReadEvents` while preserving financial audit logs
 
-**Phases D–G** are planned. See `INKWELL_FULL_PRODUCT_ROADMAP.md` for the full breakdown.
+**Phases E–G** are planned. See `INKWELL_FULL_PRODUCT_ROADMAP.md` for the full breakdown.
 
 ---
 
@@ -312,6 +317,10 @@ All items below were exercised against the running app (`pnpm dev`, client :3000
 - [x] Publications created with reserved slug check, multi-author submissions, editor approval/rejection notes, and profile page filtering
 - [x] "For You" tab provides transparent recommendation ranking alongside chronological "Latest" feed with clear signal disclosures
 - [x] Reading lists support public/private visibility, block draft post additions, and render dangling reference placeholders for deleted/hidden stories
+- [x] Paywalled stories remain discoverable in feeds while server-truncating single view & RSS feed items for non-subscribers
+- [x] Razorpay test-mode checkout verifies HMAC signatures and processes webhooks idempotently with raw-body verification
+- [x] Writer payout ledger accurately computes engagement-weighted pool revenue split from member active reading seconds
+- [x] 14-step account deletion cascade cancels test-mode subscriptions and deletes viewer telemetry while preserving financial audit records
 - [x] Related posts display up to 3 same-tag stories and trending tags calculate over a 7-day recency window
 - [x] Account deletion handles publication owner transfer to senior member or soft-archival when no other members exist
 - [x] No horizontal scroll / broken layout at 320 / 375 / 768 / 1024 / 1440 / 1920px

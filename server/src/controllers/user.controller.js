@@ -410,9 +410,18 @@ const deleteAccount = asyncHandler(async (req, res) => {
   }
   await PublicationMember.deleteMany({ user: user._id });
 
-  // 14. AuditLog preserve is a no-op (explicit no-op is handled by not modifying AuditLog here)
+  // 14. Phase D Cascade: Delete viewer ReadEvents (preserve authored posts' ReadEvents for platform denominator)
+  const ReadEvent = require("../models/ReadEvent");
+  await ReadEvent.deleteMany({ viewer: user._id });
 
-  // 15. Delete User
+  // 15. Phase D Cascade: Cancel active Razorpay test subscription
+  if (user.razorpaySubscriptionId || user.membershipStatus === "active") {
+    user.membershipStatus = "canceled";
+  }
+
+  // 16. AuditLog, MembershipPayment, and PayoutLedgerEntry records are intentionally preserved for financial auditability
+
+  // 17. Delete User
   await user.deleteOne();
 
   const { clearAuthCookies } = require("../utils/jwt");

@@ -7,6 +7,8 @@ import { api, ApiError } from "@/lib/api";
 import Avatar from "@/components/ui/Avatar";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import SubscribeModal from "@/components/membership/SubscribeModal";
+import WriterLedgerCard from "@/components/membership/WriterLedgerCard";
 
 function SettingsForm() {
   const { user, setUser } = useAuth();
@@ -14,6 +16,7 @@ function SettingsForm() {
   const [bio, setBio] = useState(user.bio || "");
   const [allEmails, setAllEmails] = useState(user.emailPrefs ? user.emailPrefs.allEmails : true);
   const [digestFrequency, setDigestFrequency] = useState(user.emailPrefs ? user.emailPrefs.digestFrequency : "weekly");
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -128,6 +131,67 @@ function SettingsForm() {
           </p>
         </div>
 
+        {/* Membership & Subscription Status */}
+        <div className="border-t border-gray-200 pt-6 space-y-4">
+          <h2 className="text-lg font-medium text-ink">Membership & Billing</h2>
+          <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50/50 p-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-ink">Inkwell Membership</span>
+                {user.membershipStatus === "active" ? (
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                    Active (₹499/mo)
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-semibold text-gray-700">
+                    Free Reader
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-ink-soft">
+                {user.membershipStatus === "active"
+                  ? "You have full access to all member-only stories and support Partner Program writers."
+                  : "Subscribe to unlock member-only stories and directly support writers."}
+              </p>
+            </div>
+
+            {user.membershipStatus === "active" ? (
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={async () => {
+                  if (confirm("Cancel your test membership subscription?")) {
+                    try {
+                      await api.post("/api/membership/cancel");
+                      const data = await api.get("/api/users/me");
+                      setUser(data.user);
+                      setMessage("Subscription canceled.");
+                    } catch (err) {
+                      setError("Failed to cancel subscription.");
+                    }
+                  }
+                }}
+              >
+                Cancel
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setShowSubscribeModal(true)}
+              >
+                Subscribe
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Writer Partner Program Ledger */}
+        <div className="border-t border-gray-200 pt-6 space-y-4">
+          <WriterLedgerCard />
+        </div>
+
         <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-ink-soft border-t border-gray-200">
           <p><strong>Username:</strong> @{user.username}</p>
           <p><strong>Email:</strong> {user.email}</p>
@@ -137,6 +201,17 @@ function SettingsForm() {
           {saving ? "Saving…" : "Save changes"}
         </Button>
       </form>
+
+      {showSubscribeModal && (
+        <SubscribeModal
+          onClose={() => setShowSubscribeModal(false)}
+          onSuccess={async () => {
+            setShowSubscribeModal(false);
+            const data = await api.get("/api/users/me");
+            setUser(data.user);
+          }}
+        />
+      )}
     </div>
   );
 }

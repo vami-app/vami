@@ -59,31 +59,31 @@ Everything below extends this foundation toward Phases B–G.
 
 ### Phase B — Safety & Integrity (~7-8 weeks)
 
-| # | Feature | Duration | Medium comparison | Definition of done |
-|---|---|---|---|---|
-| 8 | Moderation — reports on posts/comments, review queue, audit log | 1.5-2 weeks | Medium's curation team does this with paid staff; this is the buildable floor under it | Report 3x → queue entry → soft-delete → hidden from feed, preserved in DB, action logged with actor+timestamp |
-| 9 | Admin dashboard — full: user management (ban/unban/role), content moderation queue, basic site stats (users, posts, reports over time) | 2-3 weeks | Medium has this internally; you need the equivalent, done properly, not a stub | Admin can ban a user (blocks login), resolve a report, view a stats page with real aggregated numbers |
-| 10 | Revision history — snapshot per edit, diff view, restore | 1-1.5 weeks | Medium gives writers **zero** edit history — genuine exceed, not parity | 3 edits → 3 revisions visible with a real diff (not just raw dumps) → restore reverts content and itself creates a revision |
-| 11 | Nested comments/threads | 1.5-2 weeks | Parity — Medium's responses are flat too, actually; do this because readers expect it now, not because Medium has it | Reply-to-reply renders correctly at depth ≥3, deletion of a parent handles orphaned children explicitly (soft-delete parent, keep thread intact) |
+| # | Feature | Status | Duration | Medium comparison | Definition of done |
+|---|---|---|---|---|---|
+| 8 | Moderation — reports on posts/comments, review queue, audit log | **Completed** | 1.5-2 weeks | Medium's curation team does this with paid staff; this is the buildable floor under it | Report 3x → queue entry → soft-delete → hidden from feed, preserved in DB, action logged with actor+timestamp |
+| 9 | Admin dashboard — full: user management (ban/unban/role), content moderation queue, basic site stats (users, posts, reports over time) | **Completed** | 2-3 weeks | Medium has this internally; you need the equivalent, done properly, not a stub | Admin can ban a user (blocks login), resolve a report, view a stats page with real aggregated numbers |
+| 10 | Revision history — snapshot per edit, diff view, restore | **Completed** | 1-1.5 weeks | Medium gives writers **zero** edit history — genuine exceed, not parity | 3 edits → 3 revisions visible with a real diff (not just raw dumps) → restore reverts content and itself creates a revision |
+| 11 | Nested comments/threads | **Completed** | 1.5-2 weeks | Parity — Medium's responses are flat too, actually; do this because readers expect it now, not because Medium has it | Reply-to-reply renders correctly at depth ≥3, deletion of a parent handles orphaned children explicitly (soft-delete parent, keep thread intact) |
 
 ### Phase C — Growth Engine (~8 weeks)
 
-| # | Feature | Duration | Medium comparison | Definition of done |
-|---|---|---|---|---|
-| 12 | Publications — multi-author collections, editor roles, submission/review workflow, publication profile pages | 3-4 weeks | This is Medium's actual growth engine (nomination editors feed the Boost pipeline). Real scope — new model, new roles, new pages. Not a bolt-on | A publication with 3 authors: one submits a draft, an editor approves it, it appears under the publication's page and the author's own profile |
-| 13 | Interest-based recommendation scoring (tag-affinity + engagement-weighted ranking) — **the honest algorithmic analog to Medium's General Distribution, not a replica of their curation staff** | 2-3 weeks | Explicitly not attempting to replicate paid human curation (see §0). This is the buildable piece: weighted Mongo aggregation on tag overlap + recency + engagement, no ML infra required | Two users with different clap/follow histories get demonstrably different home-feed ranking on identical underlying post set |
-| 14 | Reading Lists — named, shareable, multiple per user | 1 week | Parity with Medium Lists | Create 2 named lists, one public, viewable logged-out at a stable URL |
-| 15 | Related posts + trending-tags recency weighting | 3-5 days | Parity, cheap win | Story page shows 3 same-tag related posts; trending sidebar reflects last-7-days activity, not all-time |
+| # | Feature | Status | Duration | Medium comparison | Definition of done |
+|---|---|---|---|---|---|
+| 12 | Publications — multi-author collections, editor roles, submission/review workflow, publication profile pages | **Completed** | 3-4 weeks | This is Medium's actual growth engine (nomination editors feed the Boost pipeline). Real scope — new model, new roles, new pages. Not a bolt-on | A publication with 3 authors: one submits a draft, an editor approves it, it appears under the publication's page and the author's own profile |
+| 13 | Interest-based recommendation scoring (tag-affinity + engagement-weighted ranking) — **the honest algorithmic analog to Medium's General Distribution, not a replica of their curation staff** | **Completed** | 2-3 weeks | Explicitly not attempting to replicate paid human curation (see §0). This is the buildable piece: weighted Mongo aggregation on tag overlap + recency + engagement, no ML infra required | Two users with different clap/follow histories get demonstrably different home-feed ranking on identical underlying post set |
+| 14 | Reading Lists — named, shareable, multiple per user | **Completed** | 1 week | Parity with Medium Lists | Create 2 named lists, one public, viewable logged-out at a stable URL |
+| 15 | Related posts + trending-tags recency weighting | **Completed** | 3-5 days | Parity, cheap win | Story page shows 3 same-tag related posts; trending sidebar reflects last-7-days activity, not all-time |
 
-### Phase D — Monetization Mechanism (~5-6 weeks, mechanism only)
+### Phase D — Monetization Mechanism (~6 weeks, Razorpay test mode)
 
-> Built using Stripe **test mode** — zero cost, zero real transactions. This is mechanism development, not a launch. Going live with real money is a separate, later decision.
+> Built using Razorpay **test mode** — zero cost, zero real transactions. This is mechanism development, not a launch. Going live with real money is a separate, later decision.
 
-| # | Feature | Duration | Medium comparison | Definition of done |
-|---|---|---|---|---|
-| 16 | Paywall — per-post "locked" flag, preview truncation for non-members | 1.5-2 weeks | Parity with Medium's member-only story mechanic | Locked post shows first N paragraphs to non-members, full content to members, verified at API level (not just hidden by CSS) |
-| 17 | Membership tier + Stripe test-mode subscription | 2 weeks | Parity with Medium's $5/mo membership | Test-mode checkout completes, `User.membershipStatus` updates via webhook, locked content unlocks correctly |
-| 18 | Writer payout ledger — data model + calculation logic (engagement-weighted split, no live payout wiring) | 1-1.5 weeks | Direct parity with Partner Program math | Given seeded read-time data across writers, ledger produces a correct proportional split, verified against hand-calculated expected values |
+| # | Feature | Status | Duration | Medium comparison | Definition of done |
+|---|---|---|---|---|---|
+| 16 | Paywall — per-post "locked" flag, preview truncation for non-members | **Completed** | 1.5-2 weeks | Parity with Medium's member-only story mechanic | Locked post shows first N paragraphs to non-members, full content to members, verified at API level (not just hidden by CSS) |
+| 17 | Membership tier + Razorpay test-mode subscription | **Completed** | 2 weeks | Parity with Medium's membership | Test-mode checkout modal completes, `User.membershipStatus` updates via webhook, locked content unlocks correctly |
+| 18 | Writer payout ledger — data model + calculation logic (engagement-weighted split, no live payout wiring) | **Completed** | 1-1.5 weeks | Direct parity with Partner Program math | Given seeded read-time data across writers, ledger produces a correct proportional split, verified against hand-calculated expected values |
 
 ### Phase E — Identity, Access, Real-time (~4.5-5 weeks)
 
@@ -117,10 +117,10 @@ Everything below extends this foundation toward Phases B–G.
 | A — Ownership & Trust | **Completed** | 5 | 0 |
 | B — Safety & Integrity | **Completed** | 7.5 | 7.5 |
 | C — Growth Engine | **Completed** | 9 | 16.5 |
-| D — Monetization Mechanism | Pending | 5.5 | 22 |
-| E — Identity, Access, Real-time | Pending | 5 | 27 |
-| F — Reader Experience Depth | Pending | 4.5 | 31.5 |
-| G — Quality Infrastructure | Pending | 4 | 35.5 |
+| D — Monetization Mechanism | **Completed** | 6 | 22.5 |
+| E — Identity, Access, Real-time | Pending | 5 | 27.5 |
+| F — Reader Experience Depth | Pending | 4.5 | 32 |
+| G — Quality Infrastructure | Pending | 4 | 36 |
 
 **Real total: ~39-40 weeks, roughly 9-10 months, done properly, no corners cut.**
 

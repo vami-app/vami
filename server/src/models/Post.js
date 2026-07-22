@@ -67,6 +67,15 @@ const postSchema = new Schema(
       type: String,
       default: "",
     },
+    locked: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    previewParagraphCount: {
+      type: Number,
+      default: 3,
+    },
   },
   { timestamps: true }
 );
@@ -145,6 +154,7 @@ postSchema.methods.toCardJSON = function toCardJSON(viewerId = null) {
     publication: this.publication,
     submissionStatus: this.submissionStatus || "none",
     reviewNote: this.reviewNote || "",
+    locked: this.locked || false,
   };
 };
 

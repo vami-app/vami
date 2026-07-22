@@ -51,6 +51,14 @@ const userSchema = new Schema(
     emailVerifyExpiresAt: { type: Date, select: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     status: { type: String, enum: ["active", "banned"], default: "active" },
+    membershipStatus: {
+      type: String,
+      enum: ["none", "active", "past_due", "canceled"],
+      default: "none",
+      index: true,
+    },
+    razorpayCustomerId: { type: String, default: null },
+    razorpaySubscriptionId: { type: String, default: null },
   },
   { timestamps: true }
 );
@@ -90,6 +98,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON(includeEmail = false) {
     emailVerified: this.emailVerified || false,
     role: this.role || "user",
     status: this.status || "active",
+    membershipStatus: this.membershipStatus || "none",
     ...(includeEmail ? {
       email: this.email,
       emailPrefs: this.emailPrefs || { allEmails: true, digestFrequency: "weekly" },

@@ -24,6 +24,10 @@ const Post        = require("../models/Post");
 const Follow      = require("../models/Follow");
 const Comment     = require("../models/Comment");
 const ReadingList = require("../models/ReadingList");
+const ReadEvent         = require("../models/ReadEvent");
+const MembershipPayment = require("../models/MembershipPayment");
+const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
+const { computeLedgerForPeriod } = require("../controllers/ledger.controller");
 
 const {
   rand, randInt, pick, pickN,
@@ -137,9 +141,11 @@ async function seedContent(ctx) {
       }
     }
 
+    const locked = status === "published" && moderationStatus === "visible" && i % 5 === 0;
+
     const post = new Post({
       title, subtitle: subtitle || "", slug, contentHtml, coverImage,
-      tags: uniqueTags, author: author._id, status, moderationStatus,
+      tags: uniqueTags, author: author._id, status, moderationStatus, locked,
       views, publishedAt, notifiedAt, seo, publication, submissionStatus, reviewNote,
     });
 
@@ -339,6 +345,55 @@ async function seedContent(ctx) {
   }
 
   console.log(`[seed] Reading lists: ${await ReadingList.countDocuments()}`);
+
+  // ──────────────────────────────────────────────────────────
+  //  6. PHASE D: TELEMETRY, PAYMENTS, & PAYOUT LEDGER
+  // ──────────────────────────────────────────────────────────
+  console.log("[seed] Seeding Phase D Telemetry, Membership Payments & Payout Ledger...");
+  
+  // 6a. Membership Payments for active subscribers
+  const activeSubscribers = users.filter(u => u.membershipStatus === "active");
+  const periodStart = new Date(NOW - 15 * 86400000);
+  const periodEnd   = new Date(NOW + 15 * 86400000);
+
+  for (let s = 0; s < activeSubscribers.length; s++) {
+    const subUser = activeSubscribers[s];
+    await MembershipPayment.create({
+      user: subUser._id,
+      amountCents: 49900, // ₹499.00
+      razorpayPaymentId: `pay_seed_${subUser.username}_${s}`,
+      periodStart,
+      periodEnd,
+    });
+  }
+
+  // 6b. ReadEvents telemetry across published+visible posts
+  const readEventDocs = [];
+  for (let r = 0; r < 1200; r++) {
+    const targetPost = publishedVisible[r % publishedVisible.length];
+    const viewer = users[r % users.length];
+    
+    // Exclude self-reads
+    if (String(targetPost.author._id || targetPost.author) === String(viewer._id)) continue;
+
+    readEventDocs.push({
+      post: targetPost._id,
+      viewer: viewer._id,
+      viewerWasMember: viewer.membershipStatus === "active",
+      activeSeconds: randInt(15, 600),
+      createdAt: new Date(NOW - randInt(1, 14) * 86400000),
+    });
+  }
+
+  await ReadEvent.insertMany(readEventDocs);
+
+  // 6c. Compute Payout Ledger for current month
+  await computeLedgerForPeriod(periodStart, periodEnd);
+
+  const reCount  = await ReadEvent.countDocuments();
+  const mpCount  = await MembershipPayment.countDocuments();
+  const pleCount = await PayoutLedgerEntry.countDocuments();
+  console.log(`[seed] Phase D: ${reCount} ReadEvents, ${mpCount} MembershipPayments, ${pleCount} PayoutLedgerEntries`);
 
   return { posts, publishedVisible };
 }

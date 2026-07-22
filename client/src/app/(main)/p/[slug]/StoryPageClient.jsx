@@ -10,6 +10,7 @@ import BookmarkButton from "@/components/post/BookmarkButton";
 import CommentSection from "@/components/post/CommentSection";
 import RelatedPosts from "@/components/post/RelatedPosts";
 import AddToListModal from "@/components/post/AddToListModal";
+import SubscribeModal from "@/components/membership/SubscribeModal";
 import { formatDate, formatCount } from "@/lib/utils";
 
 /**
@@ -22,10 +23,11 @@ export default function StoryPageClient({ initialPost }) {
   const [post, setPost] = useState(initialPost);
   const [loadingPersonalized, setLoadingPersonalized] = useState(true);
   const [showListModal, setShowListModal] = useState(false);
+  const [showSubscribeModal, setShowSubscribeModal] = useState(false);
 
   useEffect(() => {
     let active = true;
-    // Fetch personalized data (like bookmark status and claps) and increment views on server
+    // Fetch personalized data (like bookmark status, claps, entitlement)
     api
       .get(`/api/posts/${initialPost.slug}`)
       .then((d) => {
@@ -39,10 +41,39 @@ export default function StoryPageClient({ initialPost }) {
         if (active) setLoadingPersonalized(false);
       });
 
+    // Foreground active read time tracking telemetry
+    let activeSeconds = 0;
+    let isForeground = !document.hidden;
+
+    const interval = setInterval(() => {
+      if (isForeground) {
+        activeSeconds += 1;
+      }
+    }, 1000);
+
+    const handleVisibility = () => {
+      isForeground = !document.hidden;
+    };
+
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
       active = false;
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+
+      if (activeSeconds > 0 && initialPost.id) {
+        try {
+          const payload = JSON.stringify({ postId: initialPost.id, activeSeconds });
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon("/api/telemetry/read-event", new Blob([payload], { type: "application/json" }));
+          }
+        } catch (e) {
+          // ignore beacon errors on unmount
+        }
+      }
     };
-  }, [initialPost.slug]);
+  }, [initialPost.id, initialPost.slug]);
 
   const author = post.author || {};
   const cover = resolveMedia(post.coverImage);
@@ -100,6 +131,25 @@ export default function StoryPageClient({ initialPost }) {
         dangerouslySetInnerHTML={{ __html: post.contentHtml }}
       />
 
+      {/* Paywall CTA Card for Preview-only Readers */}
+      {post.isLocked && post.previewOnly && (
+        <div className="mx-auto mt-8 max-w-reading rounded-2xl border border-accent-200 bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-white p-6 sm:p-8 text-center shadow-sm">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-accent-100 text-accent-600 text-xl font-bold">
+            🔒
+          </div>
+          <h3 className="font-serif text-2xl font-bold text-ink">Member-only story preview</h3>
+          <p className="mt-2 text-sm text-ink-soft max-w-md mx-auto">
+            The author has made the full text of this story available exclusively to Inkwell subscribers. Subscribe now to unlock full access.
+          </p>
+          <button
+            onClick={() => setShowSubscribeModal(true)}
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-accent-600 px-6 py-3 text-sm font-medium text-white shadow-md hover:bg-accent-700 transition"
+          >
+            Subscribe to Unlock Full Story (₹499/mo)
+          </button>
+        </div>
+      )}
+
       {/* Tags */}
       {post.tags && post.tags.length > 0 && (
         <div className="mx-auto mt-10 flex max-w-reading flex-wrap gap-2 px-4">
@@ -156,6 +206,15 @@ export default function StoryPageClient({ initialPost }) {
           postId={post.id}
           postSlug={post.slug}
           onClose={() => setShowListModal(false)}
+        />
+      )}
+      {showSubscribeModal && (
+        <SubscribeModal
+          onClose={() => setShowSubscribeModal(false)}
+          onSuccess={() => {
+            setShowSubscribeModal(false);
+            api.get(`/api/posts/${initialPost.slug}`).then((d) => setPost(d.post));
+          }}
         />
       )}
     </article>

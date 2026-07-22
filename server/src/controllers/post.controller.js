@@ -112,8 +112,25 @@ const getPost = asyncHandler(async (req, res) => {
     await post.save();
   }
 
+  const { canReadFull } = require("../utils/entitlement");
   const data = post.toCardJSON(viewerId);
-  data.contentHtml = post.contentHtml;
+  const userCanRead = canReadFull(post, req.user);
+
+  if (post.locked && !userCanRead) {
+    const pMatches = (post.contentHtml || "").match(/<p[\s\S]*?<\/p>/gi);
+    const count = post.previewParagraphCount || 3;
+    if (pMatches && pMatches.length > count) {
+      data.contentHtml = pMatches.slice(0, count).join("");
+    } else {
+      data.contentHtml = post.contentHtml;
+    }
+    data.isLocked = true;
+    data.previewOnly = true;
+  } else {
+    data.contentHtml = post.contentHtml;
+    data.isLocked = Boolean(post.locked);
+    data.previewOnly = false;
+  }
 
   let bookmarked = false;
   if (req.user) {
@@ -129,7 +146,7 @@ const getPost = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const createPost = asyncHandler(async (req, res) => {
-  const { title, subtitle, contentHtml, coverImage, tags, status, seo } = req.body;
+  const { title, subtitle, contentHtml, coverImage, tags, status, seo, locked } = req.body;
 
   if (status === "published" && !req.user.emailVerified) {
     throw new ApiError(403, "Please verify your email address before publishing stories.");
@@ -144,6 +161,7 @@ const createPost = asyncHandler(async (req, res) => {
     tags: normalizeTags(tags),
     author: req.user._id,
     status: status === "published" ? "published" : "draft",
+    locked: locked !== undefined ? Boolean(locked) : false,
     seo: {
       metaTitle: (seo && seo.metaTitle) ? String(seo.metaTitle).trim().slice(0, 160) : undefined,
       metaDescription: (seo && seo.metaDescription) ? String(seo.metaDescription).trim().slice(0, 200) : undefined,
@@ -174,7 +192,7 @@ const updatePost = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You can only edit your own stories");
   }
 
-  const { title, subtitle, contentHtml, coverImage, tags, status, seo } = req.body;
+  const { title, subtitle, contentHtml, coverImage, tags, status, seo, locked } = req.body;
 
   const PostRevision = require("../models/PostRevision");
   const titleChanged = title !== undefined && title !== post.title;
@@ -216,6 +234,7 @@ const updatePost = asyncHandler(async (req, res) => {
   if (contentHtml !== undefined) post.contentHtml = sanitizeContent(contentHtml);
   if (coverImage !== undefined) post.coverImage = coverImage;
   if (tags !== undefined) post.tags = normalizeTags(tags);
+  if (locked !== undefined) post.locked = Boolean(locked);
 
   if (status === "published" && post.status !== "published" && !req.user.emailVerified) {
     throw new ApiError(403, "Please verify your email address before publishing stories.");

@@ -31,6 +31,10 @@ const PostRevision      = require("../models/PostRevision");
 const Publication       = require("../models/Publication");
 const PublicationMember = require("../models/PublicationMember");
 const ReadingList       = require("../models/ReadingList");
+const ReadEvent         = require("../models/ReadEvent");
+const MembershipPayment = require("../models/MembershipPayment");
+const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
+const WebhookEvent      = require("../models/WebhookEvent");
 
 const { seedContent }    = require("./seed-content");
 const { seedModeration } = require("./seed-moderation");
@@ -59,27 +63,29 @@ async function seed() {
   await Promise.all([
     User, Post, Comment, Follow, Report, AuditLog,
     PostRevision, Publication, PublicationMember, ReadingList,
+    ReadEvent, MembershipPayment, PayoutLedgerEntry, WebhookEvent,
   ].map(M => M.deleteMany({})));
 
   // ──────────────────────────────────────────────────────────
   //  1. USERS
   // ──────────────────────────────────────────────────────────
   console.log(`[seed] Creating ${TARGET_USERS} users...`);
-  const users = [];
+  const bcrypt = require("bcryptjs");
+  const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 12);
+  const userDocs = [];
 
   // 1a. Named users — fixed identities for test-suite compatibility
   for (let i = 0; i < NAMED_USERS.length; i++) {
     const def = NAMED_USERS[i];
     const avatarUrl = i % 7 === 0 ? "" : `https://i.pravatar.cc/200?img=${(i % 70) + 1}`;
     const followedTags = pickN(ALL_TAGS, i % 5);
-    // First 15 named users get a subdomain that matches their username
     const subdomain = i < 15 ? def.username : undefined;
 
-    const u = new User({
+    const u = {
       name:          def.name,
       username:      def.username,
       email:         def.email,
-      password:      DEMO_PASSWORD,
+      password:      hashedPassword,
       bio:           def.bio || "",
       avatarUrl,
       role:          def.role   || "user",
@@ -88,43 +94,43 @@ async function seed() {
       customDomain:  def.customDomain  || null,
       emailVerified: def.emailVerified !== false,
       followedTags,
+      membershipStatus: i % 2 === 0 ? "active" : "none",
+      razorpayCustomerId: i % 2 === 0 ? `cust_demo_${def.username}` : null,
+      razorpaySubscriptionId: i % 2 === 0 ? `sub_demo_${def.username}` : null,
       emailPrefs: def.emailPrefsOff
         ? { allEmails: false, digestFrequency: "off" }
         : { allEmails: true,  digestFrequency: i % 3 === 0 ? "off" : "weekly" },
       lastDigestSentAt: i % 4 === 0 ? new Date(NOW - randInt(1, 14) * 86400000) : null,
-    });
+    };
 
-    // Export status variants (idle / pending / ready / failed)
     if (def.exportStatus) {
       u.exportStatus       = def.exportStatus;
       u.exportRequestedAt  = new Date(NOW - (def._exportOffset || 1) * 86400000);
     }
-    // Password reset token variants (active / expired)
     if (def._resetActive) {
       u.passwordResetTokenHash = "active-reset-token-hash-sha256";
-      u.passwordResetExpiresAt = new Date(NOW + 1800000);  // 30 min future
+      u.passwordResetExpiresAt = new Date(NOW + 1800000);
     }
     if (def._resetExpired) {
       u.passwordResetTokenHash = "expired-reset-token-hash-sha256";
-      u.passwordResetExpiresAt = new Date(NOW - 3600000);  // 1 hr past
+      u.passwordResetExpiresAt = new Date(NOW - 3600000);
     }
-    // Email verify token variants (active / expired)
     if (def._verifyActive) {
       u.emailVerifyTokenHash = "active-verify-token-hash-sha256";
-      u.emailVerifyExpiresAt = new Date(NOW + 43200000); // 12 hr future
+      u.emailVerifyExpiresAt = new Date(NOW + 43200000);
     }
     if (def._verifyExpired) {
       u.emailVerifyTokenHash = "expired-verify-token-hash-sha256";
-      u.emailVerifyExpiresAt = new Date(NOW - 10800000); // 3 hr past
+      u.emailVerifyExpiresAt = new Date(NOW - 10800000);
     }
 
-    users.push(u);
+    userDocs.push(u);
   }
 
   // 1b. Generated users — simulate diversity of a large platform
-  const usedUsernames  = new Set(users.map(u => u.username));
-  const usedEmails     = new Set(users.map(u => u.email.toLowerCase()));
-  const usedSubdomains = new Set(users.map(u => u.subdomain).filter(Boolean));
+  const usedUsernames  = new Set(userDocs.map(u => u.username));
+  const usedEmails     = new Set(userDocs.map(u => u.email.toLowerCase()));
+  const usedSubdomains = new Set(userDocs.map(u => u.subdomain).filter(Boolean));
   const genCount       = TARGET_USERS - NAMED_USERS.length;
 
   for (let i = 0; i < genCount; i++) {
@@ -149,14 +155,12 @@ async function seed() {
 
     const avatarUrl = i % 15 === 0 ? "" : `https://i.pravatar.cc/200?img=${(i % 70) + 1}`;
 
-    // ~3% banned, ~10% unverified — matches realistic platform statistics
     const status        = i < Math.floor(genCount * 0.03) ? "banned" : "active";
     const emailVerified = i % 10 !== 0;
     const followedTags  = pickN(ALL_TAGS, randInt(0, 6));
     const digestFreq    = rand() < 0.25 ? "off" : "weekly";
     const allEmails     = rand() > 0.1;
 
-    // exportStatus: mostly idle, occasional pending/ready/failed
     const expStatus  = pick(["idle","idle","idle","idle","idle","pending","ready","failed"]);
     const lastDigest = rand() < 0.4 ? new Date(NOW - randInt(1, 30) * 86400000) : null;
 
@@ -171,28 +175,32 @@ async function seed() {
       usedSubdomains.add(subdomain);
     }
 
-    const u = new User({
+    const isMember = i % 4 === 0;
+    const u = {
       name:       `${fn} ${ln}`,
       username:   uname,
       email,
-      password:   DEMO_PASSWORD,
+      password:   hashedPassword,
       bio:        pick(BIO_POOL),
       avatarUrl,
       role:       "user",
       status,
       emailVerified,
       followedTags,
+      membershipStatus: isMember ? "active" : "none",
+      razorpayCustomerId: isMember ? `cust_gen_${uname}` : null,
+      razorpaySubscriptionId: isMember ? `sub_gen_${uname}` : null,
       emailPrefs:        { allEmails, digestFrequency: digestFreq },
       lastDigestSentAt:  lastDigest,
       exportStatus:      expStatus,
       exportRequestedAt: expStatus !== "idle" ? new Date(NOW - randInt(1, 5) * 3600000) : undefined,
       subdomain,
-    });
-    users.push(u);
+    };
+    userDocs.push(u);
   }
 
-  // Save all users in parallel (hashes passwords across libuv threadpool)
-  await Promise.all(users.map(u => u.save()));
+  // Insert all users in a single bulk operation
+  const users = await User.insertMany(userDocs);
 
   const userMap     = {};
   users.forEach(u => { userMap[u.username] = u; });
@@ -282,10 +290,11 @@ async function seed() {
   // ──────────────────────────────────────────────────────────
   //  FINAL STATS
   // ──────────────────────────────────────────────────────────
-  const [uC, pC, cC, fC, rC, alC, prC, pubC, pmC, rlC] = await Promise.all([
+  const [uC, pC, cC, fC, rC, alC, prC, pubC, pmC, rlC, reC, mpC, pleC] = await Promise.all([
     User.countDocuments(), Post.countDocuments(), Comment.countDocuments(), Follow.countDocuments(),
     Report.countDocuments(), AuditLog.countDocuments(), PostRevision.countDocuments(),
     Publication.countDocuments(), PublicationMember.countDocuments(), ReadingList.countDocuments(),
+    ReadEvent.countDocuments(), MembershipPayment.countDocuments(), PayoutLedgerEntry.countDocuments(),
   ]);
 
   const line = "=".repeat(54);
@@ -302,6 +311,9 @@ async function seed() {
   console.log(`  Publications      ${pubC}`);
   console.log(`  Pub Members       ${pmC}`);
   console.log(`  Reading Lists     ${rlC}`);
+  console.log(`  Read Events       ${reC}`);
+  console.log(`  Member Payments   ${mpC}`);
+  console.log(`  Payout Ledger     ${pleC}`);
   console.log(line);
   console.log("  Demo accounts  (password: password123)");
   console.log("  [Admin]   ada@inkwell.dev");
