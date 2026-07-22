@@ -39,6 +39,8 @@ export default function StoryComposer({ initial = {}, mode }) {
   const [tagInput, setTagInput] = useState("");
   const [slug, setSlug] = useState(initial.slug || null);
   const [status, setStatus] = useState(initial.status || "draft");
+  const [scheduledAt, setScheduledAt] = useState(initial.scheduledAt ? new Date(initial.scheduledAt).toISOString().slice(0, 16) : "");
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [showRevisions, setShowRevisions] = useState(false);
@@ -102,7 +104,15 @@ export default function StoryComposer({ initial = {}, mode }) {
     }
     setBusy(true);
     setError("");
-    const payload = { title, subtitle, contentHtml, coverImage, tags, status: nextStatus };
+    const payload = {
+      title,
+      subtitle,
+      contentHtml,
+      coverImage,
+      tags,
+      status: nextStatus,
+      scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+    };
     try {
       let currentSlug = slug;
       if (mode === "create" && !slug) {
@@ -232,6 +242,9 @@ export default function StoryComposer({ initial = {}, mode }) {
               Delete
             </Button>
           )}
+          <Button variant="secondary" size="sm" onClick={() => setShowScheduleModal(true)}>
+            {scheduledAt ? "Scheduled" : "Schedule"}
+          </Button>
           <Button variant="secondary" size="sm" onClick={() => save("draft")} disabled={busy}>
             Save draft
           </Button>
@@ -240,6 +253,46 @@ export default function StoryComposer({ initial = {}, mode }) {
           </Button>
         </div>
       </div>
+
+      {/* Post Scheduling Modal */}
+      {showScheduleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <h3 className="font-serif text-xl font-bold text-ink mb-2">Schedule Story Publication</h3>
+            <p className="text-xs text-ink-soft mb-4">
+              Set a future date and time for this story to auto-publish. The post will remain a draft until that time.
+            </p>
+
+            <label className="block text-xs font-semibold text-ink mb-1">Scheduled Date & Time</label>
+            <input
+              type="datetime-local"
+              value={scheduledAt}
+              onChange={(e) => setScheduledAt(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent mb-4"
+            />
+
+            <div className="flex justify-between items-center gap-2">
+              {scheduledAt && (
+                <button
+                  type="button"
+                  onClick={() => { setScheduledAt(""); setShowScheduleModal(false); }}
+                  className="text-xs text-red-600 hover:underline"
+                >
+                  Clear Schedule
+                </button>
+              )}
+              <div className="flex gap-2 ml-auto">
+                <Button variant="ghost" size="sm" onClick={() => setShowScheduleModal(false)}>
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={() => { save("draft"); setShowScheduleModal(false); }}>
+                  Save Schedule
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Publication Submit Modal */}
       {showPubModal && (

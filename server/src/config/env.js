@@ -40,6 +40,10 @@ const env = {
   resendApiKey: process.env.RESEND_API_KEY || "",
   mailtrapApiToken: process.env.MAILTRAP_API_TOKEN || "",
   mailtrapInboxId: process.env.MAILTRAP_INBOX_ID || "",
+  googleClientId: process.env.GOOGLE_CLIENT_ID || "mock_google_client_id",
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || "mock_google_client_secret",
+  githubClientId: process.env.GITHUB_CLIENT_ID || "mock_github_client_id",
+  githubClientSecret: process.env.GITHUB_CLIENT_SECRET || "mock_github_client_secret",
   get isProd() {
     return this.nodeEnv === "production";
   },

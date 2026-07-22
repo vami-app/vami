@@ -146,10 +146,18 @@ const getPost = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const createPost = asyncHandler(async (req, res) => {
-  const { title, subtitle, contentHtml, coverImage, tags, status, seo, locked } = req.body;
+  const { title, subtitle, contentHtml, coverImage, tags, status, scheduledAt, seo, locked } = req.body;
 
   if (status === "published" && !req.user.emailVerified) {
     throw new ApiError(403, "Please verify your email address before publishing stories.");
+  }
+
+  let parsedScheduledAt = null;
+  if (scheduledAt) {
+    parsedScheduledAt = new Date(scheduledAt);
+    if (isNaN(parsedScheduledAt.getTime()) || parsedScheduledAt <= new Date()) {
+      throw new ApiError(400, "scheduledAt must be a future date and time");
+    }
   }
 
   const post = new Post({
@@ -161,6 +169,7 @@ const createPost = asyncHandler(async (req, res) => {
     tags: normalizeTags(tags),
     author: req.user._id,
     status: status === "published" ? "published" : "draft",
+    scheduledAt: parsedScheduledAt,
     locked: locked !== undefined ? Boolean(locked) : false,
     seo: {
       metaTitle: (seo && seo.metaTitle) ? String(seo.metaTitle).trim().slice(0, 160) : undefined,
@@ -192,7 +201,7 @@ const updatePost = asyncHandler(async (req, res) => {
     throw new ApiError(403, "You can only edit your own stories");
   }
 
-  const { title, subtitle, contentHtml, coverImage, tags, status, seo, locked } = req.body;
+  const { title, subtitle, contentHtml, coverImage, tags, status, scheduledAt, seo, locked } = req.body;
 
   const PostRevision = require("../models/PostRevision");
   const titleChanged = title !== undefined && title !== post.title;
@@ -238,6 +247,18 @@ const updatePost = asyncHandler(async (req, res) => {
 
   if (status === "published" && post.status !== "published" && !req.user.emailVerified) {
     throw new ApiError(403, "Please verify your email address before publishing stories.");
+  }
+
+  if (scheduledAt !== undefined) {
+    if (scheduledAt === null || scheduledAt === "") {
+      post.scheduledAt = null;
+    } else {
+      const parsed = new Date(scheduledAt);
+      if (isNaN(parsed.getTime()) || parsed <= new Date()) {
+        throw new ApiError(400, "scheduledAt must be a future date and time");
+      }
+      post.scheduledAt = parsed;
+    }
   }
 
   if (status !== undefined && status !== post.status) {
@@ -314,6 +335,38 @@ const clapPost = asyncHandler(async (req, res) => {
   post.totalClaps += applied;
 
   await post.save();
+
+  // Notification trigger (coalesce claps within last 1 hour)
+  if (applied > 0 && String(req.user._id) !== String(post.author)) {
+    const Notification = require("../models/Notification");
+    const { emitNotificationToUser } = require("../config/socket");
+
+    let notif = await Notification.findOne({
+      recipient: post.author,
+      actor: req.user._id,
+      type: "clap",
+      targetType: "post",
+      targetId: post._id,
+      createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) },
+    });
+
+    if (notif) {
+      notif.read = false;
+      await notif.save();
+    } else {
+      notif = await Notification.create({
+        recipient: post.author,
+        actor: req.user._id,
+        type: "clap",
+        targetType: "post",
+        targetId: post._id,
+      });
+    }
+
+    const populatedNotif = await Notification.findById(notif._id).populate("actor", "name username avatarUrl").lean();
+    emitNotificationToUser(post.author, populatedNotif);
+  }
+
   return sendSuccess(
     res,
     200,

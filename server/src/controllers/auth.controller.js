@@ -315,4 +315,29 @@ const resendVerification = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, null, "Verification email resent successfully");
 });
 
-module.exports = { register, login, logout, refresh, me, forgotPassword, resetPassword, unsubscribe, verifyEmail, resendVerification };
+/**
+ * OAuth Callback Success Handler
+ * Issues session cookies and redirects to client dashboard.
+ * @type {import('express').RequestHandler}
+ */
+const oauthCallback = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.redirect(`${env.clientUrl}/login?error=oauth_failed`);
+  }
+  issueSession(res, req.user._id);
+  return res.redirect(env.clientUrl);
+});
+
+module.exports = {
+  register,
+  login,
+  logout,
+  refresh,
+  me,
+  forgotPassword,
+  resetPassword,
+  unsubscribe,
+  verifyEmail,
+  resendVerification,
+  oauthCallback,
+};

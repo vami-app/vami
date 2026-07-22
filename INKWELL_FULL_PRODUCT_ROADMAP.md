@@ -85,13 +85,13 @@ Everything below extends this foundation toward Phases B–G.
 | 17 | Membership tier + Razorpay test-mode subscription | **Completed** | 2 weeks | Parity with Medium's membership | Test-mode checkout modal completes, `User.membershipStatus` updates via webhook, locked content unlocks correctly |
 | 18 | Writer payout ledger — data model + calculation logic (engagement-weighted split, no live payout wiring) | **Completed** | 1-1.5 weeks | Direct parity with Partner Program math | Given seeded read-time data across writers, ledger produces a correct proportional split, verified against hand-calculated expected values |
 
-### Phase E — Identity, Access, Real-time (~4.5-5 weeks)
+### Phase E — Identity, Access, Real-time (~6 weeks)
 
-| # | Feature | Duration | Medium comparison | Definition of done |
-|---|---|---|---|---|
-| 19 | OAuth (Google + GitHub via Passport.js) | 1-1.5 weeks | Parity | Both providers complete full signup/login round-trip, account-linking handles existing-email collision correctly |
-| 20 | Real-time notifications (Socket.IO — live bell icon for claps/comments/follows) | 2 weeks | Medium has none of this (email/digest only) — genuine exceed | Two browser sessions, action in one reflects live in the other's bell icon within ~1s, reconnect-after-disconnect handled |
-| 21 | Post scheduling (future `publishedAt`, local check mechanism) | 1 week | Parity — commonly requested, absent from Medium | Scheduled post stays draft-invisible until scheduled time, auto-publish without manual action |
+| # | Feature | Status | Duration | Medium comparison | Definition of done |
+|---|---|---|---|---|---|
+| 19 | OAuth (Google + GitHub via Passport.js) | **Completed** | 1-1.5 weeks | Parity | Both providers complete full signup/login round-trip, account-linking handles existing-email collision correctly |
+| 20 | Real-time notifications (Socket.IO — live bell icon for claps/comments/follows) | **Completed** | 2 weeks | Medium has none of this (email/digest only) — genuine exceed | Two browser sessions, action in one reflects live in the other's bell icon within ~1s, reconnect-after-disconnect handled |
+| 21 | Post scheduling (future `publishedAt`, local check mechanism) | **Completed** | 1 week | Parity — commonly requested, absent from Medium | Scheduled post stays draft-invisible until scheduled time, auto-publish without manual action |
 
 ### Phase F — Reader Experience Depth (~4-5 weeks)
 
@@ -118,7 +118,7 @@ Everything below extends this foundation toward Phases B–G.
 | B — Safety & Integrity | **Completed** | 7.5 | 7.5 |
 | C — Growth Engine | **Completed** | 9 | 16.5 |
 | D — Monetization Mechanism | **Completed** | 6 | 22.5 |
-| E — Identity, Access, Real-time | Pending | 5 | 27.5 |
+| E — Identity, Access, Real-time | **Completed** | 6 | 28.5 |
 | F — Reader Experience Depth | Pending | 4.5 | 32 |
 | G — Quality Infrastructure | Pending | 4 | 36 |
 

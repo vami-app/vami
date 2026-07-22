@@ -42,14 +42,30 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `cookieSecure`     | boolean | `false` (set `true` in prod/HTTPS)  |
 | `isProd`           | boolean | Derived from `nodeEnv === 'production'`|
 
-### `server/src/config/db.js`
-- Sets `strictQuery: true` (Mongoose 8 safe default).
-- Connects to `env.mongoUri`.
-- Logs host/db name on success; calls `process.exit(1)` on fatal error.
+### `server/src/config/passport.js`
+- Passport.js configuration with Google (`passport-google-oauth20`) and GitHub (`passport-github2`) strategies (`session: false`, `state: true`).
+- Account-linking helper `handleOAuthUser`: links provider IDs by email with auto `emailVerified = true`, or creates new users. Handles GitHub private primary email fallback via `GET /user/emails`.
+
+### `server/src/config/socket.js`
+- Socket.IO server initialization attached to HTTP server.
+- Handshake auth middleware (`io.engine.use()`) using HTTP-only cookies and JWT verification.
+- User socket map registry (`Map<userId, Set<socketId>>`) and `disconnectUserSockets(userId)` for instant socket termination on admin ban.
 
 ---
 
 ## 3. Database Models
+
+### `Notification` model — `server/src/models/Notification.js`
+
+| Field | Type | Constraints |
+|---|---|---|
+| `recipient` | ObjectId → User | required, indexed |
+| `actor` | ObjectId → User | required |
+| `type` | String | enum: `['clap', 'comment', 'reply', 'follow']`, required |
+| `targetType` | String | enum: `['post', 'comment', 'user']`, required |
+| `targetId` | ObjectId | required |
+| `read` | Boolean | default `false`, indexed |
+| `createdAt` | Date | default `Date.now` |
 
 ### `User` model — `server/src/models/User.js`
 

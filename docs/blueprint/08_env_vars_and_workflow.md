@@ -27,6 +27,10 @@
 | `RAZORPAY_KEY_SECRET` | `rzp_test_key_secret_default` | ✓ CHANGE ME | Razorpay test mode Key Secret (for HMAC verify) |
 | `RAZORPAY_WEBHOOK_SECRET` | `rzp_test_webhook_secret_default` | ✓ CHANGE ME | Razorpay webhook secret (raw-body HMAC verification) |
 | `RAZORPAY_PLAN_ID` | `plan_test_membership_499` | — | Razorpay test subscription plan ID (default ₹499/mo) |
+| `GOOGLE_CLIENT_ID` | `mock_google_client_id` | Prod only | Google OAuth 2.0 Client ID |
+| `GOOGLE_CLIENT_SECRET` | `mock_google_client_secret` | Prod only | Google OAuth 2.0 Client Secret |
+| `GITHUB_CLIENT_ID` | `mock_github_client_id` | Prod only | GitHub OAuth Client ID |
+| `GITHUB_CLIENT_SECRET` | `mock_github_client_secret` | Prod only | GitHub OAuth Client Secret |
 
 > **Email delivery fallback hierarchy:** Mailtrap (if token set) → Resend (if API key set) → console.log (local dev with neither configured).
 

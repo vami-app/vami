@@ -28,7 +28,15 @@ const userSchema = new Schema(
       trim: true,
       index: true,
     },
-    password: { type: String, required: true, select: false },
+    password: {
+      type: String,
+      required: function isPasswordRequired() {
+        return !this.googleId && !this.githubId;
+      },
+      select: false,
+    },
+    googleId: { type: String, default: undefined, sparse: true, unique: true },
+    githubId: { type: String, default: undefined, sparse: true, unique: true },
     bio: { type: String, maxlength: 200, default: "" },
     avatarUrl: { type: String, default: "" },
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
@@ -65,7 +73,7 @@ const userSchema = new Schema(
 
 // Hash password on create/change
 userSchema.pre("save", async function hashPassword(next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password") || !this.password) return next();
   this.password = await bcrypt.hash(this.password, BCRYPT_COST);
   next();
 });

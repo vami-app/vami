@@ -246,6 +246,9 @@ const banUser = asyncHandler(async (req, res) => {
   user.status = "banned";
   await user.save();
 
+  const { disconnectUserSockets } = require("../config/socket");
+  disconnectUserSockets(user._id);
+
   await AuditLog.create({
     actor: req.user._id,
     action: "user_banned",

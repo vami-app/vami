@@ -32,7 +32,7 @@ The table below tracks the status of all core platform capabilities across phase
 | Paywall & Preview truncation | Phase D | Pending | ✅ **Completed** | Locked toggle, 3-paragraph server truncation, RSS preview truncation, `canReadFull` helper |
 | Razorpay Test-Mode Subscription | Phase D | Pending | ✅ **Completed** | Checkout modal, HMAC signature verify, server cancel, raw-body webhook signature, `WebhookEvent` dedup |
 | Writer Payout Ledger | Phase D | Pending | ✅ **Completed** | `ReadEvent` telemetry, `MembershipPayment` & `PayoutLedgerEntry` models, engagement-weighted math |
-| OAuth & Real-time Notifications | Phase E | Pending | Planned | Google/GitHub OAuth, Socket.IO live notifications, post scheduling |
+| OAuth & Real-time Notifications | Phase E | Pending | ✅ **Completed** | Google/GitHub OAuth (Passport.js), Socket.IO live notification stream & inbox, post scheduling |
 | Reader Experience Depth | Phase F | Pending | Planned | Highlighting/annotations, writer analytics dashboard, dark mode |
 | Quality Infrastructure | Phase G | Pending | Planned | Vitest unit tests, Playwright E2E suite (local-only) |
 
@@ -46,7 +46,7 @@ The table below tracks the status of all core platform capabilities across phase
 | **Phase B** | Safety & Integrity | **Completed** | 7.5 weeks |
 | **Phase C** | Growth Engine | **Completed** | 9 weeks |
 | **Phase D** | Monetization Mechanism | **Completed** | 6 weeks |
-| **Phase E** | Identity, Access, Real-time | Pending | 5 weeks |
+| **Phase E** | Identity, Access, Real-time | **Completed** | 6 weeks |
 | **Phase F** | Reader Experience Depth | Pending | 4.5 weeks |
 | **Phase G** | Quality Infrastructure | Pending | 4 weeks |
 
@@ -54,4 +54,4 @@ The table below tracks the status of all core platform capabilities across phase
 
 ---
 
-*Blueprint updated: 2026-07-22 — Synchronized with Phase D completion. v1.5.0.*
+*Blueprint updated: 2026-07-22 — Synchronized with Phase E completion. v1.6.0.*

@@ -42,6 +42,7 @@ RootLayout (app/layout.jsx)
     │   └── dashboard/       # Publication Member Dashboard
     ├── /lists               # Personal Reading Lists Management
     │   └── [slug]           # Single Reading List View
+    ├── /notifications       # Notifications Inbox Page
     ├── /search              # SearchPage
     ├── /settings            # SettingsPage (profile + email prefs + account deletion)
     └── /tag/[tag]           # TagPage

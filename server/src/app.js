@@ -69,6 +69,8 @@ app.use(
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+const passport = require("./config/passport");
+app.use(passport.initialize());
 
 // Serve uploaded images
 app.use(
@@ -90,6 +92,7 @@ app.use("/api", generalLimiter);
 const telemetryRoutes = require("./routes/telemetry.routes");
 const membershipRoutes = require("./routes/membership.routes");
 const ledgerRoutes = require("./routes/ledger.routes");
+const notificationRoutes = require("./routes/notification.routes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
@@ -100,6 +103,7 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/telemetry", telemetryRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api", membershipRoutes);
 app.use("/api", ledgerRoutes);
 app.use("/api", publicationRoutes);

@@ -100,6 +100,8 @@ All five seeded users share the password `password123`.
 | `pnpm start` | Run both apps in production mode |
 | `pnpm seed` | Wipe + reseed the database |
 | `node server/src/scripts/promote_admin.js <email>` | Promote a user to admin role |
+| `node server/src/scripts/check_scheduled_posts.js` | Runner script for auto-publishing scheduled draft posts |
+| `node server/src/scripts/test_phase_e.js` | Phase E integration verification test suite |
 
 Per-app: `pnpm --filter client <script>` / `pnpm --filter server <script>`.
 
@@ -112,20 +114,20 @@ inkwell/
 ├── client/                 # Next.js frontend
 │   └── src/
 │       ├── app/            # App Router routes (see below)
-│       ├── components/     # layout / post / editor / ui / profile
-│       ├── context/        # AuthContext
+│       ├── components/     # layout / post / editor / ui / profile / membership
+│       ├── context/        # AuthContext, SocketContext
 │       ├── hooks/          # useInfiniteScroll
 │       └── lib/            # api.js (fetch wrapper), utils.js
 ├── server/                 # Express API
 │   └── src/
-│       ├── config/         # db, env
-│       ├── models/         # User, Post, Comment
-│       ├── controllers/    # auth, user, post, comment
-│       ├── routes/         # + upload route
+│       ├── config/         # db, env, passport, socket
+│       ├── models/         # User, Post, Comment, Notification, Publication, ReadEvent...
+│       ├── controllers/    # auth, user, post, comment, notification, admin...
+│       ├── routes/         # auth, user, post, comment, notification, admin...
 │       ├── middlewares/    # auth, error, rateLimiter, upload, validate
 │       ├── utils/          # jwt, slugify, sanitize, readTime, asyncHandler, apiResponse
 │       ├── validators/     # auth, post
-│       └── scripts/seed.js
+│       └── scripts/        # seed, check_scheduled_posts, test_phase_e
 └── package.json            # pnpm workspace root
 ```
 
@@ -134,16 +136,17 @@ inkwell/
 | Path | Page |
 |---|---|
 | `/` | Home feed (infinite scroll) |
-| `/login`, `/register` | Auth |
+| `/login`, `/register` | Auth (supports email/password and Google + GitHub OAuth) |
 | `/forgot-password` | Request password-reset email |
 | `/reset-password` | Consume reset token → set new password |
 | `/search?q=` | Search results |
 | `/tag/[tag]` | Tag-filtered feed |
 | `/@[username]` | Public profile + author's stories |
 | `/p/[slug]` | Read a story |
-| `/new-story` | Editor (create) |
+| `/new-story` | Editor (create & post scheduling) |
 | `/edit/[slug]` | Editor (edit own) |
 | `/settings` | Edit profile + avatar + email preferences + account deletion |
+| `/notifications` | Notifications inbox page |
 | `/bookmarks` | Saved stories |
 | `/terms` | Terms of Service |
 | `/privacy` | Privacy Policy |

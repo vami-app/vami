@@ -87,6 +87,10 @@ export default function Navbar() {
                     <PencilIcon /> Write
                   </Button>
                 </Link>
+
+                {/* Real-time Notification Bell */}
+                <NotificationBell />
+
                 <div className="relative">
                   <button
                     onClick={() => setMenuOpen((v) => !v)}
@@ -101,6 +105,7 @@ export default function Navbar() {
                       onMouseLeave={() => setMenuOpen(false)}
                     >
                       <MenuLink href={`/@${user.username}`}>Profile</MenuLink>
+                      <MenuLink href="/notifications">Notifications</MenuLink>
                       <MenuLink href="/new-story">Write a story</MenuLink>
                       {user.role === "admin" && (
                         <MenuLink href="/admin">Admin Dashboard</MenuLink>
@@ -182,5 +187,99 @@ function PencilIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
+  );
+}
+
+function BellIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function NotificationBell() {
+  const { useSocket } = require("@/context/SocketContext");
+  const { unreadCount, notifications, markAllAsRead } = useSocket();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="relative flex h-10 w-10 items-center justify-center rounded-full text-ink-soft hover:bg-gray-100"
+        aria-label="Notifications"
+      >
+        <BellIcon />
+        {unreadCount > 0 && (
+          <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-600 px-1 text-[10px] font-bold text-white">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div
+          className="absolute right-0 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl z-50"
+          onMouseLeave={() => setOpen(false)}
+        >
+          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 bg-gray-50/50">
+            <h3 className="font-medium text-sm text-ink">Notifications</h3>
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="text-xs text-accent-600 hover:underline font-medium"
+              >
+                Mark all as read
+              </button>
+            )}
+          </div>
+
+          <div className="max-h-72 overflow-y-auto divide-y divide-gray-100">
+            {notifications.length === 0 ? (
+              <div className="p-6 text-center text-xs text-ink-faint">No notifications yet</div>
+            ) : (
+              notifications.map((n) => {
+                const actorName = n.actor ? n.actor.name : "Someone";
+                let text = "interacted with you";
+                if (n.type === "clap") text = "clapped for your story";
+                if (n.type === "comment") text = "responded to your story";
+                if (n.type === "reply") text = "replied to your comment";
+                if (n.type === "follow") text = "started following you";
+
+                return (
+                  <div
+                    key={n._id || n.id}
+                    className={`flex items-start gap-3 p-3 text-xs text-ink transition-colors hover:bg-gray-50 ${
+                      !n.read ? "bg-accent-50/30 font-medium" : ""
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <p>
+                        <span className="font-semibold text-ink-heading">{actorName}</span> {text}
+                      </p>
+                      <span className="text-[10px] text-ink-faint mt-1 block">
+                        {n.createdAt ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "just now"}
+                      </span>
+                    </div>
+                    {!n.read && <span className="h-2 w-2 rounded-full bg-accent-600 mt-1" />}
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <div className="border-t border-gray-100 bg-gray-50 p-2 text-center">
+            <Link
+              href="/notifications"
+              onClick={() => setOpen(false)}
+              className="text-xs text-ink-soft font-medium hover:text-accent-600"
+            >
+              See all notifications →
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

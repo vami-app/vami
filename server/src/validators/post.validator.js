@@ -8,6 +8,7 @@ const createPostRules = [
   body("contentHtml").optional().isString(),
   body("tags").optional().isArray({ max: 5 }).withMessage("Up to 5 tags allowed"),
   body("status").optional().isIn(["draft", "published"]),
+  body("scheduledAt").optional({ nullable: true }).isISO8601().withMessage("scheduledAt must be a valid ISO date string"),
   body("seo.metaTitle").optional().trim().isLength({ max: 160 }),
   body("seo.metaDescription").optional().trim().isLength({ max: 200 }),
 ];
@@ -18,6 +19,7 @@ const updatePostRules = [
   body("contentHtml").optional().isString(),
   body("tags").optional().isArray({ max: 5 }).withMessage("Up to 5 tags allowed"),
   body("status").optional().isIn(["draft", "published"]),
+  body("scheduledAt").optional({ nullable: true }).isISO8601().withMessage("scheduledAt must be a valid ISO date string"),
   body("seo.metaTitle").optional().trim().isLength({ max: 160 }),
   body("seo.metaDescription").optional().trim().isLength({ max: 200 }),
 ];

@@ -44,6 +44,20 @@ All API endpoints return a standardized JSON envelope:
 | GET | `/api/auth/verify-email` | — | Consumes verification token → marks emailVerified true |
 | POST | `/api/auth/resend-verification` | required | Triggers new verification email |
 | GET | `/api/auth/unsubscribe` | — | CAN-SPAM compliant one-click email unsubscribe |
+| GET | `/api/auth/google` | — | Redirects to Google consent screen (`scope: profile, email`) |
+| GET | `/api/auth/google/callback` | — | Google OAuth callback → issues JWT cookies |
+| GET | `/api/auth/github` | — | Redirects to GitHub consent screen (`scope: user:email`) |
+| GET | `/api/auth/github/callback` | — | GitHub OAuth callback → issues JWT cookies |
+
+---
+
+### Notifications (`/api/notifications/`)
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/api/notifications` | required | Returns paginated notifications inbox for current user |
+| PATCH | `/api/notifications/:id/read` | required | Marks a single notification as read |
+| PATCH | `/api/notifications/read-all` | required | Marks all user notifications as read |
 
 ---
 

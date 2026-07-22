@@ -103,6 +103,42 @@ const addComment = asyncHandler(async (req, res) => {
   });
   await comment.populate("author", AUTHOR_FIELDS);
 
+  // Notification triggers for comment / reply
+  const Notification = require("../models/Notification");
+  const { emitNotificationToUser } = require("../config/socket");
+
+  const recipientsNotified = new Set();
+
+  // 1. Notify Post Author (comment)
+  if (String(req.user._id) !== String(post.author)) {
+    const notif = await Notification.create({
+      recipient: post.author,
+      actor: req.user._id,
+      type: parentId ? "reply" : "comment",
+      targetType: "post",
+      targetId: post._id,
+    });
+    recipientsNotified.add(String(post.author));
+    const populatedNotif = await Notification.findById(notif._id).populate("actor", "name username avatarUrl").lean();
+    emitNotificationToUser(post.author, populatedNotif);
+  }
+
+  // 2. Notify Parent Comment Author (reply) if applicable and not already notified
+  if (parentId) {
+    const parent = await Comment.findById(parentId);
+    if (parent && String(req.user._id) !== String(parent.author) && !recipientsNotified.has(String(parent.author))) {
+      const notif = await Notification.create({
+        recipient: parent.author,
+        actor: req.user._id,
+        type: "reply",
+        targetType: "comment",
+        targetId: parent._id,
+      });
+      const populatedNotif = await Notification.findById(notif._id).populate("actor", "name username avatarUrl").lean();
+      emitNotificationToUser(parent.author, populatedNotif);
+    }
+  }
+
   return sendSuccess(res, 201, { comment: commentJSON(comment) }, "Response added");
 });
 

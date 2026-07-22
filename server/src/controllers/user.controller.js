@@ -105,6 +105,21 @@ const toggleFollow = asyncHandler(async (req, res) => {
       followee: target._id,
       sourcePost: sourcePost || null,
     });
+
+    // Notification trigger (only on follow, never on unfollow)
+    const Notification = require("../models/Notification");
+    const { emitNotificationToUser } = require("../config/socket");
+
+    const notif = await Notification.create({
+      recipient: target._id,
+      actor: me._id,
+      type: "follow",
+      targetType: "user",
+      targetId: target._id,
+    });
+
+    const populatedNotif = await Notification.findById(notif._id).populate("actor", "name username avatarUrl").lean();
+    emitNotificationToUser(target._id, populatedNotif);
   }
 
   await Promise.all([me.save(), target.save()]);
@@ -419,7 +434,26 @@ const deleteAccount = asyncHandler(async (req, res) => {
     user.membershipStatus = "canceled";
   }
 
-  // 16. AuditLog, MembershipPayment, and PayoutLedgerEntry records are intentionally preserved for financial auditability
+  // 16. Phase E Cascade: Notifications Cleanup
+  const Notification = require("../models/Notification");
+  // Delete all notifications where user is recipient
+  await Notification.deleteMany({ recipient: user._id });
+
+  // Delete actor notifications except those tied to soft-deleted comments
+  const softDeletedComments = await Comment.find({
+    deletedButHasReplies: true,
+  }).select("_id");
+  const softDeletedCommentIds = softDeletedComments.map((c) => c._id);
+
+  await Notification.deleteMany({
+    actor: user._id,
+    $or: [
+      { targetType: { $ne: "comment" } },
+      { targetType: "comment", targetId: { $nin: softDeletedCommentIds } },
+    ],
+  });
+
+  // 17. AuditLog, MembershipPayment, and PayoutLedgerEntry records are intentionally preserved for financial auditability
 
   // 17. Delete User
   await user.deleteOne();

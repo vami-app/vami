@@ -23,7 +23,7 @@
 
 ---
 
-### 1.1 Account Deletion 14-Step Cascade & Preserve-vs-Delete Matrix
+### 1.1 Account Deletion 15-Step Cascade & Preserve-vs-Delete Matrix
 
 | Step | Code Operation / Target | Action Executed | Rationale / Ground-Truth Behavior |
 |---|---|---|---|
@@ -41,6 +41,7 @@
 | 12 | `PublicationMember` & `Publication` | Transfer ownership to senior member, or archive publication if sole owner, then `deleteMany({ user: user._id })` | Preserves publication continuity while removing user membership |
 | 13 | `ReadEvent` (viewer telemetry) | `deleteMany({ viewer: user._id })` | Deletes user's viewer reading history |
 | 14 | **Razorpay Subscription** | `user.membershipStatus = "canceled"` | Cancels active Razorpay test subscription |
+| 15 | `Notification` | `deleteMany({ recipient: user._id })` & deletes actor notifications except soft-deleted comment ties | Cleans up user inbox and non-preserved actor notifications |
 | *Preserved* | `ReadEvent` (authored posts) | **Preserved** | Retains historical platform denominator for writer payout audits |
 | *Preserved* | `MembershipPayment` | **Preserved** | Retains financial invoice records |
 | *Preserved* | `PayoutLedgerEntry` | **Preserved** | Retains historical writer payout ledger entries |

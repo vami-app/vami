@@ -38,6 +38,7 @@ const postSchema = new Schema(
     views: { type: Number, default: 0 },
     readTimeMinutes: { type: Number, default: 1 },
     publishedAt: { type: Date, default: null },
+    scheduledAt: { type: Date, default: null },
     seo: {
       metaTitle: { type: String, trim: true, maxlength: 160 },
       metaDescription: { type: String, trim: true, maxlength: 200 },
@@ -145,6 +146,7 @@ postSchema.methods.toCardJSON = function toCardJSON(viewerId = null) {
     views: this.views,
     readTimeMinutes: this.readTimeMinutes,
     publishedAt: this.publishedAt,
+    scheduledAt: this.scheduledAt,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
     viewerClapCount: viewerClap ? viewerClap.count : 0,
