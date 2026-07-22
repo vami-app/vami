@@ -2,10 +2,7 @@
  * API base URL for the Express backend.
  * @type {string}
  */
-export const API_URL =
-  typeof window === "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000")
-    : "";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 /**
  * Resolve a possibly-relative upload path to an absolute URL on the API host.
@@ -16,10 +13,7 @@ export function resolveMedia(path) {
   if (!path) return "";
   if (/^https?:\/\//.test(path)) return path;
   
-  // If absolute API_URL is needed on server or if running in browser
-  const base = typeof window === "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000")
-    : "";
+  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
   return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
 }
 
@@ -74,8 +68,12 @@ async function tryRefresh() {
 export async function apiFetch(path, options = {}) {
   const { _retried, headers, body, ...rest } = options;
 
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const normalizedPath = cleanPath.startsWith("/api/") || cleanPath === "/api" ? cleanPath : `/api${cleanPath}`;
+  const targetUrl = `${API_URL}${normalizedPath}`;
+
   const isForm = typeof FormData !== "undefined" && body instanceof FormData;
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(targetUrl, {
     credentials: "include",
     headers: {
       ...(isForm ? {} : { "Content-Type": "application/json" }),
@@ -85,7 +83,7 @@ export async function apiFetch(path, options = {}) {
     ...rest,
   });
 
-  if (res.status === 401 && !_retried && path !== "/api/auth/refresh") {
+  if (res.status === 401 && !_retried && !normalizedPath.includes("/auth/refresh")) {
     const ok = await tryRefresh();
     if (ok) {
       return apiFetch(path, { ...options, _retried: true });
