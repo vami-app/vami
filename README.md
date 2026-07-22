@@ -242,7 +242,7 @@ GET    /api/feed/tag/:tag/rss
 - **Password-reset:** forgot-password flow uses a cryptographically random token, SHA-256 hashed
   before storage, 30-minute TTL, enumeration-safe (same response whether email exists or not).
 - **Account deletion:** two-step flow — confirmation email sent first, then `DELETE /api/users/me`
-  with token. Full 13-step cascade: post revisions, reports (own & targeted), comments on own posts, own comments (soft/hard deleted based on replies), posts, bookmarks, follows, claps, avatar file. AuditLog logs are preserved.
+  with token. Full 14-step cascade: post revisions, reports (own & targeted), comments on own posts, own comments (soft/hard deleted based on replies), posts, bookmarks, follows, claps, avatar file, reading lists, publication memberships/transfers, viewer read events, active Razorpay subscription cancellation. AuditLog, MembershipPayment, and PayoutLedgerEntry records are preserved.
 - **Immediate Ban Check:** Banned users are immediately blocked (403) from accessing all authenticated routes on their very next request.
 - **Unsubscribe:** all marketing/notification emails carry a CAN-SPAM-compliant one-click
   unsubscribe link. Security emails (reset, delete confirmation) are never suppressible.
@@ -260,7 +260,7 @@ GET    /api/feed/tag/:tag/rss
   `@ada` string and strips the leading `@` (static routes like `/search`, `/p` take precedence).
 - Password-reset email is supported via Mailtrap sandbox or Resend API, falling back to console logging in local development.
 
-## Current status — Phase C complete
+## Current status — Phase D complete
 
 **MVP core** (auth, posts, comments, claps, bookmarks, follow, search, RSS, SEO, export) — Done.
 

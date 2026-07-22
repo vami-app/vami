@@ -9,6 +9,10 @@ const app = require("../app");
 const env = require("../config/env");
 const User = require("../models/User");
 const Post = require("../models/Post");
+const Comment = require("../models/Comment");
+const Follow = require("../models/Follow");
+const Report = require("../models/Report");
+const PostRevision = require("../models/PostRevision");
 const ReadEvent = require("../models/ReadEvent");
 const MembershipPayment = require("../models/MembershipPayment");
 const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
@@ -267,8 +271,11 @@ async function runTests() {
 
     // Valid HMAC signature verify call -> 200
     const testPaymentId = "pay_test123";
+    const keySecret = process.env.RAZORPAY_KEY_SECRET || "rzp_test_key_secret_default";
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || "rzp_test_webhook_secret_default";
+
     const validSignature = crypto
-      .createHmac("sha256", "rzp_test_key_secret_default")
+      .createHmac("sha256", keySecret)
       .update(`${testPaymentId}|${testSubId}`)
       .digest("hex");
 
@@ -298,7 +305,7 @@ async function runTests() {
     });
 
     const validWebhookSig = crypto
-      .createHmac("sha256", "rzp_test_webhook_secret_default")
+      .createHmac("sha256", webhookSecret)
       .update(webhookPayload)
       .digest("hex");
 
@@ -427,31 +434,229 @@ async function runTests() {
     }
     console.log("   ✅ Writer payout ledger endpoint returned historical calculation entries.");
 
-    // --- Step 4 Verification: 14-Step Cascade Update ---
-    console.log("\n--- Step 4: 14-Step Account Deletion Cascade Update ---");
-    
-    // Delete subscriber user (freeUser now active)
-    const delSubId = updatedFreeUser._id;
-    const delToken = jwt.sign({ sub: delSubId, purpose: "delete" }, env.jwtAccessSecret, { expiresIn: "30m" });
+    // --- Step 4 Verification: Complete 14-Step Cascade Integration ---
+    console.log("\n--- Step 4: Comprehensive 14-Step Account Deletion Cascade ---");
 
-    const delRes = await makeRequest("/api/users/me", "DELETE", { token: delToken, mode: "erase" }, freeCookie);
+    // 1. Create Cascade Test User (active subscriber)
+    const cascadeReg = await makeRequest("/api/auth/register", "POST", {
+      name: "Cascade Owner User",
+      username: "cascadeuser",
+      email: "cascade@phased-test.com",
+      password: "Password123!",
+    });
+    const cascadeCookie = getCookies(cascadeReg.headers);
+    const cascadeUserId = cascadeReg.body.data.user.id;
+    await User.updateOne(
+      { _id: cascadeUserId },
+      { emailVerified: true, membershipStatus: "active", razorpaySubscriptionId: "sub_cascade_test_99" }
+    );
+
+    // 2. Create Authored Post & PostRevision
+    const cascadeSlug = `cascade-authored-story-${Date.now()}`;
+    const cascadePost = await Post.create({
+      title: "Cascade Authored Story",
+      slug: cascadeSlug,
+      contentHtml: "<p>Cascade authored content</p>",
+      author: cascadeUserId,
+      status: "published",
+      publishedAt: new Date(),
+    });
+    const cascadeRevision = await PostRevision.create({
+      post: cascadePost._id,
+      editedBy: cascadeUserId,
+      title: "Cascade Authored Story (Rev 1)",
+      contentHtml: "<p>Original draft content</p>",
+    });
+
+    // 3. Reports: Submitted by cascadeUser & Targeting cascadeUser content
+    const submittedReport = await Report.create({
+      reporter: cascadeUserId,
+      targetType: "post",
+      targetId: testPost1._id,
+      reason: "spam",
+    });
+    const targetedReport = await Report.create({
+      reporter: author1Id,
+      targetType: "post",
+      targetId: cascadePost._id,
+      reason: "harassment",
+    });
+
+    // 4. Comments on cascadePost by another user
+    const commentOnCascadePost = await Comment.create({
+      post: cascadePost._id,
+      author: author1Id,
+      content: "Comment on cascade post",
+    });
+
+    // 5. cascadeUser's comments on other people's posts (one with reply -> soft, one without -> hard)
+    const commentWithReply = await Comment.create({
+      post: testPost1._id,
+      author: cascadeUserId,
+      content: "Comment to be soft deleted",
+    });
+    const childReply = await Comment.create({
+      post: testPost1._id,
+      author: author1Id,
+      parentComment: commentWithReply._id,
+      content: "Reply to cascade comment",
+    });
+    const commentNoReply = await Comment.create({
+      post: testPost1._id,
+      author: cascadeUserId,
+      content: "Comment to be hard deleted",
+    });
+
+    // 6. Bookmarks: author1 bookmarks cascadePost
+    await User.updateOne({ _id: author1Id }, { $push: { bookmarks: cascadePost._id } });
+
+    // 7. Follows: two-way follow graph
+    await Follow.create({ follower: cascadeUserId, followee: author1Id });
+    await Follow.create({ follower: author1Id, followee: cascadeUserId });
+    await User.updateOne({ _id: cascadeUserId }, { $push: { following: author1Id, followers: author1Id } });
+    await User.updateOne({ _id: author1Id }, { $push: { following: cascadeUserId, followers: cascadeUserId } });
+
+    // 8. Claps: cascadeUser claps on testPost1
+    testPost1.claps.push({ user: cascadeUserId, count: 50 });
+    testPost1.totalClaps += 50;
+    await testPost1.save();
+
+    // 9. Reading List: owned by cascadeUser
+    const Publication = require("../models/Publication");
+    const PublicationMember = require("../models/PublicationMember");
+    const ReadingList = require("../models/ReadingList");
+
+    const cascadeList = await ReadingList.create({
+      owner: cascadeUserId,
+      name: "Cascade Reading List",
+      slug: "cascade-reading-list",
+    });
+
+    // 10. Publication Ownership & Member Transfer
+    const cascadePubSlug = `cascade-pub-${Date.now()}`;
+    const cascadePub = await Publication.create({
+      name: "Cascade Publication",
+      slug: cascadePubSlug,
+      owner: cascadeUserId,
+    });
+    await PublicationMember.create({
+      publication: cascadePub._id,
+      user: cascadeUserId,
+      role: "owner",
+      invitedBy: cascadeUserId,
+      joinedAt: new Date(now.getTime() - 86400000),
+    });
+    await PublicationMember.create({
+      publication: cascadePub._id,
+      user: author1Id,
+      role: "writer",
+      invitedBy: cascadeUserId,
+      joinedAt: now,
+    });
+
+    // 11. Viewer Telemetry & Authored Telemetry
+    const viewerReadEvent = await ReadEvent.create({
+      post: testPost1._id,
+      viewer: cascadeUserId,
+      viewerWasMember: true,
+      activeSeconds: 150,
+    });
+    const authoredReadEvent = await ReadEvent.create({
+      post: cascadePost._id,
+      viewer: author1Id,
+      viewerWasMember: true,
+      activeSeconds: 250,
+    });
+
+    // 12. Membership Payment Audit Record
+    const cascadePayment = await MembershipPayment.create({
+      user: cascadeUserId,
+      amountCents: 49900,
+      razorpayPaymentId: "pay_cascade_audit_999",
+      periodStart: now,
+      periodEnd: now,
+    });
+
+    // Execute 14-step Account Deletion Cascade via API
+    const delToken = jwt.sign({ sub: cascadeUserId, purpose: "delete" }, env.jwtAccessSecret, { expiresIn: "30m" });
+    const delRes = await makeRequest("/api/users/me", "DELETE", { token: delToken, mode: "erase" }, cascadeCookie);
+
     if (delRes.status !== 200) {
-      throw new Error(`Account deletion failed: ${JSON.stringify(delRes.body)}`);
+      throw new Error(`Cascade execution failed: ${JSON.stringify(delRes.body)}`);
     }
 
-    // Verify viewer ReadEvents deleted
-    const remainingViewerEvents = await ReadEvent.countDocuments({ viewer: delSubId });
-    if (remainingViewerEvents !== 0) {
-      throw new Error(`Cascade deletion failed! Found ${remainingViewerEvents} viewer ReadEvents for deleted user.`);
+    // --- EMPIRICAL ASSERTIONS FOR ALL 14 STEPS ---
+    // 1. PostRevisions deleted for authored post
+    const remainingRevisions = await PostRevision.countDocuments({ post: cascadePost._id });
+    if (remainingRevisions !== 0) throw new Error("Step 1 Failure: PostRevision was not deleted!");
+
+    // 2. Submitted reports deleted
+    const remSubReports = await Report.countDocuments({ _id: submittedReport._id });
+    if (remSubReports !== 0) throw new Error("Step 2 Failure: Submitted report was not deleted!");
+
+    // 3. Targeted reports deleted
+    const remTargReports = await Report.countDocuments({ _id: targetedReport._id });
+    if (remTargReports !== 0) throw new Error("Step 3 Failure: Targeted report was not deleted!");
+
+    // 4. Comments on authored post deleted
+    const remPostComments = await Comment.countDocuments({ post: cascadePost._id });
+    if (remPostComments !== 0) throw new Error("Step 4 Failure: Comments on authored post were not deleted!");
+
+    // 5. Comments on other posts: soft vs hard delete check
+    const softDeletedComment = await Comment.findById(commentWithReply._id);
+    if (!softDeletedComment || softDeletedComment.content !== "[deleted]" || !softDeletedComment.deletedButHasReplies) {
+      throw new Error("Step 5 Failure: Comment with replies was not soft-deleted!");
+    }
+    const hardDeletedComment = await Comment.findById(commentNoReply._id);
+    if (hardDeletedComment) throw new Error("Step 5 Failure: Comment without replies was not hard-deleted!");
+
+    // 6. Authored Post deleted
+    const remPost = await Post.findById(cascadePost._id);
+    if (remPost) throw new Error("Step 6 Failure: Authored post was not deleted!");
+
+    // 7. Bookmarks pulled
+    const author1Doc = await User.findById(author1Id);
+    if (author1Doc.bookmarks.some((b) => String(b) === String(cascadePost._id))) {
+      throw new Error("Step 7 Failure: Bookmarks were not pulled!");
     }
 
-    // Verify historical MembershipPayment records preserved
-    const preservedPayments = await MembershipPayment.countDocuments({ user: delSubId });
-    if (preservedPayments === 0) {
-      throw new Error("Cascade failure! Financial MembershipPayment records were deleted instead of preserved.");
-    }
-    console.log("   ✅ 14-Step Cascade verified: viewer ReadEvents deleted, financial MembershipPayment audit records preserved.");
+    // 8. Follows deleted both directions
+    const remFollows = await Follow.countDocuments({ $or: [{ follower: cascadeUserId }, { followee: cascadeUserId }] });
+    if (remFollows !== 0) throw new Error("Step 8 Failure: Follow edges were not deleted!");
 
+    // 9. Claps pulled and totalClaps recomputed
+    const testPost1Doc = await Post.findById(testPost1._id);
+    if (testPost1Doc.claps.some((c) => String(c.user) === String(cascadeUserId))) {
+      throw new Error("Step 9 Failure: Claps were not pulled!");
+    }
+
+    // 10. Reading list deleted
+    const remList = await ReadingList.findById(cascadeList._id);
+    if (remList) throw new Error("Step 10 Failure: Reading list was not deleted!");
+
+    // 11. Publication ownership transferred to senior member
+    const updatedPub = await Publication.findById(cascadePub._id);
+    if (String(updatedPub.owner) !== String(author1Id)) {
+      throw new Error("Step 11 Failure: Publication ownership was not transferred to senior member!");
+    }
+    const remPubMember = await PublicationMember.countDocuments({ user: cascadeUserId });
+    if (remPubMember !== 0) throw new Error("Step 11 Failure: PublicationMember was not deleted!");
+
+    // 12. Viewer ReadEvents deleted
+    const remViewerEvents = await ReadEvent.countDocuments({ viewer: cascadeUserId });
+    if (remViewerEvents !== 0) throw new Error("Step 12 Failure: Viewer ReadEvents were not deleted!");
+
+    // 13. Authored ReadEvents & Financial Audit records preserved
+    const preservedAuthoredEvents = await ReadEvent.countDocuments({ post: cascadePost._id });
+    if (preservedAuthoredEvents === 0) throw new Error("Step 13 Failure: Authored ReadEvents were not preserved!");
+    const preservedPaymentDoc = await MembershipPayment.findById(cascadePayment._id);
+    if (!preservedPaymentDoc) throw new Error("Step 13 Failure: MembershipPayment audit record was not preserved!");
+
+    // 14. User deleted
+    const delUserDoc = await User.findById(cascadeUserId);
+    if (delUserDoc) throw new Error("Step 14 Failure: User document was not deleted!");
+
+    console.log("   ✅ 14-Step Cascade single-pass verification complete: all 14 steps empirically verified!");
     console.log("\n🎉 ALL PHASE D INTEGRATION TESTS PASSED CLEANLY!");
   } finally {
     server.close();

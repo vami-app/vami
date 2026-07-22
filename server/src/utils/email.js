@@ -76,12 +76,25 @@ async function sendViaConsole(msg) {
 /**
  * Send an email using the first configured provider:
  * Resend (RESEND_API_KEY) → Mailtrap sandbox (MAILTRAP_API_TOKEN + MAILTRAP_INBOX_ID) → console log.
+ * Catches rate limits (e.g. Mailtrap 429) and falls back to console logging so user flows never fail.
  * @param {EmailMessage} msg
  * @returns {Promise<void>}
  */
 async function sendEmail(msg) {
-  if (env.resendApiKey) return sendViaResend(msg);
-  if (env.mailtrapApiToken && env.mailtrapInboxId) return sendViaMailtrap(msg);
+  if (env.resendApiKey) {
+    try {
+      return await sendViaResend(msg);
+    } catch (err) {
+      console.warn(`[email] Resend delivery notice: ${err.message}. Falling back to console delivery.`);
+    }
+  }
+  if (env.mailtrapApiToken && env.mailtrapInboxId) {
+    try {
+      return await sendViaMailtrap(msg);
+    } catch (err) {
+      console.warn(`[email] Mailtrap delivery notice: ${err.message}. Falling back to console delivery.`);
+    }
+  }
   return sendViaConsole(msg);
 }
 

@@ -125,7 +125,7 @@ const handleWebhook = asyncHandler(async (req, res) => {
 
   await WebhookEvent.create({ eventId, eventType });
 
-  // Handle subscription lifecycle events
+  // Handle subscription and payment lifecycle events
   if (eventType === "subscription.activated") {
     const subId = payload.payload?.subscription?.entity?.id || payload.subscription_id;
     const userEmail = payload.payload?.subscription?.entity?.notes?.email || payload.email;
@@ -138,10 +138,22 @@ const handleWebhook = asyncHandler(async (req, res) => {
       user.membershipStatus = "active";
       await user.save();
     }
-  } else if (eventType === "subscription.charged") {
+  } else if (
+    eventType === "subscription.charged" ||
+    eventType === "payment.captured" ||
+    eventType === "order.paid" ||
+    eventType === "invoice.paid"
+  ) {
     const subId = payload.payload?.subscription?.entity?.id || payload.subscription_id;
-    const paymentId = payload.payload?.payment?.entity?.id || payload.payment_id || `pay_${crypto.randomBytes(8).toString("hex")}`;
-    const userEmail = payload.payload?.payment?.entity?.email || payload.email;
+    const paymentId =
+      payload.payload?.payment?.entity?.id ||
+      payload.payment_id ||
+      payload.payload?.order?.entity?.id ||
+      `pay_${crypto.randomBytes(8).toString("hex")}`;
+    const userEmail =
+      payload.payload?.payment?.entity?.email ||
+      payload.payload?.subscription?.entity?.notes?.email ||
+      payload.email;
 
     let user = null;
     if (subId) user = await User.findOne({ razorpaySubscriptionId: subId });

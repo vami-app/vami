@@ -25,26 +25,26 @@
 
 ### 1.1 Account Deletion 14-Step Cascade & Preserve-vs-Delete Matrix
 
-| Step | Resource / Model | Action | Rationale |
+| Step | Code Operation / Target | Action Executed | Rationale / Ground-Truth Behavior |
 |---|---|---|---|
-| 1 | `User.passwordResetTokenHash` / `emailVerifyTokenHash` | Erased | Invalidates pending auth tokens |
-| 2 | `PostRevision` | Reassigned to system `deleted` user (or erased) | Maintains audit history of post revisions |
-| 3 | `Report` | Deleted where `reporter === user._id` | Cleans up pending reports submitted by user |
-| 4 | `Comment` (authored by user on own posts) | Deleted with post | Removed along with deleted stories |
-| 5 | `Comment` (authored by user on other posts) | Soft-deleted if has replies (`content = "[deleted]"`), else deleted | Preserves thread structure for other readers |
-| 6 | `Post` (authored by user) | Deleted (erase mode) or reassigned to `deleted` (anonymize mode) | Removes authored content per user choice |
-| 7 | `User.bookmarks` | Pulled from all users | Removes deleted posts from bookmarks |
-| 8 | `Follow` | Deleted both directions + pulled from arrays | Cleans up follow graph |
-| 9 | `Post.claps` | Pulled and `totalClaps` recomputed | Recalculates clap totals |
-| 10 | Avatar file (`/uploads/`) | Deleted from disk | Frees media storage |
-| 11 | `ReadingList` | Deleted where `owner === user._id` | Cleans up user lists |
-| 12 | `PublicationMember` | Transfer ownership to senior member or archive publication | Ensures publication continuity |
-| 13 | `ReadEvent` (viewer events) | Deleted where `viewer === user._id` | Erases personal reading history |
-| 14 | **Razorpay Subscription** | Flipped to `membershipStatus = 'canceled'` | Cancels active test subscription |
+| 1 | `PostRevision` (snapshots of user's posts) | `deleteMany({ post: { $in: postIds } })` | Deletes revision snapshots associated with deleted posts |
+| 2 | `Report` (submitted by user) | `deleteMany({ reporter: user._id })` | Cleans up pending reports submitted by the user |
+| 3 | `Report` (targeting user's posts, user's comments, or comments on user's posts) | `deleteMany({ $or: [{ targetType: "post", targetId: { $in: postIds } }, { targetType: "comment", targetId: { $in: targetCommentIds } }] })` | Cleans up reports submitted by others targeting user's posts, user's comments, or comments left on user's posts |
+| 4 | `Comment` (on user's authored posts) | `deleteMany({ post: { $in: postIds } })` | Deletes ALL comments left by anyone on the user's posts |
+| 5 | `Comment` (authored by user on other people's posts) | Soft-deleted (`content = "[deleted]"`, `deletedButHasReplies = true`, `author` reassigned to `deleted` user) if comment has replies; hard-deleted (`deleteOne()`) if no replies | Preserves thread tree continuity for other readers if replies exist |
+| 6 | `Post` (authored by user) | `deleteMany({ author: user._id })` (erase mode) | Deletes all post documents authored by the user |
+| 7 | `User.bookmarks` | `updateMany({ bookmarks: { $in: postIds } }, { $pull: { bookmarks: { $in: postIds } } })` | Removes deleted post IDs from all other users' bookmarks |
+| 8 | `Follow` | `deleteMany({ $or: [{ follower: user._id }, { followee: user._id }] })` & `updateMany` pulling `followers`/`following` | Deletes follow edges and cleans up user arrays in both directions |
+| 9 | `Post.claps` | Filters user claps from `claps` array & recomputes `totalClaps` on affected posts | Updates clap counts across all clapped posts |
+| 10 | Avatar File (`/uploads/`) | `fs.unlinkSync(filePath)` | Unlinks avatar file from server disk |
+| 11 | `ReadingList` | `deleteMany({ owner: user._id })` | Deletes reading lists owned by the user |
+| 12 | `PublicationMember` & `Publication` | Transfer ownership to senior member, or archive publication if sole owner, then `deleteMany({ user: user._id })` | Preserves publication continuity while removing user membership |
+| 13 | `ReadEvent` (viewer telemetry) | `deleteMany({ viewer: user._id })` | Deletes user's viewer reading history |
+| 14 | **Razorpay Subscription** | `user.membershipStatus = "canceled"` | Cancels active Razorpay test subscription |
 | *Preserved* | `ReadEvent` (authored posts) | **Preserved** | Retains historical platform denominator for writer payout audits |
-| *Preserved* | `MembershipPayment` | **Preserved** | Retains financial invoice history for accounting |
-| *Preserved* | `PayoutLedgerEntry` | **Preserved** | Retains historical writer payout ledger allocations |
-| *Preserved* | `AuditLog` | **Preserved** | Retains administrative audit log integrity |
+| *Preserved* | `MembershipPayment` | **Preserved** | Retains financial invoice records |
+| *Preserved* | `PayoutLedgerEntry` | **Preserved** | Retains historical writer payout ledger entries |
+| *Preserved* | `AuditLog` | **Preserved** | Retains administrative audit log records |
 
 ---
 
