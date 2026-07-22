@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { api, ApiError, resolveMedia } from "@/lib/api";
@@ -43,6 +43,22 @@ export default function StoryComposer({ initial = {}, mode }) {
   const [error, setError] = useState("");
   const [showRevisions, setShowRevisions] = useState(false);
 
+  // Publication Submission State
+  const [myPubs, setMyPubs] = useState([]);
+  const [selectedPubSlug, setSelectedPubSlug] = useState("");
+  const [submissionStatus, setSubmissionStatus] = useState(initial.submissionStatus || "none");
+  const [reviewNote, setReviewNote] = useState(initial.reviewNote || "");
+  const [pubName, setPubName] = useState("");
+  const [showPubModal, setShowPubModal] = useState(false);
+  const [pubSuccessMsg, setPubSuccessMsg] = useState("");
+
+  useEffect(() => {
+    // Fetch publications current user belongs to
+    api.get("/api/publications/mine")
+      .then((res) => setMyPubs(res.publications || []))
+      .catch(() => setMyPubs([]));
+  }, []);
+
   const addTag = () => {
     const t = tagInput.trim().toLowerCase();
     if (t && !tags.includes(t) && tags.length < 5) {
@@ -82,14 +98,16 @@ export default function StoryComposer({ initial = {}, mode }) {
   const save = async (nextStatus) => {
     if (!title.trim()) {
       setError("Please add a title before saving.");
-      return;
+      return null;
     }
     setBusy(true);
     setError("");
     const payload = { title, subtitle, contentHtml, coverImage, tags, status: nextStatus };
     try {
+      let currentSlug = slug;
       if (mode === "create" && !slug) {
         const data = await api.post("/api/posts", payload);
+        currentSlug = data.post.slug;
         setSlug(data.post.slug);
         setStatus(data.post.status);
         if (nextStatus === "published") {
@@ -99,13 +117,58 @@ export default function StoryComposer({ initial = {}, mode }) {
         }
       } else {
         const data = await api.patch(`/api/posts/${slug}`, payload);
+        currentSlug = data.post.slug;
         setStatus(data.post.status);
         if (nextStatus === "published") {
           router.push(`/p/${data.post.slug}`);
         }
       }
+      return currentSlug;
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not save story.");
+      return null;
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handlePubSubmit = async () => {
+    if (!selectedPubSlug) {
+      setError("Please select a publication first.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    setPubSuccessMsg("");
+    try {
+      let activeSlug = slug;
+      if (!activeSlug) {
+        activeSlug = await save("draft");
+      }
+      if (!activeSlug) return;
+
+      const res = await api.post(`/api/posts/${activeSlug}/submit`, { publicationSlug: selectedPubSlug });
+      setSubmissionStatus(res.post.submissionStatus);
+      setReviewNote(res.post.reviewNote || "");
+      setShowPubModal(false);
+      setPubSuccessMsg(`Successfully submitted to publication for review.`);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not submit to publication.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleWithdrawPub = async () => {
+    if (!slug || !window.confirm("Withdraw this story from the publication?")) return;
+    setBusy(true);
+    try {
+      const res = await api.del(`/api/posts/${slug}/submit`);
+      setSubmissionStatus("none");
+      setReviewNote("");
+      setPubSuccessMsg("Submission withdrawn.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not withdraw submission.");
     } finally {
       setBusy(false);
     }
@@ -125,13 +188,40 @@ export default function StoryComposer({ initial = {}, mode }) {
 
   return (
     <div className="mx-auto max-w-reading px-4 py-8">
+      {/* Publication Review Alert Banner */}
+      {submissionStatus !== "none" && (
+        <div className={`mb-6 rounded-lg p-4 border text-sm flex flex-wrap items-center justify-between gap-2 ${
+          submissionStatus === "approved" ? "bg-emerald-50 border-emerald-200 text-emerald-800" :
+          submissionStatus === "pending" ? "bg-amber-50 border-amber-200 text-amber-800" :
+          submissionStatus === "changes_requested" ? "bg-orange-50 border-orange-200 text-orange-800" :
+          "bg-rose-50 border-rose-200 text-rose-800"
+        }`}>
+          <div>
+            <span className="font-bold capitalize">Publication Status: {submissionStatus.replace("_", " ")}</span>
+            {reviewNote && <p className="mt-1 text-xs opacity-90"><strong>Review Note:</strong> {reviewNote}</p>}
+          </div>
+          {submissionStatus === "pending" && (
+            <button onClick={handleWithdrawPub} className="text-xs font-semibold underline hover:no-underline">
+              Withdraw
+            </button>
+          )}
+        </div>
+      )}
+
+      {pubSuccessMsg && <p className="mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{pubSuccessMsg}</p>}
+
       {/* Action bar */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
         <span className="text-sm text-ink-soft">
           {status === "published" ? "Published" : "Draft"}
           {mode === "edit" && " · editing"}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {myPubs.length > 0 && (
+            <Button variant="secondary" size="sm" onClick={() => setShowPubModal(true)}>
+              {submissionStatus === "none" ? "Submit to publication" : "Publication status"}
+            </Button>
+          )}
           {mode === "edit" && (
             <Button variant="ghost" size="sm" onClick={() => setShowRevisions(true)}>
               Revisions
@@ -150,6 +240,41 @@ export default function StoryComposer({ initial = {}, mode }) {
           </Button>
         </div>
       </div>
+
+      {/* Publication Submit Modal */}
+      {showPubModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+            <h3 className="font-serif text-xl font-bold text-ink mb-2">Submit Story to Publication</h3>
+            <p className="text-xs text-ink-soft mb-4">
+              Select a publication where you are an editor or writer. Editors will review your submission before it appears on the publication page.
+            </p>
+
+            <label className="block text-xs font-semibold text-ink mb-1">Publication</label>
+            <select
+              value={selectedPubSlug}
+              onChange={(e) => setSelectedPubSlug(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-accent mb-4"
+            >
+              <option value="">Select a publication...</option>
+              {myPubs.map((p) => (
+                <option key={p.id} value={p.slug}>
+                  {p.name} ({p.role})
+                </option>
+              ))}
+            </select>
+
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setShowPubModal(false)}>
+                Cancel
+              </Button>
+              <Button size="sm" onClick={handlePubSubmit} disabled={busy || !selectedPubSlug}>
+                {busy ? "Submitting..." : "Submit for Review"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
 

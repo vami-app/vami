@@ -432,6 +432,27 @@ const getPublicationDashboard = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * GET /api/publications/mine — List publications where current user is a member.
+ */
+const getMyPublications = asyncHandler(async (req, res) => {
+  const memberships = await PublicationMember.find({ user: req.user._id })
+    .populate("publication")
+    .sort({ joinedAt: -1 });
+
+  const publications = memberships
+    .filter((m) => m.publication && !m.publication.isArchived)
+    .map((m) => ({
+      id: m.publication._id,
+      name: m.publication.name,
+      slug: m.publication.slug,
+      logoUrl: m.publication.logoUrl,
+      role: m.role,
+    }));
+
+  return sendSuccess(res, 200, { publications });
+});
+
 module.exports = {
   createPublication,
   getPublicationBySlug,
@@ -443,4 +464,6 @@ module.exports = {
   reviewSubmission,
   withdrawSubmission,
   getPublicationDashboard,
+  getMyPublications,
 };
+

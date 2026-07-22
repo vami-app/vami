@@ -118,23 +118,35 @@ async function seed() {
       u.emailVerifyExpiresAt = new Date(NOW - 10800000); // 3 hr past
     }
 
-    await u.save();
     users.push(u);
   }
 
   // 1b. Generated users — simulate diversity of a large platform
-  const usedUsernames = new Set(users.map(u => u.username));
-  const genCount      = TARGET_USERS - NAMED_USERS.length;
+  const usedUsernames  = new Set(users.map(u => u.username));
+  const usedEmails     = new Set(users.map(u => u.email.toLowerCase()));
+  const usedSubdomains = new Set(users.map(u => u.subdomain).filter(Boolean));
+  const genCount       = TARGET_USERS - NAMED_USERS.length;
 
   for (let i = 0; i < genCount; i++) {
     const fn = pick(FIRST); const ln = pick(LAST);
-    let uname = `${fn}${ln}${i}`.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 30);
-    if (uname.length < 3) uname = `user${i}`;
-    if (usedUsernames.has(uname)) uname = `${uname.slice(0, 25)}_${i}`;
+    let baseUname = `${fn}${ln}`.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 20);
+    if (baseUname.length < 3) baseUname = `user`;
+
+    let uname = `${baseUname}${i + 1}`;
+    let counter = 1;
+    while (usedUsernames.has(uname)) {
+      uname = `${baseUname}_${i + 1}_${counter++}`;
+    }
     usedUsernames.add(uname);
 
     const emailDomains = ["inkwell.dev","gmail.com","outlook.com","yahoo.com","proton.me","hey.com","icloud.com"];
-    const email     = `${uname}@${pick(emailDomains)}`;
+    let email = `${uname}@${pick(emailDomains)}`;
+    let emailCounter = 1;
+    while (usedEmails.has(email)) {
+      email = `${uname}_${emailCounter++}@${pick(emailDomains)}`;
+    }
+    usedEmails.add(email);
+
     const avatarUrl = i % 15 === 0 ? "" : `https://i.pravatar.cc/200?img=${(i % 70) + 1}`;
 
     // ~3% banned, ~10% unverified — matches realistic platform statistics
@@ -147,6 +159,17 @@ async function seed() {
     // exportStatus: mostly idle, occasional pending/ready/failed
     const expStatus  = pick(["idle","idle","idle","idle","idle","pending","ready","failed"]);
     const lastDigest = rand() < 0.4 ? new Date(NOW - randInt(1, 30) * 86400000) : null;
+
+    let subdomain = undefined;
+    if (i < 25) {
+      let candidateSub = uname;
+      let subCounter = 1;
+      while (usedSubdomains.has(candidateSub)) {
+        candidateSub = `${uname}_sub${subCounter++}`;
+      }
+      subdomain = candidateSub;
+      usedSubdomains.add(subdomain);
+    }
 
     const u = new User({
       name:       `${fn} ${ln}`,
@@ -163,11 +186,13 @@ async function seed() {
       lastDigestSentAt:  lastDigest,
       exportStatus:      expStatus,
       exportRequestedAt: expStatus !== "idle" ? new Date(NOW - randInt(1, 5) * 3600000) : undefined,
-      subdomain:         i < 25 ? uname : undefined,
+      subdomain,
     });
-    await u.save();
     users.push(u);
   }
+
+  // Save all users in parallel (hashes passwords across libuv threadpool)
+  await Promise.all(users.map(u => u.save()));
 
   const userMap     = {};
   users.forEach(u => { userMap[u.username] = u; });

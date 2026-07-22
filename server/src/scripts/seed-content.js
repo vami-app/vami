@@ -19,6 +19,7 @@
  * @returns {Object} { posts, publishedVisible }
  */
 
+const User        = require("../models/User");
 const Post        = require("../models/Post");
 const Follow      = require("../models/Follow");
 const Comment     = require("../models/Comment");
@@ -212,8 +213,11 @@ async function seedContent(ctx) {
     await createFollow(pick(users), pick(users));
   }
 
-  // Persist denormalized followers/following arrays on User docs
-  await Promise.all(users.map(u => u.save()));
+  // Persist denormalized followers/following arrays on User docs via updateOne
+  await Promise.all(users.map(u => User.updateOne(
+    { _id: u._id },
+    { $set: { followers: u.followers || [], following: u.following || [] } }
+  )));
   console.log(`[seed] Follow edges: ${followPairs.size}`);
 
   // ──────────────────────────────────────────────────────────
@@ -281,7 +285,7 @@ async function seedContent(ctx) {
     const n = randInt(0, 12);
     if (n === 0) continue;
     u.bookmarks = pickN(visibleIds, n);
-    await u.save();
+    await User.updateOne({ _id: u._id }, { $set: { bookmarks: u.bookmarks } });
   }
 
   // ──────────────────────────────────────────────────────────

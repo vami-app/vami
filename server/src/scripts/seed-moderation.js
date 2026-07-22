@@ -21,7 +21,7 @@ const Report      = require("../models/Report");
 const AuditLog    = require("../models/AuditLog");
 const PostRevision = require("../models/PostRevision");
 
-const { rand, randInt, pick, pickN, PARA_POOLS, weightedReason } = require("./seed-data");
+const { rand, randInt, pick, pickN, ARTICLE_TEMPLATES, weightedReason } = require("./seed-data");
 
 const TARGET_REPORTS = 120;
 const TARGET_AUDIT   = 200;
@@ -202,7 +202,7 @@ async function seedModeration(ctx) {
         editedBy:    post.author,
         title:       `${post.title} (Draft v${v + 1})`,
         subtitle:    post.subtitle ? `${post.subtitle} — iteration ${v + 1}` : "Incremental revision",
-        contentHtml: `<p>Historical snapshot revision ${v + 1}. Preserved before live publication edits.</p><p>${PARA_POOLS[0][v % PARA_POOLS[0].length]}</p>`,
+        contentHtml: `<p>Historical snapshot revision ${v + 1}. Preserved before live publication edits.</p><p>${ARTICLE_TEMPLATES[v % ARTICLE_TEMPLATES.length].sections[0].body.split("\n\n")[0]}</p>`,
         tags:        post.tags.slice(0, Math.max(1, post.tags.length - (v % 2))),
         coverImage:  post.coverImage,
         createdAt:   editDate,

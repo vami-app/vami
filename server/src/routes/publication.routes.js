@@ -13,11 +13,13 @@ const {
   reviewSubmission,
   withdrawSubmission,
   getPublicationDashboard,
+  getMyPublications,
 } = require("../controllers/publication.controller");
 
 const router = express.Router();
 
 // Publication management
+router.get("/publications/mine", requireAuth, getMyPublications);
 router.post("/publications", requireAuth, createPublication);
 router.get("/publications/:slug", optionalAuth, getPublicationBySlug);
 router.patch("/publications/:slug", requireAuth, updatePublication);

@@ -1,7 +1,7 @@
-﻿# ðŸ–‹ï¸ Inkwell â€” Project Blueprint
+# 🖋️ Inkwell — Project Blueprint
 
-> **Version:** 1.1.0 Â· **Stack:** Next.js 15 + Express + MongoDB Â· **Package Manager:** pnpm (v11)
-> A Medium-inspired publishing platform â€” read, write, and share stories. Optimized for SEO, subdomains, and data export portability.
+> **Version:** 1.4.0 · **Stack:** Next.js 15 + Express + MongoDB · **Package Manager:** pnpm (v11)
+> A Medium-inspired publishing platform — read, write, and share stories. Optimized for SEO, subdomains, and data export portability.
 
 ---
 
@@ -404,14 +404,63 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `notifiedAt`     | Date                | default `null`, set when followers are notified of publication |
 | `seo`            | subdocument         | contains optional override metadata (`metaTitle`, `metaDescription`, `canonicalUrl`) |
 | `indexable`      | Boolean             | default `false`, sets to `true` on publish (unless moderated hidden)   |
+| `publication`    | ObjectId → Publication | nullable, default `null`, indexed |
+| `submissionStatus` | String             | enum: `'none' \| 'pending' \| 'approved' \| 'rejected' \| 'changes_requested'`, default `'none'`, indexed |
+| `reviewNote`     | String              | default `""`, feedback note from editor/owner on review |
 
 **Indexes:**
-- Full-text: `{ title: 'text', subtitle: 'text', tags: 'text' }` â€” powers `?q=` search.
-- Compound: `{ status: 1, publishedAt: -1 }` â€” powers feed sort.
+- Full-text: `{ title: 'text', subtitle: 'text', tags: 'text' }` — powers `?q=` search.
+- Compound: `{ status: 1, publishedAt: -1 }` — powers feed sort.
+- Compound: `{ publication: 1, submissionStatus: 1 }` — powers publication submission feeds.
 
 **Hooks & methods:**
-- `pre('save')` â€” recomputes `readTimeMinutes` when `contentHtml` changes, forces `indexable = true` (unless moderationStatus is hidden) and generates the unique `canonicalUrl` based on site env values on the first published save. Reverts `indexable` to `false` if post status flips back to draft.
-- `toCardJSON(viewerId)` â€” feed-safe response shape including viewer-specific clap count, indexable state, and custom SEO configurations.
+- `pre('save')` — recomputes `readTimeMinutes` when `contentHtml` changes, forces `indexable = true` (unless moderationStatus is hidden) and generates the unique `canonicalUrl` based on site env values on the first published save. Reverts `indexable` to `false` if post status flips back to draft.
+- `toCardJSON(viewerId)` — feed-safe response shape including viewer-specific clap count, indexable state, custom SEO configurations, and publication submission metadata.
+- `visibleQuery(extra)` — static helper returning canonical visibility query filter `{ status: 'published', moderationStatus: 'visible', ...extra }`.
+
+---
+
+#### `Publication` model — `server/src/models/Publication.js`
+
+| Field | Type | Constraints / Notes |
+|---|---|---|
+| `name` | String | required, trim |
+| `slug` | String | required, unique, lowercase, indexed |
+| `description` | String | default `""` |
+| `logoUrl` | String | default `""` |
+| `coverImage` | String | default `""` |
+| `owner` | ObjectId → User | required, indexed |
+| `isArchived` | Boolean | default `false`, indexed |
+
+---
+
+#### `PublicationMember` model — `server/src/models/PublicationMember.js`
+
+| Field | Type | Constraints / Notes |
+|---|---|---|
+| `publication` | ObjectId → Publication | required, indexed |
+| `user` | ObjectId → User | required, indexed |
+| `role` | String | enum: `'owner' \| 'editor' \| 'writer'`, default `'writer'` |
+| `invitedBy` | ObjectId → User | required |
+| `joinedAt` | Date | default `Date.now` |
+
+**Indexes:**
+- Compound: `{ publication: 1, user: 1 }` (unique)
+
+---
+
+#### `ReadingList` model — `server/src/models/ReadingList.js`
+
+| Field | Type | Constraints / Notes |
+|---|---|---|
+| `owner` | ObjectId → User | required, indexed |
+| `name` | String | required, trim |
+| `slug` | String | required, lowercase |
+| `visibility` | String | enum: `'public' \| 'private'`, default `'public'`, indexed |
+| `posts` | [subdocument] | Array of `{ post: ObjectId → Post, addedAt: Date }` |
+
+**Indexes:**
+- Compound: `{ owner: 1, slug: 1 }` (unique)
 
 ---
 
@@ -1121,58 +1170,6 @@ Health
 | Stored XSS via editor       | `sanitize-html` server-side before `contentHtml` is saved. Strips `<script>`, all event handler attrs, `javascript:` and `data:` link schemes. |
 | Password exposure           | `password` field has `select: false` on schema — never returned in queries unless explicitly `.select('+password')`. |
 | Weak passwords              | Minimum 8 characters enforced via express-validator.                           |
-| Password cracking           | bcrypt with cost factor 12 (~250ms/hash — makes brute force impractical).     |
-| Token theft (XSS)           | All tokens live only in `httpOnly` cookies — inaccessible to JavaScript.      |
-| CSRF                        | `sameSite: lax` on cookies. Secured by same-origin Vercel rewrite proxies `/api/*` to Render, making requests first-party to bypass third-party cookie restrictions (Safari/ITP). |
-| Token replay after logout   | Logout clears cookies client-side. Stateless design (no server-side blacklist). |
-| Expired access tokens       | 15m TTL; client silently refreshes via `/api/auth/refresh` on 401.            |
-| Long-lived token abuse      | Refresh token expires in 7 days; rotation on each refresh call.               |
-| API abuse / DoS             | Rate limiting: 50/15m on auth, 1000/15m general.                              |
-| Unauthorized edits          | Author-only guards on PATCH/DELETE for posts and DELETE for comments.         |
-| Invalid input               | express-validator rules on all mutating endpoints + validate middleware.       |
-| CORS misconfiguration       | Origin checker matches local dev hosts, custom production domain, and specific anchored Vercel preview domains (`*.vercel.app` containing user team/project slug) to block phishing/session hijack; `credentials: true`. |
-| Unauthorized file types     | Multer `fileFilter` rejects non-image MIME types; 5MB size limit.              |
-| ObjectId injection          | `mongoose.isValidObjectId()` check before using IDs; CastError → 400.        |
-| Export data scraping        | Rate-limiting on export requests (1 request / 24 hours), own account only.    |
-| Subdomain claims hijacking  | Reserved subdomain checks against blacklist, uniqueness index constraints, username collision checks.     |
-
----
-
-## 11. File Upload & Export Pipelines
-
-### Image Upload
-```
-Client browser
-  │
-  ├── User selects file (file picker)
-  ├── new FormData() → form.append('image', file)
-  ├── api.upload('/api/uploads/image', form)
-  │    └── apiFetch: no Content-Type header (browser sets multipart boundary)
-  │
-  ▼
-Express: POST /api/uploads/image
-  ├── requireAuth (must be logged in)
-  ├── multer.single('image')
-  │    ├── Validates MIME: jpeg/png/webp/gif only
-  │    ├── Max size: 5MB
-  │    └── Stores to: server/uploads/<12-byte-hex>.<ext>
-  ├── asyncHandler
-  └── sendSuccess(201, { url: '/uploads/<filename>' })
-```
-
-### Zipped Data Export
-```
-Client browser
-  │
-  ├── POST /api/users/me/export/request
-  │    └── Throttles request (max 1/24h)
-  ├── GET /api/users/me/export/download
-  │
-  ▼
-Express: GET /api/users/me/export/download
-  ├── requireAuth (own account only)
-  ├── Post.find({ author: req.user._id })
-  ├── Stream zip construction via archiver
   │    ├── profile.json (User details)
   │    ├── posts-index.json (Manifest list)
   │    ├── posts/<slug>.json (Model dump)

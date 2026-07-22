@@ -1,4 +1,5 @@
 const TurndownService = require("turndown");
+const { ZipArchive } = require("archiver");
 
 const turndown = new TurndownService();
 
@@ -10,9 +11,7 @@ const turndown = new TurndownService();
  * @returns {Promise<void>}
  */
 async function streamExport(res, user, posts) {
-  const archiverModule = await import("archiver");
-  const archiver = archiverModule.default || archiverModule;
-  const archive = archiver("zip", { zlib: { level: 9 } });
+  const archive = new ZipArchive({ zlib: { level: 9 } });
 
   archive.on("error", (err) => {
     throw err;

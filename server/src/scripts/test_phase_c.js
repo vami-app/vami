@@ -208,6 +208,53 @@ async function runTests() {
     }
     console.log("   ✅ Last-owner lockout guard correctly blocked sole owner removal.");
 
+    // Audit Item 1: Authorial ownership guard — Editor/Owner cannot edit author's post content via PATCH /api/posts/:slug
+    const editorPatchRes = await makeRequest(`/api/posts/${post1Slug}`, "PATCH", { title: "Hacked by Editor" }, ownerCookie);
+    if (editorPatchRes.status !== 403) {
+      throw new Error(`Authorial ownership guard failed! Expected status 403 when editor patches author's post, got ${editorPatchRes.status}`);
+    }
+    console.log("   ✅ Authorial ownership guard: Editor content PATCH attempt on author's post correctly blocked (403).");
+
+    // Audit Item 2: Decoupled publishing — Rejected/pending posts stay status: published & visible on author's profile
+    const post2Check = await Post.findById(post2Id);
+    if (post2Check.status !== "published" || post2Check.submissionStatus !== "rejected") {
+      throw new Error("Decoupled publishing failed: post status mutated during submission rejection.");
+    }
+    const authorProfilePosts = await makeRequest(`/api/posts?author=writerone`);
+    if (authorProfilePosts.status !== 200 || !authorProfilePosts.body.data.posts.some(p => p.slug === post2Slug)) {
+      throw new Error("Decoupled publishing failed: rejected post missing from author's public profile.");
+    }
+    console.log("   ✅ Decoupled publishing: Rejected post remains status 'published' and visible on author's profile.");
+
+    // Audit Item 3: Exercise request_changes and withdrawSubmission
+    const post3Res = await makeRequest("/api/posts", "POST", {
+      title: "Story Needing Formatting Changes",
+      contentHtml: "<p>Initial content</p>",
+      tags: ["engineering"],
+      status: "published",
+    }, writerCookie);
+    const post3Slug = post3Res.body.data.post.slug;
+    const post3Id = post3Res.body.data.post.id;
+
+    await makeRequest(`/api/posts/${post3Slug}/submit`, "POST", { publicationSlug: "tech-pulse" }, writerCookie);
+
+    // Request changes
+    const reqChangesRes = await makeRequest(`/api/publications/tech-pulse/submissions/${post3Id}`, "PATCH", {
+      action: "request_changes",
+      reviewNote: "Please expand section 2 and format code blocks.",
+    }, ownerCookie);
+    if (reqChangesRes.status !== 200 || reqChangesRes.body.data.post.submissionStatus !== "changes_requested" || reqChangesRes.body.data.post.reviewNote !== "Please expand section 2 and format code blocks.") {
+      throw new Error(`request_changes review action failed: ${JSON.stringify(reqChangesRes.body)}`);
+    }
+    console.log("   ✅ Review action 'request_changes' executed successfully with review note.");
+
+    // Withdraw submission
+    const withdrawRes = await makeRequest(`/api/posts/${post3Slug}/submit`, "DELETE", null, writerCookie);
+    if (withdrawRes.status !== 200 || withdrawRes.body.data.post.submissionStatus !== "none" || withdrawRes.body.data.post.publication !== null) {
+      throw new Error(`withdrawSubmission failed: ${JSON.stringify(withdrawRes.body)}`);
+    }
+    console.log("   ✅ Writer successfully withdrew pending submission (status reset to 'none').");
+
     // --- Step 2 Verification: Recommendation Scoring ---
     console.log("\n--- Step 2: Personalized Recommendation Scoring & For You Feed ---");
     
@@ -234,6 +281,19 @@ async function runTests() {
 
     const list2Res = await makeRequest("/api/lists", "POST", { name: "Private Drafts", visibility: "private" }, readerCookie);
     const list2Id = list2Res.body.data.list.id;
+    const list2Slug = list2Res.body.data.list.slug;
+
+    // Audit Item 4: Private list access block for non-owner / logged out
+    const privateListLoggedOut = await makeRequest(`/api/lists/readertwo/${list2Slug}`);
+    if (privateListLoggedOut.status !== 403 && privateListLoggedOut.status !== 404) {
+      throw new Error(`Private list privacy test failed! Expected 403/404 for logged-out access to private list, got ${privateListLoggedOut.status}`);
+    }
+
+    const privateListOtherUser = await makeRequest(`/api/lists/readertwo/${list2Slug}`, "GET", null, writerCookie);
+    if (privateListOtherUser.status !== 403 && privateListOtherUser.status !== 404) {
+      throw new Error(`Private list privacy test failed! Expected 403/404 for another user accessing private list, got ${privateListOtherUser.status}`);
+    }
+    console.log("   ✅ Private reading list access control verified: blocked for logged-out and non-owner users.");
 
     // Create draft post by writer
     const draftRes = await makeRequest("/api/posts", "POST", {
@@ -290,20 +350,75 @@ async function runTests() {
     }
     console.log("   ✅ Related posts query returned same-tag stories.");
 
+    // Audit Item 5: Seed an 8-day old post with tag 'archaic-tag' and confirm it's EXCLUDED from trending tags
+    const oldPost = new Post({
+      title: "Ancient Archaic Story",
+      slug: "ancient-archaic-story",
+      contentHtml: "<p>Old story</p>",
+      author: writerId,
+      status: "published",
+      moderationStatus: "visible",
+      tags: ["archaic-tag"],
+      createdAt: new Date(Date.now() - 9 * 86400000), // 9 days ago
+      publishedAt: new Date(Date.now() - 9 * 86400000),
+    });
+    await oldPost.save();
+
     const trendingRes = await makeRequest("/api/posts/tags/trending");
     if (trendingRes.status !== 200 || !trendingRes.body.data.tags.some(t => t.tag === "javascript")) {
       throw new Error("7-day recency trending tags failed!");
     }
-    console.log("   ✅ 7-day recency-weighted trending tags endpoint verified.");
+    if (trendingRes.body.data.tags.some(t => t.tag === "archaic-tag")) {
+      throw new Error("Trending tags 7-day recency exclusion failed! 9-day old tag was included.");
+    }
+    console.log("   ✅ 7-day recency-weighted trending tags verified: 9-day old post tags correctly EXCLUDED.");
 
     // --- Step 5 Verification: Account Deletion Cascade ---
     console.log("\n--- Step 5: Account Deletion Cascade Updates ---");
     
-    // Create temporary delete token & call account deletion for pubowner
     const jwt = require("jsonwebtoken");
     const env = require("../config/env");
-    const delToken = jwt.sign({ sub: ownerId, purpose: "delete" }, env.jwtAccessSecret, { expiresIn: "30m" });
 
+    // Audit Item 6a: Delete user who owns reading lists & publication memberships (readertwo)
+    const readerId = (await User.findOne({ username: "readertwo" }))._id;
+    const readerDelToken = jwt.sign({ sub: readerId, purpose: "delete" }, env.jwtAccessSecret, { expiresIn: "30m" });
+    const readerDelRes = await makeRequest("/api/users/me", "DELETE", { token: readerDelToken, mode: "erase" }, readerCookie);
+    if (readerDelRes.status !== 200) throw new Error(`Reader account deletion failed: ${JSON.stringify(readerDelRes.body)}`);
+
+    const remainingLists = await ReadingList.countDocuments({ owner: readerId });
+    if (remainingLists !== 0) {
+      throw new Error(`Reading list cascade deletion failed! Expected 0 lists owned by readertwo, found ${remainingLists}`);
+    }
+    const remainingMemberships = await PublicationMember.countDocuments({ user: readerId });
+    if (remainingMemberships !== 0) {
+      throw new Error(`PublicationMember cascade deletion failed! Expected 0 memberships for readertwo, found ${remainingMemberships}`);
+    }
+    console.log("   ✅ Reading list & publication membership deletion cascade verified (0 records remaining).");
+
+    // Audit Item 6b: Sole owner with no remaining members soft-archive path test
+    const soloOwnerRes = await makeRequest("/api/auth/register", "POST", {
+      name: "Solo Owner",
+      username: "soloowner",
+      email: "solo@test.com",
+      password: "Password123!",
+    });
+    const soloCookie = getCookies(soloOwnerRes.headers);
+    const soloId = soloOwnerRes.body.data.user.id;
+    await User.updateOne({ _id: soloId }, { emailVerified: true });
+
+    await makeRequest("/api/publications", "POST", { name: "Solo Magazine", slug: "solo-mag" }, soloCookie);
+
+    const soloDelToken = jwt.sign({ sub: soloId, purpose: "delete" }, env.jwtAccessSecret, { expiresIn: "30m" });
+    await makeRequest("/api/users/me", "DELETE", { token: soloDelToken, mode: "erase" }, soloCookie);
+
+    const soloPubAfterDel = await Publication.findOne({ slug: "solo-mag" });
+    if (!soloPubAfterDel || !soloPubAfterDel.isArchived) {
+      throw new Error("Sole-owner soft-archive publication cascade failed!");
+    }
+    console.log("   ✅ Sole-owner with no members soft-archive path verified (publication auto-archived).");
+
+    // Delete publication owner (pubowner) -> ownership transferred to senior member (writerone)
+    const delToken = jwt.sign({ sub: ownerId, purpose: "delete" }, env.jwtAccessSecret, { expiresIn: "30m" });
     const delRes = await makeRequest("/api/users/me", "DELETE", { token: delToken, mode: "erase" }, ownerCookie);
     if (delRes.status !== 200) throw new Error(`Account deletion failed: ${JSON.stringify(delRes.body)}`);
 
