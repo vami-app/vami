@@ -43,7 +43,7 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `isProd`           | boolean | Derived from `nodeEnv === 'production'`|
 
 ### `server/src/config/passport.js`
-- Configures Google (`passport-google-oauth20`) and GitHub (`passport-github2`) OAuth strategies with `session: false` and `state: true`.
+- Configures Google (`passport-google-oauth20`) and GitHub (`passport-github2`) OAuth strategies with custom `CookieStateStore` for state-based CSRF protection without `express-session`.
 - Strategies are only registered when real credentials exist (mock values are skipped).
 - Account-linking helper `handleOAuthUser`: first searches by provider ID, then by email. If an email match is found, it links the provider ID and sets `emailVerified = true`. Otherwise creates a new user with `generateUniqueUsername()` and auto-verified email.
 - GitHub strategy handles private primary email via `GET https://api.github.com/user/emails` as a fallback using the OAuth access token.

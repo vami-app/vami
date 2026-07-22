@@ -1,5 +1,6 @@
 "use strict";
 
+const crypto = require("crypto");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
@@ -43,7 +44,7 @@ async function handleOAuthUser(provider, providerId, email, name, avatarUrl, don
       return done(new Error("OAuth account has no verified primary email. Cannot authenticate."));
     }
 
-    const providerField = provider === "google" ? "googleId" : "githubId";
+    const providerField = `${provider}Id`;
 
     // 1. Check if user already exists by providerId
     let user = await User.findOne({ [providerField]: providerId });
@@ -87,6 +88,43 @@ async function handleOAuthUser(provider, providerId, email, name, avatarUrl, don
   }
 }
 
+/**
+ * Custom Cookie-based OAuth State Store.
+ * Enables state-based CSRF protection statelessly without requiring express-session.
+ */
+class CookieStateStore {
+  store(req, callback) {
+    const state = crypto.randomBytes(16).toString("hex");
+    if (req.res && req.res.cookie) {
+      req.res.cookie("oauth_state", state, {
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 10 * 60 * 1000,
+        secure: env.isProd || env.cookieSecure,
+        path: "/",
+      });
+    }
+    callback(null, state);
+  }
+
+  verify(req, providedState, callback) {
+    const storedState = req.cookies && req.cookies.oauth_state;
+    if (req.res && req.res.clearCookie) {
+      req.res.clearCookie("oauth_state", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: env.isProd || env.cookieSecure,
+        path: "/",
+      });
+    }
+
+    if (!storedState || storedState !== providedState) {
+      return callback(null, false, { message: "Invalid OAuth state parameter." });
+    }
+    callback(null, true);
+  }
+}
+
 // ---------------- Google Strategy ----------------
 if (env.googleClientId && env.googleClientId !== "mock_google_client_id") {
   passport.use(
@@ -96,7 +134,7 @@ if (env.googleClientId && env.googleClientId !== "mock_google_client_id") {
         clientSecret: env.googleClientSecret,
         callbackURL: `${env.clientUrl.includes("localhost") ? "http://localhost:5000" : ""}/api/auth/google/callback`,
         scope: ["profile", "email"],
-        state: true,
+        store: new CookieStateStore(),
       },
       async (accessToken, refreshToken, profile, done) => {
         const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
@@ -116,6 +154,7 @@ if (env.githubClientId && env.githubClientId !== "mock_github_client_id") {
         clientSecret: env.githubClientSecret,
         callbackURL: `${env.clientUrl.includes("localhost") ? "http://localhost:5000" : ""}/api/auth/github/callback`,
         scope: ["user:email"],
+        store: new CookieStateStore(),
       },
       async (accessToken, refreshToken, profile, done) => {
         let email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
