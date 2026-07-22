@@ -147,6 +147,10 @@ inkwell/
 | `/bookmarks` | Saved stories |
 | `/terms` | Terms of Service |
 | `/privacy` | Privacy Policy |
+| `/pub/[slug]` | Publication profile page (approved stories + team) |
+| `/pub/[slug]/dashboard` | Publication member dashboard (submissions review queue + team roles) |
+| `/lists` | Personal reading lists management |
+| `/lists/[slug]?username=` | Single reading list view |
 | `/admin` | Admin dashboard stats overview |
 | `/admin/users` | Admin user management (role/ban toggles) |
 | `/admin/reports` | Admin moderation reports queue |
@@ -170,14 +174,29 @@ POST   /api/users/me/avatar            GET    /api/users/me/export/download
 POST   /api/users/:username/follow     POST   /api/users/me/delete-request
 GET    /api/users/me/bookmarks         DELETE /api/users/me             (token)
 
-Posts + Comments
+Posts + Comments + Recommendations
 GET    /api/posts  (?cursor,limit,tag,author,q,status)
-POST   /api/posts                      GET    /api/posts/tags/trending
+POST   /api/posts                      GET    /api/posts/tags/trending (7-day)
 GET    /api/posts/:slug                POST   /api/posts/:slug/clap
 PATCH  /api/posts/:slug  (author)      POST   /api/posts/:slug/bookmark
 DELETE /api/posts/:slug  (author)      GET    /api/posts/:slug/comments
-                                       POST   /api/posts/:slug/comments
-DELETE /api/comments/:id  (author)
+GET    /api/posts/recommended          POST   /api/posts/:slug/comments
+GET    /api/posts/:slug/related        DELETE /api/comments/:id  (author)
+
+Publications & Submissions
+POST   /api/publications               POST   /api/posts/:slug/submit
+GET    /api/publications/:slug         DELETE /api/posts/:slug/submit
+PATCH  /api/publications/:slug         PATCH  /api/publications/:pubSlug/submissions/:postId
+GET    /api/publications/:slug/dashboard
+POST   /api/publications/:slug/members
+PATCH  /api/publications/:slug/members/:userId
+DELETE /api/publications/:slug/members/:userId
+
+Reading Lists
+POST   /api/lists                      PATCH  /api/lists/:id
+GET    /api/lists/mine                 POST   /api/lists/:id/posts
+GET    /api/users/:username/lists      DELETE /api/lists/:id/posts/:postId
+GET    /api/lists/:username/:slug      DELETE /api/lists/:id
 
 Post Revisions
 GET    /api/posts/:slug/revisions
@@ -198,7 +217,6 @@ Feeds + Uploads
 GET    /api/feed/rss                   POST   /api/uploads/image
 GET    /api/feed/user/:username/rss    GET    /api/health
 GET    /api/feed/tag/:tag/rss
-
 ```
 
 
@@ -236,7 +254,7 @@ GET    /api/feed/tag/:tag/rss
   `@ada` string and strips the leading `@` (static routes like `/search`, `/p` take precedence).
 - Password-reset email is supported via Mailtrap sandbox or Resend API, falling back to console logging in local development.
 
-## Current status — Phase B complete
+## Current status — Phase C complete
 
 **MVP core** (auth, posts, comments, claps, bookmarks, follow, search, RSS, SEO, export) — Done.
 
@@ -258,7 +276,15 @@ GET    /api/feed/tag/:tag/rss
 - Threaded Comments — 5-depth nesting clamp, recursive UI rendering, soft-delete branch preserving child replies
 - Account Deletion Cascade Overhaul — strict 13-step sequence
 
-**Phases C–G** are planned. See `INKWELL_FULL_PRODUCT_ROADMAP.md` for the full breakdown.
+**Phase C (Growth Engine)** — Done:
+- Shared Visibility Filter — `Post.visibleQuery()` canonical helper refactoring all read paths across RSS, sitemap, search, feeds, publications, and recommendations
+- Publications & Submission Review Workflow — multi-author collections, owner/editor/writer roles, submit/review/withdraw workflow, public profile pages, and member dashboard
+- Transparent Discovery ("For You" Tab) — interest-based recommendation scoring (tag overlap + author follows + recency decay + engagement) as an explicit second tab alongside chronological "Latest" feed, with in-product transparency disclosure
+- Reading Lists — named public/private lists, draft/hidden post interaction blocks, dangling reference placeholders
+- Related Posts & 7-Day Trending Tags — same-tag story recommendations on article page + last-7-days window on trending tags
+- Account Deletion Cascade Updates — publication owner transfer to senior member / soft-archival, reading list deletion
+
+**Phases D–G** are planned. See `INKWELL_FULL_PRODUCT_ROADMAP.md` for the full breakdown.
 
 ---
 
@@ -283,6 +309,11 @@ All items below were exercised against the running app (`pnpm dev`, client :3000
 - [x] Post edits trigger snapshots under revisions, showing word-level LCS diffs and allowing full restores
 - [x] Comment replying depth clamps to 5; deleting a parent comment with replies converts it to soft-deleted placeholder
 - [x] Cascade account deletion clears reports, post revisions, comments (soft/hard deleted), bookmarks, follows, and claps
+- [x] Publications created with reserved slug check, multi-author submissions, editor approval/rejection notes, and profile page filtering
+- [x] "For You" tab provides transparent recommendation ranking alongside chronological "Latest" feed with clear signal disclosures
+- [x] Reading lists support public/private visibility, block draft post additions, and render dangling reference placeholders for deleted/hidden stories
+- [x] Related posts display up to 3 same-tag stories and trending tags calculate over a 7-day recency window
+- [x] Account deletion handles publication owner transfer to senior member or soft-archival when no other members exist
 - [x] No horizontal scroll / broken layout at 320 / 375 / 768 / 1024 / 1440 / 1920px
 - [x] Production build (`pnpm --filter client build`) compiles all routes with no type/lint errors
 ```

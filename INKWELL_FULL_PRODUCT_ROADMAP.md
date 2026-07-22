@@ -115,12 +115,12 @@ Everything below extends this foundation toward Phases B–G.
 | Phase | Status | Weeks | Cumulative |
 |---|---|---|---|
 | A — Ownership & Trust | **Completed** | 5 | 0 |
-| B — Safety & Integrity | Pending | 7.5 | 7.5 |
-| C — Growth Engine | Pending | 8 | 15.5 |
-| D — Monetization Mechanism | Pending | 5.5 | 21 |
-| E — Identity, Access, Real-time | Pending | 5 | 26 |
-| F — Reader Experience Depth | Pending | 4.5 | 30.5 |
-| G — Quality Infrastructure | Pending | 4 | 34.5 |
+| B — Safety & Integrity | **Completed** | 7.5 | 7.5 |
+| C — Growth Engine | **Completed** | 9 | 16.5 |
+| D — Monetization Mechanism | Pending | 5.5 | 22 |
+| E — Identity, Access, Real-time | Pending | 5 | 27 |
+| F — Reader Experience Depth | Pending | 4.5 | 31.5 |
+| G — Quality Infrastructure | Pending | 4 | 35.5 |
 
 **Real total: ~39-40 weeks, roughly 9-10 months, done properly, no corners cut.**
 
