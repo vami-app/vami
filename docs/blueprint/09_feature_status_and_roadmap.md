@@ -32,7 +32,7 @@ The table below tracks the status of all core platform capabilities across phase
 | Paywall & Preview truncation | Phase D | Pending | ✅ **Completed** | Locked toggle, 3-paragraph server truncation, RSS preview truncation, `canReadFull` helper |
 | Razorpay Test-Mode Subscription | Phase D | Pending | ✅ **Completed** | Checkout modal, HMAC signature verify, server cancel, raw-body webhook signature, `WebhookEvent` dedup |
 | Writer Payout Ledger | Phase D | Pending | ✅ **Completed** | `ReadEvent` telemetry, `MembershipPayment` & `PayoutLedgerEntry` models, engagement-weighted math |
-| OAuth & Real-time Notifications | Phase E | Pending | ✅ **Completed** | Google/GitHub OAuth (Passport.js), Socket.IO live notification stream & inbox, post scheduling |
+| OAuth & Real-time Notifications | Phase E | Pending | ✅ **Completed** | Google/GitHub OAuth (Passport.js — account-link by email, GitHub private email fallback), Socket.IO live notification stream (personal user rooms, cookie-auth handshake, force-disconnect on ban), notification inbox REST API (GET/mark-read/mark-all-read), `SocketContext` client provider, post scheduling (`scheduledAt` + `check_scheduled_posts.js` runner) |
 | Reader Experience Depth | Phase F | Pending | Planned | Highlighting/annotations, writer analytics dashboard, dark mode |
 | Quality Infrastructure | Phase G | Pending | Planned | Vitest unit tests, Playwright E2E suite (local-only) |
 
@@ -54,4 +54,4 @@ The table below tracks the status of all core platform capabilities across phase
 
 ---
 
-*Blueprint updated: 2026-07-22 — Synchronized with Phase E completion. v1.6.0.*
+*Blueprint updated: 2026-07-22 — Synchronized with Phase E completion. v1.7.0.*

@@ -9,12 +9,12 @@
 ```
 RootLayout (app/layout.jsx)
 │   Fonts: Inter + Source Serif 4 via CSS variables
-│   Wraps all children in <AuthProvider>
+│   Wraps all children in <AuthProvider> + <SocketProvider>
 │
 ├── AuthLayout ((auth)/layout.jsx)
 │   Centered logo-only header; no Navbar/Footer
-│   ├── /login
-│   ├── /register
+│   ├── /login               # Email/password + Google + GitHub OAuth buttons
+│   ├── /register            # Name/username/email/password + OAuth buttons
 │   ├── /forgot-password     # Request password-reset email
 │   └── /reset-password      # Consume token → set new password
 │
@@ -35,14 +35,14 @@ RootLayout (app/layout.jsx)
     ├── /@[username]         # ProfilePage
     ├── /bookmarks           # BookmarksPage
     ├── /edit/[slug]         # EditPage
-    ├── /new-story           # NewStoryPage
+    ├── /new-story           # NewStoryPage (with scheduledAt scheduling)
+    ├── /notifications       # NotificationsPage (real-time inbox)
     ├── /p/[slug]            # StoryPage (Server Component)
     │   └── StoryPageClient  # Client Interactivity Wrapper + RelatedPosts
     ├── /pub/[slug]          # Publication Profile Page
     │   └── dashboard/       # Publication Member Dashboard
     ├── /lists               # Personal Reading Lists Management
     │   └── [slug]           # Single Reading List View
-    ├── /notifications       # Notifications Inbox Page
     ├── /search              # SearchPage
     ├── /settings            # SettingsPage (profile + email prefs + account deletion)
     └── /tag/[tag]           # TagPage
@@ -55,8 +55,8 @@ RootLayout (app/layout.jsx)
 | Route | Component | Key Features |
 |---|---|---|
 | `/` | HomePage | Two-tab feed (Latest & For You) + `<TrendingTags>` 7-day sidebar |
-| `/login` | LoginPage | Email/password form → `AuthContext.login()` |
-| `/register` | RegisterPage | Name/username/email/password → `AuthContext.register()` |
+| `/login` | LoginPage | Email/password form → `AuthContext.login()`. Google & GitHub OAuth buttons redirect to `/api/auth/google` / `/api/auth/github`. |
+| `/register` | RegisterPage | Name/username/email/password → `AuthContext.register()`. Google & GitHub OAuth buttons. |
 | `/forgot-password` | ForgotPasswordPage | Email input → POST `/api/auth/forgot-password` |
 | `/reset-password` | ResetPasswordPage | Reads `?token=` → POST new password to `/api/auth/reset-password` |
 | `/@[username]` | ProfilePage | User bio, follow button, author's stories. Custom subdomain mapping resolves here. |
@@ -86,12 +86,16 @@ RootLayout (app/layout.jsx)
 - **`StoryEditor.jsx`**: Tiptap WYSIWYG core with StarterKit, Image, Link, Placeholder. Sticky formatting toolbar. Syncs content.
 
 ### `components/layout/`
-- **`Navbar.jsx`**: Sticky top navigation (search bar, Write button, Avatar dropdown menu).
+- **`Navbar.jsx`**: Sticky top navigation (search bar, Write button, notification bell badge from `SocketContext`, Avatar dropdown menu).
 - **`MobileDrawer.jsx`**: Slide-in nav overlay for mobile breakpoints.
 - **`Footer.jsx`**: Minimal branding footer.
 - **`Logo.jsx`**: SVG Inkwell wordmark.
 - **`RequireAuth.jsx`**: Client-side auth gate; redirects unauthenticated users to `/login`.
 - **`VerificationBanner.jsx`**: Dismissible alert prompt shown when `emailVerified === false`, with a "Resend verification email" button.
+
+### `components/membership/`
+- **`SubscribeModal.jsx`**: Razorpay test-mode checkout modal. Calls `POST /api/membership/subscribe` for session ID, then `POST /api/membership/verify` after user completes test payment overlay.
+- **`WriterLedgerCard.jsx`**: Displays a writer's engagement-weighted payout ledger entries from `GET /api/writer/payout-ledger`.
 
 ### `components/post/`
 - **`PostCard.jsx`**: Feed card displaying author avatar, title, subtitle, tags, read time, claps, cover image, publication badge.
@@ -131,21 +135,42 @@ AuthProvider
 - Bootstraps on app load by calling `/api/auth/me`.
 - `useAuth()` hook provides easy access.
 
+**`SocketContext.jsx`** — Socket.IO client + notification state management:
+```
+SocketProvider (wraps children inside AuthProvider)
+├── state: { socket, unreadCount, notifications }
+├── Connects when user is authenticated (disconnects on logout)
+├── Fetches initial notifications: GET /api/notifications?limit=10
+├── Listens for 'notification' events → prepends to list, increments unreadCount
+├── markAsRead(id)   → PATCH /api/notifications/:id/read
+├── markAllAsRead()  → PATCH /api/notifications/read-all
+└── refreshNotifications() → manual re-fetch
+```
+
+- `useSocket()` hook provides access to socket instance and notification state.
+- Navbar consumes `unreadCount` to render the notification bell badge.
+
 ---
 
-## 5. API Client (`lib/api.js`)
+## 6. Utility Library (`lib/`)
 
-**Core function: `apiFetch(path, options)`**
+**`lib/api.js`** — Core fetch wrapper:
 - Always sends `credentials: 'include'` for cross-origin cookies.
 - Automatically sets `Content-Type: application/json`.
-- On 401: silently attempts `POST /api/auth/refresh` once (singleton promise prevents stampedes).
+- On 401: silently attempts `POST /api/auth/refresh` once (singleton `refreshPromise` prevents concurrent stampedes).
   - If refresh succeeds → retries original request.
   - If refresh fails → throws 401 error.
 - Returns `data` field of success envelope.
+- Exports: `apiFetch`, `api` (get/post/patch/del/upload shortcuts), `ApiError`, `resolveMedia`.
+
+**`lib/diff.js`** — LCS word-level diff for post revision comparison:
+- Used in the revision slideover panel to show word-level insertions and deletions between two `contentHtml` snapshots.
+
+**`lib/utils.js`** — Shared helpers: `formatDate`, `formatCount`, `cx` (className merge), `initials`.
 
 ---
 
-## 6. Design System (Tailwind)
+## 7. Design System (Tailwind)
 
 - **Colors:** Primary Accent Indigo (`#4f46e5`), Body Ink (`#242424`), Ink Soft (`#6b6b6b`), Ink Faint (`#a3a3a3`).
 - **Typography:** `font-sans` (Inter), `font-serif` (Source Serif 4).

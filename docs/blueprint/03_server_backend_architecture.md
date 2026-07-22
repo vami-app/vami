@@ -43,13 +43,22 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `isProd`           | boolean | Derived from `nodeEnv === 'production'`|
 
 ### `server/src/config/passport.js`
-- Passport.js configuration with Google (`passport-google-oauth20`) and GitHub (`passport-github2`) strategies (`session: false`, `state: true`).
-- Account-linking helper `handleOAuthUser`: links provider IDs by email with auto `emailVerified = true`, or creates new users. Handles GitHub private primary email fallback via `GET /user/emails`.
+- Configures Google (`passport-google-oauth20`) and GitHub (`passport-github2`) OAuth strategies with `session: false` and `state: true`.
+- Strategies are only registered when real credentials exist (mock values are skipped).
+- Account-linking helper `handleOAuthUser`: first searches by provider ID, then by email. If an email match is found, it links the provider ID and sets `emailVerified = true`. Otherwise creates a new user with `generateUniqueUsername()` and auto-verified email.
+- GitHub strategy handles private primary email via `GET https://api.github.com/user/emails` as a fallback using the OAuth access token.
+- OAuth callback URL is derived from `env.clientUrl` (localhost vs. production domain).
 
 ### `server/src/config/socket.js`
-- Socket.IO server initialization attached to HTTP server.
-- Handshake auth middleware (`io.engine.use()`) using HTTP-only cookies and JWT verification.
-- User socket map registry (`Map<userId, Set<socketId>>`) and `disconnectUserSockets(userId)` for instant socket termination on admin ban.
+- Initializes a Socket.IO `Server` attached to the HTTP server returned by `app.listen()`.
+- Engine-level handshake middleware (`io.engine.use()`) parses httpOnly cookies and verifies the `accessToken` JWT, attaching the user to `req.user`. Banned or missing users are rejected before a socket is established.
+- Each authenticated connection joins the personal room `user:<userId>` for targeted notification delivery.
+- `userSocketMap` (`Map<userIdString, Set<socketIdString>>`) tracks all active socket IDs per user.
+- Exports:
+  - `initSocket(httpServer)` — call once after `app.listen()` in `server.js`.
+  - `emitNotificationToUser(recipientId, notification)` — push live `notification` event to a recipient's personal room.
+  - `disconnectUserSockets(userId)` — forcibly disconnect all sockets for a user (called on admin ban).
+  - `getIO()` — returns the current `Server` instance.
 
 ---
 
@@ -359,6 +368,7 @@ Normalizes all errors into `{ success: false, message, errors? }`.
 | Limiter | Window | Max Requests | Applied To |
 |---|---|---|---|
 | `authLimiter` | 15 min | 50 | `/api/auth/*` |
+| `forgotPasswordLimiter` | 15 min | 5 | `POST /api/auth/forgot-password` only |
 | `generalLimiter` | 15 min | 1,000 | All `/api/*` |
 
 ### `upload.middleware.js`
@@ -384,19 +394,28 @@ Runs `validationResult(req)` after express-validator rules. Returns 422 with fie
 | `entitlement.js` | `canReadFull(post, viewer)` | Canonical entitlement helper (unlocked, author, admin, active member) |
 | `rss.js` | `buildFeed(params)` | Generates XML RSS feed string using `feed` library (truncates locked posts) |
 | `exportAccount.js`| `streamExport(res, u, p)`| Streams a compressed ZIP directory using `archiver` & `turndown` |
-| `notify.js` | `notifyFollowersOfNewPost` | Sends new-post notification emails to followers |
+| `notify.js` | `notifyFollowersOfNewPost` | Creates `Notification` DB records, calls `emitNotificationToUser()` for live socket push, and sends new-post emails to followers |
 
 ---
 
 ## 6. Seed & Verification Scripts
 
-- **`seed.js`** (`pnpm seed`): Wipes DB & seeds 120 users, 500 posts, 800 follows, 1200 comments, 75 reading lists, 1186 read events, 37 member payments, 103 ledger entries.
-- **`test_seo_spec.js`**: Verifies user/post model schemas and pre-save hooks.
-- **`reset_export_limit.js`**: Resets account export throttles for testing.
+- **`seed.js`** (`pnpm seed`): Orchestrator — wipes DB and calls `seed-data.js`, `seed-content.js`, and `seed-moderation.js` in sequence.
+- **`seed-data.js`**: Seeds 120 users, 500 posts, 800 follows, 1200 comments with realistic data.
+- **`seed-content.js`**: Seeds 75 reading lists, 1186 read events, 37 member payments, 103 payout ledger entries, and publication memberships.
+- **`seed-moderation.js`**: Seeds moderation reports, audit logs, and hidden content for testing admin flows.
+- **`backfill_follows.js`**: Migration utility to backfill the `Follow` model from `User.followers`/`User.following` arrays (one-time migration helper).
+- **`check_scheduled_posts.js`**: Queries for posts where `scheduledAt <= now` and `status === 'draft'`, sets `status = 'published'` and `publishedAt = scheduledAt`. Designed to run as a cron job.
+- **`promote_admin.js <email>`**: CLI script to set `role = 'admin'` on a specific user account.
+- **`send-weekly-digest.js`**: Manual trigger for the weekly digest email cron pipeline.
+- **`reset_export_limit.js`**: Resets `exportRequestedAt` for all users (dev testing helper).
 - **`run_evidence_verification.js`**: 10-suite E2E verification for auth, indexing, canonical URLs, subdomains, RSS, sitemaps, ZIP export.
+- **`verify_four_open_items.js`**: Targeted verification script for specific open implementation items.
+- **`test_seo_spec.js`**: Verifies user/post model schemas and pre-save hooks.
 - **`test_phase_b.js`**: Integration test suite verifying moderation queue, admin dashboard, revision history, and 13-step cascade.
 - **`test_phase_c.js`**: Integration test suite verifying publications, review workflow, recommendation scoring, reading lists, related posts, and cascade updates.
 - **`test_phase_d.js`**: Integration test suite verifying read telemetry, paywall truncation across 3 RSS feeds, Razorpay HMAC verification, webhook raw-body signature check & idempotency, 70/30 payout ledger arithmetic (excluding self-reads and short reads), and 14-step cascade updates.
+- **`test_phase_e.js`**: Integration test suite verifying OAuth account linking, Socket.IO authenticated handshake, live notification push, notification inbox REST API, and post scheduling auto-publish.
 
 ---
 

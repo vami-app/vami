@@ -1,6 +1,6 @@
 # 🖋️ Inkwell — Project Blueprint Suite
 
-> **Version:** 1.6.0 · **Stack:** Next.js 15 + Express + MongoDB · **Package Manager:** pnpm (v11)
+> **Version:** 1.7.0 · **Stack:** Next.js 16 + Express + MongoDB · **Package Manager:** pnpm (v11)
 > A Medium-inspired publishing platform — read, write, and share stories. Optimized for SEO, subdomains, and data export portability.
 
 ---
@@ -38,4 +38,4 @@ The master project blueprint has been modularized into 9 focused documents. Ever
 
 ---
 
-*Master Blueprint Suite version 1.6.0 — Synchronized with Phase E completion.*
+*Master Blueprint Suite version 1.7.0 — Synchronized with Phase E completion.*

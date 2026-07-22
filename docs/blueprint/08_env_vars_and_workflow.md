@@ -29,10 +29,10 @@
 | `RAZORPAY_PLAN_ID` | `plan_test_membership_499` | — | Razorpay test subscription plan ID (default ₹499/mo) |
 | `GOOGLE_CLIENT_ID` | `mock_google_client_id` | Prod only | Google OAuth 2.0 Client ID |
 | `GOOGLE_CLIENT_SECRET` | `mock_google_client_secret` | Prod only | Google OAuth 2.0 Client Secret |
-| `GITHUB_CLIENT_ID` | `mock_github_client_id` | Prod only | GitHub OAuth Client ID |
-| `GITHUB_CLIENT_SECRET` | `mock_github_client_secret` | Prod only | GitHub OAuth Client Secret |
+| `GITHUB_CLIENT_ID` | `mock_github_client_id` | Prod only | GitHub OAuth App Client ID |
+| `GITHUB_CLIENT_SECRET` | `mock_github_client_secret` | Prod only | GitHub OAuth App Client Secret |
 
-> **Email delivery fallback hierarchy:** Mailtrap (if token set) → Resend (if API key set) → console.log (local dev with neither configured).
+> **Email delivery fallback hierarchy:** Resend (if `RESEND_API_KEY` set) → Mailtrap (if `MAILTRAP_API_TOKEN` + `MAILTRAP_INBOX_ID` set) → console.log (local dev with neither configured).
 
 ### Client (`client/.env.local`)
 
@@ -68,15 +68,22 @@ pnpm --filter server seed
 
 | Script | Purpose |
 |---|---|
-| `seed.js` | Wipes DB & reseeds 120 users, 500 posts, comments, follows, reading lists, read events, member payments, payout ledger |
+| `seed.js` | Orchestrator: wipes DB & calls seed-data, seed-content, seed-moderation in sequence |
+| `seed-data.js` | Seeds 120 users, 500 posts, 800 follows, 1200 comments |
+| `seed-content.js` | Seeds 75 reading lists, 1186 read events, 37 member payments, 103 payout ledger entries, publications |
+| `seed-moderation.js` | Seeds reports, audit logs, and hidden content for admin flow testing |
+| `backfill_follows.js` | One-time migration utility: backfill `Follow` model from `User.followers/following` arrays |
+| `check_scheduled_posts.js` | Auto-publishes scheduled draft posts (`scheduledAt <= now`); run as cron job |
+| `promote_admin.js <email>` | Promotes a specified user account to admin role |
+| `send-weekly-digest.js` | Manual trigger for the weekly digest email pipeline |
 | `test_seo_spec.js` | Verifies user/post model schemas, subdomain validation, and pre-save hooks |
 | `reset_export_limit.js` | Resets `exportRequestedAt` for all users (dev testing helper) |
 | `run_evidence_verification.js` | 10-suite E2E verification: auth flows, indexing invariants, canonical URLs, subdomains, RSS, sitemap, ZIP export |
-| `send-weekly-digest.js` | Manual trigger for weekly digest cron job |
+| `verify_four_open_items.js` | Targeted verification script for specific open implementation items |
 | `test_phase_b.js` | Automated integration test suite for Phase B (moderation queue, admin, revisions, comments, cascade) |
 | `test_phase_c.js` | Automated integration test suite for Phase C (publications, recommendations, reading lists, related posts, cascade) |
 | `test_phase_d.js` | Automated integration test suite for Phase D (telemetry, paywall truncation across 3 feeds, Razorpay HMAC verify, webhook raw-body check & idempotency, 70/30 payout ledger split, 14-step cascade) |
-| `promote_admin.js <email>` | Promotes a specified user account to admin role |
+| `test_phase_e.js` | Automated integration test suite for Phase E (OAuth account linking, Socket.IO handshake auth, live notification push, notification inbox REST, post scheduling auto-publish) |
 
 ### Development Ports & URLs
 
