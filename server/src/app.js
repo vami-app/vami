@@ -17,6 +17,8 @@ const uploadRoutes = require("./routes/upload.routes");
 const feedRoutes = require("./routes/feed.routes");
 const adminRoutes = require("./routes/admin.routes");
 const reportRoutes = require("./routes/report.routes");
+const publicationRoutes = require("./routes/publication.routes");
+const readingListRoutes = require("./routes/readingList.routes");
 
 const app = express();
 
@@ -86,6 +88,8 @@ app.use("/api/uploads", uploadRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api", publicationRoutes);
+app.use("/api", readingListRoutes);
 
 // 404 + centralized error handler
 app.use(notFound);

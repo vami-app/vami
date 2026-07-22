@@ -15,6 +15,7 @@ const {
   listRevisions,
   getRevisionDetails,
   restoreRevision,
+  getRelatedPosts,
 } = require("../controllers/post.controller");
 const {
   listComments,
@@ -28,15 +29,19 @@ const {
   commentRules,
 } = require("../validators/post.validator");
 
+const { getRecommendedPosts } = require("../controllers/recommendation.controller");
+
 const router = express.Router();
 
 router.get("/tags/trending", trendingTags);
 router.get("/sitemap-data", listSitemapData);
+router.get("/recommended", requireAuth, getRecommendedPosts);
 
 router.get("/", optionalAuth, listPosts);
 router.post("/", requireAuth, createPostRules, validate, createPost);
 
 router.get("/:slug", optionalAuth, getPost);
+router.get("/:slug/related", optionalAuth, getRelatedPosts);
 router.patch("/:slug", requireAuth, updatePostRules, validate, updatePost);
 router.delete("/:slug", requireAuth, deletePost);
 

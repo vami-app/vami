@@ -8,6 +8,8 @@ import Avatar from "@/components/ui/Avatar";
 import ClapButton from "@/components/post/ClapButton";
 import BookmarkButton from "@/components/post/BookmarkButton";
 import CommentSection from "@/components/post/CommentSection";
+import RelatedPosts from "@/components/post/RelatedPosts";
+import AddToListModal from "@/components/post/AddToListModal";
 import { formatDate, formatCount } from "@/lib/utils";
 
 /**
@@ -19,6 +21,7 @@ export default function StoryPageClient({ initialPost }) {
   const { user } = useAuth();
   const [post, setPost] = useState(initialPost);
   const [loadingPersonalized, setLoadingPersonalized] = useState(true);
+  const [showListModal, setShowListModal] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -126,6 +129,15 @@ export default function StoryPageClient({ initialPost }) {
               <span className="text-sm">Respond</span>
             </a>
             <BookmarkButton slug={post.slug} initial={post.viewerBookmarked} />
+            {user && (
+              <button
+                onClick={() => setShowListModal(true)}
+                className="flex h-11 items-center gap-1.5 px-3 text-ink-soft hover:text-ink text-sm font-medium"
+                title="Save to reading list"
+              >
+                + List
+              </button>
+            )}
             <span className="ml-2 hidden text-sm text-ink-faint sm:inline">
               {formatCount(post.views)} views
             </span>
@@ -133,9 +145,19 @@ export default function StoryPageClient({ initialPost }) {
         </div>
       </div>
 
+      <RelatedPosts slug={post.slug} />
+
       <div className="mt-12">
         <CommentSection slug={post.slug} />
       </div>
+
+      {showListModal && (
+        <AddToListModal
+          postId={post.id}
+          postSlug={post.slug}
+          onClose={() => setShowListModal(false)}
+        />
+      )}
     </article>
   );
 }

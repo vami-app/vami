@@ -49,13 +49,11 @@ const listPosts = asyncHandler(async (req, res) => {
       // status === 'all' → no status filter (their drafts + published)
       filter.author = authorUser._id;
     } else {
-      filter.status = "published";
-      filter.moderationStatus = "visible";
+      Object.assign(filter, Post.visibleQuery());
       if (authorUser) filter.author = authorUser._id;
     }
   } else {
-    filter.status = "published";
-    filter.moderationStatus = "visible";
+    Object.assign(filter, Post.visibleQuery());
     if (author) {
       const authorUser = await User.findOne({ username: String(author).toLowerCase() });
       if (!authorUser) return sendSuccess(res, 200, { posts: [], nextCursor: null });
@@ -344,8 +342,9 @@ const toggleBookmark = asyncHandler(async (req, res) => {
  */
 const trendingTags = asyncHandler(async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit, 10) || 10, 20);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const tags = await Post.aggregate([
-    { $match: { status: "published", moderationStatus: "visible" } },
+    { $match: Post.visibleQuery({ publishedAt: { $gte: sevenDaysAgo } }) },
     { $unwind: "$tags" },
     { $group: { _id: "$tags", count: { $sum: 1 } } },
     { $sort: { count: -1 } },
@@ -360,7 +359,7 @@ const trendingTags = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const listSitemapData = asyncHandler(async (req, res) => {
-  const posts = await Post.find({ status: "published", indexable: true, moderationStatus: "visible" })
+  const posts = await Post.find(Post.visibleQuery({ indexable: true }))
     .select("slug updatedAt author")
     .populate("author", "username")
     .sort({ updatedAt: -1 });
@@ -383,7 +382,7 @@ const toggleTagFollow = asyncHandler(async (req, res) => {
   if (!tag) throw new ApiError(400, "Tag parameter is required");
 
   // Check if tag exists (is previously used in a published post)
-  const tagExists = await Post.findOne({ status: "published", moderationStatus: "visible", tags: tag });
+  const tagExists = await Post.findOne(Post.visibleQuery({ tags: tag }));
   if (!tagExists) {
     throw new ApiError(400, "That tag does not exist or has no published stories");
   }
@@ -511,6 +510,44 @@ const restoreRevision = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, { post: post.toCardJSON(req.user._id) }, "Revision restored successfully.");
 });
 
+/**
+ * GET /api/posts/:slug/related — up to 3 related stories sharing tags with current post.
+ * @type {import('express').RequestHandler}
+ */
+const getRelatedPosts = asyncHandler(async (req, res) => {
+  const currentPost = await Post.findOne({ slug: req.params.slug });
+  if (!currentPost) throw new ApiError(404, "Story not found");
+
+  const tags = currentPost.tags || [];
+  if (tags.length === 0) {
+    return sendSuccess(res, 200, { posts: [] });
+  }
+
+  const candidates = await Post.find(
+    Post.visibleQuery({
+      _id: { $ne: currentPost._id },
+      tags: { $in: tags },
+    })
+  )
+    .sort({ publishedAt: -1, _id: -1 })
+    .limit(20)
+    .populate("author", AUTHOR_FIELDS);
+
+  // Score candidate posts based on tag overlap count
+  const currentTagSet = new Set(tags.map((t) => t.toLowerCase()));
+  const scoredCandidates = candidates.map((p) => {
+    const matchCount = (p.tags || []).filter((t) => currentTagSet.has(t.toLowerCase())).length;
+    return { post: p, matchCount };
+  });
+
+  scoredCandidates.sort((a, b) => b.matchCount - a.matchCount);
+
+  const viewerId = req.user ? req.user._id : null;
+  const relatedPosts = scoredCandidates.slice(0, 3).map((item) => item.post.toCardJSON(viewerId));
+
+  return sendSuccess(res, 200, { posts: relatedPosts });
+});
+
 module.exports = {
   listPosts,
   getPost,
@@ -525,4 +562,5 @@ module.exports = {
   listRevisions,
   getRevisionDetails,
   restoreRevision,
+  getRelatedPosts,
 };

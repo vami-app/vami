@@ -51,9 +51,34 @@ const postSchema = new Schema(
       default: "visible",
       index: true,
     },
+    publication: {
+      type: Schema.Types.ObjectId,
+      ref: "Publication",
+      default: null,
+      index: true,
+    },
+    submissionStatus: {
+      type: String,
+      enum: ["none", "pending", "approved", "rejected", "changes_requested"],
+      default: "none",
+      index: true,
+    },
+    reviewNote: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );
+
+/**
+ * Returns canonical visible query filter for published + visible posts.
+ * @param {Object} [additional]
+ * @returns {Object}
+ */
+postSchema.statics.visibleQuery = function visibleQuery(additional = {}) {
+  return { status: "published", moderationStatus: "visible", ...additional };
+};
 
 // Full-text search across title, subtitle, and tags
 postSchema.index({ title: "text", subtitle: "text", tags: "text" });
@@ -117,6 +142,9 @@ postSchema.methods.toCardJSON = function toCardJSON(viewerId = null) {
     seo: this.seo || { metaTitle: "", metaDescription: "", canonicalUrl: "" },
     indexable: this.indexable,
     moderationStatus: this.moderationStatus || "visible",
+    publication: this.publication,
+    submissionStatus: this.submissionStatus || "none",
+    reviewNote: this.reviewNote || "",
   };
 };
 

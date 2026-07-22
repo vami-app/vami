@@ -373,9 +373,46 @@ const deleteAccount = asyncHandler(async (req, res) => {
     }
   }
 
-  // 12. AuditLog preserve is a no-op (explicit no-op is handled by not modifying AuditLog here)
+  // 12. Phase C Cascade: Reading lists owned by user
+  const ReadingList = require("../models/ReadingList");
+  await ReadingList.deleteMany({ owner: user._id });
 
-  // 13. Delete User
+  // 13. Phase C Cascade: Publication memberships & owner transfer / archival
+  const Publication = require("../models/Publication");
+  const PublicationMember = require("../models/PublicationMember");
+  
+  const userMemberships = await PublicationMember.find({ user: user._id });
+  for (const m of userMemberships) {
+    if (m.role === "owner") {
+      const otherOwners = await PublicationMember.countDocuments({
+        publication: m.publication,
+        user: { $ne: user._id },
+        role: "owner",
+      });
+
+      if (otherOwners === 0) {
+        // Find most senior remaining editor or writer
+        const nextSenior = await PublicationMember.findOne({
+          publication: m.publication,
+          user: { $ne: user._id },
+        }).sort({ role: 1, joinedAt: 1 });
+
+        if (nextSenior) {
+          nextSenior.role = "owner";
+          await nextSenior.save();
+          await Publication.updateOne({ _id: m.publication }, { owner: nextSenior.user });
+        } else {
+          // No other members exist: archive publication
+          await Publication.updateOne({ _id: m.publication }, { isArchived: true });
+        }
+      }
+    }
+  }
+  await PublicationMember.deleteMany({ user: user._id });
+
+  // 14. AuditLog preserve is a no-op (explicit no-op is handled by not modifying AuditLog here)
+
+  // 15. Delete User
   await user.deleteOne();
 
   const { clearAuthCookies } = require("../utils/jwt");
