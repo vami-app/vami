@@ -19,36 +19,29 @@ export default function SubscribeModal({ onClose, onSuccess }) {
     setError("");
 
     try {
-      // 1. Initialize subscription session
+      // 1. Initialize subscription session — server generates mock sub ID in test mode
       const res = await api.post("/api/membership/subscribe");
       const { subscriptionId } = res;
 
-      // 2. Simulate Razorpay Checkout modal verification handshake in Test Mode
+      // 2. Simulate Razorpay Checkout HMAC verification (test mode)
+      //    In production this would be the real Razorpay SDK callback values.
+      //    We generate the HMAC server-side to keep the webhook secret out of the browser.
       const mockPaymentId = `pay_${Math.random().toString(36).slice(2, 10)}`;
-      const crypto = require("crypto");
-      
-      // In local client simulation, verify call sends test details
-      const verifyRes = await api.post("/api/membership/verify", {
-        razorpay_payment_id: mockPaymentId,
-        razorpay_subscription_id: subscriptionId,
-        // Mock valid test HMAC signature for key secret "rzp_test_key_secret_default"
-        razorpay_signature: crypto
-          .createHmac("sha256", "rzp_test_key_secret_default")
-          .update(`${mockPaymentId}|${subscriptionId}`)
-          .digest("hex"),
+
+      // Ask the server to compute the test HMAC so the secret never touches the browser
+      const { signature } = await api.post("/api/membership/test-sign", {
+        paymentId: mockPaymentId,
+        subscriptionId,
       });
 
-      // 3. Trigger webhook simulation call in local test environment
-      try {
-        await api.post("/api/webhooks/razorpay", {
-          event: "subscription.activated",
-          subscription_id: subscriptionId,
-          email: user?.email,
-        });
-      } catch (webhookErr) {
-        console.warn("Local webhook trigger notice:", webhookErr);
-      }
+      // 3. Verify — this validates the HMAC AND flips membershipStatus → active
+      await api.post("/api/membership/verify", {
+        razorpay_payment_id: mockPaymentId,
+        razorpay_subscription_id: subscriptionId,
+        razorpay_signature: signature,
+      });
 
+      // 4. Refresh client user state to pick up the new membershipStatus
       await refreshUser();
       setStep("success");
       if (onSuccess) onSuccess();

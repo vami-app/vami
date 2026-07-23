@@ -175,11 +175,32 @@ Account deletion (`user.controller.js`) is updated to a 14-step sequence:
 ### Automated Integration Test Suite (`server/src/scripts/test_phase_d.js`)
 1. **Read-time telemetry:** Verify `ReadEvent` insertion and capping.
 2. **Paywall truncation:** Assert `GET /api/posts/:slug` returns full HTML for author/admin/member and truncated HTML (3 paragraphs) for non-members. Assert RSS feed item truncation for locked posts.
-3. **Razorpay verify HMAC:** Assert invalid signature returns 400 without updating `membershipStatus`.
+3. **Razorpay verify HMAC + activation:** Assert valid HMAC via `POST /api/membership/test-sign` → `POST /api/membership/verify` flips `membershipStatus → active` and creates a `MembershipPayment` doc. Assert invalid signature returns 400 without updating `membershipStatus`.
 4. **Webhook idempotency:** Replay `subscription.charged` webhook with identical event ID; verify single `MembershipPayment` document is created.
 5. **Ledger calculation:** Seed 2 writers with 70%/30% read-time distribution across active members; verify `PayoutLedgerEntry` matches exact expected ratio.
 6. **Cascade updates:** Delete subscriber with active Razorpay subscription; verify subscription cancellation call and reading list / read event cleanup.
+7. **test-sign blocked in production:** Assert `POST /api/membership/test-sign` returns 403 when `NODE_ENV === "production"`.
 
 ---
 
-*Plan updated: 2026-07-22 — Ready for Phase D execution.*
+## Architectural Corrections Applied (2026-07-23)
+
+### Correction 1 — `verify` is the authoritative initial activation path
+The original implementation left `verify` as a signature-check-only response with a comment "actual flip driven by webhooks". This was incorrect for test mode where Razorpay does not push subscription webhooks to free-account local servers.
+
+**Fix:** `POST /api/membership/verify` now, after validating the HMAC:
+- Sets `user.membershipStatus = "active"`
+- Creates an idempotent `MembershipPayment` record
+- Returns `{ verified: true, membershipStatus: "active", ... }`
+
+The webhook handler (`handleWebhook`) retains its role for **production renewal, failure, and cancellation events** pushed by Razorpay's servers.
+
+### Correction 2 — Client must never call `/api/webhooks/razorpay`
+`SubscribeModal.jsx` was calling the webhook endpoint from the browser. This always fails correctly (400 — missing HMAC header) because Razorpay's `X-Razorpay-Signature` is signed with the webhook secret, which only Razorpay's servers hold.
+
+**Fix:** Removed the client webhook call entirely. Introduced a test-only server endpoint:
+- `POST /api/membership/test-sign` — computes `HMAC(RAZORPAY_KEY_SECRET, paymentId|subscriptionId)` server-side and returns the signature to the client. Returns 403 in production. This eliminates the need to hardcode the secret in browser code.
+
+---
+
+*Plan updated: 2026-07-23 — Architectural corrections applied. Phase D activation flow verified end-to-end. Ready for Phase F.*

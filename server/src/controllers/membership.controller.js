@@ -41,8 +41,12 @@ const subscribe = asyncHandler(async (req, res) => {
 });
 
 /**
- * Verify client payment HMAC signature
+ * Verify client payment HMAC signature and activate membership
  * POST /api/membership/verify
+ *
+ * This is the authoritative initial-checkout activation path.
+ * Subsequent renewals, failures, and cancellations are handled by
+ * the Razorpay webhook handler (handleWebhook).
  */
 const verify = asyncHandler(async (req, res) => {
   const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } = req.body;
@@ -61,16 +65,41 @@ const verify = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid Razorpay payment signature");
   }
 
-  // Note: UX verification succeeds, but membershipStatus actual flip is driven by webhooks
+  // Signature valid — activate membership for the authenticated user
+  const user = req.user;
+
+  // Ensure the subscription ID on the user matches what was verified
+  if (user.razorpaySubscriptionId !== razorpay_subscription_id) {
+    throw new ApiError(400, "Subscription ID mismatch — possible replay attempt");
+  }
+
+  user.membershipStatus = "active";
+  user.razorpaySubscriptionId = razorpay_subscription_id;
+  await user.save();
+
+  // Record payment (idempotent — skip if already exists)
+  const existingPayment = await MembershipPayment.findOne({ razorpayPaymentId: razorpay_payment_id });
+  if (!existingPayment) {
+    const now = new Date();
+    await MembershipPayment.create({
+      user: user._id,
+      amountCents: 49900,
+      razorpayPaymentId: razorpay_payment_id,
+      periodStart: now,
+      periodEnd: new Date(now.getTime() + 30 * 86400000),
+    });
+  }
+
   return sendSuccess(
     res,
     200,
     {
       verified: true,
+      membershipStatus: "active",
       subscriptionId: razorpay_subscription_id,
       paymentId: razorpay_payment_id,
     },
-    "Payment signature verified successfully"
+    "Payment verified and membership activated"
   );
 });
 
@@ -192,9 +221,35 @@ const handleWebhook = asyncHandler(async (req, res) => {
   return sendSuccess(res, 200, { processed: true }, "Webhook handled successfully");
 });
 
+/**
+ * Test-mode only: generate a valid HMAC signature server-side
+ * so the client never needs to know RAZORPAY_KEY_SECRET.
+ * POST /api/membership/test-sign
+ *
+ * Blocked in production — only works when NODE_ENV !== "production".
+ */
+const testSign = asyncHandler(async (req, res) => {
+  if (process.env.NODE_ENV === "production") {
+    throw new ApiError(403, "Not available in production");
+  }
+
+  const { paymentId, subscriptionId } = req.body;
+  if (!paymentId || !subscriptionId) {
+    throw new ApiError(400, "paymentId and subscriptionId are required");
+  }
+
+  const signature = crypto
+    .createHmac("sha256", RAZORPAY_KEY_SECRET)
+    .update(`${paymentId}|${subscriptionId}`)
+    .digest("hex");
+
+  return sendSuccess(res, 200, { signature }, "Test HMAC signature generated");
+});
+
 module.exports = {
   subscribe,
   verify,
   cancel,
   handleWebhook,
+  testSign,
 };
