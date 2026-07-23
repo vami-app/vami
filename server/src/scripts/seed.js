@@ -36,6 +36,7 @@ const MembershipPayment = require("../models/MembershipPayment");
 const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
 const WebhookEvent      = require("../models/WebhookEvent");
 const Notification      = require("../models/Notification");
+const Highlight         = require("../models/Highlight");
 
 const { seedContent }    = require("./seed-content");
 const { seedModeration } = require("./seed-moderation");
@@ -50,7 +51,7 @@ const {
 //  CONFIGURATION
 // ─────────────────────────────────────────────────────────────
 const DEMO_PASSWORD = "password123";
-const TARGET_USERS  = 120;
+const TARGET_USERS  = 30;
 
 // ─────────────────────────────────────────────────────────────
 //  MAIN
@@ -59,12 +60,12 @@ async function seed() {
   await connectDB();
   const NOW = Date.now();
 
-  // ── 0. Wipe all collections ──────────────────────────────
+  // ── 0. Wipe all 16 collections ──────────────────────────────
   console.log("[seed] Wiping database...");
   await Promise.all([
     User, Post, Comment, Follow, Report, AuditLog,
     PostRevision, Publication, PublicationMember, ReadingList,
-    ReadEvent, MembershipPayment, PayoutLedgerEntry, WebhookEvent, Notification,
+    ReadEvent, MembershipPayment, PayoutLedgerEntry, WebhookEvent, Notification, Highlight,
   ].map(M => M.deleteMany({})));
 
   // ──────────────────────────────────────────────────────────
@@ -74,6 +75,7 @@ async function seed() {
   const bcrypt = require("bcryptjs");
   const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 12);
   const userDocs = [];
+  const themes = ["light", "dark", "system"];
 
   // 1a. Named users — fixed identities for test-suite compatibility
   for (let i = 0; i < NAMED_USERS.length; i++) {
@@ -100,6 +102,7 @@ async function seed() {
       membershipStatus: i % 2 === 0 ? "active" : "none",
       razorpayCustomerId: i % 2 === 0 ? `cust_demo_${def.username}` : null,
       razorpaySubscriptionId: i % 2 === 0 ? `sub_demo_${def.username}` : null,
+      themePreference: themes[i % themes.length],
       emailPrefs: def.emailPrefsOff
         ? { allEmails: false, digestFrequency: "off" }
         : { allEmails: true,  digestFrequency: i % 3 === 0 ? "off" : "weekly" },
@@ -193,6 +196,7 @@ async function seed() {
       membershipStatus: isMember ? "active" : "none",
       razorpayCustomerId: isMember ? `cust_gen_${uname}` : null,
       razorpaySubscriptionId: isMember ? `sub_gen_${uname}` : null,
+      themePreference: themes[i % themes.length],
       emailPrefs:        { allEmails, digestFrequency: digestFreq },
       lastDigestSentAt:  lastDigest,
       exportStatus:      expStatus,
@@ -293,12 +297,12 @@ async function seed() {
   // ──────────────────────────────────────────────────────────
   //  FINAL STATS
   // ──────────────────────────────────────────────────────────
-  const [uC, pC, cC, fC, rC, alC, prC, pubC, pmC, rlC, reC, mpC, pleC, nC, weC] = await Promise.all([
+  const [uC, pC, cC, fC, rC, alC, prC, pubC, pmC, rlC, reC, mpC, pleC, nC, weC, hC] = await Promise.all([
     User.countDocuments(), Post.countDocuments(), Comment.countDocuments(), Follow.countDocuments(),
     Report.countDocuments(), AuditLog.countDocuments(), PostRevision.countDocuments(),
     Publication.countDocuments(), PublicationMember.countDocuments(), ReadingList.countDocuments(),
     ReadEvent.countDocuments(), MembershipPayment.countDocuments(), PayoutLedgerEntry.countDocuments(),
-    Notification.countDocuments(), WebhookEvent.countDocuments(),
+    Notification.countDocuments(), WebhookEvent.countDocuments(), Highlight.countDocuments(),
   ]);
 
   const line = "=".repeat(54);
@@ -309,6 +313,7 @@ async function seed() {
   console.log(`  Posts             ${pC}  (${publishedVisible.length} published+visible)`);
   console.log(`  Comments          ${cC}`);
   console.log(`  Follow edges      ${fC}`);
+  console.log(`  Highlights        ${hC}`);
   console.log(`  Reports           ${rC}`);
   console.log(`  Audit Logs        ${alC}`);
   console.log(`  Post Revisions    ${prC}`);

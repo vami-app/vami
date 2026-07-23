@@ -9,9 +9,10 @@ const env = require("./env");
  */
 async function connectDB() {
   mongoose.set("strictQuery", true);
+  const targetUri = env.nodeEnv === "test" ? env.mongoUriTest : env.mongoUri;
   try {
-    const conn = await mongoose.connect(env.mongoUri);
-    console.log(`[db] MongoDB connected: ${conn.connection.host}/${conn.connection.name}`);
+    const conn = await mongoose.connect(targetUri);
+    console.log(`[db] MongoDB connected (${env.nodeEnv}): ${conn.connection.host}/${conn.connection.name}`);
     return conn;
   } catch (err) {
     console.error("[db] MongoDB connection error:", err.message);

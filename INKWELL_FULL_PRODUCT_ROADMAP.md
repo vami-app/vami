@@ -93,20 +93,20 @@ Everything below extends this foundation toward Phases B–G.
 | 20 | Real-time notifications (Socket.IO — live bell icon for claps/comments/follows) | **Completed** | 2 weeks | Medium has none of this (email/digest only) — genuine exceed | Two browser sessions, action in one reflects live in the other's bell icon within ~1s, reconnect-after-disconnect handled |
 | 21 | Post scheduling (future `publishedAt`, local check mechanism) | **Completed** | 1 week | Parity — commonly requested, absent from Medium | Scheduled post stays draft-invisible until scheduled time, auto-publish without manual action |
 
-### Phase F — Reader Experience Depth (~4-5 weeks)
+### Phase F — Reader Experience Depth (~5.5 weeks)
 
-| # | Feature | Duration | Medium comparison | Definition of done |
+| # | Feature | Status | Duration | Medium comparison | Definition of done |
+|---|---|---|---|---|---|
+| 22 | Highlighting/annotation — private first, shareable later | **Completed** | 1.5-2 weeks | Parity with Medium highlights | Select text on a story → highlight persists across reload, visible only to highlighter initially |
+| 23 | Writer analytics dashboard — views/claps trend, top posts | **Completed** | 1-1.5 weeks | Exceeds Medium's. | Dashboard shows correct weekly-bucketed trend against seeded data |
+| 24 | Dark mode — full token-level pass, not inverted colors | **Completed** | 1-1.5 weeks | Parity | Every component respects theme via CSS custom properties, verified across all routes, no unstyled flashes |
+
+### Phase G — Quality & Correctness Infrastructure (~6 weeks, local only)
+
+| # | Feature | Status | Duration | Note |
 |---|---|---|---|---|
-| 22 | Highlighting/annotation — private first, shareable later | 1.5-2 weeks | Parity with Medium highlights | Select text on a story → highlight persists across reload, visible only to the highlighter initially |
-| 23 | Writer analytics dashboard — views/claps trend, top posts | 1-1.5 weeks | Exceeds Medium's. | Dashboard shows correct weekly-bucketed trend against seeded data |
-| 24 | Dark mode — full token-level pass, not inverted colors | 1-1.5 weeks | Parity | Every component respects theme via CSS custom properties, verified across all routes, no unstyled flashes |
-
-### Phase G — Quality & Correctness Infrastructure (~3.5-5 weeks, local only)
-
-| # | Feature | Duration | Note |
-|---|---|---|---|
-| 25 | Automated test suite — unit + integration (Vitest), all controllers | 2-3 weeks | This is quality infra, not deployment. Runs locally, catches regressions as backlog grows |
-| 26 | E2E suite (Playwright), local execution | 1.5-2 weeks | No cloud CI, no deploy step |
+| 25 | Automated test suite — unit + integration (Vitest), all controllers | **Completed** | 2-3 weeks | Quality infra. Runs locally via isolated DB, catches regressions |
+| 26 | E2E suite (Playwright), local execution | **Completed** | 1.5-2 weeks | No cloud CI, local Playwright suite with auth, highlight, darkmode specs |
 
 ---
 
@@ -119,10 +119,10 @@ Everything below extends this foundation toward Phases B–G.
 | C — Growth Engine | **Completed** | 9 | 16.5 |
 | D — Monetization Mechanism | **Completed** | 6 | 22.5 |
 | E — Identity, Access, Real-time | **Completed** | 6 | 28.5 |
-| F — Reader Experience Depth | Pending | 4.5 | 32 |
-| G — Quality Infrastructure | Pending | 4 | 36 |
+| F — Reader Experience Depth | **Completed** | 5.5 | 34 |
+| G — Quality Infrastructure | **Completed** | 6 | 40 |
 
-**Real total: ~39-40 weeks, roughly 9-10 months, done properly, no corners cut.**
+**Real total: ~40 weeks, fully completed across all Phases A through G.**
 
 If you want a checkpoint at the "3-4 month" mark you originally framed: that lands you at the end of **Phase B** (~12-13 weeks) — meaning ownership, trust, safety, and integrity are fully solid. That is a genuinely defensible, competitive product core at that point — not a finished one. Phases C-G are real, necessary, and none of them are cut. They come after.
 

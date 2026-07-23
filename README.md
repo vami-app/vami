@@ -3,13 +3,12 @@
 A Medium-inspired publishing platform — a quiet place to **read, write, and share stories**.
 Clean serif reading typography, multi-clap, responses, tags, follow, bookmarks, publications, reading lists, real-time notifications, and a Razorpay test-mode membership subscription.
 
-Built as a full-stack application through Phase E:
+Built as a full-stack application across all Roadmap Phases A through G:
 
-- **Frontend** — Next.js 16 (App Router, JavaScript + JSDoc), Tailwind CSS, Tiptap editor, Socket.IO client
-- **Backend** — Node.js + Express, MongoDB + Mongoose, Socket.IO server
-- **Auth** — JWT access/refresh tokens in httpOnly cookies, bcrypt password hashing, Google & GitHub OAuth (Passport.js)
-- **Real-time** — Socket.IO authenticated notification stream with personal rooms
-- **Security** — server-side HTML sanitization (`sanitize-html`), rate limiting, request validation, HMAC webhook signatures
+- **Frontend** — Next.js 16 (App Router, JavaScript + JSDoc), Tailwind CSS with Dark Mode token pass, Tiptap editor, Socket.IO client, Text Selection Highlight Layer
+- **Backend** — Node.js + Express, MongoDB + Mongoose, Socket.IO server, Payout Engine, Analytics Aggregator
+- **Auth & Security** — JWT access/refresh tokens in httpOnly cookies, bcrypt password hashing, Google & GitHub OAuth (Passport.js), server-side HTML sanitization (`sanitize-html`), rate limiting, HMAC webhook signatures
+- **Testing & Quality** — Vitest unit + integration test suite with isolated test DB, Playwright E2E suite
 
 > Accent color is **deep indigo** (not Medium's green); the wordmark and components are original.
 
@@ -73,6 +72,7 @@ All five seeded users share the password `password123`.
 | `NODE_ENV` | `development` | `production` disables error stack traces |
 | `CLIENT_URL` | `http://localhost:3000` | CORS origin + cookie target |
 | `MONGO_URI` | `mongodb://127.0.0.1:27017/inkwell` | database |
+| `MONGO_URI_TEST` | `mongodb://127.0.0.1:27017/inkwell_test` | test database for Vitest |
 | `JWT_ACCESS_SECRET` | dev value | **change in production** |
 | `JWT_REFRESH_SECRET` | dev value | **change in production** |
 | `JWT_ACCESS_EXPIRES` | `15m` | access token TTL |
@@ -109,6 +109,7 @@ All five seeded users share the password `password123`.
 | `pnpm build` | Production build of the client |
 | `pnpm start` | Run both apps in production mode |
 | `pnpm seed` | Wipe + reseed the database |
+| `pnpm test` | Run full Vitest unit & integration test suite |
 | `node server/src/scripts/promote_admin.js <email>` | Promote a user to admin role |
 | `node server/src/scripts/check_scheduled_posts.js` | Runner script for auto-publishing scheduled draft posts |
 | `node server/src/scripts/send-weekly-digest.js` | Manual trigger for weekly digest email cron |

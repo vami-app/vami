@@ -63,6 +63,8 @@ async function sendViaMailtrap(msg) {
   }
 }
 
+const sentEmails = [];
+
 /**
  * Console fallback so the flow is fully testable with zero email credentials.
  * @param {EmailMessage} msg
@@ -77,10 +79,16 @@ async function sendViaConsole(msg) {
  * Send an email using the first configured provider:
  * Resend (RESEND_API_KEY) → Mailtrap sandbox (MAILTRAP_API_TOKEN + MAILTRAP_INBOX_ID) → console log.
  * Catches rate limits (e.g. Mailtrap 429) and falls back to console logging so user flows never fail.
+ * In test mode (NODE_ENV === 'test'), records to sentEmails[] with zero external network calls.
  * @param {EmailMessage} msg
  * @returns {Promise<void>}
  */
 async function sendEmail(msg) {
+  if (env.nodeEnv === "test" || process.env.NODE_ENV === "test") {
+    sentEmails.push({ ...msg, sentAt: new Date() });
+    return;
+  }
+
   if (env.resendApiKey) {
     try {
       return await sendViaResend(msg);
@@ -98,4 +106,12 @@ async function sendEmail(msg) {
   return sendViaConsole(msg);
 }
 
-module.exports = { sendEmail };
+function getSentEmails() {
+  return [...sentEmails];
+}
+
+function clearSentEmails() {
+  sentEmails.length = 0;
+}
+
+module.exports = { sendEmail, getSentEmails, clearSentEmails };

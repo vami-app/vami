@@ -27,6 +27,7 @@ const ReadingList = require("../models/ReadingList");
 const ReadEvent         = require("../models/ReadEvent");
 const MembershipPayment = require("../models/MembershipPayment");
 const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
+const Highlight         = require("../models/Highlight");
 const { computeLedgerForPeriod } = require("../controllers/ledger.controller");
 
 const {
@@ -39,9 +40,9 @@ const { sanitizeContent } = require("../utils/sanitize");
 const { makeSlug }        = require("../utils/slugify");
 
 // ── Configuration ─────────────────────────────────────────
-const TARGET_POSTS    = 500;
-const TARGET_FOLLOWS  = 800;
-const TARGET_COMMENTS = 1200;
+const TARGET_POSTS    = 70;
+const TARGET_FOLLOWS  = 150;
+const TARGET_COMMENTS = 250;
 
 const PROG_ADJS  = ["Performant","Asynchronous","Pragmatic","Deliberate","Quiet","Resilient","Boring","Incremental","Reactive","Immutable"];
 const PROG_NOUNS = ["Architecture","Refactoring","State Management","Systems","Codebases","Abstractions","Dependencies","Complexity"];
@@ -561,9 +562,39 @@ async function seedContent(ctx) {
   ];
   await WebhookEvent.insertMany(webhookDocs);
 
+  // 7f. Highlights / Annotations (Phase F)
+  console.log("[seed] Seeding Highlights / Annotations...");
+  const highlightQuotes = [
+    { quote: "architecture", note: "Crucial architectural distinction here." },
+    { quote: "performance", note: "Look into optimizing this bottleneck." },
+    { quote: "resilient", note: "Key pattern for high availability." },
+    { quote: "dependencies", note: "Keep dependency trees minimal." },
+    { quote: "state management", note: "Simple state is maintainable state." },
+  ];
+
+  const highlightDocs = [];
+  for (let p = 0; p < Math.min(25, publishedVisible.length); p++) {
+    const post = publishedVisible[p];
+    const highlighter = activeUsers[p % activeUsers.length];
+    const hDef = highlightQuotes[p % highlightQuotes.length];
+
+    highlightDocs.push({
+      owner: highlighter._id,
+      post: post._id,
+      quote: hDef.quote,
+      contextBefore: "<p>Important context regarding ",
+      contextAfter: " in modern web systems.</p>",
+      note: hDef.note,
+      createdAt: new Date(NOW - randInt(1, 20) * 86400000),
+    });
+  }
+
+  await Highlight.insertMany(highlightDocs);
+
   const notifCount = await Notification.countDocuments();
   const wheCount   = await WebhookEvent.countDocuments();
-  console.log(`[seed] Phase E: ${notifCount} Notifications, ${wheCount} WebhookEvents`);
+  const hlCount    = await Highlight.countDocuments();
+  console.log(`[seed] Phase E & F: ${notifCount} Notifications, ${wheCount} WebhookEvents, ${hlCount} Highlights`);
 
   return { posts, publishedVisible };
 }

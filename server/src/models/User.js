@@ -67,6 +67,11 @@ const userSchema = new Schema(
     },
     razorpayCustomerId: { type: String, default: null },
     razorpaySubscriptionId: { type: String, default: null },
+    themePreference: {
+      type: String,
+      enum: ["light", "dark", "system"],
+      default: "system",
+    },
   },
   { timestamps: true }
 );
@@ -107,6 +112,7 @@ userSchema.methods.toPublicJSON = function toPublicJSON(includeEmail = false) {
     role: this.role || "user",
     status: this.status || "active",
     membershipStatus: this.membershipStatus || "none",
+    themePreference: this.themePreference || "system",
     ...(includeEmail ? {
       email: this.email,
       emailPrefs: this.emailPrefs || { allEmails: true, digestFrequency: "weekly" },

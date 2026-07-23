@@ -40,12 +40,25 @@ const getProfile = asyncHandler(async (req, res) => {
  * @type {import('express').RequestHandler}
  */
 const updateMe = asyncHandler(async (req, res) => {
-  const { name, bio, avatarUrl, emailPrefs } = req.body;
+  const { name, bio, avatarUrl, emailPrefs, themePreference } = req.body;
   const user = req.user;
 
   if (name !== undefined) user.name = name;
   if (bio !== undefined) user.bio = bio;
   if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+
+  if (themePreference !== undefined) {
+    if (!["light", "dark", "system"].includes(themePreference)) {
+      throw new ApiError(400, "Invalid theme preference option");
+    }
+    user.themePreference = themePreference;
+    res.cookie("theme", themePreference, {
+      path: "/",
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+      httpOnly: false,
+      sameSite: "lax",
+    });
+  }
 
   if (emailPrefs !== undefined) {
     if (!user.emailPrefs) {
@@ -295,8 +308,12 @@ const deleteAccount = asyncHandler(async (req, res) => {
 
   const Report = require("../models/Report");
   const PostRevision = require("../models/PostRevision");
+  const Highlight = require("../models/Highlight");
 
   if (mode === "erase") {
+    // Delete highlights for posts that are going to be deleted
+    await Highlight.deleteMany({ post: { $in: postIds } });
+
     // 2. Delete revisions for posts that are going to be deleted
     await PostRevision.deleteMany({ post: { $in: postIds } });
 
@@ -453,9 +470,12 @@ const deleteAccount = asyncHandler(async (req, res) => {
     ],
   });
 
-  // 17. AuditLog, MembershipPayment, and PayoutLedgerEntry records are intentionally preserved for financial auditability
+  // 17. Phase F Cascade: Delete user's own highlights (private annotations)
+  await Highlight.deleteMany({ owner: user._id });
 
-  // 17. Delete User
+  // AuditLog, MembershipPayment, and PayoutLedgerEntry records are intentionally preserved for financial auditability
+
+  // 18. Delete User
   await user.deleteOne();
 
   const { clearAuthCookies } = require("../utils/jwt");

@@ -31,6 +31,7 @@ const env = {
   nodeEnv: process.env.NODE_ENV || "development",
   clientUrl: process.env.CLIENT_URL || "http://localhost:3000",
   mongoUri: process.env.MONGO_URI || "mongodb://127.0.0.1:27017/inkwell",
+  mongoUriTest: process.env.MONGO_URI_TEST || "mongodb://127.0.0.1:27017/inkwell_test",
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET || "dev_access_secret_change_me",
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || "dev_refresh_secret_change_me",
   jwtAccessExpires: process.env.JWT_ACCESS_EXPIRES || "15m",

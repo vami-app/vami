@@ -92,8 +92,9 @@ app.use("/api", generalLimiter);
 const webhookRoutes = require("./routes/webhook.routes");
 const telemetryRoutes = require("./routes/telemetry.routes");
 const membershipRoutes = require("./routes/membership.routes");
-const ledgerRoutes = require("./routes/ledger.routes");
+const writerRoutes = require("./routes/writer.routes");
 const notificationRoutes = require("./routes/notification.routes");
+const highlightRoutes = require("./routes/highlight.routes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
@@ -107,9 +108,10 @@ app.use("/api/telemetry", telemetryRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/webhooks", webhookRoutes);
 app.use("/api/membership", membershipRoutes);
-app.use("/api/writer", ledgerRoutes);
+app.use("/api/writer", writerRoutes);
 app.use("/api/publications", publicationRoutes);
 app.use("/api/lists", readingListRoutes);
+app.use("/api", highlightRoutes);
 
 // 404 + centralized error handler
 app.use(notFound);

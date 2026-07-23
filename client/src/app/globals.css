@@ -12,7 +12,7 @@ html {
 }
 
 body {
-  @apply bg-white text-ink antialiased;
+  @apply bg-white text-ink antialiased dark:bg-gray-950 dark:text-gray-100;
   font-family: var(--font-inter);
 }
 
@@ -38,6 +38,9 @@ body {
   line-height: 1.7;
   color: #242424;
 }
+.dark .prose-article {
+  color: #e5e7eb;
+}
 .prose-article p {
   margin: 1.6rem 0;
 }
@@ -50,6 +53,11 @@ body {
   margin: 2.2rem 0 0.8rem;
   letter-spacing: -0.02em;
 }
+.dark .prose-article h1,
+.dark .prose-article h2,
+.dark .prose-article h3 {
+  color: #f9fafb;
+}
 .prose-article h1 { font-size: 2rem; }
 .prose-article h2 { font-size: 1.6rem; }
 .prose-article h3 { font-size: 1.3rem; }
@@ -58,12 +66,19 @@ body {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+.dark .prose-article a {
+  color: #818cf8;
+}
 .prose-article blockquote {
   border-left: 3px solid #242424;
   padding-left: 1.2rem;
   margin: 1.8rem 0;
   font-style: italic;
   color: #4b4b4b;
+}
+.dark .prose-article blockquote {
+  border-left-color: #6b7280;
+  color: #9ca3af;
 }
 .prose-article ul,
 .prose-article ol {
@@ -88,6 +103,10 @@ body {
   margin: 1.6rem 0;
   font-size: 0.95rem;
 }
+.dark .prose-article pre {
+  background: #1f2937;
+  color: #f3f4f6;
+}
 .prose-article code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -96,6 +115,10 @@ body {
   padding: 0.15rem 0.35rem;
   border-radius: 4px;
   font-size: 0.9em;
+}
+.dark .prose-article :not(pre) > code {
+  background: #374151;
+  color: #f3f4f6;
 }
 .prose-article hr {
   border: none;

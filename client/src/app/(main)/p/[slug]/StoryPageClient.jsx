@@ -11,6 +11,7 @@ import CommentSection from "@/components/post/CommentSection";
 import RelatedPosts from "@/components/post/RelatedPosts";
 import AddToListModal from "@/components/post/AddToListModal";
 import SubscribeModal from "@/components/membership/SubscribeModal";
+import HighlightLayer from "@/components/post/HighlightLayer";
 import { formatDate, formatCount } from "@/lib/utils";
 
 /**
@@ -126,10 +127,12 @@ export default function StoryPageClient({ initialPost }) {
       )}
 
       {/* Article body */}
-      <div
-        className="prose-article mx-auto max-w-reading px-4"
-        dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-      />
+      <HighlightLayer slug={post.slug} canHighlight={!post.previewOnly}>
+        <div
+          className="prose-article mx-auto max-w-reading px-4"
+          dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+        />
+      </HighlightLayer>
 
       {/* Paywall CTA Card for Preview-only Readers */}
       {post.isLocked && post.previewOnly && (

@@ -9,6 +9,8 @@ import MobileDrawer from "./MobileDrawer";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 
+import ThemeToggle from "./ThemeToggle";
+
 /** Sticky top navigation. Collapses to a hamburger drawer below md. */
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -41,11 +43,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/90 dark:border-gray-800 dark:bg-gray-900/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-3">
             <button
-              className="flex h-11 w-11 items-center justify-center rounded-md text-ink md:hidden"
+              className="flex h-11 w-11 items-center justify-center rounded-md text-ink dark:text-gray-200 md:hidden"
               onClick={() => setDrawerOpen(true)}
               aria-label="Open menu"
             >
@@ -59,21 +61,23 @@ export default function Navbar() {
           {/* Desktop search */}
           <form
             onSubmit={onSearch}
-            className="hidden flex-1 max-w-sm items-center rounded-full bg-gray-100 px-4 py-2 md:flex"
+            className="hidden flex-1 max-w-sm items-center rounded-full bg-gray-100 dark:bg-gray-800 px-4 py-2 md:flex"
           >
-            <SearchIcon className="h-4 w-4 text-ink-faint" />
+            <SearchIcon className="h-4 w-4 text-ink-faint dark:text-gray-400" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search stories and tags"
-              className="ml-2 w-full bg-transparent text-sm outline-none placeholder:text-ink-faint"
+              className="ml-2 w-full bg-transparent text-sm outline-none placeholder:text-ink-faint dark:placeholder:text-gray-500 dark:text-gray-200"
             />
           </form>
 
           <div className="flex items-center gap-2">
+            <ThemeToggle />
+
             {/* Mobile search toggle */}
             <button
-              className="flex h-11 w-11 items-center justify-center rounded-md text-ink md:hidden"
+              className="flex h-11 w-11 items-center justify-center rounded-md text-ink dark:text-gray-200 md:hidden"
               onClick={() => setSearchOpen((v) => !v)}
               aria-label="Search"
             >
@@ -101,10 +105,11 @@ export default function Navbar() {
                   </button>
                   {menuOpen && (
                     <div
-                      className="absolute right-0 mt-2 w-52 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg"
+                      className="absolute right-0 mt-2 w-52 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 py-1 shadow-lg"
                       onMouseLeave={() => setMenuOpen(false)}
                     >
                       <MenuLink href={`/@${user.username}`}>Profile</MenuLink>
+                      <MenuLink href="/dashboard">Writer Dashboard</MenuLink>
                       <MenuLink href="/notifications">Notifications</MenuLink>
                       <MenuLink href="/new-story">Write a story</MenuLink>
                       {user.role === "admin" && (
@@ -114,7 +119,7 @@ export default function Navbar() {
                       <MenuLink href="/settings">Settings</MenuLink>
                       <button
                         onClick={handleLogout}
-                        className="block w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-gray-50"
+                        className="block w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800"
                       >
                         Sign out
                       </button>

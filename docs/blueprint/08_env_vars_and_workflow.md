@@ -14,6 +14,7 @@
 | `NODE_ENV` | `development` | ✓ | `production` disables error stack traces |
 | `CLIENT_URL` | `http://localhost:3000` | ✓ | CORS origin & cookie target |
 | `MONGO_URI` | `mongodb://127.0.0.1:27017/inkwell` | ✓ | MongoDB connection string |
+| `MONGO_URI_TEST` | `mongodb://127.0.0.1:27017/inkwell_test` | — | Isolated MongoDB URI for Vitest suite |
 | `JWT_ACCESS_SECRET` | `dev_access_secret_change_me` | ✓ CHANGE ME | Min 32 random chars |
 | `JWT_REFRESH_SECRET` | `dev_refresh_secret_change_me` | ✓ CHANGE ME | Different from access secret |
 | `JWT_ACCESS_EXPIRES` | `15m` | — | Access token TTL |
@@ -32,7 +33,7 @@
 | `GITHUB_CLIENT_ID` | `mock_github_client_id` | Prod only | GitHub OAuth App Client ID |
 | `GITHUB_CLIENT_SECRET` | `mock_github_client_secret` | Prod only | GitHub OAuth App Client Secret |
 
-> **Email delivery fallback hierarchy:** Resend (if `RESEND_API_KEY` set) → Mailtrap (if `MAILTRAP_API_TOKEN` + `MAILTRAP_INBOX_ID` set) → console.log (local dev with neither configured).
+> **Email delivery fallback hierarchy:** Resend (if `RESEND_API_KEY` set) → Mailtrap (if `MAILTRAP_API_TOKEN` + `MAILTRAP_INBOX_ID` set) → test mode array / console.log fallback.
 
 ### Client (`client/.env.local`)
 
@@ -54,6 +55,7 @@ pnpm dev                  # Run client (:3000) + server (:5000) concurrently
 pnpm build                # Production build of Next.js client
 pnpm start                # Run client and server in production mode
 pnpm seed                 # Wipe DB and reseed with demo data
+pnpm test                 # Run full Vitest unit & integration test suite (server/test)
 ```
 
 ### Per-Package Commands
