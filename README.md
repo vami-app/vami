@@ -302,8 +302,8 @@ GET    /api/feed/tag/:tag/rss
   `@ada` string and strips the leading `@` (static routes like `/search`, `/p` take precedence).
 - Password-reset email is supported via Mailtrap sandbox or Resend API, falling back to console
   logging in local development.
-- **CORS** allows `env.clientUrl`, `https://vami-client-three.vercel.app`, and all Vercel preview
-  deployment URLs matching the pattern `vami-client-*-vami-org.vercel.app`.
+- **CORS** allows `env.clientUrl`, `https://inkwell-client.vercel.app`, and all Vercel preview
+  deployment URLs matching the pattern `inkwell-client-*-inkwell-org.vercel.app`.
 
 ## Current status — Phase E complete
 

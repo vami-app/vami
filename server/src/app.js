@@ -27,8 +27,8 @@ app.set("trust proxy", 1);
 // CORS — allow the Next.js client with credentials (cookies)
 const ALLOWED_ORIGIN_PATTERNS = [
   env.clientUrl,
-  "https://vami-client-three.vercel.app",
-  /^https:\/\/vami-client-[a-z0-9-]+-vami-org\.vercel\.app$/
+  "https://inkwell-client.vercel.app",
+  /^https:\/\/inkwell-client-[a-z0-9-]+-inkwell-org\.vercel\.app$/
 ];
 
 const allowedOriginCheck = (origin, callback) => {
@@ -89,6 +89,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api", generalLimiter);
 
 // Routes
+const webhookRoutes = require("./routes/webhook.routes");
 const telemetryRoutes = require("./routes/telemetry.routes");
 const membershipRoutes = require("./routes/membership.routes");
 const ledgerRoutes = require("./routes/ledger.routes");
@@ -104,10 +105,11 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/telemetry", telemetryRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("/api", membershipRoutes);
-app.use("/api", ledgerRoutes);
-app.use("/api", publicationRoutes);
-app.use("/api", readingListRoutes);
+app.use("/api/webhooks", webhookRoutes);
+app.use("/api/membership", membershipRoutes);
+app.use("/api/writer", ledgerRoutes);
+app.use("/api/publications", publicationRoutes);
+app.use("/api/lists", readingListRoutes);
 
 // 404 + centralized error handler
 app.use(notFound);

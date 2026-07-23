@@ -1,6 +1,6 @@
 # 🖋️ Inkwell — Project Blueprint
 
-> **Version:** 1.6.0 · **Stack:** Next.js 15 + Express + MongoDB · **Package Manager:** pnpm (v11)
+> **Version:** 1.7.0 · **Stack:** Next.js 16 + Express + MongoDB · **Package Manager:** pnpm (v11)
 > A Medium-inspired publishing platform — read, write, and share stories. Optimized for SEO, subdomains, and data export portability.
 
 ---
@@ -22,7 +22,7 @@
    - Express server entry points, env configuration, database schemas (`User`, `Post`, `Notification`, `Publication`, `PublicationMember`, `ReadingList`, `ReadEvent`, `MembershipPayment`, `PayoutLedgerEntry`, `WebhookEvent`, `Comment`, `Follow`, `Report`, `AuditLog`, `PostRevision`), middleware chain, controllers, utility modules, validator rules, and test scripts.
 
 4. **[04 Client Architecture (Frontend)](docs/blueprint/04_client_frontend_architecture.md)**
-   - Next.js 15 App Router layout tree, complete route pages table, component library breakdown, `AuthContext` & `SocketContext` state management, `lib/api.js` client wrapper, custom hooks, and Tailwind design system tokens.
+   - Next.js 16 App Router layout tree, complete route pages table, component library breakdown, `AuthContext` & `SocketContext` state management, `lib/api.js` client wrapper, custom hooks, and Tailwind design system tokens.
 
 5. **[05 Data Flows & Subdomain Routing](docs/blueprint/05_data_flows_and_subdomains.md)**
    - Sequence diagrams and flowcharts for authentication, subdomain rewrites, home feed reading, story publishing, debounced multi-clapping, publication submission reviews, reading lists, and Razorpay test subscriptions.
@@ -41,4 +41,4 @@
 
 ---
 
-*Blueprint updated: 2026-07-22 — Synchronized with Phase E completion & modular documentation architecture. v1.6.0.*
+*Blueprint updated: 2026-07-23 — Synchronized with Phase E completion & modular documentation architecture. v1.7.0.*

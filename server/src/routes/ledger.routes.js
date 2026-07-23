@@ -3,6 +3,6 @@ const router = express.Router();
 const { requireAuth } = require("../middlewares/auth.middleware");
 const { getPayoutLedger } = require("../controllers/ledger.controller");
 
-router.get("/writer/payout-ledger", requireAuth, getPayoutLedger);
+router.get("/payout-ledger", requireAuth, getPayoutLedger);
 
 module.exports = router;

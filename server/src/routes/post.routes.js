@@ -30,6 +30,7 @@ const {
 } = require("../validators/post.validator");
 
 const { getRecommendedPosts } = require("../controllers/recommendation.controller");
+const { submitPost, withdrawSubmission } = require("../controllers/publication.controller");
 
 const router = express.Router();
 
@@ -39,6 +40,9 @@ router.get("/recommended", requireAuth, getRecommendedPosts);
 
 router.get("/", optionalAuth, listPosts);
 router.post("/", requireAuth, createPostRules, validate, createPost);
+
+router.post("/:slug/submit", requireAuth, submitPost);
+router.delete("/:slug/submit", requireAuth, withdrawSubmission);
 
 router.get("/:slug", optionalAuth, getPost);
 router.get("/:slug/related", optionalAuth, getRelatedPosts);

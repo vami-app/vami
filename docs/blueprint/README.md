@@ -19,7 +19,7 @@ The master project blueprint has been modularized into 9 focused documents. Ever
    - Express server entry points, env configuration, database schemas (`User`, `Post`, `Notification`, `Publication`, `PublicationMember`, `ReadingList`, `ReadEvent`, `MembershipPayment`, `PayoutLedgerEntry`, `WebhookEvent`, `Comment`, `Follow`, `Report`, `AuditLog`, `PostRevision`), middleware chain, controllers, utility modules, validator rules, and test scripts.
 
 4. **[04 Client Architecture (Frontend)](04_client_frontend_architecture.md)**
-   - Next.js 15 App Router layout tree, complete route pages table, component library breakdown, `AuthContext` & `SocketContext` state management, `lib/api.js` client wrapper, custom hooks, and Tailwind design system tokens.
+   - Next.js 16 App Router layout tree, complete route pages table, component library breakdown, `AuthContext` & `SocketContext` state management, `lib/api.js` client wrapper, custom hooks, and Tailwind design system tokens.
 
 5. **[05 Data Flows & Subdomain Routing](05_data_flows_and_subdomains.md)**
    - Sequence diagrams and flowcharts for authentication, subdomain rewrites, home feed reading, story publishing, debounced multi-clapping, publication submission reviews, reading lists, and Razorpay test subscriptions.

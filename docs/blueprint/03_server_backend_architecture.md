@@ -84,7 +84,9 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `name` | String | required, maxlength 80 |
 | `username` | String | required, unique, lowercase, 3–30 chars, indexed |
 | `email` | String | required, unique, lowercase, indexed |
-| `password` | String | required, `select: false` (never returned) |
+| `password` | String | conditional required (`!googleId && !githubId`), `select: false` (never returned) |
+| `googleId` | String | default `undefined`, sparse unique index |
+| `githubId` | String | default `undefined`, sparse unique index |
 | `bio` | String | maxlength 200, default `""` |
 | `avatarUrl` | String | default `""` |
 | `followers` | [ObjectId → User] | Array of follower user refs |
@@ -135,6 +137,7 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 | `views` | Number | incremented on published reads (non-author) |
 | `readTimeMinutes` | Number | computed at 200 WPM |
 | `publishedAt` | Date | set on first publish |
+| `scheduledAt` | Date | default `null`, timestamp for auto-publishing cron pipeline |
 | `notifiedAt` | Date | default `null`, set when followers notified |
 | `seo` | subdocument | contains optional `metaTitle`, `metaDescription`, `canonicalUrl` |
 | `indexable` | Boolean | default `false`, set `true` on publish (unless hidden) |

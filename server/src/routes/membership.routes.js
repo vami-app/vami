@@ -5,12 +5,11 @@ const {
   subscribe,
   verify,
   cancel,
-  handleWebhook,
 } = require("../controllers/membership.controller");
 
-router.post("/membership/subscribe", requireAuth, subscribe);
-router.post("/membership/verify", requireAuth, verify);
-router.post("/membership/cancel", requireAuth, cancel);
-router.post("/webhooks/razorpay", handleWebhook);
+router.post("/subscribe", requireAuth, subscribe);
+router.post("/verify", requireAuth, verify);
+router.post("/cancel", requireAuth, cancel);
 
 module.exports = router;
+

@@ -5,7 +5,6 @@ const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
 const {
   createList,
   getMine,
-  getUserPublicLists,
   getSingleList,
   updateList,
   addPostToList,
@@ -15,13 +14,13 @@ const {
 
 const router = express.Router();
 
-router.post("/lists", requireAuth, createList);
-router.get("/lists/mine", requireAuth, getMine);
-router.get("/users/:username/lists", optionalAuth, getUserPublicLists);
-router.get("/lists/:username/:slug", optionalAuth, getSingleList);
-router.patch("/lists/:id", requireAuth, updateList);
-router.post("/lists/:id/posts", requireAuth, addPostToList);
-router.delete("/lists/:id/posts/:postId", requireAuth, removePostFromList);
-router.delete("/lists/:id", requireAuth, deleteList);
+router.post("/", requireAuth, createList);
+router.get("/mine", requireAuth, getMine);
+router.get("/:username/:slug", optionalAuth, getSingleList);
+router.patch("/:id", requireAuth, updateList);
+router.post("/:id/posts", requireAuth, addPostToList);
+router.delete("/:id/posts/:postId", requireAuth, removePostFromList);
+router.delete("/:id", requireAuth, deleteList);
 
 module.exports = router;
+

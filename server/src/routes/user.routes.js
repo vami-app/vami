@@ -17,6 +17,7 @@ const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
 const { upload } = require("../middlewares/upload.middleware");
 const { validate } = require("../middlewares/validate");
 const { updateSubdomainRules } = require("../validators/user.validator");
+const { getUserPublicLists } = require("../controllers/readingList.controller");
 
 const router = express.Router();
 
@@ -31,6 +32,8 @@ router.post("/me/delete-request", requireAuth, requestDeleteAccount);
 router.delete("/me", requireAuth, deleteAccount);
 
 router.get("/:username", optionalAuth, getProfile);
+router.get("/:username/lists", optionalAuth, getUserPublicLists);
 router.post("/:username/follow", requireAuth, toggleFollow);
 
 module.exports = router;
+

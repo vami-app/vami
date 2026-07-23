@@ -1,5 +1,3 @@
-"use strict";
-
 const express = require("express");
 const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
 const {
@@ -9,9 +7,7 @@ const {
   inviteMember,
   updateMemberRole,
   removeMember,
-  submitPost,
   reviewSubmission,
-  withdrawSubmission,
   getPublicationDashboard,
   getMyPublications,
 } = require("../controllers/publication.controller");
@@ -19,20 +15,19 @@ const {
 const router = express.Router();
 
 // Publication management
-router.get("/publications/mine", requireAuth, getMyPublications);
-router.post("/publications", requireAuth, createPublication);
-router.get("/publications/:slug", optionalAuth, getPublicationBySlug);
-router.patch("/publications/:slug", requireAuth, updatePublication);
-router.get("/publications/:slug/dashboard", requireAuth, getPublicationDashboard);
+router.get("/mine", requireAuth, getMyPublications);
+router.post("/", requireAuth, createPublication);
+router.get("/:slug", optionalAuth, getPublicationBySlug);
+router.patch("/:slug", requireAuth, updatePublication);
+router.get("/:slug/dashboard", requireAuth, getPublicationDashboard);
 
 // Member management
-router.post("/publications/:slug/members", requireAuth, inviteMember);
-router.patch("/publications/:slug/members/:userId", requireAuth, updateMemberRole);
-router.delete("/publications/:slug/members/:userId", requireAuth, removeMember);
+router.post("/:slug/members", requireAuth, inviteMember);
+router.patch("/:slug/members/:userId", requireAuth, updateMemberRole);
+router.delete("/:slug/members/:userId", requireAuth, removeMember);
 
-// Submission & review workflow
-router.post("/posts/:slug/submit", requireAuth, submitPost);
-router.delete("/posts/:slug/submit", requireAuth, withdrawSubmission);
-router.patch("/publications/:pubSlug/submissions/:postId", requireAuth, reviewSubmission);
+// Submission review workflow
+router.patch("/:pubSlug/submissions/:postId", requireAuth, reviewSubmission);
 
 module.exports = router;
+

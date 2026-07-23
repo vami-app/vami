@@ -104,7 +104,26 @@ async function runPhaseETests() {
     );
   });
 
-  console.log("  ✓ OAuth account linking and auto-verification verified.");
+  // 2b. First-time OAuth signup (brand-new user, no prior account, no password)
+  await new Promise((resolve, reject) => {
+    handleOAuthUser(
+      "github",
+      "github_fresh_101",
+      "fresh_oauth@test-phase-e.dev",
+      "Fresh OAuth User",
+      "https://example.com/avatar.png",
+      (err, user) => {
+        if (err) return reject(err);
+        assert.ok(user._id, "First-time OAuth user must be created");
+        assert.strictEqual(user.githubId, "github_fresh_101");
+        assert.strictEqual(user.emailVerified, true, "First-time OAuth user must be emailVerified");
+        assert.strictEqual(user.password, undefined, "First-time OAuth user must have undefined password");
+        resolve();
+      }
+    );
+  });
+
+  console.log("  ✓ OAuth account linking, first-time OAuth signup, and auto-verification verified.");
 
   // -------------------------------------------------------------------
   // 3. Notification Persistence & Triggers (Clap, Comment, Follow)
