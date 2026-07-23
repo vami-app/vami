@@ -16,32 +16,35 @@
 | **Unverified Publishing** | Publishing stories is gated behind `emailVerified === true`. Unverified users can draft content but cannot publish until email verification token is consumed. |
 | **Password Reset Tampering** | Forgot-password flow uses cryptographically random tokens (32 bytes), SHA-256 hashed before storage with a 30-minute TTL. Enumeration-safe responses prevent account discovery. |
 | **Immediate Ban Enforcement** | Banned users are blocked immediately (403) from accessing all authenticated API routes on their very next request. All active Socket.IO connections for the banned user are force-disconnected via `disconnectUserSockets(userId)`. |
-| **Account Deletion Cascade** | Two-step confirmation flow. Full 15-step cascade erases or anonymizes data (posts, comments, post revisions, reports, bookmarks, follows, claps, publication memberships, reading lists, viewer read events, avatar files, notifications) while canceling active Razorpay test subscriptions and preserving financial audit integrity (`MembershipPayment`, `PayoutLedgerEntry`, authored `ReadEvent` denominator totals, `AuditLog`). |
+| **Account Deletion Cascade** | Two-step confirmation flow. Full 18-step cascade erases or anonymizes data (posts, comments, post revisions, reports, bookmarks, follows, claps, publication memberships, reading lists, viewer read events, avatar files, notifications, highlights) while canceling active Razorpay test subscriptions and preserving financial audit integrity (`MembershipPayment`, `PayoutLedgerEntry`, authored `ReadEvent` denominator totals, `AuditLog`). |
 | **CAN-SPAM Compliance** | All notification and digest emails carry a one-click unsubscribe link. Users can toggle email preferences or adjust digest frequency. Security/transactional emails remain non-suppressible. |
 | **Webhook HMAC Authentication** | Webhooks from Razorpay (`POST /api/webhooks/razorpay`) require valid `X-Razorpay-Signature` calculated over raw body bytes via HMAC SHA-256 with `RAZORPAY_WEBHOOK_SECRET`. |
 | **Webhook Idempotency** | Webhook processing is guarded by a dedicated `WebhookEvent` model with a unique index on `eventId`. Duplicate replayed events return 200 with `{ duplicate: true }` without mutating database state. |
 
 ---
 
-### 1.1 Account Deletion 15-Step Cascade & Preserve-vs-Delete Matrix
+### 1.1 Account Deletion 18-Step Cascade & Preserve-vs-Delete Matrix
 
 | Step | Code Operation / Target | Action Executed | Rationale / Ground-Truth Behavior |
 |---|---|---|---|
-| 1 | `PostRevision` (snapshots of user's posts) | `deleteMany({ post: { $in: postIds } })` | Deletes revision snapshots associated with deleted posts |
-| 2 | `Report` (submitted by user) | `deleteMany({ reporter: user._id })` | Cleans up pending reports submitted by the user |
-| 3 | `Report` (targeting user's posts, user's comments, or comments on user's posts) | `deleteMany({ $or: [{ targetType: "post", targetId: { $in: postIds } }, { targetType: "comment", targetId: { $in: targetCommentIds } }] })` | Cleans up reports submitted by others targeting user's posts, user's comments, or comments left on user's posts |
-| 4 | `Comment` (on user's authored posts) | `deleteMany({ post: { $in: postIds } })` | Deletes ALL comments left by anyone on the user's posts |
-| 5 | `Comment` (authored by user on other people's posts) | Soft-deleted (`content = "[deleted]"`, `deletedButHasReplies = true`, `author` reassigned to `deleted` user) if comment has replies; hard-deleted (`deleteOne()`) if no replies | Preserves thread tree continuity for other readers if replies exist |
-| 6 | `Post` (authored by user) | `deleteMany({ author: user._id })` (erase mode) | Deletes all post documents authored by the user |
-| 7 | `User.bookmarks` | `updateMany({ bookmarks: { $in: postIds } }, { $pull: { bookmarks: { $in: postIds } } })` | Removes deleted post IDs from all other users' bookmarks |
-| 8 | `Follow` | `deleteMany({ $or: [{ follower: user._id }, { followee: user._id }] })` & `updateMany` pulling `followers`/`following` | Deletes follow edges and cleans up user arrays in both directions |
-| 9 | `Post.claps` | Filters user claps from `claps` array & recomputes `totalClaps` on affected posts | Updates clap counts across all clapped posts |
-| 10 | Avatar File (`/uploads/`) | `fs.unlinkSync(filePath)` | Unlinks avatar file from server disk |
-| 11 | `ReadingList` | `deleteMany({ owner: user._id })` | Deletes reading lists owned by the user |
-| 12 | `PublicationMember` & `Publication` | Transfer ownership to senior member, or archive publication if sole owner, then `deleteMany({ user: user._id })` | Preserves publication continuity while removing user membership |
-| 13 | `ReadEvent` (viewer telemetry) | `deleteMany({ viewer: user._id })` | Deletes user's viewer reading history |
-| 14 | **Razorpay Subscription** | `user.membershipStatus = "canceled"` | Cancels active Razorpay test subscription |
-| 15 | `Notification` | `deleteMany({ recipient: user._id })` & deletes actor notifications except soft-deleted comment ties | Cleans up user inbox and non-preserved actor notifications |
+| 1 | `Highlight` (on user's authored posts) | `deleteMany({ post: { $in: postIds } })` | Deletes text highlights on posts scheduled for deletion |
+| 2 | `PostRevision` (snapshots of user's posts) | `deleteMany({ post: { $in: postIds } })` | Deletes revision snapshots associated with deleted posts |
+| 3 | `Report` (submitted by user) | `deleteMany({ reporter: user._id })` | Cleans up pending reports submitted by the user |
+| 4 | `Report` (targeting user's posts, user's comments, or comments on user's posts) | `deleteMany({ $or: [{ targetType: "post", targetId: { $in: postIds } }, { targetType: "comment", targetId: { $in: targetCommentIds } }] })` | Cleans up reports submitted by others targeting user's posts, user's comments, or comments left on user's posts |
+| 5 | `Comment` (on user's authored posts) | `deleteMany({ post: { $in: postIds } })` | Deletes ALL comments left by anyone on the user's posts |
+| 6 | `Comment` (authored by user on other people's posts) | Soft-deleted (`content = "[deleted]"`, `deletedButHasReplies = true`, `author` reassigned to `deleted` user) if comment has replies; hard-deleted (`deleteOne()`) if no replies | Preserves thread tree continuity for other readers if replies exist |
+| 7 | `Post` (authored by user) | `deleteMany({ author: user._id })` (erase mode) | Deletes all post documents authored by the user |
+| 8 | `User.bookmarks` | `updateMany({ bookmarks: { $in: postIds } }, { $pull: { bookmarks: { $in: postIds } } })` | Removes deleted post IDs from all other users' bookmarks |
+| 9 | `Follow` | `deleteMany({ $or: [{ follower: user._id }, { followee: user._id }] })` & `updateMany` pulling `followers`/`following` | Deletes follow edges and cleans up user arrays in both directions |
+| 10 | `Post.claps` | Filters user claps from `claps` array & recomputes `totalClaps` on affected posts | Updates clap counts across all clapped posts |
+| 11 | Avatar File (`/uploads/`) | `fs.unlinkSync(filePath)` | Unlinks avatar file from server disk |
+| 12 | `ReadingList` | `deleteMany({ owner: user._id })` | Deletes reading lists owned by the user |
+| 13 | `PublicationMember` & `Publication` | Transfer ownership to senior member, or archive publication if sole owner, then `deleteMany({ user: user._id })` | Preserves publication continuity while removing user membership |
+| 14 | `ReadEvent` (viewer telemetry) | `deleteMany({ viewer: user._id })` | Deletes user's viewer reading history |
+| 15 | **Razorpay Subscription** | `user.membershipStatus = "canceled"` | Cancels active Razorpay test subscription |
+| 16 | `Notification` | `deleteMany({ recipient: user._id })` & deletes actor notifications except soft-deleted comment ties | Cleans up user inbox and non-preserved actor notifications |
+| 17 | `Highlight` (user's private annotations) | `deleteMany({ owner: user._id })` | Deletes user's private text selection highlights |
+| 18 | `User` Document | `user.deleteOne()` | Deletes the user account record |
 | *Preserved* | `ReadEvent` (authored posts) | **Preserved** | Retains historical platform denominator for writer payout audits |
 | *Preserved* | `MembershipPayment` | **Preserved** | Retains financial invoice records |
 | *Preserved* | `PayoutLedgerEntry` | **Preserved** | Retains historical writer payout ledger entries |

@@ -322,6 +322,20 @@ Loads `server/.env` via dotenv. Exports a typed config object:
 
 ---
 
+### `Highlight` model — `server/src/models/Highlight.js`
+
+| Field | Type | Constraints / Notes |
+|---|---|---|
+| `owner` | ObjectId → User | required, indexed — highlighting reader |
+| `post` | ObjectId → Post | required, indexed — target story |
+| `quote` | String | required — selected text string |
+| `contextBefore` | String | ~40 chars preceding quote for fuzzy re-location |
+| `contextAfter` | String | ~40 chars following quote for fuzzy re-location |
+| `note` | String | optional annotation note, maxlength 500 |
+| `createdAt` | Date | default `Date.now` |
+
+---
+
 ## 4. Middleware Chain
 
 ### Execution Flow

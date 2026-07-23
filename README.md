@@ -306,7 +306,7 @@ GET    /api/feed/tag/:tag/rss
 - **CORS** allows `env.clientUrl`, `https://inkwell-client.vercel.app`, and all Vercel preview
   deployment URLs matching the pattern `inkwell-client-*-inkwell-org.vercel.app`.
 
-## Current status — Phase E complete
+## Current status — Full Phases A through G complete
 
 **MVP core** (auth, posts, comments, claps, bookmarks, follow, search, RSS, SEO, export) — Done.
 
@@ -350,7 +350,14 @@ GET    /api/feed/tag/:tag/rss
 - `SocketContext` client provider — manages socket lifecycle, unread count badge, live notification list
 - Post scheduling — `scheduledAt` field + `check_scheduled_posts.js` runner script for auto-publishing
 
-**Phases F–G** are planned. See `INKWELL_FULL_PRODUCT_ROADMAP.md` for the full breakdown.
+**Phase F (Reader Experience Depth)** — Done:
+- Highlighting & Annotations — `Highlight` model with fuzzy text selection re-location, paywall-leak guard, private note popover
+- Writer Analytics Dashboard — aggregated story stats, views/claps trends, follower growth (`GET /api/writer/analytics`)
+- Dark Mode — full token-level pass, cookie-based SSR theme resolution (`ThemeContext.jsx` + `ThemeToggle.jsx`)
+
+**Phase G (Quality & Correctness Infrastructure)** — Done:
+- Vitest unit & integration test suite (`server/test/`) running with isolated MongoDB connection (`inkwell_test`)
+- Playwright E2E suite (`e2e/specs/`) covering authentication, publishing, engagement, moderation, membership, highlights, analytics, darkmode, and OAuth
 
 ---
 

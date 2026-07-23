@@ -1,7 +1,7 @@
 # Inkwell Blueprint — 01: Overview & Technology Stack
 
 > Part of the [Inkwell Project Blueprint](README.md) suite.
-> **Version:** 1.7.0 · **Stack:** Next.js 16 + Express + MongoDB · **Package Manager:** pnpm (v11)
+> **Version:** 1.8.0 · **Stack:** Next.js 16 + Express + MongoDB · **Package Manager:** pnpm (v11)
 
 ---
 

@@ -131,16 +131,29 @@ All API endpoints return a standardized JSON envelope:
 
 ---
 
-### Membership & Payout Ledger (`/api/membership/`, `/api/telemetry/`, `/api/writer/`)
+### Membership, Telemetry & Writer Analytics (`/api/membership/`, `/api/telemetry/`, `/api/writer/`)
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
 | POST | `/api/membership/subscribe` | required | Initialize test-mode Razorpay subscription session |
 | POST | `/api/membership/verify` | required | Verify client payment HMAC signature |
 | POST | `/api/membership/cancel` | required | Cancel Razorpay test subscription server-side |
+| POST | `/api/membership/test-sign` | required (test mode) | Computes test Razorpay HMAC signature (403 in production) |
 | POST | `/api/webhooks/razorpay` | public (HMAC signed) | Receive subscription lifecycle webhooks (raw body signature check) |
 | POST | `/api/telemetry/read-event` | optionalAuth | Record active foreground reading seconds (capped at 30 mins) |
 | GET | `/api/writer/payout-ledger` | required | Retrieve calling writer's engagement-weighted payout ledger entries |
+| GET | `/api/writer/analytics` | required | Aggregated writer analytics overview (views, claps, comments, read time) |
+
+---
+
+### Highlights & Annotations (`/api/posts/`, `/api/highlights/`)
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/api/posts/:slug/highlights` | required | Create text selection highlight/annotation (gated by `canReadFull`) |
+| GET | `/api/posts/:slug/highlights/mine` | required | Fetch caller's private highlights for story |
+| PATCH | `/api/highlights/:id` | required (owner) | Update highlight note |
+| DELETE | `/api/highlights/:id` | required (owner) | Remove highlight |
 
 ---
 

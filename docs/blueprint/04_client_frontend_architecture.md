@@ -34,11 +34,12 @@ RootLayout (app/layout.jsx)
     ├── /                    # HomePage (Latest & For You tabs)
     ├── /@[username]         # ProfilePage
     ├── /bookmarks           # BookmarksPage
+    ├── /dashboard           # Writer Analytics Dashboard
     ├── /edit/[slug]         # EditPage
     ├── /new-story           # NewStoryPage (with scheduledAt scheduling)
     ├── /notifications       # NotificationsPage (real-time inbox)
     ├── /p/[slug]            # StoryPage (Server Component)
-    │   └── StoryPageClient  # Client Interactivity Wrapper + RelatedPosts
+    │   └── StoryPageClient  # Client Interactivity Wrapper + HighlightLayer + RelatedPosts
     ├── /pub/[slug]          # Publication Profile Page
     │   └── dashboard/       # Publication Member Dashboard
     ├── /lists               # Personal Reading Lists Management
@@ -55,12 +56,13 @@ RootLayout (app/layout.jsx)
 | Route | Component | Key Features |
 |---|---|---|
 | `/` | HomePage | Two-tab feed (Latest & For You) + `<TrendingTags>` 7-day sidebar |
+| `/dashboard` | DashboardPage | Writer Analytics Dashboard (30-day views/claps trends, story stats, follower growth) |
 | `/login` | LoginPage | Email/password form → `AuthContext.login()`. Google & GitHub OAuth buttons redirect to `/api/auth/google` / `/api/auth/github`. |
 | `/register` | RegisterPage | Name/username/email/password → `AuthContext.register()`. Google & GitHub OAuth buttons. |
 | `/forgot-password` | ForgotPasswordPage | Email input → POST `/api/auth/forgot-password` |
 | `/reset-password` | ResetPasswordPage | Reads `?token=` → POST new password to `/api/auth/reset-password` |
 | `/@[username]` | ProfilePage | User bio, follow button, author's stories. Custom subdomain mapping resolves here. |
-| `/p/[slug]` | StoryPage | Server Component. Feeds metadata, embeds JSON-LD schema, renders `<StoryPageClient>`. |
+| `/p/[slug]` | StoryPage | Server Component. Feeds metadata, embeds JSON-LD schema, renders `<StoryPageClient>` with `<HighlightLayer>`. |
 | `/pub/[slug]` | PublicationProfilePage | Publication header, public member list, approved story feed. |
 | `/pub/[slug]/dashboard` | PublicationDashboardPage | Member submissions queue (approve/reject/changes note) + member roles management. |
 | `/lists` | ReadingListsPage | Manage personal public & private reading lists + create list form. |
@@ -86,7 +88,8 @@ RootLayout (app/layout.jsx)
 - **`StoryEditor.jsx`**: Tiptap WYSIWYG core with StarterKit, Image, Link, Placeholder. Sticky formatting toolbar. Syncs content.
 
 ### `components/layout/`
-- **`Navbar.jsx`**: Sticky top navigation (search bar, Write button, notification bell badge from `SocketContext`, Avatar dropdown menu).
+- **`Navbar.jsx`**: Sticky top navigation (search bar, Write button, notification bell badge from `SocketContext`, ThemeToggle, Avatar dropdown menu).
+- **`ThemeToggle.jsx`**: Sun/moon icon toggle button managing dark mode preference.
 - **`MobileDrawer.jsx`**: Slide-in nav overlay for mobile breakpoints.
 - **`Footer.jsx`**: Minimal branding footer.
 - **`Logo.jsx`**: SVG Inkwell wordmark.
@@ -107,6 +110,8 @@ RootLayout (app/layout.jsx)
 - **`TrendingTags.jsx`**: Sidebar tag cloud displaying top tags calculated over a 7-day recency window.
 - **`RelatedPosts.jsx`**: Renders up to 3 same-tag related stories on the story reader page.
 - **`AddToListModal.jsx`**: Modal dialog enabling users to save stories to existing or new reading lists.
+- **`HighlightLayer.jsx`**: Selection listener wrapping article body to render colored highlight underlays and trigger floating note popover.
+- **`HighlightPopover.jsx`**: Floating popover for adding/editing private highlight notes.
 
 ### `components/profile/`
 - **`FollowButton.jsx`**: Toggle follow/unfollow with real-time count.
@@ -134,6 +139,14 @@ AuthProvider
 
 - Bootstraps on app load by calling `/api/auth/me`.
 - `useAuth()` hook provides easy access.
+
+**`ThemeContext.jsx`** — Dark mode theme state & cookie sync provider:
+```
+ThemeProvider (wraps RootLayout)
+├── state: { theme: 'light' | 'dark' | 'system' }
+├── setTheme(t) → syncs cookie + PATCH /api/users/me (if logged in)
+└── useTheme() hook
+```
 
 **`SocketContext.jsx`** — Socket.IO client + notification state management:
 ```
