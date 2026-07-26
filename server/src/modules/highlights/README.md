@@ -17,6 +17,8 @@ The `highlights` domain module owns all user-created text highlights and private
 
 ## 2. Schema & Indexes
 
+> **Blueprint §4.9 Standing Rule Decision**: No additional custom index needed; all query paths execute in $O(1)$ or $O(\log N + K)$ time on existing `owner`, `post`, and compound `{ owner: 1, post: 1 }` indexes.
+
 | Index | Type | Target Query | Complexity |
 |---|---|---|---|
 | `{ owner: 1 }` | Single-field | Delete many by owner (Cascade Step 17) | $O(\log N + K)$ |

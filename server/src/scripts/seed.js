@@ -36,7 +36,7 @@ const MembershipPayment = require("../models/MembershipPayment");
 const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
 const WebhookEvent      = require("../models/WebhookEvent");
 const Notification      = require("../models/Notification");
-const Highlight         = require("../models/Highlight");
+const Highlight         = require("../modules/highlights/highlights.model");
 
 const { seedContent }    = require("./seed-content");
 const { seedModeration } = require("./seed-moderation");

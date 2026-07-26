@@ -27,7 +27,7 @@ const ReadingList = require("../models/ReadingList");
 const ReadEvent         = require("../models/ReadEvent");
 const MembershipPayment = require("../models/MembershipPayment");
 const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
-const Highlight         = require("../models/Highlight");
+const Highlight         = require("../modules/highlights/highlights.model");
 const { computeLedgerForPeriod } = require("../controllers/ledger.controller");
 
 const {

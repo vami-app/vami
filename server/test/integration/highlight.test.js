@@ -4,7 +4,7 @@ const request = require("supertest");
 const app = require("../../src/app");
 const User = require("../../src/models/User");
 const Post = require("../../src/models/Post");
-const Highlight = require("../../src/models/Highlight");
+const Highlight = require("../../src/modules/highlights/highlights.model");
 const { connectTestDB, dropTestDB, closeTestDB } = require("../setup/db");
 const { signAccessToken } = require("../../src/utils/jwt");
 
