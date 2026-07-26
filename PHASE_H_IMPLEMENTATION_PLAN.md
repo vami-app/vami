@@ -237,3 +237,54 @@ Rollback is safe and cheap **only if** step ordering (§4, §5 step 5) was actua
 ---
 
 *Plan drafted 2026-07-26 — Step 1 of blueprint §7's sequencing, scoped to `Highlight` only. Next model per §5.3: `ReadingList`. Do not start it until §6's 7 criteria are all confirmed true.*
+
+---
+
+# 🖋️ Inkwell — Phase H, Step 2: ReadingList Repository + Module Extraction
+
+> Companion to `Inkwell-product-improvement-and-scaling-blueprint.json` (v3.0) §5 & §7, and `PHASE_H_IMPLEMENTATION_PLAN.md` Step 1.
+> **Scope: ONE model, `ReadingList`, only.** Pure move, zero behavior change, single modular extraction.
+
+---
+
+## 0. Standing rules applied from Step 1's audit rounds
+- Bridge file policy (`server/src/models/ReadingList.js`) decided upfront: **permanent bridge file** re-exporting `modules/reading-lists/reading-lists.model.js`.
+- Module `boot(app)` mounts `/api/lists` routes using real `app.use("/api/lists", router)`.
+- Index claims in `README.md` backed by line numbers against pre-migration schema.
+- Test files remain byte-identical; double-mount grep checked before routing finalization.
+
+---
+
+## 1. Prerequisite gate status
+- **G1**: Step 1 bridge policy confirmed permanent.
+- **G2**: Route mount grep verified (no duplicate mounts for `/api/lists`).
+- **G3**: Schema verified directly from `server/src/models/ReadingList.js`:
+  - `owner`: ObjectId (ref User, required, indexed)
+  - `name`: String (required, trim, maxlength 80)
+  - `slug`: String (required, trim)
+  - `visibility`: String (`['public', 'private']`, default `private`)
+  - `posts`: `[{ post: ObjectId (ref Post), addedAt: Date }]`
+  - Index: `{ owner: 1, slug: 1 }` (unique) at line 36 of `ReadingList.js`.
+
+---
+
+## 2. API Surface & Cascade Call Sites
+- Endpoints:
+  1. `POST /api/lists` - Create list
+  2. `GET /api/lists/mine` - Own lists
+  3. `GET /api/users/:username/lists` - Public lists
+  4. `GET /api/lists/:username/:slug` - Single list (handles dangling refs with `[Content unavailable]`)
+  5. `PATCH /api/lists/:id` - Update list
+  6. `POST /api/lists/:id/posts` - Add post (blocks draft/hidden posts via extended `posts` shim)
+  7. `DELETE /api/lists/:id/posts/:postId` - Remove post
+  8. `DELETE /api/lists/:id` - Delete list
+- Cascade Step 12 in `user.controller.js` `deleteAccount`:
+  `readingListRepository.deleteManyByOwner(user._id)` (Unconditional).
+
+---
+
+## 3. Architecture & Verification Checklist
+- Module structure under `server/src/modules/reading-lists/`.
+- Repository interface `IReadingListRepository` and Mongoose implementation.
+- Service handling `addPostToList` draft/hidden validation.
+- 11-row evidenced verification checklist.

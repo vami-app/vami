@@ -406,8 +406,8 @@ const deleteAccount = asyncHandler(async (req, res) => {
   }
 
   // 12. Phase C Cascade: Reading lists owned by user
-  const ReadingList = require("../models/ReadingList");
-  await ReadingList.deleteMany({ owner: user._id });
+  const { readingListRepository } = require("../modules/reading-lists/reading-lists.module");
+  await readingListRepository.deleteManyByOwner(user._id);
 
   // 13. Phase C Cascade: Publication memberships & owner transfer / archival
   const Publication = require("../models/Publication");

@@ -18,7 +18,6 @@ const feedRoutes = require("./routes/feed.routes");
 const adminRoutes = require("./routes/admin.routes");
 const reportRoutes = require("./routes/report.routes");
 const publicationRoutes = require("./routes/publication.routes");
-const readingListRoutes = require("./routes/readingList.routes");
 
 const app = express();
 
@@ -109,14 +108,15 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/webhooks", webhookRoutes);
 const { registry } = require("./kernel");
 const { highlightModule } = require("./modules/highlights/highlights.module");
+const { readingListModule } = require("./modules/reading-lists/reading-lists.module");
 
 registry.register("highlights", highlightModule);
+registry.register("reading-lists", readingListModule);
 registry.boot(app);
 
 app.use("/api/membership", membershipRoutes);
 app.use("/api/writer", writerRoutes);
 app.use("/api/publications", publicationRoutes);
-app.use("/api/lists", readingListRoutes);
 
 // 404 + centralized error handler
 app.use(notFound);
