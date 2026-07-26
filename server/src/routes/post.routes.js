@@ -12,9 +12,6 @@ const {
   trendingTags,
   listSitemapData,
   toggleTagFollow,
-  listRevisions,
-  getRevisionDetails,
-  restoreRevision,
   getRelatedPosts,
 } = require("../controllers/post.controller");
 const {
@@ -53,9 +50,7 @@ router.post("/:slug/clap", requireAuth, clapPost);
 router.post("/:slug/bookmark", requireAuth, toggleBookmark);
 router.post("/tags/:tag/follow", requireAuth, toggleTagFollow);
 
-router.get("/:slug/revisions", requireAuth, listRevisions);
-router.get("/:slug/revisions/:revisionId", requireAuth, getRevisionDetails);
-router.post("/:slug/revisions/:revisionId/restore", requireAuth, restoreRevision);
+
 
 router.get("/:slug/comments", optionalAuth, listComments);
 router.post("/:slug/comments", requireAuth, commentRules, validate, addComment);

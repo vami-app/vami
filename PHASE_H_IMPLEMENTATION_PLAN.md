@@ -274,4 +274,204 @@ Rollback is safe and cheap **only if** step ordering (§4, §5 step 5) was actua
 ## 3. Raw Grep & Route Verification
 - **Grep Sweep Output (`git grep -n "ReadingList" server/src/`)**: Zero stray direct Mongoose imports outside `modules/reading-lists/` and permanent bridge file `models/ReadingList.js`.
 - **Route Audit**: `readingListModule.boot(app)` mounts `/api/lists` routes. Profile route `GET /api/users/:username/lists` is mounted inside `user.routes.js` delegating to `readingListController.getUserPublicLists`. Zero duplicate route registration.
+
+---
+
+# 🖋️ Inkwell — Phase H, Step 3: PostRevision Repository + Module Extraction
+
+> Companion to `Inkwell-product-improvement-and-scaling-blueprint.json` (v3.0) §5 & §7, `PHASE_H_STEP1...md` (Highlight), `PHASE_H_STEP2...md` (ReadingList).
+> **Scope: ONE model, `PostRevision`, only.** Same discipline.
+
+---
+
+## 0. Standing rules — cumulative, applied from commit 1
+
+| Rule | Applied here as |
+|---|---|
+| Bridge policy decided before file touched | Permanent bridge re-exporting `modules/post-revisions/post-revisions.model.js` |
+| `boot(app)` does real mounting | Mounts `router` at `/api` (`/api/posts/:slug/revisions*`) |
+| Deletion/relocation claims quoted | §7 verification report requires quoted snippets |
+| Real schema index citations | Quoted from `git show <pre-migration-commit>:server/src/models/PostRevision.js` |
+| Upgraded test standing rule | New `post-revisions.test.js` authored as part of PR (zero pre-existing integration coverage) |
+| 100% endpoint coverage in report | All 3 endpoints get quoted snippets for old vs new in §7 |
+
+---
+
+## 1. Prerequisite Gates (All Confirmed)
+
+| # | Gate | Status |
+|---|---|---|
+| G1 | Step 2 fully closed | **Confirmed** |
+| G2 | `PostRevision` schema read fresh | `post` (ObjectId ref 'Post', index: true, required), `title` (String, required), `subtitle` (String, default: ""), `contentHtml` (String, required), `tags` ([String], default: []), `coverImage` (String, default: ""), `editedBy` (ObjectId ref 'User', required), `createdAt` timestamp. |
+| G3 | Existing test check | No pre-existing test. Authored `post-revisions.test.js` as part of this PR per upgraded standing rule. |
+| G4 | `restore` behavior verified | Verified in `post.controller.js`: snapshot created before restoring live post content, then pruned if >50. |
+
+---
+
+## 2. Current-state Verification & Endpoint Table
+
+| # | Method | Path | Auth | Must preserve |
+|---|---|---|---|---|
+| 1 | GET | `/api/posts/:slug/revisions` | required (author) | List up to 50 snapshots |
+| 2 | GET | `/api/posts/:slug/revisions/:revisionId` | required (author) | Single revision detail |
+| 3 | POST | `/api/posts/:slug/revisions/:revisionId/restore` | required (author) | Restores content AND creates a new revision recording the restore itself |
+
+Cascade Step 2 in `user.controller.js`: `if (mode === "erase") { await PostRevision.deleteMany({ post: { $in: postIds } }); }`.
+
+---
+
+## 3. Bridge Policy
+
+`server/src/models/PostRevision.js` becomes a **permanent bridge** re-exporting `modules/post-revisions/post-revisions.model.js`.
+
+---
+
+## 4. Architecture & Module Tree
+
+```
+server/src/modules/post-revisions/
+├── post-revisions.module.js
+├── post-revisions.controller.js
+├── post-revisions.service.js
+├── post-revisions.repository.interface.js
+├── post-revisions.repository.mongo.js
+├── post-revisions.model.js
+└── README.md
+```
+
+---
+
+## 5. What does NOT change
+
+- Schema (fields, types, constraints)
+- API routes, paths, methods, auth
+- Response envelope shape
+- Restore-creates-new-revision behavior
+- Cascade step 2 position (`mode === "erase"`)
+
+---
+
+## 6. Step-by-Step Execution Plan
+
+1. Confirm baseline Vitest run.
+2. Read `PostRevision.js`, verify schema fields.
+3. Check `post-revisions.test.js` non-existence -> author `server/test/integration/post-revisions.test.js`.
+4. Read real `restoreRevision` handler.
+5. Create module tree (`server/src/modules/post-revisions/`), move model verbatim.
+6. Wire controller -> service -> repository with author entitlement guards verbatim.
+7. Rewire Cascade Step 2 in `user.controller.js`.
+8. Grep sweep for stray `PostRevision` imports.
+9. Audit route mounts (ensure no duplicate mount).
+10. Run new `post-revisions.test.js` and full test suite.
+11. Register module in `app.js`, verify `boot(app)`.
+12. Convert `models/PostRevision.js` to permanent bridge.
+13. Remove legacy routes/controller code from `post.routes.js` and `post.controller.js`.
+14. Perform full Vitest suite run and generate §7 Verification Report.
+
+---
+
+## 7. Verification Report
+
+> **Status**: Completed on 2026-07-26. All exit criteria passed (14/14 test files passing, 31/31 tests passing).
+
+### 7.1 Endpoint-by-Endpoint Matrix
+
+| # | Endpoint | Old file:lines | New file:lines | **Quoted snippet, old** | **Quoted snippet, new** | Classification |
+|---|---|---|---|---|---|---|
+| 1 | `GET /api/posts/:slug/revisions` | `post.controller.js:492–507` | `post-revisions.controller.js:7–25` | `const revisions = await PostRevision.find({ post: post._id }).sort({ createdAt: -1 }).select("_id createdAt editedBy").populate("editedBy", "name username avatarUrl"); return sendSuccess(res, 200, { revisions });` | `const result = await postRevisionService.listRevisions({ slug, viewer: req.user }); if (result.error) throw new ApiError(result.error, result.message); return sendSuccess(res, 200, { revisions: result.revisions });` | logic-bearing (author guard) |
+| 2 | `GET /api/posts/:slug/revisions/:revisionId` | `post.controller.js:514–531` | `post-revisions.controller.js:27–40` | `const revision = await PostRevision.findOne({ _id: req.params.revisionId, post: post._id }).populate("editedBy", "name username avatarUrl"); if (!revision) throw new ApiError(404, "Revision not found"); return sendSuccess(res, 200, { revision });` | `const result = await postRevisionService.getRevisionDetails({ slug, revisionId, viewer: req.user }); if (result.error) throw new ApiError(result.error, result.message); return sendSuccess(res, 200, { revision: result.revision });` | logic-bearing (author guard) |
+| 3 | `POST /api/posts/:slug/revisions/:revisionId/restore` | `post.controller.js:538–583` | `post-revisions.controller.js:42–56` & `post-revisions.service.js:47–81` | `await PostRevision.create({ post: post._id, title: post.title, subtitle: post.subtitle, contentHtml: post.contentHtml, tags: post.tags, coverImage: post.coverImage, editedBy: req.user._id }); post.title = revision.title; post.subtitle = revision.subtitle; post.contentHtml = revision.contentHtml; post.tags = revision.tags; post.coverImage = revision.coverImage; await post.save();` | `await this.repo.createSnapshot({ post: post._id, title: post.title, subtitle: post.subtitle, contentHtml: post.contentHtml, tags: post.tags, coverImage: post.coverImage, editedBy: viewer._id }); post.title = revision.title; post.subtitle = revision.subtitle; post.contentHtml = revision.contentHtml; post.tags = revision.tags; post.coverImage = revision.coverImage; await post.save(); await this.repo.pruneOldRevisions({ postId: post._id, maxCount: 50 });` | **logic-bearing — restore-creates-new-revision preserved** |
+
+### 7.2 Cascade Verification
+
+**Old code in `user.controller.js` (lines 313–318):**
+```js
+  if (mode === "erase") {
+    // Delete highlights for posts that are going to be deleted
+    await highlightRepository.deleteManyByPostIds(postIds);
+
+    // 2. Delete revisions for posts that are going to be deleted
+    await PostRevision.deleteMany({ post: { $in: postIds } });
+```
+
+**New code in `user.controller.js` (lines 313–318):**
+```js
+  if (mode === "erase") {
+    // Delete highlights for posts that are going to be deleted
+    await highlightRepository.deleteManyByPostIds(postIds);
+
+    // 2. Delete revisions for posts that are going to be deleted
+    await postRevisionRepository.deleteManyByPostIds(postIds);
+```
+
+### 7.3 Index / Schema Citation
+
+Quoted directly from `server/src/modules/post-revisions/post-revisions.model.js` (moved verbatim from `server/src/models/PostRevision.js`):
+```js
+    post: {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+      required: true,
+      index: true,
+    },
+```
+
+### 7.4 Bridge and Route Verification
+
+**Permanent Bridge (`server/src/models/PostRevision.js`):**
+```js
+"use strict";
+
+module.exports = require("../modules/post-revisions/post-revisions.model");
+```
+
+**Module Mounting in Kernel (`server/src/app.js` lines 109–116):**
+```js
+const { registry } = require("./kernel");
+const { highlightModule } = require("./modules/highlights/highlights.module");
+const { readingListModule } = require("./modules/reading-lists/reading-lists.module");
+const { postRevisionsModule } = require("./modules/post-revisions/post-revisions.module");
+
+registry.register("highlights", highlightModule);
+registry.register("reading-lists", readingListModule);
+registry.register("post-revisions", postRevisionsModule);
+registry.boot(app);
+```
+
+### 7.5 Test Status
+
+(b) No pre-existing test file existed for `PostRevision`. Authored `server/test/integration/post-revisions.test.js` covering:
+- `GET /api/posts/:slug/revisions` (listing author revisions, 403 guard check)
+- `GET /api/posts/:slug/revisions/:revisionId` (fetching single revision details, 403 guard check)
+- `POST /api/posts/:slug/revisions/:revisionId/restore` (restoring content + verifying new undo revision created)
+
+### 7.6 Full Test Run Output
+
+```
+ RUN  v3.2.7 C:/Users/chhnm/OneDrive/Desktop/Projects/vami/server
+
+ ✓ test/integration/highlight.test.js (4 tests) 5894ms
+ ✓ test/integration/moderation.test.js (1 test) 2508ms
+ ✓ test/integration/cascade.test.js (1 test) 1655ms
+ ✓ test/integration/post-revisions.test.js (3 tests) 3261ms
+ ✓ test/integration/payout-ledger.test.js (1 test) 1498ms
+ ✓ test/integration/analytics.test.js (1 test) 1131ms
+ ✓ test/integration/darkmode.test.js (2 tests) 1143ms
+ ✓ test/integration/oauth.test.js (2 tests) 622ms
+ ✓ test/unit/diff.test.js (2 tests) 3ms
+ ✓ test/unit/slugify.test.js (2 tests) 5ms
+ ✓ test/unit/ledger.test.js (2 tests) 4ms
+ ✓ test/unit/entitlement.test.js (6 tests) 4ms
+ ✓ test/unit/readTime.test.js (2 tests) 3ms
+ ✓ test/unit/highlightLocate.test.js (2 tests) 3ms
+
+ Test Files  14 passed (14)
+      Tests  31 passed (31)
+```
+
+### 7.7 Final Sign-off Line
+
+All 6 subsections above contain pasted artifacts, not descriptions; nothing in this report is asserted without a corresponding quote, diff, or command output.
+
+
 

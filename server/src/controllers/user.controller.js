@@ -307,15 +307,15 @@ const deleteAccount = asyncHandler(async (req, res) => {
   const targetCommentIds = [...new Set([...ownCommentIds.map(String), ...commentsOnOwnPosts.map(String)])];
 
   const Report = require("../models/Report");
-  const PostRevision = require("../models/PostRevision");
   const { highlightRepository } = require("../modules/highlights/highlights.module");
+  const { postRevisionRepository } = require("../modules/post-revisions/post-revisions.module");
 
   if (mode === "erase") {
     // Delete highlights for posts that are going to be deleted
     await highlightRepository.deleteManyByPostIds(postIds);
 
     // 2. Delete revisions for posts that are going to be deleted
-    await PostRevision.deleteMany({ post: { $in: postIds } });
+    await postRevisionRepository.deleteManyByPostIds(postIds);
 
     // 3. Delete own reports (reports submitted by the user)
     await Report.deleteMany({ reporter: user._id });

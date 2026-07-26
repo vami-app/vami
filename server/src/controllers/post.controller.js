@@ -218,7 +218,8 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 
   if (titleChanged || subtitleChanged || contentChanged || coverImageChanged || tagsChanged) {
-    await PostRevision.create({
+    const { postRevisionRepository } = require("../modules/post-revisions/post-revisions.module");
+    await postRevisionRepository.createSnapshot({
       post: post._id,
       title: post.title,
       subtitle: post.subtitle,
@@ -227,15 +228,7 @@ const updatePost = asyncHandler(async (req, res) => {
       coverImage: post.coverImage,
       editedBy: req.user._id,
     });
-
-    const revisionsCount = await PostRevision.countDocuments({ post: post._id });
-    if (revisionsCount > 50) {
-      const oldestRevisions = await PostRevision.find({ post: post._id })
-        .sort({ createdAt: 1 })
-        .limit(revisionsCount - 50);
-      const oldestIds = oldestRevisions.map(r => r._id);
-      await PostRevision.deleteMany({ _id: { $in: oldestIds } });
-    }
+    await postRevisionRepository.pruneOldRevisions({ postId: post._id, maxCount: 50 });
   }
 
   if (title !== undefined) post.title = title;
@@ -484,103 +477,7 @@ const toggleTagFollow = asyncHandler(async (req, res) => {
   );
 });
 
-/**
- * GET /api/posts/:slug/revisions
- * List revision metadata for a story (author-only).
- * @type {import('express').RequestHandler}
- */
-const listRevisions = asyncHandler(async (req, res) => {
-  const post = await Post.findOne({ slug: req.params.slug }).select("_id author");
-  if (!post) throw new ApiError(404, "Story not found");
 
-  if (String(post.author) !== String(req.user._id)) {
-    throw new ApiError(403, "You can only view revisions of your own stories");
-  }
-
-  const PostRevision = require("../models/PostRevision");
-  const revisions = await PostRevision.find({ post: post._id })
-    .sort({ createdAt: -1 })
-    .select("_id createdAt editedBy")
-    .populate("editedBy", "name username avatarUrl");
-
-  return sendSuccess(res, 200, { revisions });
-});
-
-/**
- * GET /api/posts/:slug/revisions/:revisionId
- * Fetch full snapshot content of a specific revision (author-only).
- * @type {import('express').RequestHandler}
- */
-const getRevisionDetails = asyncHandler(async (req, res) => {
-  const post = await Post.findOne({ slug: req.params.slug }).select("_id author");
-  if (!post) throw new ApiError(404, "Story not found");
-
-  if (String(post.author) !== String(req.user._id)) {
-    throw new ApiError(403, "You can only view revisions of your own stories");
-  }
-
-  const PostRevision = require("../models/PostRevision");
-  const revision = await PostRevision.findOne({ _id: req.params.revisionId, post: post._id })
-    .populate("editedBy", "name username avatarUrl");
-
-  if (!revision) {
-    throw new ApiError(404, "Revision not found");
-  }
-
-  return sendSuccess(res, 200, { revision });
-});
-
-/**
- * POST /api/posts/:slug/revisions/:revisionId/restore
- * Restores the post content to a prior revision snapshot (author-only).
- * @type {import('express').RequestHandler}
- */
-const restoreRevision = asyncHandler(async (req, res) => {
-  const post = await Post.findOne({ slug: req.params.slug });
-  if (!post) throw new ApiError(404, "Story not found");
-
-  if (String(post.author) !== String(req.user._id)) {
-    throw new ApiError(403, "You can only restore revisions of your own stories");
-  }
-
-  const PostRevision = require("../models/PostRevision");
-  const revision = await PostRevision.findOne({ _id: req.params.revisionId, post: post._id });
-  if (!revision) {
-    throw new ApiError(404, "Revision not found");
-  }
-
-  // Snapshot the CURRENT state as a new revision (making this restore action undoable)
-  await PostRevision.create({
-    post: post._id,
-    title: post.title,
-    subtitle: post.subtitle,
-    contentHtml: post.contentHtml,
-    tags: post.tags,
-    coverImage: post.coverImage,
-    editedBy: req.user._id,
-  });
-
-  // Apply revision content
-  post.title = revision.title;
-  post.subtitle = revision.subtitle;
-  post.contentHtml = revision.contentHtml;
-  post.tags = revision.tags;
-  post.coverImage = revision.coverImage;
-
-  await post.save();
-
-  // Prune revisions to keep max 50
-  const revisionsCount = await PostRevision.countDocuments({ post: post._id });
-  if (revisionsCount > 50) {
-    const oldestRevisions = await PostRevision.find({ post: post._id })
-      .sort({ createdAt: 1 })
-      .limit(revisionsCount - 50);
-    const oldestIds = oldestRevisions.map(r => r._id);
-    await PostRevision.deleteMany({ _id: { $in: oldestIds } });
-  }
-
-  return sendSuccess(res, 200, { post: post.toCardJSON(req.user._id) }, "Revision restored successfully.");
-});
 
 /**
  * GET /api/posts/:slug/related — up to 3 related stories sharing tags with current post.
@@ -631,8 +528,5 @@ module.exports = {
   trendingTags,
   listSitemapData,
   toggleTagFollow,
-  listRevisions,
-  getRevisionDetails,
-  restoreRevision,
   getRelatedPosts,
 };

@@ -109,9 +109,11 @@ app.use("/api/webhooks", webhookRoutes);
 const { registry } = require("./kernel");
 const { highlightModule } = require("./modules/highlights/highlights.module");
 const { readingListModule } = require("./modules/reading-lists/reading-lists.module");
+const { postRevisionsModule } = require("./modules/post-revisions/post-revisions.module");
 
 registry.register("highlights", highlightModule);
 registry.register("reading-lists", readingListModule);
+registry.register("post-revisions", postRevisionsModule);
 registry.boot(app);
 
 app.use("/api/membership", membershipRoutes);
