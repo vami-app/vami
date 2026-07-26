@@ -247,44 +247,31 @@ Rollback is safe and cheap **only if** step ordering (§4, §5 step 5) was actua
 
 ---
 
-## 0. Standing rules applied from Step 1's audit rounds
-- Bridge file policy (`server/src/models/ReadingList.js`) decided upfront: **permanent bridge file** re-exporting `modules/reading-lists/reading-lists.model.js`.
-- Module `boot(app)` mounts `/api/lists` routes using real `app.use("/api/lists", router)`.
-- Index claims in `README.md` backed by line numbers against pre-migration schema.
-- Test files remain byte-identical; double-mount grep checked before routing finalization.
+## 0. Missing Coverage Log, Debt Ticket & Standing Policy
+- **Test Gap & Debt Ticket**: Zero dedicated integration tests existed for `ReadingList` pre- or post-migration. Tracked in project backlog as **`DEBT-RL-01: ReadingList Integration Test Backfill`**.
+- **Standing Policy for Step 3 (`PostRevision`) & Beyond**: For `PostRevision` and all subsequent model extractions, if pre-existing integration test coverage is zero, a new integration test file (`<model>.test.js`) **MUST** be authored as part of the migration PR before the step is called complete.
 
 ---
 
-## 1. Prerequisite gate status
-- **G1**: Step 1 bridge policy confirmed permanent.
-- **G2**: Route mount grep verified (no duplicate mounts for `/api/lists`).
-- **G3**: Schema verified directly from `server/src/models/ReadingList.js`:
-  - `owner`: ObjectId (ref User, required, indexed)
-  - `name`: String (required, trim, maxlength 80)
-  - `slug`: String (required, trim)
-  - `visibility`: String (`['public', 'private']`, default `private`)
-  - `posts`: `[{ post: ObjectId (ref Post), addedAt: Date }]`
-  - Index: `{ owner: 1, slug: 1 }` (unique) at line 36 of `ReadingList.js`.
+## 1. Complete 8-Endpoint Verbatim Comparison Matrix
+- **#1 `POST /api/lists` (`createList`)**: Pure passthrough (validates `name`, computes `makeSlug`, `findByOwnerAndSlug`, `create`).
+- **#2 `GET /api/lists/mine` (`getMine`)**: Pure passthrough (`repo.findOwn(user._id)`).
+- **#3 `GET /api/users/:username/lists` (`getUserPublicLists`)**: Pure passthrough (`User.findOne({ username })`, applies `{ visibility: "public" }` for non-owners).
+- **#4 `GET /api/lists/:username/:slug` (`getSingleList`)**: Verbatim dangling-ref formatting (`[Content unavailable]`, lines 88–103 vs 92–106).
+- **#5 `PATCH /api/lists/:id` (`updateList`)**: Pure passthrough (owner check `owner !== user._id` returns 403, updates `name`/`slug`/`visibility`, calls `save`).
+- **#6 `POST /api/lists/:id/posts` (`addPostToList`)**: Verbatim visibility check (`status !== "published" || moderationStatus === "hidden"`, lines 165–168 vs 154–159).
+- **#7 `DELETE /api/lists/:id/posts/:postId` (`removePostFromList`)**: Pure passthrough (owner check, filters `posts` array, calls `save`).
+- **#8 `DELETE /api/lists/:id` (`deleteList`)**: Pure passthrough (owner check, calls `repo.delete`).
 
 ---
 
-## 2. API Surface & Cascade Call Sites
-- Endpoints:
-  1. `POST /api/lists` - Create list
-  2. `GET /api/lists/mine` - Own lists
-  3. `GET /api/users/:username/lists` - Public lists
-  4. `GET /api/lists/:username/:slug` - Single list (handles dangling refs with `[Content unavailable]`)
-  5. `PATCH /api/lists/:id` - Update list
-  6. `POST /api/lists/:id/posts` - Add post (blocks draft/hidden posts via extended `posts` shim)
-  7. `DELETE /api/lists/:id/posts/:postId` - Remove post
-  8. `DELETE /api/lists/:id` - Delete list
-- Cascade Step 12 in `user.controller.js` `deleteAccount`:
-  `readingListRepository.deleteManyByOwner(user._id)` (Unconditional).
+## 2. Literal Index Quotes (From Source File `ReadingList.js` / `reading-lists.model.js`)
+- **Single-field `{ owner: 1 }` index**: Declared at line 21 (`index: true` inside `owner: { type: Schema.Types.ObjectId, index: true }`).
+- **Compound unique `{ owner: 1, slug: 1 }` index**: Declared at line 36 (`readingListSchema.index({ owner: 1, slug: 1 }, { unique: true });`).
 
 ---
 
-## 3. Architecture & Verification Checklist
-- Module structure under `server/src/modules/reading-lists/`.
-- Repository interface `IReadingListRepository` and Mongoose implementation.
-- Service handling `addPostToList` draft/hidden validation.
-- 11-row evidenced verification checklist.
+## 3. Raw Grep & Route Verification
+- **Grep Sweep Output (`git grep -n "ReadingList" server/src/`)**: Zero stray direct Mongoose imports outside `modules/reading-lists/` and permanent bridge file `models/ReadingList.js`.
+- **Route Audit**: `readingListModule.boot(app)` mounts `/api/lists` routes. Profile route `GET /api/users/:username/lists` is mounted inside `user.routes.js` delegating to `readingListController.getUserPublicLists`. Zero duplicate route registration.
+
