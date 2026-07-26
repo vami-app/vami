@@ -308,11 +308,11 @@ const deleteAccount = asyncHandler(async (req, res) => {
 
   const Report = require("../models/Report");
   const PostRevision = require("../models/PostRevision");
-  const Highlight = require("../models/Highlight");
+  const { highlightRepository } = require("../modules/highlights/highlights.module");
 
   if (mode === "erase") {
     // Delete highlights for posts that are going to be deleted
-    await Highlight.deleteMany({ post: { $in: postIds } });
+    await highlightRepository.deleteManyByPostIds(postIds);
 
     // 2. Delete revisions for posts that are going to be deleted
     await PostRevision.deleteMany({ post: { $in: postIds } });
@@ -471,7 +471,7 @@ const deleteAccount = asyncHandler(async (req, res) => {
   });
 
   // 17. Phase F Cascade: Delete user's own highlights (private annotations)
-  await Highlight.deleteMany({ owner: user._id });
+  await highlightRepository.deleteManyByOwner(user._id);
 
   // AuditLog, MembershipPayment, and PayoutLedgerEntry records are intentionally preserved for financial auditability
 

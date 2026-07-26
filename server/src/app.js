@@ -107,6 +107,12 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/telemetry", telemetryRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/webhooks", webhookRoutes);
+const { registry } = require("./kernel");
+const { highlightModule } = require("./modules/highlights/highlights.module");
+
+registry.register("highlights", highlightModule);
+registry.boot(app);
+
 app.use("/api/membership", membershipRoutes);
 app.use("/api/writer", writerRoutes);
 app.use("/api/publications", publicationRoutes);
