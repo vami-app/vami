@@ -117,7 +117,6 @@ app.use("/api/membership", membershipRoutes);
 app.use("/api/writer", writerRoutes);
 app.use("/api/publications", publicationRoutes);
 app.use("/api/lists", readingListRoutes);
-app.use("/api", highlightRoutes);
 
 // 404 + centralized error handler
 app.use(notFound);
