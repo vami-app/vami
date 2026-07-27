@@ -90,12 +90,13 @@ export default function StoryPageClient({ initialPost }) {
           </p>
         )}
 
-        <h1 className="font-serif text-3xl font-bold leading-tight text-ink sm:text-[42px] sm:leading-[1.15]">
+        <h1 className="font-serif text-[clamp(1.75rem,1.25rem+1.8vw,2.625rem)] font-bold leading-tight text-ink sm:leading-[1.15]">
           {post.title}
         </h1>
         {post.subtitle && (
-          <p className="mt-3 text-xl text-ink-soft sm:text-2xl">{post.subtitle}</p>
+          <p className="mt-3 text-[clamp(1.125rem,1rem+0.4vw,1.375rem)] text-ink-soft">{post.subtitle}</p>
         )}
+
 
         {/* Author + meta */}
         <div className="mt-6 flex items-center justify-between border-b border-gray-100 pb-6">

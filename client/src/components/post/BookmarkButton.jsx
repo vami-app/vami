@@ -40,9 +40,10 @@ export default function BookmarkButton({ slug, initial, withLabel = false }) {
       disabled={busy}
       aria-label={saved ? "Remove bookmark" : "Save story"}
       title={saved ? "Saved" : "Save for later"}
-      className={`flex h-11 items-center justify-center gap-2 rounded-full px-3 transition-colors ${
+      className={`flex h-11 min-w-[44px] items-center justify-center gap-2 rounded-full px-3 transition-colors ${
         saved ? "text-accent-600" : "text-ink-soft hover:text-ink"
       }`}
+
     >
       <svg
         width="22"

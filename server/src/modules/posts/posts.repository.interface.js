@@ -30,9 +30,11 @@ class IPostRepository {
   async findByAuthorForLedger(authorId) {}
   async findByAuthorForAnalytics(authorId) {}
 
-  // Candidate assembly (§2.3 #25)
+  // Candidate assembly (§2.3 #25 & §4.6)
   async findCandidatesForRecommendation() {}
   async findTagCountsInWindow(days) {}
+  async findTagsByPrefix(prefix, limit) {}
+
 
   // Cascade (§2.4)
   async findIdsByAuthor(authorId) {}

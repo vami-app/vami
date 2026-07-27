@@ -43,3 +43,20 @@ export function initials(name) {
   const parts = name.trim().split(/\s+/);
   return (parts[0][0] + (parts[1] ? parts[1][0] : "")).toUpperCase();
 }
+
+/**
+ * Reads browser Network Information API (navigator.connection) to assess device capability.
+ * Blueprint §3.7 Adaptive Loading standard.
+ * @returns {{ isSlow: boolean, saveData: boolean, effectiveType: string }}
+ */
+export function getNetworkQuality() {
+  if (typeof window === "undefined" || !navigator || !("connection" in navigator)) {
+    return { isSlow: false, saveData: false, effectiveType: "4g" };
+  }
+  const conn = navigator.connection || {};
+  const effectiveType = conn.effectiveType || "4g";
+  const saveData = Boolean(conn.saveData);
+  const isSlow = saveData || effectiveType === "slow-2g" || effectiveType === "2g" || effectiveType === "3g";
+  return { isSlow, saveData, effectiveType };
+}
+

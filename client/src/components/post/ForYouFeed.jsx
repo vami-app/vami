@@ -69,11 +69,12 @@ export default function ForYouFeed() {
           No stories found for your current interests. Follow more tags or authors to personalize your feed!
         </div>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} variant="grid" />
           ))}
         </div>
+
       )}
     </div>
   );

@@ -17,7 +17,9 @@ router.get("/posts", optionalAuth, postController.listPosts);
 router.post("/posts", requireAuth, postController.createPost);
 router.get("/posts/recommended", requireAuth, postController.getRecommendedPosts);
 router.get("/posts/tags/trending", postController.trendingTags);
+router.get("/posts/tags/autocomplete", postController.autocompleteTags);
 router.get("/posts/sitemap-data", postController.listSitemapData);
+
 router.post("/tags/:tag/follow", requireAuth, postController.toggleTagFollow);
 
 router.get("/posts/:slug", optionalAuth, postController.getPost);

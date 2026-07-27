@@ -327,7 +327,16 @@ class MongoPostRepository extends IPostRepository {
     return topGroups.map((r) => ({ tag: r._id, count: r.count }));
   }
 
+  async findTagsByPrefix(prefix = "", limit = 10) {
+    const PrefixTrie = require("../../utils/trie");
+    const distinctTags = await Post.distinct("tags");
+    const trie = new PrefixTrie();
+    trie.insertMany(distinctTags);
+    return trie.autocomplete(prefix, limit);
+  }
+
   // Cascade (§2.4)
+
 
   async findIdsByAuthor(authorId) {
     const posts = await Post.find({ author: authorId }).select("_id");

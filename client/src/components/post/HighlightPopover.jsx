@@ -59,13 +59,13 @@ export default function HighlightPopover({
             <button
               onClick={handleSave}
               disabled={loading}
-              className="flex-1 rounded-lg bg-accent-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-accent-700 transition"
+              className="flex-1 min-h-[44px] inline-flex items-center justify-center rounded-lg bg-accent-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-accent-700 transition"
             >
               ✨ Highlight
             </button>
             <button
               onClick={() => setShowNoteInput(true)}
-              className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-ink hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+              className="min-h-[44px] inline-flex items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-ink hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
             >
               📝 Add Note
             </button>
@@ -88,7 +88,7 @@ export default function HighlightPopover({
                 <button
                   onClick={handleDelete}
                   disabled={loading}
-                  className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
+                  className="min-h-[44px] min-w-[44px] inline-flex items-center text-xs font-medium text-red-600 hover:underline dark:text-red-400"
                 >
                   Remove
                 </button>
@@ -98,14 +98,14 @@ export default function HighlightPopover({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={onClose}
-                  className="rounded-md px-2 py-1 text-xs text-ink-soft hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                  className="min-h-[44px] inline-flex items-center rounded-md px-2.5 py-1 text-xs text-ink-soft hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={loading}
-                  className="rounded-md bg-accent-600 px-3 py-1 text-xs font-semibold text-white hover:bg-accent-700"
+                  className="min-h-[44px] inline-flex items-center rounded-md bg-accent-600 px-3 py-1 text-xs font-semibold text-white hover:bg-accent-700"
                 >
                   Save
                 </button>
@@ -113,6 +113,7 @@ export default function HighlightPopover({
             </div>
           </div>
         )}
+
       </div>
     </div>
   );

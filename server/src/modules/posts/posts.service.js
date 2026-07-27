@@ -482,6 +482,12 @@ class PostService {
       },
     };
   }
+
+  async autocompleteTags({ prefix = "", limit = 10 }) {
+    const tags = await this.posts.findTagsByPrefix(prefix, limit);
+    return { tags };
+  }
 }
 
 module.exports = PostService;
+

@@ -117,6 +117,16 @@ class PostController {
     const data = await this.service.getRecommendedPosts({ viewer: req.user, limit });
     return sendSuccess(res, 200, data);
   });
+
+  autocompleteTags = asyncHandler(async (req, res) => {
+    const { prefix, limit } = req.query;
+    const data = await this.service.autocompleteTags({
+      prefix: prefix ? String(prefix) : "",
+      limit: limit ? parseInt(limit, 10) : 10,
+    });
+    return sendSuccess(res, 200, data);
+  });
 }
 
 module.exports = PostController;
+

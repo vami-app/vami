@@ -87,7 +87,7 @@ export default function PostList({ query = {}, showStatus = false, emptyMessage 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {posts.map((p) => (
-        <PostCard key={p.id || p.slug} post={p} showStatus={showStatus} />
+        <PostCard key={p.id || p.slug} post={p} showStatus={showStatus} variant="grid" />
       ))}
       {hasMore && (
         <div ref={sentinelRef} className="col-span-full py-8 text-center text-sm text-ink-faint">
@@ -99,5 +99,6 @@ export default function PostList({ query = {}, showStatus = false, emptyMessage 
       )}
     </div>
   );
+
 
 }
