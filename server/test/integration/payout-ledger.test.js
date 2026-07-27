@@ -107,4 +107,49 @@ describe("Payout Ledger Engine (computeLedgerForPeriod)", () => {
     // 30% of 10000 cents = 3000 cents ($30.00)
     expect(entryB.payoutCents).toBe(3000);
   });
+
+  it("returns breakdown object with formula fidelity on GET /api/writer/payout-ledger", async () => {
+    const request = require("supertest");
+    const app = require("../../src/app");
+    const { signAccessToken } = require("../../src/utils/jwt");
+
+    const periodStart = new Date("2026-01-01T00:00:00.000Z");
+    const periodEnd = new Date("2026-01-31T23:59:59.999Z");
+
+    const writer = await User.create({
+      name: "Payout Writer",
+      username: "payoutwriter",
+      email: "payout@writer.test",
+      password: "Password123!",
+    });
+
+    await PayoutLedgerEntry.create({
+      writer: writer._id,
+      periodStart,
+      periodEnd,
+      eligibleActiveSeconds: 700,
+      platformActiveSeconds: 1000,
+      poolCents: 10000,
+      payoutCents: 7000,
+    });
+
+    const token = signAccessToken(String(writer._id));
+    const res = await request(app)
+      .get("/api/writer/payout-ledger")
+      .set("Cookie", [`accessToken=${token}`]);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.entries).toHaveLength(1);
+
+    const entry = res.body.data.entries[0];
+    expect(entry.breakdown).toBeDefined();
+    expect(entry.breakdown.attributedReadSeconds).toBe(700);
+    expect(entry.breakdown.totalPoolReadSeconds).toBe(1000);
+    expect(entry.breakdown.poolShareRatio).toBe(0.7);
+    expect(entry.breakdown.poolSharePercentage).toBe("70.0%");
+    expect(entry.breakdown.periodPoolAmountCents).toBe(10000);
+    expect(entry.breakdown.calculatedAmountCents).toBe(7000);
+    expect(entry.breakdown.calculatedAmountFormatted).toBe("$70.00");
+  });
 });

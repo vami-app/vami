@@ -88,7 +88,35 @@ const getPayoutLedger = asyncHandler(async (req, res) => {
     .sort({ periodStart: -1 })
     .limit(20);
 
-  return sendSuccess(res, 200, { entries }, "Payout ledger history retrieved");
+  const formattedEntries = entries.map((entry) => {
+    const doc = entry.toObject ? entry.toObject() : { ...entry };
+    const attributedReadSeconds = doc.eligibleActiveSeconds || 0;
+    const totalPoolReadSeconds = doc.platformActiveSeconds || 0;
+    const periodPoolAmountCents = doc.poolCents || 0;
+    const calculatedAmountCents = doc.payoutCents || 0;
+
+    const poolShareRatio = totalPoolReadSeconds > 0
+      ? attributedReadSeconds / totalPoolReadSeconds
+      : 0;
+    const poolSharePercentage = `${(poolShareRatio * 100).toFixed(1)}%`;
+
+    return {
+      ...doc,
+      breakdown: {
+        attributedReadSeconds,
+        totalPoolReadSeconds,
+        poolShareRatio: Math.round(poolShareRatio * 10000) / 10000,
+        poolSharePercentage,
+        periodPoolAmountCents,
+        periodPoolAmountFormatted: `$${(periodPoolAmountCents / 100).toFixed(2)}`,
+        calculatedAmountCents,
+        calculatedAmountFormatted: `$${(calculatedAmountCents / 100).toFixed(2)}`,
+        formula: "payoutCents = Math.round((attributedReadSeconds / totalPoolReadSeconds) * periodPoolAmountCents)",
+      },
+    };
+  });
+
+  return sendSuccess(res, 200, { entries: formattedEntries }, "Payout ledger history retrieved");
 });
 
 module.exports = {

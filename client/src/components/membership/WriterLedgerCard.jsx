@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/utils";
 export default function WriterLedgerCard() {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedEntryId, setExpandedEntryId] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -30,6 +31,10 @@ export default function WriterLedgerCard() {
       active = false;
     };
   }, []);
+
+  const toggleExpand = (id) => {
+    setExpandedEntryId((prev) => (prev === id ? null : id));
+  };
 
   if (loading) {
     return (
@@ -59,27 +64,70 @@ export default function WriterLedgerCard() {
       ) : (
         <div className="mt-4 divide-y divide-gray-100">
           {entries.map((entry) => {
+            const entryId = entry._id || entry.computedAt;
+            const isExpanded = expandedEntryId === entryId;
             const payoutAmount = (entry.payoutCents / 100).toFixed(2);
             const poolAmount = (entry.poolCents / 100).toFixed(2);
             const sharePercent =
               entry.platformActiveSeconds > 0
                 ? ((entry.eligibleActiveSeconds / entry.platformActiveSeconds) * 100).toFixed(1)
                 : "0.0";
+            const breakdown = entry.breakdown;
 
             return (
-              <div key={entry._id || entry.computedAt} className="flex items-center justify-between py-3">
-                <div>
-                  <p className="font-medium text-ink text-sm">
-                    Period: {formatDate(entry.periodStart)} – {formatDate(entry.periodEnd)}
-                  </p>
-                  <p className="text-xs text-ink-soft mt-0.5">
-                    {Math.round(entry.eligibleActiveSeconds / 60)} member-reading mins ({sharePercent}% of pool)
-                  </p>
+              <div key={entryId} className="py-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-ink text-sm">
+                      Period: {formatDate(entry.periodStart)} – {formatDate(entry.periodEnd)}
+                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-xs text-ink-soft">
+                        {Math.round(entry.eligibleActiveSeconds / 60)} member-reading mins ({breakdown?.poolSharePercentage || `${sharePercent}%`} of pool)
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => toggleExpand(entryId)}
+                        className="text-[11px] font-medium text-emerald-600 hover:text-emerald-700 underline underline-offset-2"
+                      >
+                        {isExpanded ? "Hide calculation" : "How this was calculated"}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono font-bold text-emerald-600 text-base">₹{payoutAmount}</span>
+                    <p className="text-[11px] text-ink-faint">of ₹{poolAmount} pool</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="font-mono font-bold text-emerald-600 text-base">₹{payoutAmount}</span>
-                  <p className="text-[11px] text-ink-faint">of ₹{poolAmount} pool</p>
-                </div>
+
+                {isExpanded && (
+                  <div className="mt-3 rounded-lg border border-emerald-100 bg-emerald-50/50 p-3.5 text-xs text-ink-soft">
+                    <p className="font-semibold text-emerald-900 mb-2">Payout Calculation Breakdown</p>
+                    <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
+                      <div>
+                        <span className="text-gray-500">Attributed Read Time:</span>
+                        <p className="font-medium text-gray-800">{breakdown?.attributedReadSeconds ?? entry.eligibleActiveSeconds} seconds</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Platform Pool Read Time:</span>
+                        <p className="font-medium text-gray-800">{breakdown?.totalPoolReadSeconds ?? entry.platformActiveSeconds} seconds</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Your Pool Share:</span>
+                        <p className="font-medium text-gray-800">{breakdown?.poolSharePercentage ?? `${sharePercent}%`}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Subscriber Pool Total:</span>
+                        <p className="font-medium text-gray-800">{breakdown?.periodPoolAmountFormatted ?? `₹${poolAmount}`}</p>
+                      </div>
+                    </div>
+                    {breakdown?.formula && (
+                      <div className="mt-2.5 border-t border-emerald-200/60 pt-2 font-mono text-[10px] text-emerald-800">
+                        Formula: {breakdown.formula}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
