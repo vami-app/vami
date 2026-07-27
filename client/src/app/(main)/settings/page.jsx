@@ -9,6 +9,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import SubscribeModal from "@/components/membership/SubscribeModal";
 import WriterLedgerCard from "@/components/membership/WriterLedgerCard";
+import SovereignExportCard from "@/components/membership/SovereignExportCard";
 
 function SettingsForm() {
   const { user, setUser } = useAuth();
@@ -190,6 +191,11 @@ function SettingsForm() {
         {/* Writer Partner Program Ledger */}
         <div className="border-t border-gray-200 pt-6 space-y-4">
           <WriterLedgerCard />
+        </div>
+
+        {/* Data & Sovereign Payment Portability Export */}
+        <div className="border-t border-gray-200 pt-6 space-y-4">
+          <SovereignExportCard />
         </div>
 
         <div className="rounded-lg bg-gray-50 px-4 py-3 text-sm text-ink-soft border-t border-gray-200">

@@ -41,6 +41,7 @@ userRouter.patch("/me", requireAuth, userController.updateMe);
 userRouter.post("/me/avatar", requireAuth, upload.single("avatar"), userController.uploadAvatar);
 userRouter.post("/me/export/request", requireAuth, userController.requestExport);
 userRouter.get("/me/export/download", requireAuth, userController.downloadExport);
+userRouter.get("/me/export", requireAuth, userController.downloadExport);
 userRouter.patch("/me/subdomain", requireAuth, updateSubdomainRules, validate, userController.updateSubdomain);
 userRouter.post("/me/delete-request", requireAuth, userController.requestDeleteAccount);
 userRouter.delete("/me", requireAuth, userController.deleteAccount);
