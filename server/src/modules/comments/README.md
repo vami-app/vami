@@ -48,4 +48,4 @@ The `comments` domain module owns all user comments, threaded responses, and sof
 ## 4. Dependencies & Bridge Policy
 
 - **Permanent Bridge**: `server/src/models/Comment.js` re-exports `modules/comments/comments.model.js`.
-- **Side-Effects**: Notification dispatch relies on `Notification.create` and socket emitter (additive shim until `Notification` module extraction).
+- **Side-Effects**: Notification dispatch delegates strictly to `NotificationService` (`notifications.module.js`).

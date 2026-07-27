@@ -91,8 +91,6 @@ const webhookRoutes = require("./routes/webhook.routes");
 const telemetryRoutes = require("./routes/telemetry.routes");
 const membershipRoutes = require("./routes/membership.routes");
 const writerRoutes = require("./routes/writer.routes");
-const notificationRoutes = require("./routes/notification.routes");
-
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
@@ -101,18 +99,19 @@ app.use("/api/feed", feedRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/telemetry", telemetryRoutes);
-app.use("/api/notifications", notificationRoutes);
 app.use("/api/webhooks", webhookRoutes);
 const { registry } = require("./kernel");
 const { highlightModule } = require("./modules/highlights/highlights.module");
 const { readingListModule } = require("./modules/reading-lists/reading-lists.module");
 const { postRevisionsModule } = require("./modules/post-revisions/post-revisions.module");
 const { commentsModule } = require("./modules/comments/comments.module");
+const { notificationsModule } = require("./modules/notifications/notifications.module");
 
 registry.register("highlights", highlightModule);
 registry.register("reading-lists", readingListModule);
 registry.register("post-revisions", postRevisionsModule);
 registry.register("comments", commentsModule);
+registry.register("notifications", notificationsModule);
 registry.boot(app);
 
 app.use("/api/membership", membershipRoutes);

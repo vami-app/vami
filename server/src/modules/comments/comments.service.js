@@ -31,10 +31,10 @@ function commentJSON(c) {
 }
 
 class CommentService {
-  constructor(commentRepository, postRepository, notificationRepository) {
+  constructor(commentRepository, postRepository, notificationService) {
     this.repo = commentRepository;
     this.posts = postRepository;
-    this.notifications = notificationRepository;
+    this.notifications = notificationService;
   }
 
   async listComments({ slug, viewer }) {
@@ -88,28 +88,24 @@ class CommentService {
 
     const recipientsNotified = new Set();
 
-    // 1. Notify Post Author (comment) via notifications shim
+    // 1. Notify Post Author (comment) via notificationService
     if (String(viewer._id) !== String(post.author)) {
-      await this.notifications.createAndEmit({
+      await this.notifications.notifyCommentOrReply({
         recipient: post.author,
         actor: viewer._id,
-        type: parentId ? "reply" : "comment",
-        targetType: "post",
-        targetId: post._id,
+        comment: { post: post._id, parentComment: parentId },
       });
       recipientsNotified.add(String(post.author));
     }
 
-    // 2. Notify Parent Comment Author (reply) if applicable and not already notified via notifications shim
+    // 2. Notify Parent Comment Author (reply) if applicable and not already notified
     if (parentId) {
       const parent = await this.repo.findById(parentId);
       if (parent && String(viewer._id) !== String(parent.author) && !recipientsNotified.has(String(parent.author))) {
-        await this.notifications.createAndEmit({
+        await this.notifications.notifyCommentOrReply({
           recipient: parent.author,
           actor: viewer._id,
-          type: "reply",
-          targetType: "comment",
-          targetId: parent._id,
+          comment: { post: post._id, parentComment: parentId },
         });
       }
     }

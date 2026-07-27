@@ -895,6 +895,21 @@ All 7 subsections above contain pasted raw artifacts, independent `git show` out
 > - Rewired cascade steps 5 & 6 in `user.controller.js` to use `commentRepository` methods (`deleteManyByPostIds`, `findOtherCommentsByAuthor`, `anonymizeAndSoftDelete`, `hardDelete`).
 > - Authored `server/test/integration/comments.test.js` covering draft protection, list, create, reply notification, soft-delete, and hard-delete.
 
+---
+
+# 🖋️ Inkwell — Phase H, Step 5: Notification Repository + Module Extraction [COMPLETED]
+
+> **Status**: Completed on 2026-07-27. All 7 verification exit criteria passed, full Vitest suite green (16/16 test files / 52 tests passing).
+> **Scope**: `Notification` Repository + Module Extraction
+> **Key achievements**:
+> - Created `server/src/modules/notifications/` with model, repository interface, Mongo implementation, gateway, service, controller, and module boot configuration.
+> - Converted `server/src/models/Notification.js` into permanent bridge re-exporting `modules/notifications/notifications.model.js`.
+> - Relocated 3 scattered trigger call sites (clap in `post.controller.js`, comment/reply in `comments.service.js`, follow in `user.controller.js`) to `NotificationService`.
+> - Preserved Socket.IO cookie handshake auth & ban disconnect logic via `NotificationGateway`.
+> - Rewired Cascade Step 16 in `user.controller.js` to use `notificationRepository` methods (`deleteManyByRecipient` and `deleteActorNotifsExceptSoftDeletedComments`).
+> - Authored `server/test/integration/notifications.test.js` covering inbox, mark-read, mark-all-read, clap coalescing, and follow notifications.
+
+
 
 
 

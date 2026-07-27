@@ -120,19 +120,8 @@ const toggleFollow = asyncHandler(async (req, res) => {
     });
 
     // Notification trigger (only on follow, never on unfollow)
-    const Notification = require("../models/Notification");
-    const { emitNotificationToUser } = require("../config/socket");
-
-    const notif = await Notification.create({
-      recipient: target._id,
-      actor: me._id,
-      type: "follow",
-      targetType: "user",
-      targetId: target._id,
-    });
-
-    const populatedNotif = await Notification.findById(notif._id).populate("actor", "name username avatarUrl").lean();
-    emitNotificationToUser(target._id, populatedNotif);
+    const { notificationService } = require("../modules/notifications/notifications.module");
+    await notificationService.notifyFollow({ followee: target._id, follower: me._id });
   }
 
   await Promise.all([me.save(), target.save()]);
@@ -450,22 +439,17 @@ const deleteAccount = asyncHandler(async (req, res) => {
   }
 
   // 16. Phase E Cascade: Notifications Cleanup
-  const Notification = require("../models/Notification");
-  // Delete all notifications where user is recipient
-  await Notification.deleteMany({ recipient: user._id });
+  const { notificationRepository } = require("../modules/notifications/notifications.module");
+  await notificationRepository.deleteManyByRecipient(user._id);
 
-  // Delete actor notifications except those tied to soft-deleted comments
   const softDeletedComments = await Comment.find({
     deletedButHasReplies: true,
   }).select("_id");
   const softDeletedCommentIds = softDeletedComments.map((c) => c._id);
 
-  await Notification.deleteMany({
-    actor: user._id,
-    $or: [
-      { targetType: { $ne: "comment" } },
-      { targetType: "comment", targetId: { $nin: softDeletedCommentIds } },
-    ],
+  await notificationRepository.deleteActorNotifsExceptSoftDeletedComments({
+    actorId: user._id,
+    softDeletedCommentIds,
   });
 
   // 17. Phase F Cascade: Delete user's own highlights (private annotations)

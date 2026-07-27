@@ -330,34 +330,9 @@ const clapPost = asyncHandler(async (req, res) => {
   await post.save();
 
   // Notification trigger (coalesce claps within last 1 hour)
-  if (applied > 0 && String(req.user._id) !== String(post.author)) {
-    const Notification = require("../models/Notification");
-    const { emitNotificationToUser } = require("../config/socket");
-
-    let notif = await Notification.findOne({
-      recipient: post.author,
-      actor: req.user._id,
-      type: "clap",
-      targetType: "post",
-      targetId: post._id,
-      createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) },
-    });
-
-    if (notif) {
-      notif.read = false;
-      await notif.save();
-    } else {
-      notif = await Notification.create({
-        recipient: post.author,
-        actor: req.user._id,
-        type: "clap",
-        targetType: "post",
-        targetId: post._id,
-      });
-    }
-
-    const populatedNotif = await Notification.findById(notif._id).populate("actor", "name username avatarUrl").lean();
-    emitNotificationToUser(post.author, populatedNotif);
+  if (applied > 0) {
+    const { notificationService } = require("../modules/notifications/notifications.module");
+    await notificationService.notifyClap({ post, clapper: req.user });
   }
 
   return sendSuccess(
