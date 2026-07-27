@@ -2,7 +2,9 @@
 
 > **Status**: Completed on 2026-07-27. All 7 verification exit criteria passed, full Vitest suite green (19/19 test files passing, 54/54 tests green).
 > Companion to `INKWELL_PRODUCT_SCALING_BLUEPRINT.md` (v3.0) §6.4 (Writer-Facing Payout Transparency) and §7.
-> Follows Phase H (8 models extracted) and Phase I Step 1 (DSA Optimization Pass) closure.
+> Follows Phase H (**9 models extracted** ~~8 models extracted~~) and Phase I Step 1 (DSA Optimization Pass) closure.
+> *(Correction applied in Step 12 D4: "8 models" was inherited from Phase H Step 8's own header, which also stated "8 models." Step 12 G10 confirmed via `git ls-tree 846132c` that 9 model files existed in modules/ at Phase H Step 8's close: `comments`, `highlights`, `notifications`, `post-revisions`, `posts`, `publication-members`, `publications`, `reading-lists`, `users` — 9 distinct models [Note: Publication + PublicationMember are 2 separate models from the `publications/` module]. Additionally, Phase H Steps 9/10/11 subsequently extracted 7 more models [ReadEvent, MembershipPayment, PayoutLedgerEntry, WebhookEvent, Follow, Report, AuditLog], bringing the definitive total to 16 per PHASE_H_STEP10_IMPLEMENTATION_PLAN.md §3. Phase J Step 1 ran after Steps 9/10/11, so its "8 models" cross-reference was stale at the time of writing.)*
+
 
 ---
 

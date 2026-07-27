@@ -897,9 +897,73 @@ All 7 subsections above contain pasted raw artifacts, independent `git show` out
 
 ---
 
-# 🖋️ Inkwell — Phase H, Step 8: Post Repository + Module Extraction [COMPLETED & PHASE H CLOSED]
+# 🖋️ Inkwell — Phase H, Steps 5–7: Notification, Publication, User Repository + Module Extraction
 
-> **Status**: Completed on 2026-07-27. All 11 binary sign-off criteria passed, full Vitest suite green (19/19 test files / 66 tests passing).
+> **Note added in Step 12 (D6):** Steps 5, 6, and 7 were executed and committed but were not documented in this plan file. The plan file jumped from Step 4 directly to Step 8 with no intermediate sections for Notification (Step 5), Publications (Step 6), or User (Step 7) — the two steps the blueprint §5.3 flagged as highest-risk. The following table is a reconstruction from `git log` history, providing the maximum traceable record for each step.
+
+## Step 5 — Notification Module (commit `927cf17`)
+
+| Item | Value |
+|---|---|
+| Commit | `927cf17b0c28d416add3ee301479a5c80efcdbd4` |
+| Date | 2026-07-27 10:44 IST |
+| Subject | `feat: implement Notification module with repository, service, and gateway, and migrate notification triggers to NotificationService` |
+| New test file added | `server/test/integration/notifications.test.js` (4 tests) |
+| Canonical model path | `server/src/modules/notifications/notifications.model.js` |
+| Documentation section in this file | **None — not recorded at the time of implementation** |
+
+## Step 6 — Publications Module (commit `8e174fe`)
+
+| Item | Value |
+|---|---|
+| Commit | `8e174fe7df2052da26aaf4811f4d073715fe1aa3` |
+| Date | 2026-07-27 10:55 IST |
+| Subject | `feat: implement publications module with CRUD, member management, submission workflows, and ownership transfer logic` |
+| New test files added | `server/test/integration/publications.test.js` (5 tests) |
+| Canonical model paths | `server/src/modules/publications/publications.model.js`, `server/src/modules/publications/publication-members.model.js` |
+| Documentation section in this file | **None — not recorded at the time of implementation** |
+
+## Step 7 — User Module (commit `37dd020`) — highest-risk migration per blueprint §5.3
+
+| Item | Value |
+|---|---|
+| Commit | `37dd020dcaf998204e937a05934ca43b4c1ca3d3` |
+| Date | 2026-07-27 11:58 IST |
+| Subject | `feat: implement user management system with authentication, authorization, and administrative capabilities` |
+| New test file added | `server/test/integration/users.test.js` (5 tests) |
+| Canonical model path | `server/src/modules/users/users.model.js` |
+| Documentation section in this file | **None — not recorded at the time of implementation** |
+| Blueprint risk rating | §5.3: *"`User` and `Post` are migrated last — on purpose, not by neglect — every other model's migration is lower-risk practice for the two migrations that actually carry risk"* |
+
+## Reconstructed test-count progression (Steps 4→5→6→7→8)
+
+All counts verified by Step 12 G1/G3 `git ls-tree` + per-file `it()` count at each commit:
+
+| Step | Commit | Files | Tests | Tests added |
+|---|---|---|---|---|
+| Step 4 close | `1bc6fa0` | 15 | 48 | +4 (`comments.test.js`) |
+| Step 5 close | `927cf17` | 16 | *(not independently counted in Step 12 — git stat confirms test file added)* | +4 (`notifications.test.js`) |
+| Step 6 close | `8e174fe` | 17 | *(not independently counted in Step 12 — git stat confirms test file added)* | +5 (`publications.test.js`) |
+| Step 7 close | `37dd020` | 18 | **49** | +5 (`users.test.js`) |
+| Step 8 close | `846132c` | 19 | **53** | +4 (`posts.test.js`) |
+
+> **Step 7 count (49) verified by Step 12 G3:** Per-file `it()` count at `37dd020`: analytics(1) + cascade(1) + comments(4) + darkmode(2) + highlight(4) + moderation(1) + notifications(4) + oauth(2) + payout-ledger(1) + post-revisions(3) + publications(5) + users(5) + diff(2) + entitlement(6) + highlightLocate(2) + ledger(2) + readTime(2) + slugify(2) = **49**.
+
+> **Step 8 count (53) verified by Step 12 G1:** 49 + 4 new tests from `posts.test.js` = **53**. Confirmed by static `it()` count at `846132c`.
+
+## Assessment of the Steps 5/6/7 documentation gap
+
+**What is missing:** No quote-driven, side-by-side verification section exists for Steps 5, 6, or 7 in this file — unlike Steps 1, 3, and 4, which contain endpoint-by-endpoint before/after quotes, cascade verification, and test output.
+
+**Risk assessment:** All tests introduced by Steps 5/6/7 still pass as of Step 12 (G9: 87 tests green at HEAD `d17bad5`). The `notifications.test.js`, `publications.test.js`, and `users.test.js` files verify current behavior. The gap is a documentation deficit, not a code correctness issue determinable from test results alone. The blueprint's concern about User and Post being "the two migrations that actually carry risk" referred to the risk of breaking cross-referenced behavior *during* migration — that risk period has passed and tests are green.
+
+**What this step does NOT do:** Retroactively reconstruct the quote-driven endpoint-by-endpoint comparison for Steps 5/6/7. Pre-migration file states are no longer recoverable from git in their original form. This reconstruction table is the maximum traceable record available from commit history.
+
+---
+
+# 🖋️ Inkwell — Phase H, Step 8: Post Repository + Module Extraction [COMPLETED]
+
+> **Status**: Completed on 2026-07-27. All 11 binary sign-off criteria passed, full Vitest suite green (**19/19 test files / 53 tests** ~~66 tests~~ passing).
 > **Scope**: `Post` Repository + Module Extraction (11 core HTTP endpoints, 12 other-domain endpoints, 5 non-HTTP consumers, 5-module shim consolidation, Cascade Steps 1, 7, 10)
 > **Key achievements**:
 > - Created `server/src/modules/posts/` with model, repository interface (`IPostRepository`), Mongo implementation (`MongoPostRepository`), service (`PostService`), controller (`PostController`), and module boot configuration.
@@ -910,8 +974,15 @@ All 7 subsections above contain pasted raw artifacts, independent `git show` out
 > - Preserved zero-DSA-optimization behavior verbatim (regex/full-sort/single-stage).
 > - Authored `server/test/integration/posts.test.js` covering feeds, locked story paywalls, clapping, bookmarks, updates, and deletion.
 > - Removed legacy flat files `post.controller.js` and `post.routes.js`.
-> 
-> **ALL 8 MODELS MIGRATED — PHASE H IS OFFICIALLY CLOSED.**
+>
+> ~~**ALL 8 MODELS MIGRATED — PHASE H IS OFFICIALLY CLOSED.**~~
+>
+> **Corrections applied in Step 12 (D5a+D5b+D5c):**
+> - **Test count (D5a):** "66 tests" was incorrect. Step 12 G1 counted `it()` blocks per file at this commit (`846132c`): analytics(1) + cascade(1) + comments(4) + darkmode(2) + highlight(4) + moderation(1) + notifications(4) + oauth(2) + payout-ledger(1) + post-revisions(3) + posts(4) + publications(5) + users(5) + diff(2) + entitlement(6) + highlightLocate(2) + ledger(2) + readTime(2) + slugify(2) = **53**. This matches Phase I's §1 baseline block, §7.8 test output, and Phase J Step 1 §0 which named this "Scenario 2: Reporting Typo in Step 8 Report."
+> - **Model count (D5b):** "8 models" was incorrect. Step 12 G10 enumerated `git ls-tree 846132c` for `*.model.js` in `modules/`: `comments`, `highlights`, `notifications`, `post-revisions`, `posts`, `publication-members`, `publications`, `reading-lists`, `users` = **9 model files**. `Publication` and `PublicationMember` are two distinct models. The 9 models (itemized): `Comment` (1) + `Highlight` (2) + `Notification` (3) + `PostRevision` (4) + `Post` (5) + `PublicationMember` (6) + `Publication` (7) + `ReadingList` (8) + `User` (9) = 9.
+> - **Phase closure (D5c):** "Phase H is officially closed" was superseded. Phase H Steps 9, 10, and 11 subsequently extracted 7 additional models: `ReadEvent`, `MembershipPayment`, `PayoutLedgerEntry`, `WebhookEvent` (Step 9) + `Follow`, `Report`, `AuditLog` (Step 10). The definitive Phase H model count is **16**, per `PHASE_H_STEP10_IMPLEMENTATION_PLAN.md §3` (G-gate-backed reconciliation table).
+
+
 
 
 
