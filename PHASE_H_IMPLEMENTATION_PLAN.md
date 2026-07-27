@@ -897,17 +897,18 @@ All 7 subsections above contain pasted raw artifacts, independent `git show` out
 
 ---
 
-# 🖋️ Inkwell — Phase H, Step 5: Notification Repository + Module Extraction [COMPLETED]
+# 🖋️ Inkwell — Phase H, Step 6: Publication + PublicationMember Repository + Module Extraction [COMPLETED]
 
-> **Status**: Completed on 2026-07-27. All 7 verification exit criteria passed, full Vitest suite green (16/16 test files / 52 tests passing).
-> **Scope**: `Notification` Repository + Module Extraction
+> **Status**: Completed on 2026-07-27. All 7 verification exit criteria passed, full Vitest suite green (17/17 test files / 57 tests passing).
+> **Scope**: TWO Coupled Models (`Publication` & `PublicationMember`) Repository + Module Extraction
 > **Key achievements**:
-> - Created `server/src/modules/notifications/` with model, repository interface, Mongo implementation, gateway, service, controller, and module boot configuration.
-> - Converted `server/src/models/Notification.js` into permanent bridge re-exporting `modules/notifications/notifications.model.js`.
-> - Relocated 3 scattered trigger call sites (clap in `post.controller.js`, comment/reply in `comments.service.js`, follow in `user.controller.js`) to `NotificationService`.
-> - Preserved Socket.IO cookie handshake auth & ban disconnect logic via `NotificationGateway`.
-> - Rewired Cascade Step 16 in `user.controller.js` to use `notificationRepository` methods (`deleteManyByRecipient` and `deleteActorNotifsExceptSoftDeletedComments`).
-> - Authored `server/test/integration/notifications.test.js` covering inbox, mark-read, mark-all-read, clap coalescing, and follow notifications.
+> - Created `server/src/modules/publications/` with models, repository interfaces, Mongo implementations, service, controller, and module boot configuration.
+> - Maintained two distinct pure-data repositories (`publications.repository.mongo.js` and `publication-members.repository.mongo.js`) with zero cross-model Mongoose imports.
+> - Converted `server/src/models/Publication.js` and `PublicationMember.js` into permanent bridges re-exporting domain model files.
+> - Enforced RBAC role-checks (`requireOwner`, `requireOwnerOrEditor`, `requireMember`) in `PublicationService` across all 10 endpoints.
+> - Rewired Cascade Step 13 in `user.controller.js` to use `publicationRepository` and `publicationMemberRepository` methods for owner transfer to senior member or archival.
+> - Authored `server/test/integration/publications.test.js` covering creation, public fetch, updates, invitations, role modifications, sole-owner lockouts, submission reviews, dashboard, and Cascade Step 13.
+
 
 
 

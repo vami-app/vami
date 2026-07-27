@@ -16,7 +16,6 @@ const uploadRoutes = require("./routes/upload.routes");
 const feedRoutes = require("./routes/feed.routes");
 const adminRoutes = require("./routes/admin.routes");
 const reportRoutes = require("./routes/report.routes");
-const publicationRoutes = require("./routes/publication.routes");
 
 const app = express();
 
@@ -106,17 +105,18 @@ const { readingListModule } = require("./modules/reading-lists/reading-lists.mod
 const { postRevisionsModule } = require("./modules/post-revisions/post-revisions.module");
 const { commentsModule } = require("./modules/comments/comments.module");
 const { notificationsModule } = require("./modules/notifications/notifications.module");
+const { publicationsModule } = require("./modules/publications/publications.module");
 
 registry.register("highlights", highlightModule);
 registry.register("reading-lists", readingListModule);
 registry.register("post-revisions", postRevisionsModule);
 registry.register("comments", commentsModule);
 registry.register("notifications", notificationsModule);
+registry.register("publications", publicationsModule);
 registry.boot(app);
 
 app.use("/api/membership", membershipRoutes);
 app.use("/api/writer", writerRoutes);
-app.use("/api/publications", publicationRoutes);
 
 // 404 + centralized error handler
 app.use(notFound);

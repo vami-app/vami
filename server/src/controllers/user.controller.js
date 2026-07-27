@@ -397,37 +397,34 @@ const deleteAccount = asyncHandler(async (req, res) => {
   await readingListRepository.deleteManyByOwner(user._id);
 
   // 13. Phase C Cascade: Publication memberships & owner transfer / archival
-  const Publication = require("../models/Publication");
-  const PublicationMember = require("../models/PublicationMember");
-  
-  const userMemberships = await PublicationMember.find({ user: user._id });
+  const { publicationRepository, publicationMemberRepository } = require("../modules/publications/publications.module");
+
+  const userMemberships = await publicationMemberRepository.findByUser(user._id);
   for (const m of userMemberships) {
+    const pubId = m.publication ? (m.publication._id || m.publication) : null;
+    if (!pubId) continue;
     if (m.role === "owner") {
-      const otherOwners = await PublicationMember.countDocuments({
-        publication: m.publication,
-        user: { $ne: user._id },
-        role: "owner",
-      });
+      const otherOwners = await publicationMemberRepository.countOwners(pubId, user._id);
 
       if (otherOwners === 0) {
         // Find most senior remaining editor or writer
-        const nextSenior = await PublicationMember.findOne({
-          publication: m.publication,
-          user: { $ne: user._id },
-        }).sort({ role: 1, joinedAt: 1 });
+        const nextSenior = await publicationMemberRepository.findSeniorMember(pubId, user._id);
 
         if (nextSenior) {
-          nextSenior.role = "owner";
-          await nextSenior.save();
-          await Publication.updateOne({ _id: m.publication }, { owner: nextSenior.user });
+          await publicationMemberRepository.updateRole({
+            publicationId: pubId,
+            userId: nextSenior.user,
+            role: "owner",
+          });
+          await publicationRepository.updateOwner(pubId, nextSenior.user);
         } else {
           // No other members exist: archive publication
-          await Publication.updateOne({ _id: m.publication }, { isArchived: true });
+          await publicationRepository.archive(pubId);
         }
       }
     }
   }
-  await PublicationMember.deleteMany({ user: user._id });
+  await publicationMemberRepository.deleteManyByUser(user._id);
 
   // 14. Phase D Cascade: Delete viewer ReadEvents (preserve authored posts' ReadEvents for platform denominator)
   const ReadEvent = require("../models/ReadEvent");
