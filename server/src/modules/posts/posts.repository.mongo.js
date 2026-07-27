@@ -5,6 +5,73 @@ const IPostRepository = require("./posts.repository.interface");
 
 const USER_FIELDS = "name username avatarUrl bio";
 
+/**
+ * Size-20 bounded min-heap for O(t log 20) top tag extraction (§4.2).
+ */
+class TagMinHeap {
+  constructor(maxSize = 20) {
+    this.maxSize = maxSize;
+    this.heap = [];
+  }
+
+  _isSmaller(a, b) {
+    if (a.count !== b.count) {
+      return a.count < b.count;
+    }
+    return a._id.localeCompare(b._id) > 0;
+  }
+
+  push(item) {
+    if (this.heap.length < this.maxSize) {
+      this.heap.push(item);
+      this._up(this.heap.length - 1);
+    } else if (this._isSmaller(this.heap[0], item)) {
+      this.heap[0] = item;
+      this._down(0);
+    }
+  }
+
+  _up(i) {
+    while (i > 0) {
+      const p = Math.floor((i - 1) / 2);
+      if (this._isSmaller(this.heap[i], this.heap[p])) {
+        [this.heap[i], this.heap[p]] = [this.heap[p], this.heap[i]];
+        i = p;
+      } else {
+        break;
+      }
+    }
+  }
+
+  _down(i) {
+    const len = this.heap.length;
+    while (true) {
+      let smallest = i;
+      const left = 2 * i + 1;
+      const right = 2 * i + 2;
+      if (left < len && this._isSmaller(this.heap[left], this.heap[smallest])) {
+        smallest = left;
+      }
+      if (right < len && this._isSmaller(this.heap[right], this.heap[smallest])) {
+        smallest = right;
+      }
+      if (smallest !== i) {
+        [this.heap[i], this.heap[smallest]] = [this.heap[smallest], this.heap[i]];
+        i = smallest;
+      } else {
+        break;
+      }
+    }
+  }
+
+  getSortedResults() {
+    return [...this.heap].sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return a._id.localeCompare(b._id);
+    });
+  }
+}
+
 class MongoPostRepository extends IPostRepository {
   // Core (§2.1)
 
@@ -19,8 +86,7 @@ class MongoPostRepository extends IPostRepository {
     }
 
     if (search) {
-      const searchRegex = new RegExp(search, "i");
-      query.$or = [{ title: searchRegex }, { subtitle: searchRegex }, { tags: searchRegex }];
+      query.$text = { $search: search };
     }
 
     if (cursor) {
@@ -245,16 +311,20 @@ class MongoPostRepository extends IPostRepository {
       .populate("author", USER_FIELDS);
   }
 
-  async findTagCountsInWindow(days = 7) {
+  async findTagCountsInWindow(days = 7, limit = 10) {
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-    const result = await Post.aggregate([
+    const groups = await Post.aggregate([
       { $match: { status: "published", moderationStatus: "visible", publishedAt: { $gte: since } } },
       { $unwind: "$tags" },
       { $group: { _id: "$tags", count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 10 },
     ]);
-    return result.map((r) => ({ tag: r._id, count: r.count }));
+
+    const minHeap = new TagMinHeap(20);
+    for (const group of groups) {
+      minHeap.push(group);
+    }
+    const topGroups = minHeap.getSortedResults().slice(0, limit);
+    return topGroups.map((r) => ({ tag: r._id, count: r.count }));
   }
 
   // Cascade (§2.4)

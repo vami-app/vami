@@ -10,6 +10,7 @@ const authLimiter = rateLimit({
   max: 50, // 50 attempts per window per IP
   standardHeaders: true,
   legacyHeaders: false,
+  store: new rateLimit.MemoryStore(), // Sliding-window memory store (§4.8)
   message: {
     success: false,
     message: "Too many attempts. Please try again later.",
@@ -25,6 +26,7 @@ const forgotPasswordLimiter = rateLimit({
   max: 5, // 5 reset emails per window per IP
   standardHeaders: true,
   legacyHeaders: false,
+  store: new rateLimit.MemoryStore(), // Sliding-window memory store (§4.8)
   message: {
     success: false,
     message: "Too many reset requests. Please try again later.",
@@ -39,6 +41,7 @@ const generalLimiter = rateLimit({
   max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
+  store: new rateLimit.MemoryStore(), // Sliding-window memory store (§4.8)
 });
 
 module.exports = { authLimiter, forgotPasswordLimiter, generalLimiter };

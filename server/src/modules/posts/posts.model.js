@@ -93,7 +93,7 @@ postSchema.statics.visibleQuery = function visibleQuery(additional = {}) {
 // Full-text search across title, subtitle, and tags
 postSchema.index({ title: "text", subtitle: "text", tags: "text" });
 // Common feed sort
-postSchema.index({ status: 1, publishedAt: -1 });
+postSchema.index({ status: 1, publishedAt: -1, _id: -1 });
 
 // Recompute read time whenever content changes, and sync SEO indexability / canonical URL
 postSchema.pre("save", function computePostDetails(next) {

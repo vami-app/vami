@@ -7,6 +7,12 @@ const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess } = require("../utils/apiResponse");
 
 /**
+ * Threshold for payout ledger pre-aggregated rollup collection (§4.4 blueprint requirement).
+ * Instrument-only: logs ReadEvent volume per period to alert when WriterEngagementRollup is needed.
+ */
+const PAYOUT_ROLLUP_THRESHOLD = 10_000;
+
+/**
  * Calculate writer payout ledger entries for a given billing window
  * @param {Date} periodStart
  * @param {Date} periodEnd
@@ -26,6 +32,12 @@ async function computeLedgerForPeriod(periodStart, periodEnd) {
     viewerWasMember: true,
     activeSeconds: { $gte: 10 }, // minimum floor 10 seconds
   }).populate("post", "author");
+
+  // Instrumentation: Log ReadEvent volume against payout rollup threshold (§4.4)
+  console.log(`[payout-ledger] readEventVolume=${readEvents.length} threshold=${PAYOUT_ROLLUP_THRESHOLD}`);
+  if (readEvents.length >= PAYOUT_ROLLUP_THRESHOLD) {
+    console.warn(`[payout-ledger] Threshold crossed (${readEvents.length} >= ${PAYOUT_ROLLUP_THRESHOLD}). WriterEngagementRollup (§4.4) recommended.`);
+  }
 
   // Group active seconds by writer (excluding self-reads)
   const writerSeconds = {};

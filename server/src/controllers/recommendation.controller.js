@@ -6,6 +6,12 @@ const { postRepository } = require("../modules/posts/posts.module");
 const Follow = require("../models/Follow");
 
 /**
+ * Threshold for two-stage recommendation retrieval (§4.3 blueprint requirement).
+ * Instrument-only: logs candidate pool volume to alert when two-stage indexing is needed.
+ */
+const RECOMMENDATION_TWO_STAGE_THRESHOLD = 10_000;
+
+/**
  * GET /api/posts/recommended — Personalized recommendation scoring ("For You" tab).
  */
 const getRecommendedPosts = asyncHandler(async (req, res) => {
@@ -18,6 +24,12 @@ const getRecommendedPosts = asyncHandler(async (req, res) => {
 
   // Query candidate pool using shared visibility filter
   const candidates = await postRepository.findCandidatesForRecommendation();
+
+  // Instrumentation: Log candidate pool volume against two-stage threshold (§4.3)
+  console.log(`[recommendation] candidatePool=${candidates.length} threshold=${RECOMMENDATION_TWO_STAGE_THRESHOLD}`);
+  if (candidates.length >= RECOMMENDATION_TWO_STAGE_THRESHOLD) {
+    console.warn(`[recommendation] Threshold crossed (${candidates.length} >= ${RECOMMENDATION_TWO_STAGE_THRESHOLD}). Two-stage retrieval (§4.3) recommended.`);
+  }
 
   const now = Date.now();
 

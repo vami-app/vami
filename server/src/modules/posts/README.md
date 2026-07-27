@@ -17,6 +17,9 @@
 
 ## 2. Inventory & Boundary Rules
 - **Pure Repository Boundary**: `MongoPostRepository` contains zero business rules and zero entitlement logic.
-- **No DSA Non-Contamination**: `$text` search, full-sort trending tags, and single-stage recommendation candidate selection preserved verbatim.
+- **Phase I Step 1 DSA Optimization Pass**:
+  - **Compound Index**: `{ status: 1, publishedAt: -1, _id: -1 }` index configured on `posts.model.js` backing cursor-based feed pagination.
+  - **Trending Tags Min-Heap**: Bounded size-20 `TagMinHeap` replaces full sort for $O(t \log 20)$ top tag extraction.
+  - **Full-Text Search**: Mongo native `$text` query replaces regex `$or` scan in `findVisibleFeed({ search })`.
 - **Administrative Scripts Exemption**: Offline scripts (`seed.js`, `seed-content.js`, `test_seo_spec.js`, `run_evidence_verification.js`) use the permanent bridge (`models/Post.js`).
 - **Real-Time Consumer Migration**: `check_scheduled_posts.js` rewired to `postRepository.findDueScheduled` and `publishScheduled`.
