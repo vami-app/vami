@@ -1,7 +1,8 @@
+"use strict";
+
 const PayoutLedgerEntry = require("../models/PayoutLedgerEntry");
 const MembershipPayment = require("../models/MembershipPayment");
 const ReadEvent = require("../models/ReadEvent");
-const Post = require("../models/Post");
 const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess } = require("../utils/apiResponse");
 

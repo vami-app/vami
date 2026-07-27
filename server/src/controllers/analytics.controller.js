@@ -1,6 +1,6 @@
 "use strict";
 
-const Post = require("../models/Post");
+const { postRepository } = require("../modules/posts/posts.module");
 const Comment = require("../models/Comment");
 const ReadEvent = require("../models/ReadEvent");
 const Follow = require("../models/Follow");
@@ -15,11 +15,8 @@ const { sendSuccess } = require("../utils/apiResponse");
 const getWriterAnalytics = asyncHandler(async (req, res) => {
   const authorId = req.user._id;
 
-  // 1. Fetch author's posts
-  const posts = await Post.find({ author: authorId })
-    .sort({ createdAt: -1 })
-    .lean();
-
+  // 1. Fetch author's posts via postRepository
+  const posts = await postRepository.findByAuthorForAnalytics(authorId);
   const postIds = posts.map((p) => p._id);
 
   // 2. Fetch comment counts per post
@@ -32,7 +29,7 @@ const getWriterAnalytics = asyncHandler(async (req, res) => {
     commentMap[String(c._id)] = c.count;
   });
 
-  // 3. Fetch ReadEvents aggregation per post (average read time & total active read seconds)
+  // 3. Fetch ReadEvents aggregation per post
   const readEventStats = await ReadEvent.aggregate([
     { $match: { post: { $in: postIds } } },
     {
@@ -53,7 +50,7 @@ const getWriterAnalytics = asyncHandler(async (req, res) => {
     };
   });
 
-  // Format per-post summary (strictly aggregate, zero viewer IDs)
+  // Format per-post summary
   const postSummaries = posts.map((p) => {
     const pId = String(p._id);
     const readStats = readStatsMap[pId] || { avgReadTimeSeconds: 0, totalReadSeconds: 0, totalReadSessions: 0 };
@@ -93,7 +90,6 @@ const getWriterAnalytics = asyncHandler(async (req, res) => {
   ]);
 
   const trendMap = {};
-  // Pre-fill 30 days
   for (let i = 0; i < 30; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
@@ -133,14 +129,19 @@ const getWriterAnalytics = asyncHandler(async (req, res) => {
     followerGrowthMap[f._id] = f.count;
   });
 
-  return sendSuccess(res, 200, {
-    analytics: {
-      posts: postSummaries,
-      trend,
-      followerCount: totalFollowers,
-      followerGrowthMap,
+  return sendSuccess(
+    res,
+    200,
+    {
+      analytics: {
+        posts: postSummaries,
+        trend,
+        followerCount: totalFollowers,
+        followerGrowthMap,
+      },
     },
-  }, "Writer analytics retrieved successfully");
+    "Writer analytics retrieved successfully"
+  );
 });
 
 module.exports = {

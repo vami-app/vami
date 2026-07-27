@@ -12,7 +12,8 @@ class PostRevisionService {
       return { error: 404, message: "Story not found" };
     }
 
-    if (String(post.author) !== String(viewer._id)) {
+    const authorId = post.author ? (post.author._id || post.author) : null;
+    if (String(authorId) !== String(viewer._id)) {
       return { error: 403, message: "You can only view revisions of your own stories" };
     }
 
@@ -26,7 +27,8 @@ class PostRevisionService {
       return { error: 404, message: "Story not found" };
     }
 
-    if (String(post.author) !== String(viewer._id)) {
+    const authorId = post.author ? (post.author._id || post.author) : null;
+    if (String(authorId) !== String(viewer._id)) {
       return { error: 403, message: "You can only view revisions of your own stories" };
     }
 
@@ -44,7 +46,8 @@ class PostRevisionService {
       return { error: 404, message: "Story not found" };
     }
 
-    if (String(post.author) !== String(viewer._id)) {
+    const authorId = post.author ? (post.author._id || post.author) : null;
+    if (String(authorId) !== String(viewer._id)) {
       return { error: 403, message: "You can only restore revisions of your own stories" };
     }
 

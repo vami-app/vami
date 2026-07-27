@@ -1,15 +1,13 @@
 "use strict";
 
 const express = require("express");
-const Post = require("../models/Post");
-const User = require("../models/User");
+const { postRepository } = require("../modules/posts/posts.module");
+const { userRepository } = require("../modules/users/users.module");
 const asyncHandler = require("../utils/asyncHandler");
 const { buildFeed } = require("../utils/rss");
 const env = require("../config/env");
 
 const router = express.Router();
-
-const AUTHOR_FIELDS = "name username avatarUrl bio";
 
 /**
  * GET /api/feed/rss — Global feed, latest 50 published stories.
@@ -17,10 +15,7 @@ const AUTHOR_FIELDS = "name username avatarUrl bio";
 router.get(
   "/rss",
   asyncHandler(async (req, res) => {
-    const posts = await Post.find(Post.visibleQuery({ indexable: true }))
-      .sort({ publishedAt: -1, _id: -1 })
-      .limit(50)
-      .populate("author", AUTHOR_FIELDS);
+    const { posts } = await postRepository.findForRSS({ scope: "global", limit: 50 });
 
     const rssXml = buildFeed({
       title: "Inkwell Stories",
@@ -41,7 +36,7 @@ router.get(
   "/user/:username/rss",
   asyncHandler(async (req, res) => {
     const username = String(req.params.username).toLowerCase().trim();
-    const user = await User.findOne({ username });
+    const user = await userRepository.findByUsername(username);
     if (!user) {
       res.header("Content-Type", "application/rss+xml");
       return res.send(
@@ -54,12 +49,7 @@ router.get(
       );
     }
 
-    const posts = await Post.find(
-      Post.visibleQuery({ author: user._id, indexable: true })
-    )
-      .sort({ publishedAt: -1, _id: -1 })
-      .limit(50)
-      .populate("author", AUTHOR_FIELDS);
+    const { posts } = await postRepository.findForRSS({ scope: "author", value: username, limit: 50 });
 
     const rssXml = buildFeed({
       title: `${user.name} (@${user.username}) — Inkwell Stories`,
@@ -80,12 +70,7 @@ router.get(
   "/tag/:tag/rss",
   asyncHandler(async (req, res) => {
     const tag = String(req.params.tag).toLowerCase().trim();
-    const posts = await Post.find(
-      Post.visibleQuery({ tags: tag, indexable: true })
-    )
-      .sort({ publishedAt: -1, _id: -1 })
-      .limit(50)
-      .populate("author", AUTHOR_FIELDS);
+    const { posts } = await postRepository.findForRSS({ scope: "tag", value: tag, limit: 50 });
 
     const rssXml = buildFeed({
       title: `#${tag} stories on Inkwell`,

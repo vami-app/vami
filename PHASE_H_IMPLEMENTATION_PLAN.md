@@ -897,18 +897,22 @@ All 7 subsections above contain pasted raw artifacts, independent `git show` out
 
 ---
 
-# 🖋️ Inkwell — Phase H, Step 7: User Repository + Module Extraction [COMPLETED]
+# 🖋️ Inkwell — Phase H, Step 8: Post Repository + Module Extraction [COMPLETED & PHASE H CLOSED]
 
-> **Status**: Completed on 2026-07-27. All 10 binary sign-off criteria passed, full Vitest suite green (18/18 test files / 62 tests passing).
-> **Scope**: `User` Repository + Module Extraction (28 HTTP Endpoints, 11 Non-HTTP Consumers, 18-Step Cascade Orchestration)
+> **Status**: Completed on 2026-07-27. All 11 binary sign-off criteria passed, full Vitest suite green (19/19 test files / 66 tests passing).
+> **Scope**: `Post` Repository + Module Extraction (11 core HTTP endpoints, 12 other-domain endpoints, 5 non-HTTP consumers, 5-module shim consolidation, Cascade Steps 1, 7, 10)
 > **Key achievements**:
-> - Created `server/src/modules/users/` with model, repository interface, Mongo implementation, service, controller, and module boot configuration.
-> - Converted `server/src/models/User.js` into permanent bridge re-exporting `modules/users/users.model.js`.
-> - Migrated 28 HTTP endpoints across Auth (`/api/auth`), Users (`/api/users`), and Admin (`/api/admin/users`) to `UserService` and `MongoUserRepository`.
-> - Rewired Passport OAuth strategies, Socket.IO auth handshake, and `notify.js` to repository layer, while explicitly exempting 5 offline administrative scripts per §5.
-> - Rewired Cascade Steps 8 (pull bookmarks), 9 (pull follow refs), 11 (avatar file unlink), 15 (membership status canceled), and 18 (`deleteById`) to `userRepository`.
-> - Authored `server/test/integration/users.test.js` covering registration, authentication, token rotation, profile updates, subdomain changes, admin bans, and cascade erasure.
-> - Removed legacy flat files `auth.controller.js`, `user.controller.js`, `auth.routes.js`, and `user.routes.js`.
+> - Created `server/src/modules/posts/` with model, repository interface (`IPostRepository`), Mongo implementation (`MongoPostRepository`), service (`PostService`), controller (`PostController`), and module boot configuration.
+> - Converted `server/src/models/Post.js` into permanent bridge re-exporting `modules/posts/posts.model.js`.
+> - Migrated 11 core HTTP endpoints and 12 other-domain endpoints (RSS feeds, admin unhide, telemetry, writer analytics, recommendation candidates, report checks) to `PostService` and `MongoPostRepository`.
+> - Consolidated all 5 already-migrated module shims (`highlights`, `post-revisions`, `comments`, `publications`, `reading-lists`) onto the unified `IPostRepository` contract.
+> - Rewired real-time cron `check_scheduled_posts.js` and Cascade Steps 1 (`findIdsByAuthor`), 7 (`deleteManyByAuthor`), and 10 (`findByClapperAndRecompute`) to `postRepository`.
+> - Preserved zero-DSA-optimization behavior verbatim (regex/full-sort/single-stage).
+> - Authored `server/test/integration/posts.test.js` covering feeds, locked story paywalls, clapping, bookmarks, updates, and deletion.
+> - Removed legacy flat files `post.controller.js` and `post.routes.js`.
+> 
+> **ALL 8 MODELS MIGRATED — PHASE H IS OFFICIALLY CLOSED.**
+
 
 
 

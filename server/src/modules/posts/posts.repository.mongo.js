@@ -1,27 +1,136 @@
 "use strict";
 
-const Post = require("../../models/Post");
+const Post = require("./posts.model");
+const IPostRepository = require("./posts.repository.interface");
 
 const USER_FIELDS = "name username avatarUrl bio";
 
-class MongoPostRepository {
-  async findBySlug(slug) {
-    return Post.findOne({ slug });
+class MongoPostRepository extends IPostRepository {
+  // Core (§2.1)
+
+  async findVisibleFeed({ cursor, limit = 10, tag, authorId, search }) {
+    const query = Post.visibleQuery();
+
+    if (tag) {
+      query.tags = tag;
+    }
+    if (authorId) {
+      query.author = authorId;
+    }
+
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+      query.$or = [{ title: searchRegex }, { subtitle: searchRegex }, { tags: searchRegex }];
+    }
+
+    if (cursor) {
+      const cursorDoc = await Post.findById(cursor).select("publishedAt");
+      if (cursorDoc && cursorDoc.publishedAt) {
+        query.$or = [
+          { publishedAt: { $lt: cursorDoc.publishedAt } },
+          { publishedAt: cursorDoc.publishedAt, _id: { $lt: cursorDoc._id } },
+        ];
+      }
+    }
+
+    const posts = await Post.find(query)
+      .sort({ publishedAt: -1, _id: -1 })
+      .limit(limit + 1)
+      .populate("author", USER_FIELDS);
+
+    const hasMore = posts.length > limit;
+    const items = hasMore ? posts.slice(0, limit) : posts;
+    const nextCursor = hasMore && items.length > 0 ? items[items.length - 1]._id : null;
+
+    return { posts: items, nextCursor, hasMore };
+  }
+
+  async create(data) {
+    const post = await Post.create(data);
+    await post.populate("author", USER_FIELDS);
+    return post;
+  }
+
+  async findBySlug(slug, { includeUnpublished = false } = {}) {
+    const query = { slug };
+    if (!includeUnpublished) {
+      query.status = "published";
+      query.moderationStatus = "visible";
+    }
+    return Post.findOne(query).populate("author", USER_FIELDS);
   }
 
   async findById(id) {
-    return Post.findById(id);
+    return Post.findById(id).populate("author", USER_FIELDS);
   }
 
-  async findByIdOrSlug({ postId, postSlug }) {
-    if (postId) {
-      return Post.findById(postId);
-    }
-    if (postSlug) {
-      return Post.findOne({ slug: postSlug });
-    }
-    return null;
+  async findByIdAndAuthor({ id, authorId }) {
+    return Post.findOne({ _id: id, author: authorId });
   }
+
+  async update({ id, fields }) {
+    const post = await Post.findById(id);
+    if (!post) return null;
+
+    Object.assign(post, fields);
+    await post.save();
+    await post.populate("author", USER_FIELDS);
+    return post;
+  }
+
+  async deleteBySlug(slug) {
+    return Post.findOneAndDelete({ slug });
+  }
+
+  async incrementViewCount(id) {
+    return Post.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
+  }
+
+  async incrementClap({ slug, userId, count }) {
+    const post = await Post.findOne({ slug });
+    if (!post) return null;
+
+    const existingClap = post.claps.find((c) => String(c.user) === String(userId));
+    const currentCount = existingClap ? existingClap.count : 0;
+    const allowedAdd = Math.min(count, 50 - currentCount);
+
+    if (allowedAdd <= 0) {
+      return { post, added: 0, totalUserClaps: currentCount };
+    }
+
+    if (existingClap) {
+      existingClap.count += allowedAdd;
+    } else {
+      post.claps.push({ user: userId, count: allowedAdd });
+    }
+
+    post.totalClaps = post.claps.reduce((sum, c) => sum + c.count, 0);
+    await post.save();
+    await post.populate("author", USER_FIELDS);
+
+    return { post, added: allowedAdd, totalUserClaps: currentCount + allowedAdd };
+  }
+
+  async findRelated({ postId, tags, limit = 3 }) {
+    if (!tags || tags.length === 0) return [];
+    return Post.find(
+      Post.visibleQuery({
+        _id: { $ne: postId },
+        tags: { $in: tags },
+      })
+    )
+      .sort({ publishedAt: -1 })
+      .limit(limit)
+      .populate("author", USER_FIELDS);
+  }
+
+  async findSitemapProjection() {
+    return Post.find(Post.visibleQuery())
+      .select("slug updatedAt publishedAt")
+      .sort({ publishedAt: -1 });
+  }
+
+  // Cross-module (§2.2 #19-23)
 
   async findApprovedPublicationPosts(publicationId) {
     return Post.find(
@@ -68,6 +177,123 @@ class MongoPostRepository {
     post.submissionStatus = "none";
     post.reviewNote = "";
     await post.save();
+    return post;
+  }
+
+  async findByIdOrSlug({ postId, postSlug }) {
+    if (postId) {
+      return Post.findById(postId);
+    }
+    if (postSlug) {
+      return Post.findOne({ slug: postSlug });
+    }
+    return null;
+  }
+
+  // Other-domain (§2.2 #12-18)
+
+  async findForRSS({ scope, value, limit = 50 }) {
+    const query = Post.visibleQuery();
+    if (scope === "author") {
+      const User = require("../users/users.model");
+      const user = await User.findOne({ username: value.toLowerCase().trim() });
+      if (!user) return { author: null, posts: [] };
+      query.author = user._id;
+      const posts = await Post.find(query)
+        .sort({ publishedAt: -1 })
+        .limit(limit)
+        .populate("author", USER_FIELDS);
+      return { author: user, posts };
+    }
+    if (scope === "tag") {
+      query.tags = value.toLowerCase().trim();
+    }
+    const posts = await Post.find(query)
+      .sort({ publishedAt: -1 })
+      .limit(limit)
+      .populate("author", USER_FIELDS);
+    return { posts };
+  }
+
+  async findForAdmin(id) {
+    return Post.findById(id);
+  }
+
+  async setModerationVisibility({ id, hidden }) {
+    const status = hidden ? "hidden" : "visible";
+    return Post.findByIdAndUpdate(id, { moderationStatus: status }, { new: true });
+  }
+
+  async findForTelemetry(slug) {
+    return Post.findOne({ slug }).populate("author", USER_FIELDS);
+  }
+
+  async findByAuthorForLedger(authorId) {
+    return Post.find({ author: authorId }).select("_id views totalClaps publishedAt title slug");
+  }
+
+  async findByAuthorForAnalytics(authorId) {
+    return Post.find({ author: authorId }).select("_id title slug views totalClaps publishedAt status");
+  }
+
+  // Candidate assembly (§2.3 #25)
+
+  async findCandidatesForRecommendation() {
+    return Post.find(Post.visibleQuery())
+      .sort({ publishedAt: -1 })
+      .limit(100)
+      .populate("author", USER_FIELDS);
+  }
+
+  async findTagCountsInWindow(days = 7) {
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const result = await Post.aggregate([
+      { $match: { status: "published", moderationStatus: "visible", publishedAt: { $gte: since } } },
+      { $unwind: "$tags" },
+      { $group: { _id: "$tags", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+    ]);
+    return result.map((r) => ({ tag: r._id, count: r.count }));
+  }
+
+  // Cascade (§2.4)
+
+  async findIdsByAuthor(authorId) {
+    const posts = await Post.find({ author: authorId }).select("_id");
+    return posts.map((p) => p._id);
+  }
+
+  async deleteManyByAuthor(authorId) {
+    return Post.deleteMany({ author: authorId });
+  }
+
+  async findByClapperAndRecompute(userId) {
+    const clappedPosts = await Post.find({ "claps.user": userId });
+    for (const post of clappedPosts) {
+      post.claps = post.claps.filter((c) => String(c.user) !== String(userId));
+      post.totalClaps = post.claps.reduce((sum, c) => sum + c.count, 0);
+      await post.save();
+    }
+  }
+
+  // Scheduling (§2.3 #24)
+
+  async findDueScheduled(now = new Date()) {
+    return Post.find({
+      status: "draft",
+      scheduledAt: { $ne: null, $lte: now },
+    });
+  }
+
+  async publishScheduled(id) {
+    const post = await Post.findById(id);
+    if (!post) return null;
+    post.status = "published";
+    post.publishedAt = new Date();
+    post.scheduledAt = null;
+    await post.save();
+    await post.populate("author", USER_FIELDS);
     return post;
   }
 }

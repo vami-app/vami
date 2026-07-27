@@ -2,10 +2,8 @@
 
 const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess } = require("../utils/apiResponse");
-const Post = require("../models/Post");
+const { postRepository } = require("../modules/posts/posts.module");
 const Follow = require("../models/Follow");
-
-const AUTHOR_FIELDS = "name username avatarUrl bio";
 
 /**
  * GET /api/posts/recommended — Personalized recommendation scoring ("For You" tab).
@@ -19,10 +17,7 @@ const getRecommendedPosts = asyncHandler(async (req, res) => {
   const followedAuthorIds = follows.map((f) => String(f.followee));
 
   // Query candidate pool using shared visibility filter
-  const candidates = await Post.find(Post.visibleQuery())
-    .sort({ publishedAt: -1, _id: -1 })
-    .limit(100)
-    .populate("author", AUTHOR_FIELDS);
+  const candidates = await postRepository.findCandidatesForRecommendation();
 
   const now = Date.now();
 
@@ -41,7 +36,7 @@ const getRecommendedPosts = asyncHandler(async (req, res) => {
     const views = post.views || 0;
     const engagementScore = Math.log(1 + totalClaps + views * 0.1) + 1.0;
 
-    // 4. Recency decay (exponential decay over days since publishedAt)
+    // 4. Recency decay
     const pubDate = post.publishedAt ? new Date(post.publishedAt).getTime() : now;
     const ageInDays = Math.max(0, (now - pubDate) / (1000 * 60 * 60 * 24));
     const recencyDecay = Math.exp(-0.05 * ageInDays);

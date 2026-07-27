@@ -421,14 +421,13 @@ class UserService {
     }
 
     // Capture sets
-    const Post = require("../../models/Post");
+    const { postRepository } = require("../posts/posts.module");
     const Comment = require("../../models/Comment");
     const Report = require("../../models/Report");
     const ReadEvent = require("../../models/ReadEvent");
     const Follow = require("../../models/Follow");
 
-    const postsByUser = await Post.find({ author: user._id }).select("_id");
-    const postIds = postsByUser.map((p) => p._id);
+    const postIds = await postRepository.findIdsByAuthor(user._id);
 
     const ownComments = await Comment.find({ author: user._id }).select("_id");
     const ownCommentIds = ownComments.map((c) => c._id);
@@ -465,11 +464,12 @@ class UserService {
         }
       }
 
-      await Post.deleteMany({ author: user._id });
+      await postRepository.deleteManyByAuthor(user._id);
     } else {
       const PostRevision = require("../../models/PostRevision");
       await PostRevision.updateMany({ editedBy: user._id }, { editedBy: deletedUser._id });
       await Report.deleteMany({ reporter: user._id });
+      const Post = require("../posts/posts.model");
       await Post.updateMany({ author: user._id }, { author: deletedUser._id });
       await Comment.updateMany({ author: user._id }, { author: deletedUser._id });
     }
@@ -486,12 +486,7 @@ class UserService {
     await this.users.pullFollowReferences(user._id);
 
     // Step 10: Pull claps and recompute totalClaps
-    const clappedPosts = await Post.find({ "claps.user": user._id });
-    for (const post of clappedPosts) {
-      post.claps = post.claps.filter((c) => String(c.user) !== String(user._id));
-      post.totalClaps = post.claps.reduce((sum, c) => sum + c.count, 0);
-      await post.save();
-    }
+    await postRepository.findByClapperAndRecompute(user._id);
 
     // Step 11: Delete avatar from disk
     if (user.avatarUrl && user.avatarUrl.startsWith("/uploads/")) {

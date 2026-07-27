@@ -251,7 +251,8 @@ class PublicationService {
     const post = await this.posts.findBySlug(postSlug);
     if (!post) throw new ApiError(404, "Story not found");
 
-    if (String(post.author) !== String(authorId)) {
+    const postAuthorId = post.author ? (post.author._id || post.author) : null;
+    if (String(postAuthorId) !== String(authorId)) {
       throw new ApiError(403, "You can only submit your own stories to a publication.");
     }
 
@@ -319,7 +320,8 @@ class PublicationService {
     const post = await this.posts.findBySlug(postSlug);
     if (!post) throw new ApiError(404, "Story not found");
 
-    if (String(post.author) !== String(authorId)) {
+    const postAuthorId = post.author ? (post.author._id || post.author) : null;
+    if (String(postAuthorId) !== String(authorId)) {
       throw new ApiError(403, "You can only withdraw your own submissions.");
     }
 

@@ -9,7 +9,6 @@ const env = require("./config/env");
 const { notFound, errorHandler } = require("./middlewares/error.middleware");
 const { generalLimiter } = require("./middlewares/rateLimiter");
 
-const postRoutes = require("./routes/post.routes");
 const uploadRoutes = require("./routes/upload.routes");
 const feedRoutes = require("./routes/feed.routes");
 const adminRoutes = require("./routes/admin.routes");
@@ -88,7 +87,6 @@ const webhookRoutes = require("./routes/webhook.routes");
 const telemetryRoutes = require("./routes/telemetry.routes");
 const membershipRoutes = require("./routes/membership.routes");
 const writerRoutes = require("./routes/writer.routes");
-app.use("/api/posts", postRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/admin", adminRoutes);
@@ -98,6 +96,7 @@ app.use("/api/webhooks", webhookRoutes);
 
 const { registry } = require("./kernel");
 const { usersModule } = require("./modules/users/users.module");
+const { postsModule } = require("./modules/posts/posts.module");
 const { highlightModule } = require("./modules/highlights/highlights.module");
 const { readingListModule } = require("./modules/reading-lists/reading-lists.module");
 const { postRevisionsModule } = require("./modules/post-revisions/post-revisions.module");
@@ -106,6 +105,7 @@ const { notificationsModule } = require("./modules/notifications/notifications.m
 const { publicationsModule } = require("./modules/publications/publications.module");
 
 registry.register("users", usersModule);
+registry.register("posts", postsModule);
 registry.register("highlights", highlightModule);
 registry.register("reading-lists", readingListModule);
 registry.register("post-revisions", postRevisionsModule);

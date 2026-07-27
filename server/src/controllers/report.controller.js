@@ -2,8 +2,8 @@
 
 const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess, ApiError } = require("../utils/apiResponse");
+const { postRepository } = require("../modules/posts/posts.module");
 const Report = require("../models/Report");
-const Post = require("../models/Post");
 const Comment = require("../models/Comment");
 
 /**
@@ -33,10 +33,10 @@ const createReport = asyncHandler(async (req, res) => {
   let targetAuthorId = null;
 
   if (targetType === "post") {
-    const post = await Post.findById(targetId);
+    const post = await postRepository.findById(targetId);
     if (post) {
       targetExists = true;
-      targetAuthorId = post.author;
+      targetAuthorId = post.author ? (post.author._id || post.author) : null;
     }
   } else {
     const comment = await Comment.findById(targetId);
@@ -83,7 +83,6 @@ const createReport = asyncHandler(async (req, res) => {
       { targetType, targetId, status: "pending" },
       { priorityFlag: true }
     );
-    // Sync priorityFlag on the newly created report in memory
     report.priorityFlag = true;
   }
 

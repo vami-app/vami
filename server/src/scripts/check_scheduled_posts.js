@@ -1,7 +1,7 @@
 "use strict";
 
 const connectDB = require("../config/db");
-const Post = require("../models/Post");
+const { postRepository } = require("../modules/posts/posts.module");
 
 async function checkScheduledPosts() {
   await connectDB();
@@ -9,10 +9,7 @@ async function checkScheduledPosts() {
   const now = new Date();
   console.log(`[check_scheduled_posts] Running post scheduler check at ${now.toISOString()}...`);
 
-  const overduePosts = await Post.find({
-    status: "draft",
-    scheduledAt: { $ne: null, $lte: now },
-  }).populate("author");
+  const overduePosts = await postRepository.findDueScheduled(now);
 
   if (overduePosts.length === 0) {
     console.log("[check_scheduled_posts] No overdue scheduled posts found.");
@@ -32,14 +29,9 @@ async function checkScheduledPosts() {
       continue;
     }
 
-    // Set published status and retain the intended scheduled publish time
-    post.status = "published";
-    post.publishedAt = post.scheduledAt;
-
-    // Save document to trigger Mongoose pre('save') hooks (indexable, canonicalUrl, follower notifications)
-    await post.save();
+    await postRepository.publishScheduled(post._id);
     console.log(
-      `[check_scheduled_posts] Successfully published post "${post.title}" (${post._id}) scheduled for ${post.scheduledAt.toISOString()}`
+      `[check_scheduled_posts] Successfully published post "${post.title}" (${post._id}) scheduled for ${post.scheduledAt ? post.scheduledAt.toISOString() : now.toISOString()}`
     );
     publishedCount++;
   }

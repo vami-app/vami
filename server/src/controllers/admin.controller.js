@@ -2,17 +2,14 @@
 
 const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess, ApiError } = require("../utils/apiResponse");
+const { postRepository } = require("../modules/posts/posts.module");
 const User = require("../models/User");
-const Post = require("../models/Post");
 const Comment = require("../models/Comment");
 const Report = require("../models/Report");
 const AuditLog = require("../models/AuditLog");
-const mongoose = require("mongoose");
 
 /**
  * GET /api/admin/reports
- * Paginated reports review queue. Sorted by priorityFlag desc, then createdAt desc.
- * @type {import('express').RequestHandler}
  */
 const listReports = asyncHandler(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -36,7 +33,8 @@ const listReports = asyncHandler(async (req, res) => {
   for (const report of reports) {
     let target = null;
     if (report.targetType === "post") {
-      target = await Post.findById(report.targetId).populate("author", "name username avatarUrl");
+      target = await postRepository.findForAdmin(report.targetId);
+      if (target) await target.populate("author", "name username avatarUrl");
     } else if (report.targetType === "comment") {
       target = await Comment.findById(report.targetId)
         .populate("author", "name username avatarUrl")
@@ -61,8 +59,6 @@ const listReports = asyncHandler(async (req, res) => {
 
 /**
  * PATCH /api/admin/reports/:id
- * Action or dismiss a report.
- * @type {import('express').RequestHandler}
  */
 const resolveReport = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -77,15 +73,9 @@ const resolveReport = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Report not found.");
   }
 
-  // Actioning: hide the target content
   if (status === "actioned") {
     if (report.targetType === "post") {
-      const post = await Post.findById(report.targetId);
-      if (post) {
-        post.moderationStatus = "hidden";
-        // saving will auto-set indexable = false and notifiedAt = null
-        await post.save();
-      }
+      await postRepository.setModerationVisibility({ id: report.targetId, hidden: true });
     } else if (report.targetType === "comment") {
       await Comment.updateOne(
         { _id: report.targetId },
@@ -93,13 +83,11 @@ const resolveReport = asyncHandler(async (req, res) => {
       );
     }
 
-    // Resolve this and all other pending reports for the same target
     await Report.updateMany(
       { targetType: report.targetType, targetId: report.targetId, status: "pending" },
       { status: "actioned" }
     );
 
-    // Audit log
     await AuditLog.create({
       actor: req.user._id,
       action: report.targetType === "post" ? "post_hidden" : "comment_hidden",
@@ -107,7 +95,6 @@ const resolveReport = asyncHandler(async (req, res) => {
       targetId: report.targetId,
     });
   } else {
-    // Dismissing
     await Report.updateMany(
       { targetType: report.targetType, targetId: report.targetId, status: "pending" },
       { status: "dismissed" }
@@ -121,25 +108,19 @@ const resolveReport = asyncHandler(async (req, res) => {
     });
   }
 
-  // Fetch updated report to return
   const updatedReport = await Report.findById(id);
   return sendSuccess(res, 200, { report: updatedReport }, `Report resolved as ${status}.`);
 });
 
 /**
  * PATCH /api/admin/posts/:id/unhide
- * Unhide a moderated post.
- * @type {import('express').RequestHandler}
  */
 const unhidePost = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const post = await Post.findById(id);
+  const post = await postRepository.setModerationVisibility({ id, hidden: false });
   if (!post) {
     throw new ApiError(404, "Post not found.");
   }
-
-  post.moderationStatus = "visible";
-  await post.save(); // pre-save hook handles indexable recomputation
 
   await AuditLog.create({
     actor: req.user._id,
@@ -153,8 +134,6 @@ const unhidePost = asyncHandler(async (req, res) => {
 
 /**
  * PATCH /api/admin/comments/:id/unhide
- * Unhide a moderated comment.
- * @type {import('express').RequestHandler}
  */
 const unhideComment = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -177,164 +156,10 @@ const unhideComment = asyncHandler(async (req, res) => {
 });
 
 /**
- * GET /api/admin/users
- * Paginated list of users with search, post counts, roles, and status.
- * @type {import('express').RequestHandler}
- */
-const listUsers = asyncHandler(async (req, res) => {
-  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-  const limit = Math.min(Math.max(1, parseInt(req.query.limit, 10) || 10), 100);
-  const skip = (page - 1) * limit;
-
-  const { search } = req.query;
-  const filter = {};
-
-  if (search) {
-    const searchRegex = new RegExp(String(search).trim(), "i");
-    filter.$or = [
-      { name: searchRegex },
-      { username: searchRegex },
-      { email: searchRegex },
-    ];
-  }
-
-  const totalUsers = await User.countDocuments(filter);
-  const users = await User.find(filter)
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
-
-  const usersWithStats = [];
-  for (const u of users) {
-    const postCount = await Post.countDocuments({ author: u._id });
-    const userObj = u.toPublicJSON(true); // Include email & role
-    userObj.postCount = postCount;
-    usersWithStats.push(userObj);
-  }
-
-  return sendSuccess(res, 200, {
-    users: usersWithStats,
-    pagination: {
-      total: totalUsers,
-      page,
-      limit,
-      pages: Math.ceil(totalUsers / limit),
-    },
-  });
-});
-
-/**
- * PATCH /api/admin/users/:id/ban
- * Ban a user.
- * @type {import('express').RequestHandler}
- */
-const banUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await User.findById(id);
-  if (!user) {
-    throw new ApiError(404, "User not found.");
-  }
-
-  // Prevent banning the last admin
-  if (user.role === "admin") {
-    const adminCount = await User.countDocuments({ role: "admin", status: "active" });
-    if (adminCount <= 1) {
-      throw new ApiError(400, "Cannot ban the only remaining active admin account.");
-    }
-  }
-
-  user.status = "banned";
-  await user.save();
-
-  const { disconnectUserSockets } = require("../config/socket");
-  disconnectUserSockets(user._id);
-
-  await AuditLog.create({
-    actor: req.user._id,
-    action: "user_banned",
-    targetType: "user",
-    targetId: user._id,
-  });
-
-  return sendSuccess(res, 200, { user: user.toPublicJSON(true) }, "User banned successfully.");
-});
-
-/**
- * PATCH /api/admin/users/:id/unban
- * Unban a user.
- * @type {import('express').RequestHandler}
- */
-const unbanUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await User.findById(id);
-  if (!user) {
-    throw new ApiError(404, "User not found.");
-  }
-
-  user.status = "active";
-  await user.save();
-
-  await AuditLog.create({
-    actor: req.user._id,
-    action: "user_unbanned",
-    targetType: "user",
-    targetId: user._id,
-  });
-
-  return sendSuccess(res, 200, { user: user.toPublicJSON(true) }, "User unbanned successfully.");
-});
-
-/**
- * PATCH /api/admin/users/:id/role
- * Update user role.
- * @type {import('express').RequestHandler}
- */
-const updateUserRole = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { role } = req.body;
-
-  if (!role || !["user", "admin"].includes(role)) {
-    throw new ApiError(400, "Invalid role. Must be 'user' or 'admin'.");
-  }
-
-  const user = await User.findById(id);
-  if (!user) {
-    throw new ApiError(404, "User not found.");
-  }
-
-  const previousRole = user.role;
-  if (previousRole === role) {
-    return sendSuccess(res, 200, { user: user.toPublicJSON(true) }, "User role is already correct.");
-  }
-
-  // Prevent lockout if demoting the last active admin
-  if (previousRole === "admin" && role === "user") {
-    const adminCount = await User.countDocuments({ role: "admin", status: "active" });
-    if (adminCount <= 1) {
-      throw new ApiError(400, "Cannot demote the only remaining active admin account.");
-    }
-  }
-
-  user.role = role;
-  await user.save();
-
-  await AuditLog.create({
-    actor: req.user._id,
-    action: "role_changed",
-    targetType: "user",
-    targetId: user._id,
-    metadata: { previousRole, newRole: role },
-  });
-
-  return sendSuccess(res, 200, { user: user.toPublicJSON(true) }, `User role updated to ${role}.`);
-});
-
-/**
  * GET /api/admin/stats
- * Aggregated moderation stats and site metrics.
- * @type {import('express').RequestHandler}
  */
 const getStats = asyncHandler(async (req, res) => {
+  const Post = require("../modules/posts/posts.model");
   const totalUsers = await User.countDocuments();
   
   const draftPosts = await Post.countDocuments({ status: "draft" });
@@ -398,9 +223,5 @@ module.exports = {
   resolveReport,
   unhidePost,
   unhideComment,
-  listUsers,
-  banUser,
-  unbanUser,
-  updateUserRole,
   getStats,
 };

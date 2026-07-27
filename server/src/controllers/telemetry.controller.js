@@ -1,5 +1,7 @@
+"use strict";
+
 const ReadEvent = require("../models/ReadEvent");
-const Post = require("../models/Post");
+const { postRepository } = require("../modules/posts/posts.module");
 const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess, ApiError } = require("../utils/apiResponse");
 
@@ -19,7 +21,7 @@ const recordReadEvent = asyncHandler(async (req, res) => {
     throw new ApiError(400, "activeSeconds must be a positive integer");
   }
 
-  const post = await Post.findById(postId);
+  const post = await postRepository.findById(postId);
   if (!post || post.status !== "published" || post.moderationStatus === "hidden") {
     throw new ApiError(404, "Published story not found");
   }
