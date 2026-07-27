@@ -218,6 +218,7 @@ class PostService {
           tags: post.tags,
           coverImage: post.coverImage,
           editedBy: user._id,
+          aiAssisted: post.aiAssisted || "unspecified",
         });
         await postRevisionRepository.pruneOldRevisions({ postId: post._id, maxCount: 50 });
       }

@@ -37,6 +37,11 @@ const postRevisionSchema = new Schema(
       ref: "User",
       required: true,
     },
+    aiAssisted: {
+      type: String,
+      enum: ["none", "edited", "co-written", "unspecified"],
+      default: "unspecified",
+    },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );

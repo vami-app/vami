@@ -20,23 +20,25 @@ All 9 pre-investigation questions G1–G9 were investigated directly against the
 | G6 | `PostCard` & `StoryPage` signature | `PostCard` takes `{ post, showStatus }`. `StoryPageClient` takes `{ initialPost }`. | Passed `post.aiAssisted` to `AiAuthorshipBadge` component. |
 | G7 | `StoryComposer` metadata location | Tags input section at bottom of editor. | Added AI Authorship Disclosure selector dropdown directly below Tags in `StoryComposer.jsx`. |
 | G8 | Baseline commit & test count | Baseline Hash: `6e8a6ee00fa07545ff63861bcdf870e1557f2006`. Baseline: **21 test files / 67 tests passing**. | Test suite baseline confirmed at 21 files / 67 tests. |
-| G9 | Domain-meaning verification | `PostRevision` snapshots pre-date `aiAssisted`. `aiAssisted` is a self-disclosed metadata attribute. | Self-disclosure model: Inkwell attests that the writer self-disclosed AI involvement. Pre-existing revisions render as "Unspecified". |
+| G9 | Domain-meaning verification | `PostRevision` snapshots pre-date `aiAssisted`. `aiAssisted` is a self-disclosed metadata attribute. | Extended `PostRevision` schema with `aiAssisted: "unspecified"` default. Historical snapshots render as `Unspecified (Pre-dated disclosure tracking)`. |
 
 ---
 
 ## 2. Summary of Implementation & Domain-Meaning Verification
 
-1. **Backend Extension (`posts` module):**
+1. **Backend Extension (`posts` & `post-revisions` modules):**
    - Extended `postSchema` in [posts.model.js](file:///c:/Users/ABSA00065/Desktop/Project/server/src/modules/posts/posts.model.js) with `aiAssisted: { type: String, enum: ["none", "edited", "co-written"], default: "none" }`.
-   - Exposed `aiAssisted` in `toCardJSON()`.
-   - Added validation in `posts.controller.js` and `posts.service.js` enforcing enum values (`"none"`, `"edited"`, `"co-written"`).
+   - Extended `postRevisionSchema` in [post-revisions.model.js](file:///c:/Users/ABSA00065/Desktop/Project/server/src/modules/post-revisions/post-revisions.model.js) with `aiAssisted: { type: String, enum: ["none", "edited", "co-written", "unspecified"], default: "unspecified" }`.
+   - Exposed `aiAssisted` in `toCardJSON()` and `post-revisions` snapshot/restoration pipeline.
+   - Added validation in `posts.controller.js` and `posts.service.js` enforcing enum values.
 
 2. **Frontend UI Components & Settings Surface:**
-   - Built [AiAuthorshipBadge.jsx](file:///c:/Users/ABSA00065/Desktop/Project/client/src/components/post/AiAuthorshipBadge.jsx) rendering prominent badges (`AI-edited`, `AI co-written`) with interactive explainer tooltips.
+   - Built [AiAuthorshipBadge.jsx](file:///c:/Users/ABSA00065/Desktop/Project/client/src/components/post/AiAuthorshipBadge.jsx) rendering prominent badges (`AI-edited`, `AI co-written`) with interactive tooltips.
    - Embedded `AiAuthorshipBadge` in [PostCard.jsx](file:///c:/Users/ABSA00065/Desktop/Project/client/src/components/post/PostCard.jsx) and [StoryPageClient.jsx](file:///c:/Users/ABSA00065/Desktop/Project/client/src/app/%28main%29/p/%5Bslug%5D/StoryPageClient.jsx).
    - Embedded AI disclosure selector dropdown in [StoryComposer.jsx](file:///c:/Users/ABSA00065/Desktop/Project/client/src/components/editor/StoryComposer.jsx).
+   - Rendered AI Authorship status pill (`Unspecified (Pre-dated disclosure tracking)`, `Human Authored`, `AI-edited`, `AI co-written`) in [PostRevisions.jsx](file:///c:/Users/ABSA00065/Desktop/Project/client/src/components/editor/PostRevisions.jsx).
 
 3. **Integration Test Suite & Reconciled Results:**
-   - Created [test/integration/ai-authorship.test.js](file:///c:/Users/ABSA00065/Desktop/Project/server/test/integration/ai-authorship.test.js) covering all 4 required scenarios (§11.7).
+   - Created [test/integration/ai-authorship.test.js](file:///c:/Users/ABSA00065/Desktop/Project/server/test/integration/ai-authorship.test.js) covering all 4 required scenarios (§11.7), including `PostRevision` `"unspecified"` state assertion.
    - Reconciled Test Suite Output: **22 test files passed, 71 tests passed (100% GREEN)**.
-   - Rule 11 Parity Check: Scenario count ($4$) equals new test count ($4$), reconciling $67 + 4 = 71$.
+   - Rule 11 Parity Check: Scenario count ($4$) equals new test count ($4$), reconciling $63 + 4 = 67 + 4 = 71$.

@@ -4,7 +4,7 @@ const IPostRevisionRepository = require("./post-revisions.repository.interface")
 const PostRevision = require("./post-revisions.model");
 
 class MongoPostRevisionRepository extends IPostRevisionRepository {
-  async createSnapshot({ post, title, subtitle, contentHtml, tags, coverImage, editedBy }) {
+  async createSnapshot({ post, title, subtitle, contentHtml, tags, coverImage, editedBy, aiAssisted }) {
     return await PostRevision.create({
       post,
       title,
@@ -13,6 +13,7 @@ class MongoPostRevisionRepository extends IPostRevisionRepository {
       tags,
       coverImage,
       editedBy,
+      aiAssisted: aiAssisted || "unspecified",
     });
   }
 

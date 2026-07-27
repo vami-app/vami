@@ -65,6 +65,7 @@ class PostRevisionService {
       tags: post.tags,
       coverImage: post.coverImage,
       editedBy: viewer._id,
+      aiAssisted: post.aiAssisted || "unspecified",
     });
 
     // Apply revision content
@@ -73,6 +74,9 @@ class PostRevisionService {
     post.contentHtml = revision.contentHtml;
     post.tags = revision.tags;
     post.coverImage = revision.coverImage;
+    if (revision.aiAssisted && revision.aiAssisted !== "unspecified") {
+      post.aiAssisted = revision.aiAssisted;
+    }
 
     await post.save();
 

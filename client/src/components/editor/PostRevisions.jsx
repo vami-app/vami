@@ -187,6 +187,29 @@ export default function PostRevisions({
                 <div>
                   <p className="text-xs font-semibold text-ink-soft">Comparing Revision</p>
                   <p className="text-xs text-ink-faint">{new Date(selectedRevision.createdAt).toLocaleString()}</p>
+                  <div className="mt-2 flex items-center gap-1.5 text-xs">
+                    <span className="text-ink-soft font-medium">AI Disclosure:</span>
+                    {(!selectedRevision.aiAssisted || selectedRevision.aiAssisted === "unspecified") && (
+                      <span className="rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] text-amber-700 font-medium">
+                        Unspecified (Pre-dated disclosure tracking)
+                      </span>
+                    )}
+                    {selectedRevision.aiAssisted === "none" && (
+                      <span className="rounded-full bg-gray-100 border border-gray-200 px-2 py-0.5 text-[11px] text-gray-700 font-medium">
+                        Human Authored
+                      </span>
+                    )}
+                    {selectedRevision.aiAssisted === "edited" && (
+                      <span className="rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[11px] text-indigo-700 font-medium">
+                        AI-edited
+                      </span>
+                    )}
+                    {selectedRevision.aiAssisted === "co-written" && (
+                      <span className="rounded-full bg-purple-50 border border-purple-200 px-2 py-0.5 text-[11px] text-purple-700 font-medium">
+                        AI co-written
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <Button
                   size="xs"

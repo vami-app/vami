@@ -95,8 +95,10 @@ describe("Disclosed AI Authorship Integration (/api/posts)", () => {
     expect(updatedDbPost.aiAssisted).toBe("co-written");
   });
 
-  // Scenario 3: Edge Case 2 - Pre-field PostRevision snapshot compatibility
-  it("Scenario 3 (Edge Case 2): Handles historical revision snapshots cleanly when aiAssisted is missing", async () => {
+  // Scenario 3: Edge Case 2 - Pre-field PostRevision snapshot compatibility & 'unspecified' state
+  it("Scenario 3 (Edge Case 2): Handles historical revision snapshots cleanly, returning aiAssisted: 'unspecified' for legacy revisions", async () => {
+    const PostRevision = require("../../src/models/PostRevision");
+
     const post = await Post.create({
       title: "Historical Legacy Post",
       slug: "historical-legacy-post",
@@ -105,10 +107,24 @@ describe("Disclosed AI Authorship Integration (/api/posts)", () => {
       status: "published",
     });
 
-    // Simulate property access on legacy document without explicit aiAssisted stored
-    expect(post.aiAssisted).toBe("none");
-    const json = post.toCardJSON();
-    expect(json.aiAssisted).toBe("none");
+    // Create a legacy PostRevision snapshot without specifying aiAssisted
+    const legacyRevision = await PostRevision.create({
+      post: post._id,
+      title: "Historical Legacy Post - Draft 1",
+      contentHtml: "<p>Original draft.</p>",
+      editedBy: author._id,
+    });
+
+    // Assert legacy revision defaults to 'unspecified'
+    expect(legacyRevision.aiAssisted).toBe("unspecified");
+
+    // Query revision endpoint
+    const res = await request(app)
+      .get(`/api/posts/${post.slug}/revisions/${legacyRevision._id}`)
+      .set("Cookie", [`accessToken=${authorToken}`]);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.revision.aiAssisted).toBe("unspecified");
   });
 
   // Scenario 4: Edge Case 3 - Co-Authored Publication Post Submission
