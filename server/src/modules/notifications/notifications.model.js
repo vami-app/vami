@@ -19,12 +19,12 @@ const notificationSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["clap", "comment", "reply", "follow"],
+      enum: ["clap", "comment", "reply", "follow", "system"],
       required: true,
     },
     targetType: {
       type: String,
-      enum: ["post", "comment", "user"],
+      enum: ["post", "comment", "user", "dispute"],
       required: true,
     },
     targetId: {

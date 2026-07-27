@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import RequireAuth from "@/components/layout/RequireAuth";
 import { formatDate } from "@/lib/utils";
+import HeldActionBanner from "@/components/moderation/HeldActionBanner";
 
 export default function DashboardPage() {
   return (
@@ -19,9 +20,25 @@ function WriterDashboardContent() {
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [ledgerEntries, setLedgerEntries] = useState([]);
+  const [pendingActions, setPendingActions] = useState([]);
+  const [myDisputes, setMyDisputes] = useState([]);
   const [activeTab, setActiveTab] = useState("analytics");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const refreshDisputes = () => {
+    Promise.all([
+      api.get("/api/moderation/actions/pending").catch(() => null),
+      api.get("/api/moderation/disputes/mine").catch(() => null),
+    ]).then(([actionsRes, disputesRes]) => {
+      if (actionsRes && actionsRes.pendingActions) {
+        setPendingActions(actionsRes.pendingActions);
+      }
+      if (disputesRes && disputesRes.disputes) {
+        setMyDisputes(disputesRes.disputes);
+      }
+    });
+  };
 
   useEffect(() => {
     let active = true;
@@ -30,13 +47,21 @@ function WriterDashboardContent() {
     Promise.all([
       api.get("/api/writer/analytics").catch((e) => null),
       api.get("/api/writer/payout-ledger").catch((e) => null),
-    ]).then(([analyticsRes, ledgerRes]) => {
+      api.get("/api/moderation/actions/pending").catch((e) => null),
+      api.get("/api/moderation/disputes/mine").catch((e) => null),
+    ]).then(([analyticsRes, ledgerRes, actionsRes, disputesRes]) => {
       if (!active) return;
       if (analyticsRes && analyticsRes.analytics) {
         setAnalytics(analyticsRes.analytics);
       }
       if (ledgerRes && ledgerRes.entries) {
         setLedgerEntries(ledgerRes.entries);
+      }
+      if (actionsRes && actionsRes.pendingActions) {
+        setPendingActions(actionsRes.pendingActions);
+      }
+      if (disputesRes && disputesRes.disputes) {
+        setMyDisputes(disputesRes.disputes);
       }
       setLoading(false);
     }).catch((err) => {
@@ -80,6 +105,11 @@ function WriterDashboardContent() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
+      {/* Pending HELD Action Banner */}
+      {pendingActions.map((action) => (
+        <HeldActionBanner key={action._id} action={action} onDisputeFiled={refreshDisputes} />
+      ))}
+
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -108,6 +138,16 @@ function WriterDashboardContent() {
             }`}
           >
             Payout History
+          </button>
+          <button
+            onClick={() => setActiveTab("appeals")}
+            className={`rounded-md px-4 py-1.5 text-sm font-medium transition ${
+              activeTab === "appeals"
+                ? "bg-white text-accent-600 shadow-sm dark:bg-gray-800 dark:text-accent-400"
+                : "text-ink-soft hover:text-ink dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            Appeals ({myDisputes.length})
           </button>
         </div>
       </div>
@@ -264,6 +304,62 @@ function WriterDashboardContent() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "appeals" && (
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-ink dark:text-gray-100">Filed Appeals & Due Process Records</h2>
+              <p className="text-xs text-ink-soft dark:text-gray-400">
+                Track status and human reviewer decisions on your submitted disputes
+              </p>
+            </div>
+            <Link href="/legal/appeals" className="text-xs font-semibold text-accent-600 hover:underline dark:text-accent-400">
+              Appeals Policy →
+            </Link>
+          </div>
+
+          {myDisputes.length === 0 ? (
+            <div className="p-12 text-center text-sm text-ink-soft dark:text-gray-400">
+              You have no active or historical dispute appeals.
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {myDisputes.map((dispute) => (
+                <div key={dispute._id} className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-ink dark:text-white">
+                        {dispute.actionType.replace("_", " ")}
+                      </span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
+                        dispute.status === "overturned" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" :
+                        dispute.status === "upheld" ? "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300" :
+                        "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                      }`}>
+                        {dispute.status.replace("_", " ")}
+                      </span>
+                    </div>
+                    <span className="text-xs text-ink-faint dark:text-gray-400">
+                      Filed {dispute.filedAt ? formatDate(dispute.filedAt) : "Recently"}
+                    </span>
+                  </div>
+
+                  <p className="mt-2 text-xs italic text-ink-soft dark:text-gray-300">
+                    "{dispute.writerStatement}"
+                  </p>
+
+                  {dispute.reviewerNote && (
+                    <div className="mt-3 rounded-lg bg-gray-50 p-3 text-xs text-ink dark:bg-gray-800/50 dark:text-gray-200">
+                      <span className="font-semibold">Reviewer Note:</span> {dispute.reviewerNote}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>

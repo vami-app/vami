@@ -27,6 +27,7 @@ export default function AdminLayout({ children }) {
   const navItems = [
     { name: "Stats & Overview", href: "/admin", icon: StatsIcon },
     { name: "Moderation Queue", href: "/admin/reports", icon: ReportIcon },
+    { name: "Appeals & Disputes", href: "/admin/disputes", icon: DisputeIcon },
     { name: "User Management", href: "/admin/users", icon: UserIcon },
   ];
 
@@ -102,6 +103,16 @@ function UserIcon({ className }) {
       <circle cx="9" cy="7" r="4" />
       <path d="M23 21v-2a4 4 0 00-3-3.87" />
       <path d="M16 3.13a4 4 0 010 7.75" />
+    </svg>
+  );
+}
+
+function DisputeIcon({ className }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 8v4" strokeLinecap="round" />
+      <path d="M12 16h.01" strokeLinecap="round" />
     </svg>
   );
 }

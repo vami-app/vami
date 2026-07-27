@@ -440,8 +440,10 @@ class UserService {
     const { highlightRepository } = require("../highlights/highlights.module");
     const { postRevisionRepository } = require("../post-revisions/post-revisions.module");
     const { commentRepository } = require("../comments/comments.module");
+    const { disputeRepository } = require("../moderation/moderation.module");
 
     if (mode === "erase") {
+      await disputeRepository.voidForUser(user._id);
       await highlightRepository.deleteManyByPostIds(postIds);
       await postRevisionRepository.deleteManyByPostIds(postIds);
       await Report.deleteMany({ reporter: user._id });

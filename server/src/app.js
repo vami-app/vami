@@ -103,6 +103,7 @@ const { postRevisionsModule } = require("./modules/post-revisions/post-revisions
 const { commentsModule } = require("./modules/comments/comments.module");
 const { notificationsModule } = require("./modules/notifications/notifications.module");
 const { publicationsModule } = require("./modules/publications/publications.module");
+const { moderationModule } = require("./modules/moderation/moderation.module");
 
 registry.register("users", usersModule);
 registry.register("posts", postsModule);
@@ -112,6 +113,7 @@ registry.register("post-revisions", postRevisionsModule);
 registry.register("comments", commentsModule);
 registry.register("notifications", notificationsModule);
 registry.register("publications", publicationsModule);
+registry.register("moderation", moderationModule);
 registry.boot(app);
 
 app.use("/api/membership", membershipRoutes);
