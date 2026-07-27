@@ -106,7 +106,33 @@ class PostService {
     }
 
     const data = post.toCardJSON(viewerId);
-    const userCanRead = canReadFull(post, viewer);
+
+    // Compute metered free read context for non-member viewers on locked posts
+    let freeReadContext = { remainingFreeReads: 0, totalMonthlyQuota: 3, isFreeReadApplied: false };
+    const isMember = viewer && viewer.membershipStatus === "active";
+
+    if (post.locked && !isAuthor && !isAdmin && !isMember) {
+      const ReadEvent = require("../../models/ReadEvent");
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      const filter = {
+        viewerWasMember: false,
+        createdAt: { $gte: startOfMonth },
+      };
+      if (viewerId) {
+        filter.viewer = viewerId;
+      }
+
+      const freeReadsUsed = await ReadEvent.countDocuments(filter);
+      const totalMonthlyQuota = 3;
+      const remainingFreeReads = Math.max(0, totalMonthlyQuota - freeReadsUsed);
+      const isFreeReadApplied = remainingFreeReads > 0;
+
+      freeReadContext = { remainingFreeReads, totalMonthlyQuota, isFreeReadApplied };
+    }
+
+    const userCanRead = canReadFull(post, viewer, freeReadContext);
 
     if (post.locked && !userCanRead) {
       const pMatches = (post.contentHtml || "").match(/<p[\s\S]*?<\/p>/gi);
@@ -123,6 +149,8 @@ class PostService {
       data.isLocked = Boolean(post.locked);
       data.previewOnly = false;
     }
+
+    data.freeReadContext = freeReadContext;
 
     let bookmarked = false;
     if (viewer && viewer.bookmarks) {

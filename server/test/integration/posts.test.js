@@ -88,7 +88,19 @@ describe("Post Domain Integration (/api/posts & /api/tags)", () => {
       previewParagraphCount: 2,
     });
 
-    // Fetch as non-subscriber
+    // Exhaust non-subscriber's 3 monthly free reads
+    const ReadEvent = require("../../src/models/ReadEvent");
+    for (let i = 0; i < 3; i++) {
+      await ReadEvent.create({
+        post: lockedPost._id,
+        viewer: nonSubUser._id,
+        viewerWasMember: false,
+        activeSeconds: 60,
+        createdAt: new Date(),
+      });
+    }
+
+    // Fetch as non-subscriber (with exhausted free read quota)
     const nonSubRes = await request(app)
       .get(`/api/posts/${lockedPost.slug}`)
       .set("Cookie", [`accessToken=${nonSubToken}`]);
