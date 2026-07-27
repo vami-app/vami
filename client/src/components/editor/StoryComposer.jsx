@@ -39,6 +39,7 @@ export default function StoryComposer({ initial = {}, mode }) {
   const [tagInput, setTagInput] = useState("");
   const [slug, setSlug] = useState(initial.slug || null);
   const [status, setStatus] = useState(initial.status || "draft");
+  const [aiAssisted, setAiAssisted] = useState(initial.aiAssisted || "none");
   const [scheduledAt, setScheduledAt] = useState(initial.scheduledAt ? new Date(initial.scheduledAt).toISOString().slice(0, 16) : "");
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -112,6 +113,7 @@ export default function StoryComposer({ initial = {}, mode }) {
       tags,
       status: nextStatus,
       scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+      aiAssisted,
     };
     try {
       let currentSlug = slug;
@@ -394,6 +396,21 @@ export default function StoryComposer({ initial = {}, mode }) {
             />
           )}
         </div>
+      </div>
+
+      {/* AI Authorship Disclosure */}
+      <div className="mt-6 border-t border-gray-100 pt-6">
+        <label className="mb-1 block text-sm font-medium text-ink">AI Authorship Disclosure</label>
+        <p className="mb-2 text-xs text-ink-soft">Disclose if artificial intelligence was used in editing or co-writing this story.</p>
+        <select
+          value={aiAssisted}
+          onChange={(e) => setAiAssisted(e.target.value)}
+          className="w-full max-w-xs rounded-lg border border-gray-300 bg-white p-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          <option value="none">None — Entirely human authored</option>
+          <option value="edited">AI-edited — AI assisted with copyediting/structure</option>
+          <option value="co-written">AI co-written — AI generated narrative/draft text</option>
+        </select>
       </div>
 
       {showRevisions && slug && (

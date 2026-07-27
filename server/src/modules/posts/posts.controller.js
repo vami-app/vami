@@ -29,7 +29,7 @@ class PostController {
   });
 
   createPost = asyncHandler(async (req, res) => {
-    const { title, subtitle, contentHtml, coverImage, tags, status, scheduledAt, seo, locked } = req.body;
+    const { title, subtitle, contentHtml, coverImage, tags, status, scheduledAt, seo, locked, aiAssisted } = req.body;
     const data = await this.service.createPost({
       author: req.user,
       title,
@@ -41,6 +41,7 @@ class PostController {
       scheduledAt,
       seo,
       locked,
+      aiAssisted,
     });
     return sendSuccess(res, 201, data, "Story saved");
   });

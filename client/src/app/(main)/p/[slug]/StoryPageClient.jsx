@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api, ApiError, resolveMedia } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/ui/Avatar";
+import AiAuthorshipBadge from "@/components/post/AiAuthorshipBadge";
 import ClapButton from "@/components/post/ClapButton";
 import BookmarkButton from "@/components/post/BookmarkButton";
 import CommentSection from "@/components/post/CommentSection";
@@ -106,9 +107,10 @@ export default function StoryPageClient({ initialPost }) {
               <Link href={`/@${author.username}`} className="font-medium text-ink hover:underline">
                 {author.name}
               </Link>
-              <p className="text-sm text-ink-soft">
-                {post.readTimeMinutes} min read · {formatDate(post.publishedAt || post.createdAt)}
-              </p>
+              <div className="flex flex-wrap items-center gap-2 text-sm text-ink-soft">
+                <span>{post.readTimeMinutes} min read · {formatDate(post.publishedAt || post.createdAt)}</span>
+                <AiAuthorshipBadge aiAssisted={post.aiAssisted} size="md" />
+              </div>
             </div>
           </div>
           {isAuthor && (

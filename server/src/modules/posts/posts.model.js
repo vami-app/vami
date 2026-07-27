@@ -77,6 +77,11 @@ const postSchema = new Schema(
       type: Number,
       default: 3,
     },
+    aiAssisted: {
+      type: String,
+      enum: ["none", "edited", "co-written"],
+      default: "none",
+    },
   },
   { timestamps: true }
 );
@@ -157,6 +162,7 @@ postSchema.methods.toCardJSON = function toCardJSON(viewerId = null) {
     submissionStatus: this.submissionStatus || "none",
     reviewNote: this.reviewNote || "",
     locked: this.locked || false,
+    aiAssisted: this.aiAssisted || "none",
   };
 };
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
+import AiAuthorshipBadge from "@/components/post/AiAuthorshipBadge";
 import { resolveMedia } from "@/lib/api";
 import { formatDate, formatCount } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ import { formatDate, formatCount } from "@/lib/utils";
  * @property {string} publishedAt
  * @property {string} createdAt
  * @property {string} status
+ * @property {string} [aiAssisted]
  */
 
 /**
@@ -36,6 +38,7 @@ export default function PostCard({ post, showStatus = false }) {
         </Link>
         <span aria-hidden="true">·</span>
         <span>{formatDate(date)}</span>
+        <AiAuthorshipBadge aiAssisted={post.aiAssisted} size="sm" />
         {showStatus && post.status === "draft" && (
           <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
             Draft

@@ -133,9 +133,15 @@ class PostService {
     return { post: data };
   }
 
-  async createPost({ author, title, subtitle, contentHtml, coverImage, tags, status, scheduledAt, seo, locked }) {
+  async createPost({ author, title, subtitle, contentHtml, coverImage, tags, status, scheduledAt, seo, locked, aiAssisted }) {
     if (status === "published" && !author.emailVerified) {
       throw new ApiError(403, "Please verify your email address before publishing stories.");
+    }
+
+    const validAiValues = ["none", "edited", "co-written"];
+    const aiAssistedVal = aiAssisted ? String(aiAssisted).toLowerCase() : "none";
+    if (!validAiValues.includes(aiAssistedVal)) {
+      throw new ApiError(400, "aiAssisted must be one of: none, edited, co-written");
     }
 
     let parsedScheduledAt = null;
@@ -157,6 +163,7 @@ class PostService {
       status: status === "published" ? "published" : "draft",
       scheduledAt: parsedScheduledAt,
       locked: locked !== undefined ? Boolean(locked) : false,
+      aiAssisted: aiAssistedVal,
       seo: {
         metaTitle: (seo && seo.metaTitle) ? String(seo.metaTitle).trim().slice(0, 160) : undefined,
         metaDescription: (seo && seo.metaDescription) ? String(seo.metaDescription).trim().slice(0, 200) : undefined,
@@ -185,7 +192,7 @@ class PostService {
       throw new ApiError(403, "You can only edit your own stories");
     }
 
-    const { title, subtitle, contentHtml, coverImage, tags, status, scheduledAt, seo, locked } = fields;
+    const { title, subtitle, contentHtml, coverImage, tags, status, scheduledAt, seo, locked, aiAssisted } = fields;
 
     const titleChanged = title !== undefined && title !== post.title;
     const subtitleChanged = subtitle !== undefined && subtitle !== post.subtitle;
@@ -223,6 +230,15 @@ class PostService {
     if (coverImage !== undefined) updateFields.coverImage = coverImage;
     if (tags !== undefined) updateFields.tags = normalizeTags(tags);
     if (locked !== undefined) updateFields.locked = Boolean(locked);
+
+    if (aiAssisted !== undefined) {
+      const validAiValues = ["none", "edited", "co-written"];
+      const val = String(aiAssisted).toLowerCase();
+      if (!validAiValues.includes(val)) {
+        throw new ApiError(400, "aiAssisted must be one of: none, edited, co-written");
+      }
+      updateFields.aiAssisted = val;
+    }
 
     if (status === "published" && post.status !== "published" && !user.emailVerified) {
       throw new ApiError(403, "Please verify your email address before publishing stories.");
