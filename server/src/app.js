@@ -12,7 +12,6 @@ const { authLimiter, generalLimiter } = require("./middlewares/rateLimiter");
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes");
 const postRoutes = require("./routes/post.routes");
-const commentRoutes = require("./routes/comment.routes");
 const uploadRoutes = require("./routes/upload.routes");
 const feedRoutes = require("./routes/feed.routes");
 const adminRoutes = require("./routes/admin.routes");
@@ -33,21 +32,21 @@ const ALLOWED_ORIGIN_PATTERNS = [
 const allowedOriginCheck = (origin, callback) => {
   // Allow server-to-server or local script requests
   if (!origin) return callback(null, true);
-  
+
   // Allow localhost for dev
   if (origin.startsWith("http://localhost:")) return callback(null, true);
-  
+
   const isAllowed = ALLOWED_ORIGIN_PATTERNS.some((pattern) => {
     if (typeof pattern === "string") {
       return origin === pattern;
     }
     return pattern.test(origin);
   });
-  
+
   if (isAllowed) {
     return callback(null, true);
   }
-  
+
   callback(new Error("Not allowed by CORS"));
 };
 
@@ -93,12 +92,10 @@ const telemetryRoutes = require("./routes/telemetry.routes");
 const membershipRoutes = require("./routes/membership.routes");
 const writerRoutes = require("./routes/writer.routes");
 const notificationRoutes = require("./routes/notification.routes");
-const highlightRoutes = require("./routes/highlight.routes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
-app.use("/api/comments", commentRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/feed", feedRoutes);
 app.use("/api/admin", adminRoutes);
@@ -110,10 +107,12 @@ const { registry } = require("./kernel");
 const { highlightModule } = require("./modules/highlights/highlights.module");
 const { readingListModule } = require("./modules/reading-lists/reading-lists.module");
 const { postRevisionsModule } = require("./modules/post-revisions/post-revisions.module");
+const { commentsModule } = require("./modules/comments/comments.module");
 
 registry.register("highlights", highlightModule);
 registry.register("reading-lists", readingListModule);
 registry.register("post-revisions", postRevisionsModule);
+registry.register("comments", commentsModule);
 registry.boot(app);
 
 app.use("/api/membership", membershipRoutes);

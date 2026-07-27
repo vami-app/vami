@@ -309,6 +309,7 @@ const deleteAccount = asyncHandler(async (req, res) => {
   const Report = require("../models/Report");
   const { highlightRepository } = require("../modules/highlights/highlights.module");
   const { postRevisionRepository } = require("../modules/post-revisions/post-revisions.module");
+  const { commentRepository } = require("../modules/comments/comments.module");
 
   if (mode === "erase") {
     // Delete highlights for posts that are going to be deleted
@@ -329,19 +330,16 @@ const deleteAccount = asyncHandler(async (req, res) => {
     });
 
     // 5. Delete ALL comments on user's own posts (regardless of author)
-    await Comment.deleteMany({ post: { $in: postIds } });
+    await commentRepository.deleteManyByPostIds(postIds);
 
     // 6. Soft or hard delete user's comments on other people's posts
-    const otherComments = await Comment.find({ author: user._id, post: { $nin: postIds } });
+    const otherComments = await commentRepository.findOtherCommentsByAuthor(user._id, postIds);
     for (const comment of otherComments) {
-      const hasReplies = await Comment.exists({ parentComment: comment._id });
+      const hasReplies = await commentRepository.hasReplies(comment._id);
       if (hasReplies) {
-        comment.content = "[deleted]";
-        comment.deletedButHasReplies = true;
-        comment.author = deletedUser._id; // Reassign to system deleted user
-        await comment.save();
+        await commentRepository.anonymizeAndSoftDelete(comment._id, deletedUser._id);
       } else {
-        await comment.deleteOne();
+        await commentRepository.hardDelete(comment._id);
       }
     }
 

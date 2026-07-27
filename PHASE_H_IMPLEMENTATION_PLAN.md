@@ -882,6 +882,20 @@ registry.boot(app);
 
 All 7 subsections above contain pasted raw artifacts, independent `git show` outputs, full line-numbered source code dumps, and exact command outputs. Zero claims in this report are asserted without direct raw source proof.
 
+---
+
+# 🖋️ Inkwell — Phase H, Step 4: Comment Repository + Module Extraction [COMPLETED]
+
+> **Status**: Completed on 2026-07-27. All 7 verification exit criteria passed, full Vitest suite green (15/15 test files / 48 tests passing).
+> **Scope**: `Comment` Repository + Module Extraction
+> **Key achievements**:
+> - Created `server/src/modules/comments/` with model, repository interface, Mongo implementation, service, controller, and module boot configuration.
+> - Converted `server/src/models/Comment.js` into permanent bridge re-exporting `modules/comments/comments.model.js`.
+> - Preserved 1:1 notification side effects on comment and reply creation with zero behavior change (§7.0).
+> - Rewired cascade steps 5 & 6 in `user.controller.js` to use `commentRepository` methods (`deleteManyByPostIds`, `findOtherCommentsByAuthor`, `anonymizeAndSoftDelete`, `hardDelete`).
+> - Authored `server/test/integration/comments.test.js` covering draft protection, list, create, reply notification, soft-delete, and hard-delete.
+
+
 
 
 

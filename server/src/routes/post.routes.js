@@ -14,10 +14,6 @@ const {
   toggleTagFollow,
   getRelatedPosts,
 } = require("../controllers/post.controller");
-const {
-  listComments,
-  addComment,
-} = require("../controllers/comment.controller");
 const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
 const { validate } = require("../middlewares/validate");
 const {
@@ -51,8 +47,5 @@ router.post("/:slug/bookmark", requireAuth, toggleBookmark);
 router.post("/tags/:tag/follow", requireAuth, toggleTagFollow);
 
 
-
-router.get("/:slug/comments", optionalAuth, listComments);
-router.post("/:slug/comments", requireAuth, commentRules, validate, addComment);
 
 module.exports = router;
