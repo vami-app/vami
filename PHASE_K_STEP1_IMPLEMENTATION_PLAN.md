@@ -66,18 +66,30 @@ Added `theme.screens` block (placed under `theme`, not `theme.extend`, so it rep
 // Before (stock defaults, implicit):
 // sm:640px  md:768px  lg:1024px  xl:1280px  2xl:1536px  (no xs)
 
-// After (Phase K Step 1 scale):
+// Initial Step 1 draft (Defective):
+// xs: 480px, sm: 640px  (left sm at 640px, creating an un-aligned 480–639px gap)
+
+// After (Corrected Phase K Step 1 scale — matching blueprint §3.1 zone starts):
 screens: {
-  xs:  '480px',
-  sm:  '640px',
-  md:  '768px',
-  lg: '1024px',
-  xl: '1280px',
-  '2xl': '1536px',
+  xs:   '0px',   // 0–479px: phones in portrait
+  sm: '480px',   // 480–767px: phablets / large phones / small tablets
+  md: '768px',   // 768–1023px: tablets
+  lg: '1024px',   // 1024–1279px: small laptops
+  xl: '1280px',   // 1280–1535px: standard desktop
+  '2xl': '1536px', // 1536px+: wide desktop
 },
 ```
 
-All `theme.extend` values (colors, fontFamily, maxWidth, keyframes, animation) preserved verbatim. The `xs` token is the only net addition; `sm`/`md`/`lg`/`xl`/`2xl` resolve to the same pixel values as before.
+All `theme.extend` values (colors, fontFamily, maxWidth, keyframes, animation) preserved verbatim. `xs` starts at 0px (base styles), `sm` starts at 480px (matching blueprint §3.1's zone table).
+
+**Defect Correction & `sm:` Activation Shift Analysis:**
+- Moving `sm` start from 640px to 480px causes all `sm:` prefixed utilities to activate 160px earlier (between 480px and 639px).
+- **Grep sweep across `client/src/`** identified 21 files using `sm:` (`PostCard`, `Navbar`, `Footer`, `VerificationBanner`, `Skeleton`, `StoryPageClient`, `page` files).
+- **Impact on 480–639px viewports (phablets/small tablets):**
+  - `Navbar.jsx`: "Write a story" and "Sign in" buttons activate at 480px+ (`hidden sm:block`).
+  - `PostCard.jsx`: Title font scales to text-2xl and thumbnail image expands to h-28 w-40 at 480px+ (`sm:text-2xl sm:h-28 sm:w-40`).
+  - `Footer.jsx`, `VerificationBanner.jsx`, `Skeleton.jsx`, `Dashboard`: Layout flex-directions switch from column to row at 480px+ instead of 640px.
+- `md:` (768px) and `lg:` (1024px) breakpoint rules are unaffected — `Navbar` search toggle and `MobileDrawer` use `md:` (768px) and behave identically.
 
 ### `client/src/RESPONSIVE_PATTERNS.md` (new file)
 
@@ -125,7 +137,7 @@ Note: The plan listed 6 components; the actual count is 7 because `PublicationDa
 
 ---
 
-## 5. §7.4 No-Behavior-Change Confirmation
+## 5. §7.4 Component Behavior & Breakpoint Shift Analysis
 
 - `PostList`: Phase K Step 1 made no JSX changes. Single-column layout at all viewports is unchanged.
 - `RelatedPosts`: Phase K Step 1 made no JSX changes. Stacked list with `divide-y` is unchanged.
@@ -134,6 +146,11 @@ Note: The plan listed 6 components; the actual count is 7 because `PublicationDa
 - `MobileDrawer`: `screens.md` unchanged at 768px. The `md:hidden` boundary is identical.
 - `CommentSection`: Phase K Step 1 made no JSX changes. Fixed-margin indenting at all viewports is unchanged.
 - `PublicationDashboardPage`: Phase K Step 1 made no JSX changes. Single-column layout is unchanged.
+- **`sm:` (480px) Shift Impact**: `sm:` utilities now activate 160px earlier (480px vs 640px). Evaluated across all 21 `sm:` call sites in `client/src/`:
+  - `Navbar.jsx`: "Write a story" and "Sign in" buttons now show at 480px+ (phablets/landscape phones) instead of 640px.
+  - `PostCard.jsx`: Title size (text-2xl) and thumbnail size (h-28 w-40) expand at 480px+ instead of 640px.
+  - `Footer.jsx`, `VerificationBanner.jsx`, `Skeleton.jsx`, `Dashboard`: Switch flex layout from column to row at 480px+ instead of 640px.
+  - All 7 audited components remain fully functional and structurally sound at the corrected 480px boundary.
 
 ---
 
@@ -155,7 +172,7 @@ Note: The test suite is the server-side Vitest suite. There is no frontend test 
 
 ## 7. §7.6 Final Sign-Off
 
-"Both subsections above contain pasted artifacts — quoted config, quoted component snippets (`client/tailwind.config.js` lines 1–62, each component's layout-relevant JSX), real `git status` and `git diff --stat` output, real test runner output — not descriptions. Zero server files touched, confirmed by §4's diff. Zero component behavior changed at any viewport, confirmed by §5 (the only modified config value that could affect rendering is `screens.md` = 768px, which was already 768px under stock Tailwind, so no CSS changes at any breakpoint)."
+"Both subsections above contain pasted artifacts — quoted config, quoted component snippets (`client/tailwind.config.js` lines 1–62, each component's layout-relevant JSX), real `git status` and `git diff --stat` output, real test runner output — not descriptions. Zero server files touched, confirmed by §4's diff. Component behavior under `md:` (768px) and `lg:` (1024px) is unchanged. Component behavior under `sm:` (now 480px, previously 640px) is audited across all 21 call sites and confirmed correctly aligned with blueprint §3.1's 480–767px zone table."
 
 ---
 

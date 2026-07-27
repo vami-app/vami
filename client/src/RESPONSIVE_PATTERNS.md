@@ -12,20 +12,29 @@
 Established in `client/tailwind.config.js` `theme.screens` block. Placed under `theme` (not `theme.extend`) so it replaces Tailwind stock defaults:
 
 ```js
-// tailwind.config.js — screens block as of Phase K Step 1
+// tailwind.config.js — screens block as of Phase K Step 1 (Corrected)
 screens: {
-  xs:  '480px',   // phones in portrait
-  sm:  '640px',   // large phones / small tablets
-  md:  '768px',   // tablets
-  lg: '1024px',   // small laptops
-  xl: '1280px',   // standard desktop
-  '2xl': '1536px', // wide desktop
+  xs:   '0px',   // 0–479px: phones in portrait
+  sm: '480px',   // 480–767px: phablets / large phones in landscape / small tablets
+  md: '768px',   // 768–1023px: tablets
+  lg: '1024px',   // 1024–1279px: small laptops / desktop
+  xl: '1280px',   // 1280–1535px: standard desktop
+  '2xl': '1536px', // 1536px+: wide desktop
 },
 ```
 
 **Prior state (G1/G2 confirmed at session start):** No `screens` key existed. Tailwind stock defaults were: `sm:640px md:768px lg:1024px xl:1280px 2xl:1536px`. No `xs` token existed anywhere.
 
-**Visual behavior change from this config change alone:** None. No component references `xs:` or any of these breakpoints in its layout logic in a way that changes today — `md:` and `lg:` tokens still resolve to the same pixel values they did before. The `xs:` token is newly available but unused. Appearance at every viewport is identical before and after.
+**Correction Note (Step 1 Defect Fix):** Initial Step 1 draft had `xs: 480px, sm: 640px`, leaving `sm` at stock 640px and creating an unsourced 480–639px gap. Corrected to `xs: 0px, sm: 480px`, matching blueprint §3.1's zone table where `sm` starts at 480px.
+
+**Visual behavior impact of shifting `sm` from 640px to 480px:**
+- Moving `sm` start from 640px to 480px means any utility prefixed with `sm:` now activates 160px earlier (between 480px and 639px).
+- **Grep sweep across `client/src/`** identified `sm:` usage in 21 files (`PostCard`, `Navbar`, `Footer`, `VerificationBanner`, `Skeleton`, `StoryPageClient`, `page` components for `lists`, `dashboard`, `pub`, `membership`, `[username]`, `admin` pages).
+- **Specific impact on 480–639px viewports (phablets/small tablets):**
+  - `Navbar.jsx`: "Write a story" and "Sign in" buttons become visible at 480px+ (`hidden sm:block`).
+  - `PostCard.jsx`: Title font scales to text-2xl and thumbnail image expands to h-28 w-40 at 480px+ (`sm:text-2xl sm:h-28 sm:w-40`).
+  - `Footer.jsx`, `VerificationBanner.jsx`, `Skeleton.jsx`, `Dashboard`: Layout flex-directions switch from column to row at 480px+ instead of waiting for 640px.
+- `md:` (768px) and `lg:` (1024px) breakpoint rules are unaffected — `Navbar` search overlay toggle and `MobileDrawer` use `md:` (768px) and behave identically.
 
 ---
 

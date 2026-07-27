@@ -10,8 +10,8 @@ module.exports = {
     // These are decision zones, not the only widths that matter.
     // Fluid clamp() values (Phase K Step 2+) fill the gaps between them.
     screens: {
-      xs:  '480px',
-      sm:  '640px',
+      xs:  '0px',
+      sm:  '480px',
       md:  '768px',
       lg: '1024px',
       xl: '1280px',
