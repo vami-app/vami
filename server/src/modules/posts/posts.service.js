@@ -441,7 +441,7 @@ class PostService {
 
   async getRecommendedPosts({ viewer, limit = 10 }) {
     const followedTags = viewer.followedTags || [];
-    const Follow = require("../../models/Follow");
+    const Follow = require("../users/follow.model");
     const follows = await Follow.find({ follower: viewer._id }).select("followee");
     const followedAuthorIds = follows.map((f) => String(f.followee));
 

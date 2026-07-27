@@ -267,7 +267,7 @@ class UserService {
       throw new ApiError(400, "You cannot follow yourself");
     }
 
-    const Follow = require("../../models/Follow");
+    const Follow = require("./follow.model");
     const existing = await Follow.findOne({
       follower: requesterId,
       followee: targetUser._id,
@@ -423,9 +423,9 @@ class UserService {
     // Capture sets
     const { postRepository } = require("../posts/posts.module");
     const Comment = require("../../models/Comment");
-    const Report = require("../../models/Report");
+    const Report = require("../moderation/report.model");
     const ReadEvent = require("../../models/ReadEvent");
-    const Follow = require("../../models/Follow");
+    const Follow = require("./follow.model");
 
     const postIds = await postRepository.findIdsByAuthor(user._id);
 
