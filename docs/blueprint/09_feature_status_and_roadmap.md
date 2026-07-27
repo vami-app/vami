@@ -35,6 +35,11 @@ The table below tracks the status of all core platform capabilities across phase
 | OAuth & Real-time Notifications | Phase E | Pending | ✅ **Completed** | Google/GitHub OAuth (Passport.js — account-link by email, GitHub private email fallback), Socket.IO live notification stream (personal user rooms, cookie-auth handshake, force-disconnect on ban), notification inbox REST API (GET/mark-read/mark-all-read), `SocketContext` client provider, post scheduling (`scheduledAt` + `check_scheduled_posts.js` runner) |
 | Reader Experience Depth | Phase F | Pending | ✅ **Completed** | Highlighting/annotations (`Highlight` model, fuzzy re-location), writer analytics dashboard (`GET /api/writer/analytics`), dark mode token pass & cookie persistence |
 | Quality Infrastructure | Phase G | Pending | ✅ **Completed** | Vitest unit + integration test suite (isolated DB), Playwright E2E suite |
+| Modular Monolith Extraction | Phase H | Pending | ✅ **Completed** | Extracted all 16 legacy database models to domain modules in `server/src/modules/` |
+| FAANG DSA Query Optimizations | Phase I | Pending | ✅ **Completed** | Inverted text index search, min-heap trending tags, compound indexes, sliding-window rate limiting |
+| AI Authorship & Trust Features | Phase J | Pending | ✅ **Completed** | AI disclosure badge (`aiAssisted`), Post revision control, Payout transparency, Appeals workflow, `/membership` landing & metered reads (3 free locked reads/mo) |
+| Responsive Token Scale | Phase K.1 | Pending | ✅ **Completed** | 6-token decision-zone breakpoint scale (`xs:0px, sm:480px, md:768px, lg:1024px, xl:1280px, 2xl:1536px`) and `RESPONSIVE_PATTERNS.md` classification |
+| Responsive Reflow & Adaptation | Phase K.2 | Pending | ✅ **Completed** | Responsive grid Reflow (`PostList`, `RelatedPosts`), Reposition (`TrendingTags`), phone depth flattening & 44px touch targets (`CommentSection`) |
 
 ---
 
@@ -49,9 +54,14 @@ The table below tracks the status of all core platform capabilities across phase
 | **Phase E** | Identity, Access, Real-time | **Completed** | 6 weeks |
 | **Phase F** | Reader Experience Depth | **Completed** | 5.5 weeks |
 | **Phase G** | Quality Infrastructure | **Completed** | 6 weeks |
+| **Phase H** | Modular Monolith Extraction | **Completed** | 2 weeks |
+| **Phase I** | FAANG DSA Query Optimizations | **Completed** | 1 week |
+| **Phase J** | Product Scaling & Trust Features | **Completed** | 2 weeks |
+| **Phase K** | Responsive & Scaling Experience Depth | **Completed** | 1 week |
 
 *For complete feature specs, definitions of done, and implementation rules, refer to `INKWELL_FULL_PRODUCT_ROADMAP.md`.*
 
 ---
 
-*Blueprint updated: 2026-07-23 — Synchronized with Phase F & G completion. v1.8.0.*
+*Blueprint updated: 2026-07-27 — Synchronized with Phase H, I, J & K completion. v2.1.0.*
+

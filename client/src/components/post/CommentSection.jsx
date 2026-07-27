@@ -192,7 +192,14 @@ function CommentNode({ comment, onReplySubmit, onDelete, user, depth = 0 }) {
               <Link href={`/@${comment.author.username}`} className="flex items-center gap-2">
                 <Avatar src={comment.author.avatarUrl} name={comment.author.name} size="sm" />
                 <div className="leading-tight">
-                  <p className="text-sm font-medium text-ink">{comment.author.name}</p>
+                  <p className="text-sm font-medium text-ink flex items-center gap-1.5">
+                    {comment.author.name}
+                    {depth >= 3 && comment.parentAuthor && (
+                      <span className="text-[11px] font-normal text-ink-soft bg-gray-100 px-1.5 py-0.5 rounded">
+                        Replying to @{comment.parentAuthor}
+                      </span>
+                    )}
+                  </p>
                   <p className="text-xs text-ink-faint">{formatDate(comment.createdAt)}</p>
                 </div>
               </Link>
@@ -209,7 +216,8 @@ function CommentNode({ comment, onReplySubmit, onDelete, user, depth = 0 }) {
           {user && !isSoftDeleted && comment.author?.username === user.username && (
             <button
               onClick={() => onDelete(comment.id)}
-              className="text-xs text-ink-faint hover:text-red-600"
+              className="text-xs text-ink-faint hover:text-red-600 min-h-[44px] min-w-[44px] inline-flex items-center justify-center px-2"
+              aria-label="Delete response"
             >
               Delete
             </button>
@@ -226,7 +234,8 @@ function CommentNode({ comment, onReplySubmit, onDelete, user, depth = 0 }) {
           <div className="flex justify-end pt-1">
             <button
               onClick={() => setShowReplyForm(!showReplyForm)}
-              className="text-xs font-medium text-accent-600 hover:underline"
+              className="text-xs font-medium text-accent-600 hover:underline min-h-[44px] min-w-[44px] inline-flex items-center justify-center px-2"
+              aria-label={showReplyForm ? "Cancel reply" : "Reply to response"}
             >
               {showReplyForm ? "Cancel" : "Reply"}
             </button>
@@ -236,7 +245,7 @@ function CommentNode({ comment, onReplySubmit, onDelete, user, depth = 0 }) {
 
       {/* Reply Submission Form */}
       {showReplyForm && (
-        <form onSubmit={submitReply} className="ml-4 border-l-2 border-accent-100 pl-4 py-2 space-y-2">
+        <form onSubmit={submitReply} className={`${depth >= 3 ? "ml-1 pl-2 sm:ml-4 sm:pl-4" : "ml-4 pl-4"} border-l-2 border-accent-100 py-2 space-y-2`}>
           <textarea
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
@@ -246,7 +255,7 @@ function CommentNode({ comment, onReplySubmit, onDelete, user, depth = 0 }) {
           />
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-ink-faint">{replyContent.length}/2000</span>
-            <Button type="submit" size="xs" disabled={submitting || !replyContent.trim()}>
+            <Button type="submit" size="xs" disabled={submitting || !replyContent.trim()} className="min-h-[44px] min-w-[64px]">
               {submitting ? "Replying…" : "Reply"}
             </Button>
           </div>
@@ -254,13 +263,13 @@ function CommentNode({ comment, onReplySubmit, onDelete, user, depth = 0 }) {
         </form>
       )}
 
-      {/* Recursive Replies List */}
+      {/* Recursive Replies List — flatten indentation on small screens past depth 3 */}
       {comment.replies && comment.replies.length > 0 && (
-        <ul className="ml-4 border-l border-gray-100 pl-4 space-y-4">
+        <ul className={`${depth >= 3 ? "ml-1 pl-1 sm:ml-4 sm:pl-4" : "ml-4 pl-4"} border-l border-gray-100 space-y-4`}>
           {comment.replies.map((reply) => (
             <CommentNode
               key={reply.id}
-              comment={reply}
+              comment={{ ...reply, parentAuthor: comment.author?.username }}
               onReplySubmit={onReplySubmit}
               onDelete={onDelete}
               user={user}
@@ -272,3 +281,4 @@ function CommentNode({ comment, onReplySubmit, onDelete, user, depth = 0 }) {
     </li>
   );
 }
+

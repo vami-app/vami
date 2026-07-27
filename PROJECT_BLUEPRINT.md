@@ -1,6 +1,6 @@
 # 🖋️ Inkwell — Project Blueprint
 
-> **Version:** 1.8.0 · **Stack:** Next.js 16 + Express + MongoDB · **Package Manager:** pnpm (v11)
+> **Version:** 2.1.0 · **Stack:** Next.js 16 + Express + MongoDB · **Package Manager:** pnpm (v11)
 > A Medium-inspired publishing platform — read, write, and share stories. Optimized for SEO, subdomains, and data export portability.
 
 ---
@@ -19,10 +19,10 @@
    - Monorepo directory tree structure and end-to-end client-server-database ASCII architecture diagram.
 
 3. **[03 Server Architecture (Backend)](docs/blueprint/03_server_backend_architecture.md)**
-   - Express server entry points, env configuration, database schemas (`User`, `Post`, `Notification`, `Publication`, `PublicationMember`, `ReadingList`, `ReadEvent`, `MembershipPayment`, `PayoutLedgerEntry`, `WebhookEvent`, `Comment`, `Follow`, `Report`, `AuditLog`, `PostRevision`, `Highlight`), middleware chain, controllers, utility modules, validator rules, and test scripts.
+   - Domain-modularized Express server architecture (`server/src/modules/`), 16 extracted domain models, middleware chain, controllers, utility modules, validator rules, and test scripts.
 
 4. **[04 Client Architecture (Frontend)](docs/blueprint/04_client_frontend_architecture.md)**
-   - Next.js 16 App Router layout tree, complete route pages table, component library breakdown, `AuthContext`, `ThemeContext` & `SocketContext` state management, `lib/api.js` client wrapper, custom hooks (`useHighlights`), and Tailwind design system tokens.
+   - Next.js 16 App Router layout tree, complete route pages table (including `/membership`), component library breakdown, state management, client wrappers, custom hooks, 6-token breakpoint scale (`xs` to `2xl`), and layout pattern adaptation.
 
 5. **[05 Data Flows & Subdomain Routing](docs/blueprint/05_data_flows_and_subdomains.md)**
    - Sequence diagrams and flowcharts for authentication, subdomain rewrites, home feed reading, story publishing, debounced multi-clapping, publication submission reviews, reading lists, and Razorpay test subscriptions.
@@ -37,8 +37,9 @@
    - Environment variables reference (`server/.env`, `client/.env.local`), root and package scripts, server utility scripts, local development ports, and demo user credentials.
 
 9. **[09 Feature Status & Roadmap Tracking](docs/blueprint/09_feature_status_and_roadmap.md)**
-   - Feature status matrix tracking MVP, Phase A, Phase B, Phase C, Phase D, Phase E, Phase F, and Phase G completed features.
+   - Feature status matrix tracking MVP through Phase K (Responsive & Scaling Experience Depth) completed features.
 
 ---
 
-*Blueprint updated: 2026-07-23 — Synchronized with Phase F & G completion & modular documentation architecture. v1.8.0.*
+*Blueprint updated: 2026-07-27 — Synchronized with Phase H, I, J & K completion & modular documentation architecture. v2.1.0.*
+

@@ -73,6 +73,7 @@ RootLayout (app/layout.jsx)
 | `/bookmarks` | BookmarksPage | User's bookmarked posts via `GET /api/users/me/bookmarks` |
 | `/search?q=` | SearchPage | Query `?q=` fed to `GET /api/posts?q=` |
 | `/tag/[tag]` | TagPage | Filter feed by `GET /api/posts?tag=` |
+| `/membership` | MembershipPage | Single-membership positioning landing page (*"One Membership. Access Every Writer."*), formula-fidelity pool breakdown, value pillars, `<SubscribeModal>` trigger |
 | `/terms` | TermsPage | Terms of Service — static, real drafted content |
 | `/privacy` | PrivacyPage | Privacy Policy — covers data practices, processors, export/deletion |
 | `/admin` | AdminStatsPage | Real-time platform stats overview |
@@ -84,8 +85,9 @@ RootLayout (app/layout.jsx)
 ## 3. Component Library
 
 ### `components/editor/`
-- **`StoryComposer.jsx`**: Full story creation/editing shell. Manages title, subtitle, contentHtml, coverImage, tags, status, slug. Handles image upload via `POST /api/uploads/image`.
+- **`StoryComposer.jsx`**: Full story creation/editing shell. Manages title, subtitle, contentHtml, coverImage, tags, status, slug, `aiAssisted` status. Handles image upload via `POST /api/uploads/image`.
 - **`StoryEditor.jsx`**: Tiptap WYSIWYG core with StarterKit, Image, Link, Placeholder. Sticky formatting toolbar. Syncs content.
+- **`RevisionHistoryModal.jsx`**: Version control snapshot viewer with LCS diff slideover and restore actions.
 
 ### `components/layout/`
 - **`Navbar.jsx`**: Sticky top navigation (search bar, Write button, notification bell badge from `SocketContext`, ThemeToggle, Avatar dropdown menu).
@@ -98,29 +100,44 @@ RootLayout (app/layout.jsx)
 
 ### `components/membership/`
 - **`SubscribeModal.jsx`**: Razorpay test-mode checkout modal. Calls `POST /api/membership/subscribe` for session ID, then `POST /api/membership/verify` after user completes test payment overlay.
-- **`WriterLedgerCard.jsx`**: Displays a writer's engagement-weighted payout ledger entries from `GET /api/writer/payout-ledger`.
+- **`WriterLedgerCard.jsx`**: Displays a writer's engagement-weighted payout ledger entries from `GET /api/writer/payout-ledger` with formula breakdown.
+- **`DisputeModal.jsx`**: Allows writers to submit due process appeal disputes on held payouts within a 14-day window.
+- **`MeteredReadBanner.jsx`**: Displays remaining monthly locked story free reads counter (3 free reads/month quota).
 
 ### `components/post/`
-- **`PostCard.jsx`**: Feed card displaying author avatar, title, subtitle, tags, read time, claps, cover image, publication badge.
-- **`PostList.jsx`**: Infinite-scrolling list of `<PostCard>` items using `useInfiniteScroll`.
+- **`PostCard.jsx`**: Feed card displaying author avatar, title, subtitle, tags, read time, claps, cover image, publication badge, and `<AIDisclosureBadge>`.
+- **`PostList.jsx`**: Responsive Reflow grid (`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`) of `<PostCard>` items using `useInfiniteScroll`.
 - **`ForYouFeed.jsx`**: Personalized feed tab displaying interest-scored recommendations with an in-product "Why these stories?" disclosure card.
 - **`ClapButton.jsx`**: Multi-clap button with optimistic updates, 500ms debounce batching, and 50-clap per user cap.
 - **`BookmarkButton.jsx`**: Toggle bookmark state with optimistic feedback.
-- **`CommentSection.jsx`**: Threaded comments list with 5-depth nesting clamp, reply form, and soft-delete placeholder branch.
-- **`TrendingTags.jsx`**: Sidebar tag cloud displaying top tags calculated over a 7-day recency window.
-- **`RelatedPosts.jsx`**: Renders up to 3 same-tag related stories on the story reader page.
+- **`CommentSection.jsx`**: Threaded comments list with 5-depth nesting clamp, reply form, phone depth-flattening past level 3 with context chip, soft-delete branch, and 44px minimum touch targets.
+- **`TrendingTags.jsx`**: Repositioning sidebar/horizontal tag cloud displaying top tags calculated over a 7-day recency window.
+- **`RelatedPosts.jsx`**: Renders up to 3 same-tag related stories on the story reader page in a responsive grid.
 - **`AddToListModal.jsx`**: Modal dialog enabling users to save stories to existing or new reading lists.
 - **`HighlightLayer.jsx`**: Selection listener wrapping article body to render colored highlight underlays and trigger floating note popover.
 - **`HighlightPopover.jsx`**: Floating popover for adding/editing private highlight notes.
+- **`AIDisclosureBadge.jsx`**: Renders explicit AI authorship disclosure badges (`AI-Assisted`, `AI Co-Written`).
 
 ### `components/profile/`
 - **`FollowButton.jsx`**: Toggle follow/unfollow with real-time count.
+- **`SovereignExportCard.jsx`**: Renders account data export controls including `followers.json` and `posts` markdown ZIP.
 
-### `components/ui/`
-- **`Avatar.jsx`**: Round image with initials fallback.
-- **`Button.jsx`**: Styled buttons (`default`, `secondary`, `ghost`, `danger`).
-- **`Input.jsx`**: Form input with label + error text.
-- **`Skeleton.jsx`**: Animated loading placeholder.
+---
+
+## 4. Design System (Tailwind)
+
+- **6-Token Decision-Zone Breakpoint Scale:**
+  - `xs`: `0px` — Small phones
+  - `sm`: `480px` — Standard phones & phablets
+  - `md`: `768px` — Tablets & small laptops
+  - `lg`: `1024px` — Laptops
+  - `xl`: `1280px` — Desktops
+  - `2xl`: `1536px` — Ultra-wide viewports
+- **Layout Adaptation Patterns:** Reflow (`PostList`, `RelatedPosts`), Reposition (`TrendingTags`, Navbar search), Reveal-Conceal (`PublicationDashboardPage`), Replace (`MobileDrawer`, `CommentSection` depth flattening).
+- **Colors:** Primary Accent Indigo (`#4f46e5`), Body Ink (`#242424`), Ink Soft (`#6b6b6b`), Ink Faint (`#a3a3a3`).
+- **Typography:** `font-sans` (Inter), `font-serif` (Source Serif 4).
+- **Touch Targets:** 44px minimum touch target size across all mobile interactive controls.
+
 
 ---
 

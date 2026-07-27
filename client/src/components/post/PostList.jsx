@@ -85,18 +85,19 @@ export default function PostList({ query = {}, showStatus = false, emptyMessage 
   }
 
   return (
-    <div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {posts.map((p) => (
         <PostCard key={p.id || p.slug} post={p} showStatus={showStatus} />
       ))}
       {hasMore && (
-        <div ref={sentinelRef} className="py-8 text-center text-sm text-ink-faint">
+        <div ref={sentinelRef} className="col-span-full py-8 text-center text-sm text-ink-faint">
           {loading ? "Loading more…" : ""}
         </div>
       )}
       {error && posts.length > 0 && (
-        <p className="py-4 text-center text-sm text-red-600">{error}</p>
+        <p className="col-span-full py-4 text-center text-sm text-red-600">{error}</p>
       )}
     </div>
   );
+
 }

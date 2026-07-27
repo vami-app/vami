@@ -9,18 +9,33 @@
 ### `server/src/server.js`
 The application bootstrap sequence:
 1. Calls `connectDB()` — connects Mongoose to MongoDB.
-2. `app.listen(env.port)` — starts HTTP server.
+2. `app.listen(env.port)` — starts HTTP server and initializes Socket.IO.
 3. Registers `SIGINT` / `SIGTERM` handlers for graceful shutdown.
 
 ### `server/src/app.js`
 Creates and configures the Express application:
-- `app.set('trust proxy', 1)` — trust reverse proxy (for rate limiter IP detection).
+- `app.set('trust proxy', 1)` — trust reverse proxy (for sliding-window rate limiter IP detection).
 - CORS with `credentials: true` and origin locked to `env.clientUrl`.
 - JSON body parser (1 MB limit) + URL-encoded + cookie-parser.
 - `express.static` on `/uploads/` with 7-day cache + `Cross-Origin-Resource-Policy: cross-origin`.
 - Health check: `GET /api/health`.
-- Rate limiters and route mounts.
+- Domain modules & route mounts (`server/src/modules/`).
 - 404 handler + centralized error handler at the bottom.
+
+### Domain Modules Directory Layout (`server/src/modules/`)
+All 16 database models are extracted into clean, domain-owned modules:
+- `posts/`: Post model, controller, service, repository, validators
+- `users/`: User model, Follow model, profile logic, identity repositories
+- `comments/`: Comment model, service, controller, repository
+- `notifications/`: Notification model, gateway (Socket.IO), notification service
+- `publications/`: Publication & PublicationMember models, review workflows
+- `membership/`: MembershipPayment, PayoutLedgerEntry, WebhookEvent, ReadEvent models, metered reads & ledger services
+- `highlights/`: Highlight model, annotation service, repository
+- `reading-lists/`: ReadingList model, list management services
+- `moderation/`: Report & AuditLog models, moderation appeals & policy endpoints
+- `post-revisions/`: PostRevision model, version control snapshot persistence
+- `cascade/`: Event-driven user & post deletion cascade handler
+
 
 ---
 

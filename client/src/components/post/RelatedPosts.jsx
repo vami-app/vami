@@ -32,11 +32,12 @@ export default function RelatedPosts({ slug }) {
   return (
     <section className="mx-auto max-w-reading px-4 pt-12 border-t border-gray-100 mt-12">
       <h2 className="font-serif text-2xl font-bold text-ink mb-6">Related Stories</h2>
-      <div className="divide-y divide-gray-100">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
       </div>
     </section>
   );
+
 }

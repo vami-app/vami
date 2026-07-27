@@ -22,12 +22,12 @@ export default function TrendingTags() {
       <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-ink">
         Trending tags
       </h3>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 lg:flex-col lg:space-y-2 lg:gap-0">
         {tags.map((t) => (
           <Link
             key={t.tag}
             href={`/tag/${t.tag}`}
-            className="rounded-full bg-gray-100 px-3.5 py-2 text-sm text-ink hover:bg-gray-200"
+            className="rounded-full bg-gray-100 px-3.5 py-2 text-sm text-ink hover:bg-gray-200 lg:w-fit"
           >
             {t.tag}
           </Link>
@@ -35,4 +35,5 @@ export default function TrendingTags() {
       </div>
     </div>
   );
+
 }
