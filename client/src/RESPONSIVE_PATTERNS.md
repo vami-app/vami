@@ -298,19 +298,18 @@ return (
 
 | # | Component | Pattern | Status |
 |---|---|---|---|
-| 1 | `PostList` | Reflow (1→2→3 col) | **Target only — not implemented** |
-| 2 | `RelatedPosts` | Reflow (1→2→3 col) | **Target only — not implemented** |
-| 3 | `TrendingTags` | Reposition (below→rail) | **Target only — component is reposition-ready; parent layout not wired** |
+| 1 | `PostList` | Reflow (1→2→3 col) | ✅ **Implemented in Phase K Step 2** (`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`) |
+| 2 | `RelatedPosts` | Reflow (1→2→3 col) | ✅ **Implemented in Phase K Step 2** (`grid grid-cols-1 md:grid-cols-3 gap-6`) |
+| 3 | `TrendingTags` | Reposition (below→rail) | ✅ **Implemented in Phase K Step 2** (`flex flex-wrap gap-2 lg:flex-col lg:space-y-2 lg:gap-0`) |
 | 4 | `Navbar` search | Reposition (inline→toggle) | ✅ **Already implemented** (`md:flex`/`md:hidden`, `768px`) |
 | 5 | `MobileDrawer` | Replace | ✅ **Already implemented** (`md:hidden` panel + backdrop) |
-| 6 | `CommentSection` indent | Reposition/Replace (flatten @depth 3+) | **Target only — fixed `ml-4` indent at all viewports, no breakpoint logic** |
-| 7 | `PublicationDashboardPage` sidebar | Reveal-Conceal | **Target only — no sidebar exists; single-column layout only** |
-
-**Of six blueprint example surfaces: 2 already implement their target pattern. 4 are targets for later Phase K steps.**
+| 6 | `CommentSection` indent | Reposition/Replace (flatten @depth 3+) | ✅ **Implemented in Phase K Step 2** (Phone depth flattening @depth 3+ with context chip & 44px touch targets) |
+| 7 | `PublicationDashboardPage` sidebar | Reveal-Conceal | ✅ **Implemented in Phase K Step 3** (`lg:grid lg:grid-cols-3` desktop rail + mobile slide-over drawer) |
 
 ---
 
 ## G-Gate Record (Phase K Step 1)
+
 
 | # | Gate | Finding |
 |---|---|---|
