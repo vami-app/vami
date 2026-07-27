@@ -6,6 +6,17 @@ module.exports = {
     "./src/components/**/*.{js,jsx}",
   ],
   theme: {
+    // Inkwell responsive breakpoint scale — Phase K Step 1
+    // These are decision zones, not the only widths that matter.
+    // Fluid clamp() values (Phase K Step 2+) fill the gaps between them.
+    screens: {
+      xs:  '480px',
+      sm:  '640px',
+      md:  '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         // Deep indigo accent — Inkwell's signature (distinct from Medium green)
