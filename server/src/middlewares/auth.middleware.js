@@ -3,7 +3,9 @@
 const asyncHandler = require("../utils/asyncHandler");
 const { ApiError } = require("../utils/apiResponse");
 const { verifyAccessToken } = require("../utils/jwt");
-const User = require("../models/User");
+const MongoUserRepository = require("../modules/users/users.repository.mongo");
+
+const userRepository = new MongoUserRepository();
 
 /**
  * Require a valid access token. Attaches the full user document to req.user.
@@ -20,7 +22,8 @@ const requireAuth = asyncHandler(async (req, res, next) => {
   } catch (err) {
     throw new ApiError(401, "Invalid or expired session");
   }
-  const user = await User.findById(payload.sub);
+
+  const user = await userRepository.findById(payload.sub);
   if (!user) {
     throw new ApiError(401, "User no longer exists");
   }
@@ -41,7 +44,7 @@ const optionalAuth = asyncHandler(async (req, res, next) => {
   if (!token) return next();
   try {
     const payload = verifyAccessToken(token);
-    const user = await User.findById(payload.sub);
+    const user = await userRepository.findById(payload.sub);
     if (user) {
       if (user.status === "active") {
         req.user = user;

@@ -319,4 +319,4 @@ function verifyEmailEmail({ name, verifyUrl, ttlHours }) {
   return { subject, html, text };
 }
 
-module.exports = { passwordResetEmail, newPostNotificationEmail, weeklyDigestEmail, deleteConfirmationEmail, verifyEmailEmail };
+module.exports = { passwordResetEmail, newPostNotificationEmail, weeklyDigestEmail, deleteConfirmationEmail, verifyEmailEmail, verificationEmail: verifyEmailEmail };

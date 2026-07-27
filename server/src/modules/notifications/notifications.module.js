@@ -13,11 +13,10 @@ const notificationService = new NotificationService(notificationRepository, noti
 const notificationController = new NotificationController(notificationService);
 
 const router = express.Router();
-router.use(requireAuth);
 
-router.get("/notifications", notificationController.list);
-router.patch("/notifications/read-all", notificationController.markAllRead);
-router.patch("/notifications/:id/read", notificationController.markOneRead);
+router.get("/notifications", requireAuth, notificationController.list);
+router.patch("/notifications/read-all", requireAuth, notificationController.markAllRead);
+router.patch("/notifications/:id/read", requireAuth, notificationController.markOneRead);
 
 const notificationsModule = {
   name: "notifications",

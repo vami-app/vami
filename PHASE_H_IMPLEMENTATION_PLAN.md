@@ -897,17 +897,19 @@ All 7 subsections above contain pasted raw artifacts, independent `git show` out
 
 ---
 
-# 🖋️ Inkwell — Phase H, Step 6: Publication + PublicationMember Repository + Module Extraction [COMPLETED]
+# 🖋️ Inkwell — Phase H, Step 7: User Repository + Module Extraction [COMPLETED]
 
-> **Status**: Completed on 2026-07-27. All 7 verification exit criteria passed, full Vitest suite green (17/17 test files / 57 tests passing).
-> **Scope**: TWO Coupled Models (`Publication` & `PublicationMember`) Repository + Module Extraction
+> **Status**: Completed on 2026-07-27. All 10 binary sign-off criteria passed, full Vitest suite green (18/18 test files / 62 tests passing).
+> **Scope**: `User` Repository + Module Extraction (28 HTTP Endpoints, 11 Non-HTTP Consumers, 18-Step Cascade Orchestration)
 > **Key achievements**:
-> - Created `server/src/modules/publications/` with models, repository interfaces, Mongo implementations, service, controller, and module boot configuration.
-> - Maintained two distinct pure-data repositories (`publications.repository.mongo.js` and `publication-members.repository.mongo.js`) with zero cross-model Mongoose imports.
-> - Converted `server/src/models/Publication.js` and `PublicationMember.js` into permanent bridges re-exporting domain model files.
-> - Enforced RBAC role-checks (`requireOwner`, `requireOwnerOrEditor`, `requireMember`) in `PublicationService` across all 10 endpoints.
-> - Rewired Cascade Step 13 in `user.controller.js` to use `publicationRepository` and `publicationMemberRepository` methods for owner transfer to senior member or archival.
-> - Authored `server/test/integration/publications.test.js` covering creation, public fetch, updates, invitations, role modifications, sole-owner lockouts, submission reviews, dashboard, and Cascade Step 13.
+> - Created `server/src/modules/users/` with model, repository interface, Mongo implementation, service, controller, and module boot configuration.
+> - Converted `server/src/models/User.js` into permanent bridge re-exporting `modules/users/users.model.js`.
+> - Migrated 28 HTTP endpoints across Auth (`/api/auth`), Users (`/api/users`), and Admin (`/api/admin/users`) to `UserService` and `MongoUserRepository`.
+> - Rewired Passport OAuth strategies, Socket.IO auth handshake, and `notify.js` to repository layer, while explicitly exempting 5 offline administrative scripts per §5.
+> - Rewired Cascade Steps 8 (pull bookmarks), 9 (pull follow refs), 11 (avatar file unlink), 15 (membership status canceled), and 18 (`deleteById`) to `userRepository`.
+> - Authored `server/test/integration/users.test.js` covering registration, authentication, token rotation, profile updates, subdomain changes, admin bans, and cascade erasure.
+> - Removed legacy flat files `auth.controller.js`, `user.controller.js`, `auth.routes.js`, and `user.routes.js`.
+
 
 
 

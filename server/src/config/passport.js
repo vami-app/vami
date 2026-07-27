@@ -4,8 +4,10 @@ const crypto = require("crypto");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
-const User = require("../models/User");
+const MongoUserRepository = require("../modules/users/users.repository.mongo");
 const env = require("./env");
+
+const userRepository = new MongoUserRepository();
 
 /**
  * Helper to construct unique username from name/email.
@@ -22,7 +24,7 @@ async function generateUniqueUsername(displayName, email) {
 
   let username = base;
   let counter = 1;
-  while (await User.findOne({ username })) {
+  while (await userRepository.findByUsername(username)) {
     username = `${base}${counter}`;
     counter++;
   }
@@ -44,10 +46,8 @@ async function handleOAuthUser(provider, providerId, email, name, avatarUrl, don
       return done(new Error("OAuth account has no verified primary email. Cannot authenticate."));
     }
 
-    const providerField = `${provider}Id`;
-
     // 1. Check if user already exists by providerId
-    let user = await User.findOne({ [providerField]: providerId });
+    let user = await userRepository.findByOAuthId({ provider, providerId });
     if (user) {
       if (user.status === "banned") {
         return done(new Error("Your account has been banned. Please contact support."));
@@ -56,38 +56,37 @@ async function handleOAuthUser(provider, providerId, email, name, avatarUrl, don
     }
 
     // 2. Search by email
-    const emailUser = await User.findOne({ email: email.toLowerCase() });
+    const emailUser = await userRepository.findByEmail(email);
     if (emailUser) {
       if (emailUser.status === "banned") {
         return done(new Error("Your account has been banned. Please contact support."));
       }
-      // Check if providerId is already linked to someone else (edge case)
-      if (emailUser[providerField] && emailUser[providerField] !== providerId) {
+      const existingOAuthId = provider === "google" ? emailUser.googleId : emailUser.githubId;
+      if (existingOAuthId && existingOAuthId !== providerId) {
         return done(new Error("Conflict: Account already linked to a different provider identity."));
       }
 
-      // Link provider ID and auto-verify email
-      emailUser[providerField] = providerId;
-      emailUser.emailVerified = true;
-      if (!emailUser.avatarUrl && avatarUrl) {
-        emailUser.avatarUrl = avatarUrl;
+      const linkedUser = await userRepository.linkOAuthId({ id: emailUser._id, provider, providerId });
+      await userRepository.setEmailVerified(linkedUser._id);
+      if (!linkedUser.avatarUrl && avatarUrl) {
+        await userRepository.setAvatarUrl({ id: linkedUser._id, avatarUrl });
       }
-      await emailUser.save();
-      return done(null, emailUser);
+      return done(null, linkedUser);
     }
 
     // 3. Create new user with emailVerified = true
     const username = await generateUniqueUsername(name, email);
-    user = new User({
+    const oauthData = {
       name: name || username,
       username,
       email: email.toLowerCase(),
-      [providerField]: providerId,
       emailVerified: true,
       avatarUrl: avatarUrl || "",
-    });
+    };
+    if (provider === "google") oauthData.googleId = providerId;
+    if (provider === "github") oauthData.githubId = providerId;
 
-    await user.save();
+    user = await userRepository.create(oauthData);
     return done(null, user);
   } catch (err) {
     return done(err);
@@ -96,7 +95,6 @@ async function handleOAuthUser(provider, providerId, email, name, avatarUrl, don
 
 /**
  * Custom Cookie-based OAuth State Store.
- * Enables state-based CSRF protection statelessly without requiring express-session.
  */
 class CookieStateStore {
   store(req, callback) {
@@ -165,7 +163,6 @@ if (env.githubClientId && env.githubClientId !== "mock_github_client_id") {
       async (accessToken, refreshToken, profile, done) => {
         let email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
 
-        // GitHub private email fallback via GET /user/emails
         if (!email && accessToken) {
           try {
             const response = await fetch("https://api.github.com/user/emails", {
