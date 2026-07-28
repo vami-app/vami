@@ -1,0 +1,227 @@
+{
+  "graph": {
+    "nodes": {
+      "inkwell-api": {
+        "name": "inkwell-api",
+        "type": "lib",
+        "data": {
+          "root": "apps/inkwell-api",
+          "targets": {
+            "build": {
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "echo \"No build step for server\"",
+                "runCommand": "pnpm run build"
+              },
+              "options": {
+                "script": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test": {
+              "inputs": [
+                "default",
+                "^production"
+              ],
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "vitest run --fileParallelism=false",
+                "runCommand": "pnpm run test"
+              },
+              "options": {
+                "script": "test"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "nodemon src/server.js",
+                "runCommand": "pnpm run dev"
+              },
+              "options": {
+                "script": "dev"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "start": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "node src/server.js",
+                "runCommand": "pnpm run start"
+              },
+              "options": {
+                "script": "start"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "seed": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "node src/scripts/seed.js",
+                "runCommand": "pnpm run seed"
+              },
+              "options": {
+                "script": "seed"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test:watch": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "vitest",
+                "runCommand": "pnpm run test:watch"
+              },
+              "options": {
+                "script": "test:watch"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "inkwell-api",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {
+              "NPM Scripts": [
+                "dev",
+                "start",
+                "build",
+                "seed",
+                "test",
+                "test:watch"
+              ]
+            },
+            "description": "Inkwell Express + MongoDB API",
+            "js": {
+              "packageName": "inkwell-api",
+              "packageVersion": "1.0.0",
+              "packageMain": "src/server.js",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "inkwell-web": {
+        "name": "inkwell-web",
+        "type": "app",
+        "data": {
+          "root": "apps/inkwell-web",
+          "targets": {
+            "build": {
+              "dependsOn": [
+                "^build"
+              ],
+              "inputs": [
+                "production",
+                "^production"
+              ],
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "next build",
+                "runCommand": "pnpm run build"
+              },
+              "options": {
+                "script": "build"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "lint": {
+              "inputs": [
+                "default"
+              ],
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "next lint",
+                "runCommand": "pnpm run lint"
+              },
+              "options": {
+                "script": "lint"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "next dev",
+                "runCommand": "pnpm run dev"
+              },
+              "options": {
+                "script": "dev"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "start": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "next start",
+                "runCommand": "pnpm run start"
+              },
+              "options": {
+                "script": "start"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "test:e2e": {
+              "executor": "nx:run-script",
+              "metadata": {
+                "scriptContent": "playwright test --config ../../e2e/playwright.config.js",
+                "runCommand": "pnpm run test:e2e"
+              },
+              "options": {
+                "script": "test:e2e"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "name": "inkwell-web",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {
+              "NPM Scripts": [
+                "dev",
+                "build",
+                "start",
+                "lint",
+                "test:e2e"
+              ]
+            },
+            "description": "Inkwell Next.js frontend",
+            "js": {
+              "packageName": "inkwell-web",
+              "packageVersion": "1.0.0",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      }
+    },
+    "dependencies": {
+      "inkwell-api": [],
+      "inkwell-web": []
+    }
+  }
+}

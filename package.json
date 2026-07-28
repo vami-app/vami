@@ -10,7 +10,11 @@
     "seed": "pnpm --filter inkwell-api seed"
   },
   "devDependencies": {
-    "concurrently": "^9.1.0"
+    "concurrently": "^9.1.0",
+    "nx": "23.1.0",
+    "@nx/vitest": "23.1.0",
+    "@nx/playwright": "23.1.0",
+    "@nx/next": "23.1.0"
   },
   "packageManager": "pnpm@11.12.0"
 }
