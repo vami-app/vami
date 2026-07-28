@@ -1,7 +1,7 @@
 "use strict";
 
 const Follow = require("../models/Follow");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 const { sendEmail } = require("./email");
 const { newPostNotificationEmail } = require("./emailTemplates");
 const { signUnsubscribeToken } = require("./unsubscribeToken");

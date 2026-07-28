@@ -12,7 +12,7 @@ const {
   updateUserRole,
   getStats,
 } = require("../controllers/admin.controller");
-const { requireAuth, requireAdmin } = require("../middlewares/auth.middleware");
+const { requireAuth, requireAdmin } = require("@vami/identity-service");
 
 const router = express.Router();
 

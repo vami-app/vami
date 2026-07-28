@@ -1,7 +1,7 @@
 "use strict";
 
 const { body } = require("express-validator");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 
 const RESERVED_SUBDOMAINS = [
   "www", "api", "admin", "mail", "app", "blog", "static",

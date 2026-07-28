@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const env = require("./env");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 
 /** @type {Server|null} */
 let io = null;

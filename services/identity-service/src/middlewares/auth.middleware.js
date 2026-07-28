@@ -1,7 +1,7 @@
 "use strict";
 
-const asyncHandler = require("../utils/asyncHandler");
-const { ApiError } = require("../utils/apiResponse");
+const asyncHandler = require("../../../../apps/inkwell-api/src/utils/asyncHandler");
+const { ApiError } = require("../../../../apps/inkwell-api/src/utils/apiResponse");
 const { verifyAccessToken } = require("../utils/jwt");
 const User = require("../models/User");
 

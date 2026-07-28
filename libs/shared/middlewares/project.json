@@ -1,0 +1,6 @@
+{
+  "name": "shared-middlewares",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/middlewares",
+  "targets": {}
+}

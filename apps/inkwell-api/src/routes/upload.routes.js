@@ -3,7 +3,7 @@
 const express = require("express");
 const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess, ApiError } = require("../utils/apiResponse");
-const { requireAuth } = require("../middlewares/auth.middleware");
+const { requireAuth } = require("@vami/identity-service");
 const { upload } = require("../middlewares/upload.middleware");
 
 const router = express.Router();

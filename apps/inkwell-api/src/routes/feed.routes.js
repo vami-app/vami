@@ -2,7 +2,7 @@
 
 const express = require("express");
 const Post = require("../models/Post");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 const asyncHandler = require("../utils/asyncHandler");
 const { buildFeed } = require("../utils/rss");
 const env = require("../config/env");

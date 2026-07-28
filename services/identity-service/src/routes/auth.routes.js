@@ -16,7 +16,7 @@ const {
 } = require("../controllers/auth.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
 const { validate } = require("../middlewares/validate");
-const { forgotPasswordLimiter } = require("../middlewares/rateLimiter");
+const { forgotPasswordLimiter } = require("../../../../libs/shared/middlewares/rateLimiter");
 const {
   registerRules,
   loginRules,

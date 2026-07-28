@@ -6,7 +6,7 @@ const { makeSlug } = require("../utils/slugify");
 const Publication = require("../models/Publication");
 const PublicationMember = require("../models/PublicationMember");
 const Post = require("../models/Post");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 
 const RESERVED_SLUGS = [
   "admin",

@@ -116,7 +116,7 @@ function extractCookies(headers) {
 }
 
 // ─── Mongoose models (direct Atlas queries for before/after evidence) ─────────
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 const WebhookEvent = require("../models/WebhookEvent");
 const MembershipPayment = require("../models/MembershipPayment");
 const jwt = require("jsonwebtoken");

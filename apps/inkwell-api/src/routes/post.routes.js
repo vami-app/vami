@@ -21,7 +21,7 @@ const {
   listComments,
   addComment,
 } = require("../controllers/comment.controller");
-const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
+const { requireAuth, optionalAuth } = require("@vami/identity-service");
 const { validate } = require("../middlewares/validate");
 const {
   createPostRules,

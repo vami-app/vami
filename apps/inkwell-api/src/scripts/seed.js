@@ -21,7 +21,7 @@
 const mongoose          = require("mongoose");
 const connectDB         = require("../config/db");
 
-const User              = require("../models/User");
+const User              = require("@vami/identity-service").User;
 const Post              = require("../models/Post");
 const Comment           = require("../models/Comment");
 const Follow            = require("../models/Follow");

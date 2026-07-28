@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 const MembershipPayment = require("../models/MembershipPayment");
 const WebhookEvent = require("../models/WebhookEvent");
 const asyncHandler = require("../utils/asyncHandler");

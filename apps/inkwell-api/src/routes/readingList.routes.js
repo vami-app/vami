@@ -1,7 +1,7 @@
 "use strict";
 
 const express = require("express");
-const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
+const { requireAuth, optionalAuth } = require("@vami/identity-service");
 const {
   createList,
   getMine,

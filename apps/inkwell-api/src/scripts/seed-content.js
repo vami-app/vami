@@ -19,7 +19,7 @@
  * @returns {Object} { posts, publishedVisible }
  */
 
-const User        = require("../models/User");
+const User        = require("@vami/identity-service").User;
 const Post        = require("../models/Post");
 const Follow      = require("../models/Follow");
 const Comment     = require("../models/Comment");

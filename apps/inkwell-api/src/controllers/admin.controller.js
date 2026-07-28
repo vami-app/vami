@@ -2,7 +2,7 @@
 
 const asyncHandler = require("../utils/asyncHandler");
 const { sendSuccess, ApiError } = require("../utils/apiResponse");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 const Post = require("../models/Post");
 const Comment = require("../models/Comment");
 const Report = require("../models/Report");

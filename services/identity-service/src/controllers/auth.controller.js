@@ -2,8 +2,8 @@
 
 const crypto = require("crypto");
 
-const asyncHandler = require("../utils/asyncHandler");
-const { sendSuccess, ApiError } = require("../utils/apiResponse");
+const asyncHandler = require("../../../../apps/inkwell-api/src/utils/asyncHandler");
+const { sendSuccess, ApiError } = require("../../../../apps/inkwell-api/src/utils/apiResponse");
 const {
   signAccessToken,
   signRefreshToken,
@@ -11,10 +11,10 @@ const {
   setAuthCookies,
   clearAuthCookies,
 } = require("../utils/jwt");
-const { sendEmail } = require("../utils/email");
-const { passwordResetEmail, verifyEmailEmail } = require("../utils/emailTemplates");
-const { verifyUnsubscribeToken } = require("../utils/unsubscribeToken");
-const env = require("../config/env");
+const { sendEmail } = require("../../../../apps/inkwell-api/src/utils/email");
+const { passwordResetEmail, verifyEmailEmail } = require("../../../../apps/inkwell-api/src/utils/emailTemplates");
+const { verifyUnsubscribeToken } = require("../../../../apps/inkwell-api/src/utils/unsubscribeToken");
+const env = require("../../../../apps/inkwell-api/src/config/env");
 const User = require("../models/User");
 
 const RESET_TOKEN_TTL_MINUTES = 30;

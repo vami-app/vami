@@ -7,7 +7,7 @@ const { makeSlug } = require("../utils/slugify");
 const { sanitizeContent } = require("../utils/sanitize");
 const { notifyFollowersOfNewPost } = require("../utils/notify");
 const Post = require("../models/Post");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 
 const AUTHOR_FIELDS = "name username avatarUrl bio";
 const MAX_CLAPS_PER_USER = 50;

@@ -7,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 const app = require("../app");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 const Post = require("../models/Post");
 const Follow = require("../models/Follow");
 

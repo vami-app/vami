@@ -6,7 +6,7 @@ const crypto = require("crypto");
 
 const app = require("../app");
 const env = require("../config/env");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 const WebhookEvent = require("../models/WebhookEvent");
 const MembershipPayment = require("../models/MembershipPayment");
 

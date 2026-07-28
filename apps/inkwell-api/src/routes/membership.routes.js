@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { requireAuth } = require("../middlewares/auth.middleware");
+const { requireAuth } = require("@vami/identity-service");
 const {
   subscribe,
   verify,

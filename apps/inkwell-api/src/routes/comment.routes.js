@@ -2,7 +2,7 @@
 
 const express = require("express");
 const { deleteComment } = require("../controllers/comment.controller");
-const { requireAuth } = require("../middlewares/auth.middleware");
+const { requireAuth } = require("@vami/identity-service");
 
 const router = express.Router();
 

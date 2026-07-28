@@ -5,7 +5,7 @@ const { sendSuccess, ApiError } = require("../utils/apiResponse");
 const { makeSlug } = require("../utils/slugify");
 const ReadingList = require("../models/ReadingList");
 const Post = require("../models/Post");
-const User = require("../models/User");
+const User = require("@vami/identity-service").User;
 
 const AUTHOR_FIELDS = "name username avatarUrl bio";
 

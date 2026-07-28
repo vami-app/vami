@@ -5,7 +5,7 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const GitHubStrategy = require("passport-github2").Strategy;
 const User = require("../models/User");
-const env = require("./env");
+const env = require("../../../../apps/inkwell-api/src/config/env");
 
 /**
  * Helper to construct unique username from name/email.

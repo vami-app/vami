@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 
 const env = require("./config/env");
 const { notFound, errorHandler } = require("./middlewares/error.middleware");
-const { generalLimiter } = require("./middlewares/rateLimiter");
+const { generalLimiter } = require("../../../libs/shared/middlewares/rateLimiter");
 
 const postRoutes = require("./routes/post.routes");
 const commentRoutes = require("./routes/comment.routes");
@@ -67,7 +67,7 @@ app.use(
 );
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-const passport = require("./config/passport");
+const { passport } = require("@vami/identity-service");
 app.use(passport.initialize());
 
 // Serve uploaded images
@@ -95,7 +95,7 @@ const notificationRoutes = require("./routes/notification.routes");
 const highlightRoutes = require("./routes/highlight.routes");
 
 const { ModuleRegistry } = require("../../../libs/shared/registry/module-registry");
-const identityModule = require("../../../services/identity-service");
+const identityModule = require("@vami/identity-service");
 new ModuleRegistry().register(identityModule).mountAll(app);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
