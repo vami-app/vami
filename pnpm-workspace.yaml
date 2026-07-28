@@ -2,8 +2,6 @@ packages:
   - "apps/*"
   - "services/*"
   - "libs/**"
-  - "client"
-  - "server"
 
 allowBuilds:
   esbuild: true

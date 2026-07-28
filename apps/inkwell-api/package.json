@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "inkwell-api",
   "version": "1.0.0",
   "private": true,
   "description": "Inkwell Express + MongoDB API",

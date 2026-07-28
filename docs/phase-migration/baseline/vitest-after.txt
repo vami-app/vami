@@ -1,0 +1,55 @@
+$ vitest run --fileParallelism=false
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mC:/Users/ABSA00065/Desktop/Project/apps/inkwell-api[39m
+
+[90mstdout[2m | test/integration/highlight.test.js[2m > [22m[2mHighlight / Annotation System
+[22m[39m[db] MongoDB connected (test): 127.0.0.1/inkwell_test
+
+ [32m✓[39m test/integration/highlight.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 3861[2mms[22m[39m
+   [33m[2m✓[22m[39m Highlight / Annotation System[2m > [22mallows active subscribers to create highlights on locked stories [33m 1083[2mms[22m[39m
+   [33m[2m✓[22m[39m Highlight / Annotation System[2m > [22mBLOCKS non-subscribers from creating highlights on locked stories (Paywall Guard) [33m 892[2mms[22m[39m
+   [33m[2m✓[22m[39m Highlight / Annotation System[2m > [22mallows non-subscribers to highlight public stories [33m 905[2mms[22m[39m
+   [33m[2m✓[22m[39m Highlight / Annotation System[2m > [22mallows retrieving, updating, and deleting own highlights [33m 930[2mms[22m[39m
+[90mstdout[2m | test/integration/moderation.test.js[2m > [22m[2mModeration Integration (Reports, Queue, Admin Actions & AuditLog)
+[22m[39m[db] MongoDB connected (test): 127.0.0.1/inkwell_test
+
+ [32m✓[39m test/integration/moderation.test.js [2m([22m[2m1 test[22m[2m)[22m[33m 1695[2mms[22m[39m
+   [33m[2m✓[22m[39m Moderation Integration (Reports, Queue, Admin Actions & AuditLog)[2m > [22mauto-elevates priorityFlag on 3+ reports and allows admin to action/hide content with AuditLog [33m 1661[2mms[22m[39m
+[90mstdout[2m | test/integration/payout-ledger.test.js[2m > [22m[2mPayout Ledger Engine (computeLedgerForPeriod)
+[22m[39m[db] MongoDB connected (test): 127.0.0.1/inkwell_test
+
+ [32m✓[39m test/integration/payout-ledger.test.js [2m([22m[2m1 test[22m[2m)[22m[33m 1007[2mms[22m[39m
+   [33m[2m✓[22m[39m Payout Ledger Engine (computeLedgerForPeriod)[2m > [22mdistributes payout pool according to active read time ratios (e.g. 70/30 split) [33m 969[2mms[22m[39m
+[90mstdout[2m | test/integration/cascade.test.js[2m > [22m[2mUser Account Deletion Cascade (DELETE /api/users/me)
+[22m[39m[db] MongoDB connected (test): 127.0.0.1/inkwell_test
+
+ [32m✓[39m test/integration/cascade.test.js [2m([22m[2m1 test[22m[2m)[22m[33m 1092[2mms[22m[39m
+   [33m[2m✓[22m[39m User Account Deletion Cascade (DELETE /api/users/me)[2m > [22mexecutes complete 18-step cascade deletion on account erasure [33m 1053[2mms[22m[39m
+[90mstdout[2m | test/integration/darkmode.test.js[2m > [22m[2mDark Mode Theme Preference (PATCH /api/users/me)
+[22m[39m[db] MongoDB connected (test): 127.0.0.1/inkwell_test
+
+ [32m✓[39m test/integration/darkmode.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 839[2mms[22m[39m
+   [33m[2m✓[22m[39m Dark Mode Theme Preference (PATCH /api/users/me)[2m > [22mupdates user themePreference and sets theme cookie header [33m 455[2mms[22m[39m
+   [33m[2m✓[22m[39m Dark Mode Theme Preference (PATCH /api/users/me)[2m > [22mrejects invalid theme preference enum value [33m 328[2mms[22m[39m
+[90mstdout[2m | test/integration/analytics.test.js[2m > [22m[2mWriter Analytics Endpoint (GET /api/writer/analytics)
+[22m[39m[db] MongoDB connected (test): 127.0.0.1/inkwell_test
+
+ [32m✓[39m test/integration/analytics.test.js [2m([22m[2m1 test[22m[2m)[22m[33m 759[2mms[22m[39m
+   [33m[2m✓[22m[39m Writer Analytics Endpoint (GET /api/writer/analytics)[2m > [22mreturns aggregated writer analytics without leaking individual viewer identity [33m 722[2mms[22m[39m
+[90mstdout[2m | test/integration/oauth.test.js[2m > [22m[2mOAuth Account Creation & Linking Integration
+[22m[39m[db] MongoDB connected (test): 127.0.0.1/inkwell_test
+
+ [32m✓[39m test/integration/oauth.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 476[2mms[22m[39m
+   [33m[2m✓[22m[39m OAuth Account Creation & Linking Integration[2m > [22mlinks OAuth provider ID when registering OAuth account with pre-existing user email [33m 352[2mms[22m[39m
+ [32m✓[39m test/unit/slugify.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/unit/diff.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m test/unit/highlightLocate.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/unit/ledger.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 2[2mms[22m[39m
+ [32m✓[39m test/unit/entitlement.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m test/unit/readTime.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m13 passed[39m[22m[90m (13)[39m
+[2m      Tests [22m [1m[32m28 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 14:48:02
+[2m   Duration [22m 20.38s[2m (transform 84ms, setup 0ms, collect 6.94s, tests 9.75s, environment 2ms, prepare 1.51s)[22m
+

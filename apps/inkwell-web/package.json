@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "inkwell-web",
   "version": "1.0.0",
   "private": true,
   "description": "Inkwell Next.js frontend",
@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:e2e": "playwright test --config ../e2e/playwright.config.js"
+    "test:e2e": "playwright test --config ../../e2e/playwright.config.js"
   },
   "dependencies": {
     "@tiptap/extension-code-block": "^2.10.4",

@@ -12,59 +12,7 @@ importers:
         specifier: ^9.1.0
         version: 9.2.4
 
-  client:
-    dependencies:
-      '@tiptap/extension-code-block':
-        specifier: ^2.10.4
-        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)
-      '@tiptap/extension-image':
-        specifier: ^2.10.4
-        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))
-      '@tiptap/extension-link':
-        specifier: ^2.10.4
-        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)
-      '@tiptap/extension-placeholder':
-        specifier: ^2.10.4
-        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)
-      '@tiptap/pm':
-        specifier: ^2.10.4
-        version: 2.27.2
-      '@tiptap/react':
-        specifier: ^2.10.4
-        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@tiptap/starter-kit':
-        specifier: ^2.10.4
-        version: 2.27.2
-      next:
-        specifier: 16.2.10
-        version: 16.2.10(@playwright/test@1.62.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      react:
-        specifier: ^19.0.0
-        version: 19.2.7
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.2.7(react@19.2.7)
-      socket.io-client:
-        specifier: ^4.8.3
-        version: 4.8.3(supports-color@5.5.0)
-    devDependencies:
-      '@playwright/test':
-        specifier: ^1.62.0
-        version: 1.62.0
-      '@tailwindcss/typography':
-        specifier: ^0.5.15
-        version: 0.5.20(tailwindcss@3.4.19)
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.5.2(postcss@8.5.19)
-      postcss:
-        specifier: ^8.4.49
-        version: 8.5.19
-      tailwindcss:
-        specifier: ^3.4.17
-        version: 3.4.19
-
-  server:
+  apps/inkwell-api:
     dependencies:
       archiver:
         specifier: ^8.0.0
@@ -98,7 +46,7 @@ importers:
         version: 9.0.3
       mongoose:
         specifier: ^8.9.5
-        version: 8.24.1(supports-color@5.5.0)
+        version: 8.24.1
       multer:
         specifier: ^1.4.5-lts.1
         version: 1.4.5-lts.2
@@ -116,7 +64,7 @@ importers:
         version: 2.17.6
       socket.io:
         specifier: ^4.8.3
-        version: 4.8.3(supports-color@5.5.0)
+        version: 4.8.3
       turndown:
         specifier: ^7.2.4
         version: 7.2.4
@@ -126,10 +74,62 @@ importers:
         version: 3.1.14
       supertest:
         specifier: ^7.0.0
-        version: 7.2.2(supports-color@5.5.0)
+        version: 7.2.2
       vitest:
         specifier: ^3.0.0
-        version: 3.2.7(@types/node@26.1.1)(jiti@1.21.7)(supports-color@5.5.0)
+        version: 3.2.7(@types/node@26.1.1)(jiti@1.21.7)
+
+  apps/inkwell-web:
+    dependencies:
+      '@tiptap/extension-code-block':
+        specifier: ^2.10.4
+        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)
+      '@tiptap/extension-image':
+        specifier: ^2.10.4
+        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))
+      '@tiptap/extension-link':
+        specifier: ^2.10.4
+        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)
+      '@tiptap/extension-placeholder':
+        specifier: ^2.10.4
+        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)
+      '@tiptap/pm':
+        specifier: ^2.10.4
+        version: 2.27.2
+      '@tiptap/react':
+        specifier: ^2.10.4
+        version: 2.27.2(@tiptap/core@2.27.2(@tiptap/pm@2.27.2))(@tiptap/pm@2.27.2)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tiptap/starter-kit':
+        specifier: ^2.10.4
+        version: 2.27.2
+      next:
+        specifier: 16.2.10
+        version: 16.2.10(@playwright/test@1.62.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.7(react@19.2.7)
+      socket.io-client:
+        specifier: ^4.8.3
+        version: 4.8.3
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.62.0
+        version: 1.62.0
+      '@tailwindcss/typography':
+        specifier: ^0.5.15
+        version: 0.5.20(tailwindcss@3.4.19)
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.5.2(postcss@8.5.19)
+      postcss:
+        specifier: ^8.4.49
+        version: 8.5.19
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.19
 
 packages:
 
@@ -3483,7 +3483,7 @@ snapshots:
 
   encodeurl@2.0.0: {}
 
-  engine.io-client@6.6.6(supports-color@5.5.0):
+  engine.io-client@6.6.6:
     dependencies:
       '@socket.io/component-emitter': 3.1.2
       debug: 4.4.3(supports-color@5.5.0)
@@ -3497,7 +3497,7 @@ snapshots:
 
   engine.io-parser@5.2.3: {}
 
-  engine.io@6.6.9(supports-color@5.5.0):
+  engine.io@6.6.9:
     dependencies:
       '@types/cors': 2.8.19
       '@types/node': 26.1.1
@@ -3927,13 +3927,13 @@ snapshots:
       bson: 6.10.4
       mongodb-connection-string-url: 3.0.2
 
-  mongoose@8.24.1(supports-color@5.5.0):
+  mongoose@8.24.1:
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
       mongodb: 6.20.0
       mpath: 0.9.0
-      mquery: 5.0.0(supports-color@5.5.0)
+      mquery: 5.0.0
       ms: 2.1.3
       sift: 17.1.3
     transitivePeerDependencies:
@@ -3948,7 +3948,7 @@ snapshots:
 
   mpath@0.9.0: {}
 
-  mquery@5.0.0(supports-color@5.5.0):
+  mquery@5.0.0:
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
@@ -4486,7 +4486,7 @@ snapshots:
     dependencies:
       semver: 7.8.5
 
-  socket.io-adapter@2.5.8(supports-color@5.5.0):
+  socket.io-adapter@2.5.8:
     dependencies:
       debug: 4.4.3(supports-color@5.5.0)
       ws: 8.21.1
@@ -4495,33 +4495,33 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  socket.io-client@4.8.3(supports-color@5.5.0):
+  socket.io-client@4.8.3:
     dependencies:
       '@socket.io/component-emitter': 3.1.2
       debug: 4.4.3(supports-color@5.5.0)
-      engine.io-client: 6.6.6(supports-color@5.5.0)
-      socket.io-parser: 4.2.7(supports-color@5.5.0)
+      engine.io-client: 6.6.6
+      socket.io-parser: 4.2.7
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  socket.io-parser@4.2.7(supports-color@5.5.0):
+  socket.io-parser@4.2.7:
     dependencies:
       '@socket.io/component-emitter': 3.1.2
       debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
-  socket.io@4.8.3(supports-color@5.5.0):
+  socket.io@4.8.3:
     dependencies:
       accepts: 1.3.8
       base64id: 2.0.0
       cors: 2.8.6
       debug: 4.4.3(supports-color@5.5.0)
-      engine.io: 6.6.9(supports-color@5.5.0)
-      socket.io-adapter: 2.5.8(supports-color@5.5.0)
-      socket.io-parser: 4.2.7(supports-color@5.5.0)
+      engine.io: 6.6.9
+      socket.io-adapter: 2.5.8
+      socket.io-parser: 4.2.7
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -4587,7 +4587,7 @@ snapshots:
       tinyglobby: 0.2.17
       ts-interface-checker: 0.1.13
 
-  superagent@10.3.0(supports-color@5.5.0):
+  superagent@10.3.0:
     dependencies:
       component-emitter: 1.3.1
       cookiejar: 2.1.4
@@ -4601,11 +4601,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  supertest@7.2.2(supports-color@5.5.0):
+  supertest@7.2.2:
     dependencies:
       cookie-signature: 1.2.2
       methods: 1.1.2
-      superagent: 10.3.0(supports-color@5.5.0)
+      superagent: 10.3.0
     transitivePeerDependencies:
       - supports-color
 
@@ -4759,7 +4759,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vite-node@3.2.4(@types/node@26.1.1)(jiti@1.21.7)(supports-color@5.5.0):
+  vite-node@3.2.4(@types/node@26.1.1)(jiti@1.21.7):
     dependencies:
       cac: 6.7.14
       debug: 4.4.3(supports-color@5.5.0)
@@ -4793,7 +4793,7 @@ snapshots:
       fsevents: 2.3.3
       jiti: 1.21.7
 
-  vitest@3.2.7(@types/node@26.1.1)(jiti@1.21.7)(supports-color@5.5.0):
+  vitest@3.2.7(@types/node@26.1.1)(jiti@1.21.7):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.7
@@ -4816,7 +4816,7 @@ snapshots:
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
       vite: 7.3.6(@types/node@26.1.1)(jiti@1.21.7)
-      vite-node: 3.2.4(@types/node@26.1.1)(jiti@1.21.7)(supports-color@5.5.0)
+      vite-node: 3.2.4(@types/node@26.1.1)(jiti@1.21.7)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.1.1

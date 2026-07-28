@@ -8,13 +8,16 @@ node_modules/
 .env.*.local
 
 # next.js
-client/.next/
-client/out/
-client/next-env.d.ts
+apps/inkwell-web/.next/
+apps/inkwell-web/out/
+apps/inkwell-web/next-env.d.ts
 
 # uploads (user-generated)
-server/uploads/*
-!server/uploads/.gitkeep
+apps/inkwell-api/uploads/*
+!apps/inkwell-api/uploads/.gitkeep
+test-results/
+playwright-report/
+report.xml
 
 # logs
 *.log
