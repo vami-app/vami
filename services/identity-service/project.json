@@ -1,0 +1,6 @@
+{
+  "name": "identity-service",
+  "projectType": "library",
+  "sourceRoot": "services/identity-service",
+  "targets": {}
+}

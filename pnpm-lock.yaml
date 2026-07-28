@@ -143,6 +143,8 @@ importers:
         specifier: ^3.4.17
         version: 3.4.19(yaml@2.9.0)
 
+  services/identity-service: {}
+
 packages:
 
   '@alloc/quick-lru@5.2.0':

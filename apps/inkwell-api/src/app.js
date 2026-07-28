@@ -9,8 +9,6 @@ const env = require("./config/env");
 const { notFound, errorHandler } = require("./middlewares/error.middleware");
 const { authLimiter, generalLimiter } = require("./middlewares/rateLimiter");
 
-const authRoutes = require("./routes/auth.routes");
-const userRoutes = require("./routes/user.routes");
 const postRoutes = require("./routes/post.routes");
 const commentRoutes = require("./routes/comment.routes");
 const uploadRoutes = require("./routes/upload.routes");
@@ -96,8 +94,9 @@ const writerRoutes = require("./routes/writer.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const highlightRoutes = require("./routes/highlight.routes");
 
-app.use("/api/auth", authLimiter, authRoutes);
-app.use("/api/users", userRoutes);
+const { ModuleRegistry } = require("../../../libs/shared/registry/module-registry");
+const identityModule = require("../../../services/identity-service");
+new ModuleRegistry().register(identityModule).mountAll(app);
 app.use("/api/posts", postRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/uploads", uploadRoutes);
