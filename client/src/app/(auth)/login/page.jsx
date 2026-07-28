@@ -86,6 +86,7 @@ function LoginForm() {
         )}
         <Input
           label="Email"
+          name="email"
           type="email"
           autoComplete="email"
           required
@@ -95,6 +96,7 @@ function LoginForm() {
         />
         <Input
           label="Password"
+          name="password"
           type="password"
           autoComplete="current-password"
           required

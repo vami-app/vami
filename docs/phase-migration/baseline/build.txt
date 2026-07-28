@@ -1,0 +1,59 @@
+$ next build
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\ABSA00065\pnpm-workspace.yaml as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\ABSA00065\Desktop\Project\pnpm-workspace.yaml
+
+▲ Next.js 16.2.10 (Turbopack)
+- Environments: .env.local
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 7.3s
+  Running TypeScript ...
+  Finished TypeScript in 170ms ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/21) ...
+  Generating static pages using 7 workers (5/21) 
+  Generating static pages using 7 workers (10/21) 
+  Generating static pages using 7 workers (15/21) 
+✓ Generating static pages using 7 workers (21/21) in 356ms
+  Finalizing page optimization ...
+
+Route (app)                Revalidate  Expire
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /[username]
+├ ƒ /admin
+├ ƒ /admin/reports
+├ ƒ /admin/users
+├ ƒ /bookmarks
+├ ƒ /dashboard
+├ ƒ /edit/[slug]
+├ ƒ /forgot-password
+├ ƒ /lists
+├ ƒ /lists/[slug]
+├ ƒ /login
+├ ƒ /new-story
+├ ƒ /notifications
+├ ƒ /p/[slug]
+├ ƒ /privacy
+├ ƒ /pub/[slug]
+├ ƒ /pub/[slug]/dashboard
+├ ƒ /register
+├ ƒ /reset-password
+├ ○ /robots.txt
+├ ƒ /search
+├ ƒ /settings
+├ ○ /sitemap.xml                   1h      1y
+├ ƒ /tag/[tag]
+└ ƒ /terms
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

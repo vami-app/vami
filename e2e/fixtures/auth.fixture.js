@@ -1,4 +1,4 @@
-const { test as baseTest, expect } = require("@playwright/test");
+const { test: baseTest, expect } = require("@playwright/test");
 
 /**
  * Custom fixture with helper for registering & logging in test accounts.

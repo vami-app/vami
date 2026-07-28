@@ -94,6 +94,7 @@ function RegisterForm() {
         {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
         <Input
           label="Name"
+          name="name"
           required
           value={form.name}
           onChange={(e) => update("name", e.target.value)}
@@ -102,6 +103,7 @@ function RegisterForm() {
         />
         <Input
           label="Username"
+          name="username"
           required
           value={form.username}
           onChange={(e) => update("username", e.target.value.toLowerCase())}
@@ -110,6 +112,7 @@ function RegisterForm() {
         />
         <Input
           label="Email"
+          name="email"
           type="email"
           required
           value={form.email}
@@ -119,6 +122,7 @@ function RegisterForm() {
         />
         <Input
           label="Password"
+          name="password"
           type="password"
           required
           value={form.password}

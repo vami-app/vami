@@ -7,8 +7,13 @@ test.describe("Dark Mode & Cookie Persistence E2E", () => {
     const themeBtn = page.locator('button[aria-label="Toggle theme"]');
     await expect(themeBtn).toBeVisible();
 
-    // Click theme toggle to switch to dark mode
-    await themeBtn.click();
+    // Click theme toggle to switch to dark mode (cycling system -> light -> dark)
+    if (!(await page.locator("html").evaluate((el) => el.classList.contains("dark")))) {
+      await themeBtn.click();
+    }
+    if (!(await page.locator("html").evaluate((el) => el.classList.contains("dark")))) {
+      await themeBtn.click();
+    }
 
     // Verify dark class applied to html tag
     const htmlElement = page.locator("html");
