@@ -1,0 +1,6 @@
+{
+  "name": "inkwell-web",
+  "projectType": "application",
+  "sourceRoot": "apps/inkwell-web/src",
+  "targets": {}
+}
