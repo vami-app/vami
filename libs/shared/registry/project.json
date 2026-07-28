@@ -1,0 +1,6 @@
+{
+  "name": "registry",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/registry",
+  "targets": {}
+}
