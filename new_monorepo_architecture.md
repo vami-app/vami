@@ -21,6 +21,11 @@
   - `@vami/design-tokens`: Multi-brand system with 3-layer indirection (`raw` → `semantic contract` → `product themes`)
   - `@vami/ui`: React atomic components (`Button`, `Input`, `Icon`, `PaginationControls`) & layout primitives (`Container`, `Stack`, `Grid`, `ThemeProvider`)
   - Quality & Verification: 32/32 unit tests passing (Vitest v4 with v8 coverage), `tsc --noEmit` passing with `strict: true`
+- **Phase 2 (Single Identity Service & Auth Client):** ✅ **COMPLETED & HARDENED (Commit `a284b3e`)**
+  - `@vami/auth-client`: Stateless JWT verification using `jose` with RS256 algorithm pinning, remote JWKS resolver caching, revocation check, and `authenticate` Express middleware with `AsyncLocalStorage` context propagation
+  - `@vami/authz`: Decoupled fine-grained authorization policy engine (`can(user, action, resource, context)`) supporting $O(1)$ `SUPER_ADMIN` override, role-permission matrix (`SUPER_ADMIN`, `ADMIN`, `MEMBER`, `GUEST`), ABAC owner checks, tenant isolation, and `requirePermission` middleware
+  - `@vami/identity-service`: Modular OIDC/OAuth2 Provider implementing `AppModule` interface, Argon2id password hashing (`argon2`), 2048-bit RSA key pair management with `GET /.well-known/jwks.json`, and Redis-backed session management (`identity:session:<id>`) with `jti` revocation list ("Logout Everywhere")
+  - Quality & Verification: 91/91 unit/integration tests passing across monorepo, `tsc --noEmit` passing with `strict: true`, zero high/critical vulnerabilities (`pnpm audit`)
 
 ---
 
