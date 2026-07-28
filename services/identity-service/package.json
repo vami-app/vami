@@ -1,0 +1,13 @@
+{
+  "name": "@vami/identity-service",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/index.js",
+  "dependencies": {
+    "@vami/util": "workspace:*",
+    "@vami/registry": "workspace:*",
+    "@vami/pagination": "workspace:*",
+    "argon2": "^0.45.1",
+    "jose": "^6.2.4"
+  }
+}

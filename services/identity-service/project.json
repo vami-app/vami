@@ -1,0 +1,27 @@
+{
+  "name": "service-identity",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "services/identity-service/src",
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint services/identity-service/src"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p services/identity-service/tsconfig.json"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run services/identity-service/src"
+      }
+    }
+  },
+  "tags": ["scope:domain", "domain:identity", "platform:node"]
+}

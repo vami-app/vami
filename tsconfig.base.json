@@ -24,7 +24,13 @@
       "@vami/design-tokens": ["libs/shared/design-tokens/src/index.js"],
       "@vami/design-tokens/*": ["libs/shared/design-tokens/*"],
       "@vami/ui": ["libs/shared/ui/src/index.js"],
-      "@vami/ui/*": ["libs/shared/ui/*"]
+      "@vami/ui/*": ["libs/shared/ui/*"],
+      "@vami/auth-client": ["libs/shared/auth-client/src/index.js"],
+      "@vami/auth-client/*": ["libs/shared/auth-client/*"],
+      "@vami/authz": ["libs/shared/authz/src/index.js"],
+      "@vami/authz/*": ["libs/shared/authz/*"],
+      "@vami/identity-service": ["services/identity-service/src/index.js"],
+      "@vami/identity-service/*": ["services/identity-service/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

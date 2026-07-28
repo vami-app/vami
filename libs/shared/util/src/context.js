@@ -9,6 +9,8 @@ const requestContextStorage = new AsyncLocalStorage();
  * @property {string} [traceId]
  * @property {string} [tenantId]
  * @property {string} [userId]
+ * @property {string} [email]
+ * @property {string} [roles]
  */
 
 /**
@@ -32,10 +34,6 @@ function getContext() {
   return requestContextStorage.getStore();
 }
 
-// requestContextStorage is intentionally NOT exported.
-// Exporting the raw AsyncLocalStorage instance would allow callers to call
-// .run() directly, bypassing runWithContext and creating nested contexts
-// that shadow each other. Only the accessor functions form the public API.
 module.exports = {
   runWithContext,
   getContext,
