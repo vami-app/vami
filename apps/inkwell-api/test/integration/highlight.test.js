@@ -2,11 +2,11 @@
 
 const request = require("supertest");
 const app = require("../../src/app");
-const User = require("../../src/models/User");
+const { User } = require("@vami/identity-service");
 const Post = require("../../src/models/Post");
 const Highlight = require("../../src/models/Highlight");
 const { connectTestDB, dropTestDB, closeTestDB } = require("../setup/db");
-const { signAccessToken } = require("../../src/utils/jwt");
+const { signAccessToken } = require("@vami/identity-service");
 
 describe("Highlight / Annotation System", () => {
   let author, authorToken;

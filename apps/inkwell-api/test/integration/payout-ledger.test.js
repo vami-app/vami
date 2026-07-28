@@ -1,6 +1,6 @@
 "use strict";
 
-const User = require("../../src/models/User");
+const { User } = require("@vami/identity-service");
 const Post = require("../../src/models/Post");
 const ReadEvent = require("../../src/models/ReadEvent");
 const MembershipPayment = require("../../src/models/MembershipPayment");

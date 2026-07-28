@@ -1,7 +1,7 @@
 "use strict";
 
 const jwt = require("jsonwebtoken");
-const env = require("../config/env");
+const env = require("../../../../apps/inkwell-api/src/config/env");
 
 /**
  * @typedef {Object} TokenPayload

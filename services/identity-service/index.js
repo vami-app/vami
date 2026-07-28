@@ -5,7 +5,7 @@ require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
 const User = require("./src/models/User");
 const passport = require("./src/config/passport");
-const { authenticate, requireAdmin } = require("./src/middlewares/auth.middleware");
+const { requireAuth, optionalAuth, requireAdmin } = require("./src/middlewares/auth.middleware");
 const { signToken, verifyToken } = require("./src/utils/jwt");
 
 /** @type {import('../../libs/shared/registry/module-registry').AppModule} */
@@ -22,7 +22,8 @@ module.exports = {
   // Public Identity Contract
   User,
   passport,
-  authenticate,
+  requireAuth,
+  optionalAuth,
   requireAdmin,
   signToken,
   verifyToken,

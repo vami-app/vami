@@ -2,9 +2,9 @@
 
 const request = require("supertest");
 const app = require("../../src/app");
-const User = require("../../src/models/User");
+const { User } = require("@vami/identity-service");
 const { connectTestDB, dropTestDB, closeTestDB } = require("../setup/db");
-const { signAccessToken } = require("../../src/utils/jwt");
+const { signAccessToken } = require("@vami/identity-service");
 
 describe("Dark Mode Theme Preference (PATCH /api/users/me)", () => {
   let testUser, token;

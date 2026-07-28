@@ -2,11 +2,11 @@
 
 const request = require("supertest");
 const app = require("../../src/app");
-const User = require("../../src/models/User");
+const { User } = require("@vami/identity-service");
 const Post = require("../../src/models/Post");
 const ReadEvent = require("../../src/models/ReadEvent");
 const { connectTestDB, dropTestDB, closeTestDB } = require("../setup/db");
-const { signAccessToken } = require("../../src/utils/jwt");
+const { signAccessToken } = require("@vami/identity-service");
 
 describe("Writer Analytics Endpoint (GET /api/writer/analytics)", () => {
   let writerToken;

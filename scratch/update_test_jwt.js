@@ -20,9 +20,9 @@ const files = walk(path.resolve(__dirname, "../apps/inkwell-api/test"));
 
 files.forEach((filePath) => {
   let content = fs.readFileSync(filePath, "utf8");
-  if (/require\(["']\.\.\/\.\.\/src\/models\/User["']\)/.test(content)) {
-    content = content.replace(/const User = require\(["']\.\.\/\.\.\/src\/models\/User["']\);/g, 'const { User } = require("@vami/identity-service");');
+  if (/require\(["']\.\.\/\.\.\/src\/utils\/jwt["']\)/.test(content)) {
+    content = content.replace(/require\(["']\.\.\/\.\.\/src\/utils\/jwt["']\)/g, 'require("@vami/identity-service")');
     fs.writeFileSync(filePath, content, "utf8");
-    console.log("Updated User import in test file:", path.relative(process.cwd(), filePath));
+    console.log("Updated jwt import in test file:", path.relative(process.cwd(), filePath));
   }
 });

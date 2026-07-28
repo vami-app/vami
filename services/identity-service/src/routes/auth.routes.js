@@ -15,16 +15,16 @@ const {
   oauthCallback,
 } = require("../controllers/auth.controller");
 const { requireAuth } = require("../middlewares/auth.middleware");
-const { validate } = require("../middlewares/validate");
+const { validate } = require("../../../../apps/inkwell-api/src/middlewares/validate");
 const { forgotPasswordLimiter } = require("../../../../libs/shared/middlewares/rateLimiter");
 const {
   registerRules,
   loginRules,
   forgotPasswordRules,
   resetPasswordRules,
-} = require("../validators/auth.validator");
+} = require("../../../../apps/inkwell-api/src/validators/auth.validator");
 const passport = require("../config/passport");
-const env = require("../config/env");
+const env = require("../../../../apps/inkwell-api/src/config/env");
 
 const router = express.Router();
 

@@ -2,12 +2,12 @@
 
 const request = require("supertest");
 const app = require("../../src/app");
-const User = require("../../src/models/User");
+const { User } = require("@vami/identity-service");
 const Post = require("../../src/models/Post");
 const Report = require("../../src/models/Report");
 const AuditLog = require("../../src/models/AuditLog");
 const { connectTestDB, dropTestDB, closeTestDB } = require("../setup/db");
-const { signAccessToken } = require("../../src/utils/jwt");
+const { signAccessToken } = require("@vami/identity-service");
 
 describe("Moderation Integration (Reports, Queue, Admin Actions & AuditLog)", () => {
   let adminUser, reporter1, reporter2, reporter3, authorUser;

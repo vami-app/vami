@@ -14,10 +14,10 @@ const {
   deleteAccount,
 } = require("../controllers/user.controller");
 const { requireAuth, optionalAuth } = require("../middlewares/auth.middleware");
-const { upload } = require("../middlewares/upload.middleware");
-const { validate } = require("../middlewares/validate");
-const { updateSubdomainRules } = require("../validators/user.validator");
-const { getUserPublicLists } = require("../controllers/readingList.controller");
+const { upload } = require("../../../../apps/inkwell-api/src/middlewares/upload.middleware");
+const { validate } = require("../../../../apps/inkwell-api/src/middlewares/validate");
+const { updateSubdomainRules } = require("../../../../apps/inkwell-api/src/validators/user.validator");
+const { getUserPublicLists } = require("../../../../apps/inkwell-api/src/controllers/readingList.controller");
 
 const router = express.Router();
 

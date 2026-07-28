@@ -2,14 +2,14 @@
 
 const request = require("supertest");
 const app = require("../../src/app");
-const User = require("../../src/models/User");
+const { User } = require("@vami/identity-service");
 const Post = require("../../src/models/Post");
 const Comment = require("../../src/models/Comment");
 const ReadingList = require("../../src/models/ReadingList");
 const Highlight = require("../../src/models/Highlight");
 const Notification = require("../../src/models/Notification");
 const { connectTestDB, dropTestDB, closeTestDB } = require("../setup/db");
-const { signAccessToken } = require("../../src/utils/jwt");
+const { signAccessToken } = require("@vami/identity-service");
 const { signDeleteToken } = require("../../src/utils/unsubscribeToken");
 
 describe("User Account Deletion Cascade (DELETE /api/users/me)", () => {
