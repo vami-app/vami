@@ -1,6 +1,0 @@
-{
-  "name": "inkwell-api",
-  "projectType": "application",
-  "sourceRoot": "apps/inkwell-api/src",
-  "targets": {}
-}
