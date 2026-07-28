@@ -1014,3 +1014,25 @@ Docker Compose, all free/self-hosted, same "config-change-not-rewrite" rule as b
 Mongo/Postgres · Redis (queues + rate-limit + sessions + **cache**, logically prefixed) · MinIO · **Traefik** (edge routing + local TLS via mkcert) · **Bull Board** (queue visibility, added Phase 4) · OpenSearch (added only when a real search feature needs it) · the Nx workspace itself.
 
 No cloud account required for any part of Parts A–M. Nothing here changes the "no deployment until Product 1 is ready" constraint from Part G — everything above runs in the same `docker-compose.yml`, and every item is a config swap (not a redesign) at real-launch time, exactly like Part G's original list.
+
+---
+
+# PART N — ENTERPRISE DOCKER COMPOSE & INFRASTRUCTURE HARDENING
+
+## N.1 Healthchecks & Readiness Probes in Docker Compose
+
+In production-grade Docker Compose orchestration, services must never start communicating until dependencies pass empirical readiness healthchecks.
+
+- **PostgreSQL**: `pg_isready -U vami -d vami_db` (interval: 10s, timeout: 5s, retries: 5, start_period: 10s).
+- **Redis**: `redis-cli ping` (interval: 10s, timeout: 3s, retries: 3, start_period: 5s).
+- **MinIO**: `curl -f http://localhost:9000/minio/health/live` (interval: 15s, timeout: 5s, retries: 3, start_period: 10s).
+- **Traefik v3.6**: Native ping endpoint (`ping:` entrypoint in `infra/traefik/traefik.yml`) verified via `traefik healthcheck --ping`.
+
+## N.2 Isolated Bridge Network (`vami-network`)
+
+All services communicate over an isolated Docker bridge network (`vami-network`), preventing port conflicts with host interfaces and isolating internal container traffic.
+
+## N.3 ESLint v9 Flat Configuration (`eslint.config.js`)
+
+ESLint configuration standardizes on ESLint v9 Flat Config format (`eslint.config.js`) using `@nx/eslint-plugin` to enforce `@nx/enforce-module-boundaries` rules across `scope:*`, `domain:*`, and `platform:*` tags. Legacy `.eslintrc.json` files are completely replaced.
+
