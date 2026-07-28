@@ -3,6 +3,8 @@
     "allowJs": true,
     "checkJs": true,
     "noEmit": true,
+    "jsx": "react",
+    "resolveJsonModule": true,
     "module": "CommonJS",
     "moduleResolution": "node10",
     "target": "ES2022",
@@ -11,7 +13,19 @@
     "skipLibCheck": true,
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
-    "paths": {}
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@vami/util": ["libs/shared/util/src/index.js"],
+      "@vami/util/*": ["libs/shared/util/*"],
+      "@vami/registry": ["libs/shared/registry/src/index.js"],
+      "@vami/registry/*": ["libs/shared/registry/*"],
+      "@vami/pagination": ["libs/shared/pagination/src/index.js"],
+      "@vami/pagination/*": ["libs/shared/pagination/*"],
+      "@vami/design-tokens": ["libs/shared/design-tokens/src/index.js"],
+      "@vami/design-tokens/*": ["libs/shared/design-tokens/*"],
+      "@vami/ui": ["libs/shared/ui/src/index.js"],
+      "@vami/ui/*": ["libs/shared/ui/*"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }

@@ -1,0 +1,8 @@
+{
+  "name": "@vami/util",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/util/src",
+  "projectType": "library",
+  "tags": ["scope:util", "platform:node"],
+  "targets": {}
+}

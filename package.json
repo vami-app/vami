@@ -12,9 +12,17 @@
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
     "@nx/eslint-plugin": "^23.1.0",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
     "eslint": "^10.8.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "nx": "^23.1.0",
     "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }
