@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 
 const env = require("./config/env");
 const { notFound, errorHandler } = require("./middlewares/error.middleware");
-const { authLimiter, generalLimiter } = require("./middlewares/rateLimiter");
+const { generalLimiter } = require("./middlewares/rateLimiter");
 
 const postRoutes = require("./routes/post.routes");
 const commentRoutes = require("./routes/comment.routes");

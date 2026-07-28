@@ -4,7 +4,8 @@ module.exports = {
   registerRoutes(app) {
     const authRoutes = require('../../apps/inkwell-api/src/routes/auth.routes');
     const userRoutes = require('../../apps/inkwell-api/src/routes/user.routes');
-    app.use('/api/auth', authRoutes);
+    const { authLimiter } = require('../../apps/inkwell-api/src/middlewares/rateLimiter');
+    app.use('/api/auth', authLimiter, authRoutes);
     app.use('/api/users', userRoutes);
   },
 };
