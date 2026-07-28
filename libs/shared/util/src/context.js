@@ -13,6 +13,7 @@ const requestContextStorage = new AsyncLocalStorage();
 
 /**
  * Runs a function within an asynchronous request context.
+ * All async operations started within `fn` will inherit this context.
  * @template T
  * @param {RequestContext} context
  * @param {() => T} fn
@@ -24,14 +25,18 @@ function runWithContext(context, fn) {
 
 /**
  * Retrieves the current asynchronous request context.
+ * Returns undefined if called outside of a runWithContext scope.
  * @returns {RequestContext | undefined}
  */
 function getContext() {
   return requestContextStorage.getStore();
 }
 
+// requestContextStorage is intentionally NOT exported.
+// Exporting the raw AsyncLocalStorage instance would allow callers to call
+// .run() directly, bypassing runWithContext and creating nested contexts
+// that shadow each other. Only the accessor functions form the public API.
 module.exports = {
   runWithContext,
   getContext,
-  requestContextStorage,
 };

@@ -2,6 +2,11 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {},
   "files": [],
-  "include": ["**/*.js", "**/*.json"],
+  "include": [
+    "libs/**/*.js",
+    "apps/**/*.js",
+    "services/**/*.js",
+    "tools/**/*.js"
+  ],
   "exclude": ["node_modules", "dist"]
 }

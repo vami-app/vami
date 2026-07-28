@@ -3,6 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "description": "Production FAANG-grade monorepo architecture for Vami platform",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
   "scripts": {
     "lint": "nx run-many -t lint",
     "test": "nx run-many -t test",
@@ -17,11 +21,11 @@
     "eslint": "^10.8.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "nx": "^23.1.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   }

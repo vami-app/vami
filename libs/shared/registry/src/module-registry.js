@@ -56,7 +56,8 @@ class ModuleRegistry {
   async dispatch(eventName, payload) {
     const promises = this.#modules.map((mod) => {
       if (typeof mod.onEvent === 'function') {
-        return Promise.resolve().then(() => mod.onEvent(eventName, payload));
+        const handler = mod.onEvent.bind(mod);
+        return Promise.resolve().then(() => handler(eventName, payload));
       }
       return Promise.resolve();
     });

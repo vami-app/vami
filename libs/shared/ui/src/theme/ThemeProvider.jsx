@@ -1,7 +1,7 @@
 const React = require('react');
 
 /** @type {React.Context<import('@vami/design-tokens/src/tokens.contract').ThemeContract | null>} */
-const ThemeContext = React.createContext(null);
+const ThemeContext = /** @type {React.Context<import('@vami/design-tokens/src/tokens.contract').ThemeContract | null>} */ (React.createContext(null));
 
 /**
  * @param {{ theme: import('@vami/design-tokens/src/tokens.contract').ThemeContract, children?: React.ReactNode }} props

@@ -1,7 +1,27 @@
 const crypto = require('crypto');
 
 const MAX_PAGE_SIZE = 50;
-const DEFAULT_SECRET = process.env.PAGINATION_SECRET || 'vami-default-pagination-secret-key-32b';
+
+/**
+ * Resolves the HMAC secret.
+ * Throws at call-time if the env var is absent — never falls back to a
+ * hardcoded value that would silently ship in git history.
+ *
+ * Tests that need a deterministic secret must pass it explicitly via the
+ * `secret` parameter rather than relying on an env default.
+ *
+ * @returns {string}
+ */
+function requireSecret() {
+  const secret = process.env.PAGINATION_SECRET;
+  if (!secret) {
+    throw new Error(
+      'PAGINATION_SECRET environment variable is required. ' +
+      'Set it in your .env file or pass an explicit secret to encodeCursor/decodeCursor.'
+    );
+  }
+  return secret;
+}
 
 /**
  * @typedef {Object} CursorPayload
@@ -10,73 +30,94 @@ const DEFAULT_SECRET = process.env.PAGINATION_SECRET || 'vami-default-pagination
  */
 
 /**
- * Generates an HMAC-SHA256 signature for data string.
+ * Generates an HMAC-SHA256 signature for a data string.
  * @param {string} data
  * @param {string} secret
- * @returns {string}
+ * @returns {string} base64url-encoded signature
  */
 function generateSignature(data, secret) {
-  /** @type {any} */
-  const encoding = 'base64url';
-  return crypto.createHmac('sha256', secret).update(data).digest(encoding);
+  return crypto.createHmac('sha256', secret).update(data).digest('base64url');
 }
 
 /**
  * Encodes a sort coordinate payload into an HMAC-signed Base64URL opaque cursor.
  * @param {CursorPayload} payload
- * @param {string} [secret=DEFAULT_SECRET]
+ * @param {string} [secret] - defaults to PAGINATION_SECRET env var; must be provided in tests
  * @returns {string}
  */
-function encodeCursor(payload, secret = DEFAULT_SECRET) {
+function encodeCursor(payload, secret) {
+  const resolvedSecret = secret ?? requireSecret();
+
   if (!payload || payload.sortValue === undefined || !payload.id) {
     throw new Error('Cursor payload requires sortValue and id properties.');
   }
 
   const rawJson = JSON.stringify({ sortValue: payload.sortValue, id: payload.id });
-  /** @type {any} */
-  const encoding = 'base64url';
-  const base64Data = Buffer.from(rawJson).toString(encoding);
-  const signature = generateSignature(base64Data, secret);
+  const base64Data = Buffer.from(rawJson).toString('base64url');
+  const signature = generateSignature(base64Data, resolvedSecret);
 
   return `${base64Data}.${signature}`;
 }
 
 /**
  * Decodes and verifies an HMAC-signed Base64URL opaque cursor.
+ *
+ * Security properties:
+ * - Uses indexOf + substring instead of split('.') to prevent DoS via
+ *   unbounded array allocation on attacker-controlled input.
+ * - Uses Buffer with explicit 'base64url' encoding on both sides of
+ *   timingSafeEqual so byte-level comparison matches what was signed.
+ * - Uses crypto.timingSafeEqual to prevent timing-attack signature disclosure.
+ *
  * @param {string} signedCursor
- * @param {string} [secret=DEFAULT_SECRET]
+ * @param {string} [secret] - defaults to PAGINATION_SECRET env var; must be provided in tests
  * @returns {CursorPayload}
  */
-function decodeCursor(signedCursor, secret = DEFAULT_SECRET) {
-  if (typeof signedCursor !== 'string' || !signedCursor.includes('.')) {
-    throw new Error('Invalid cursor format.');
+function decodeCursor(signedCursor, secret) {
+  const resolvedSecret = secret ?? requireSecret();
+
+  if (typeof signedCursor !== 'string' || signedCursor.length === 0) {
+    throw new Error('Invalid cursor: must be a non-empty string.');
   }
 
-  const parts = signedCursor.split('.');
-  if (parts.length !== 2) {
-    throw new Error('Malformed cursor structure.');
+  // Bounded split: find the FIRST dot only.
+  // Prevents DoS via a malicious cursor containing thousands of dots.
+  const dotIndex = signedCursor.indexOf('.');
+  if (dotIndex === -1) {
+    throw new Error('Malformed cursor: missing signature separator.');
   }
 
-  const [base64Data, providedSignature] = parts;
-  const expectedSignature = generateSignature(base64Data, secret);
+  const base64Data = signedCursor.substring(0, dotIndex);
+  const providedSignature = signedCursor.substring(dotIndex + 1);
 
-  const sigBuffer = Buffer.from(providedSignature);
-  const expectedBuffer = Buffer.from(expectedSignature);
+  // Verify there is no additional dot in the signature segment.
+  // A valid HMAC-SHA256 base64url value never contains a dot.
+  if (providedSignature.includes('.')) {
+    throw new Error('Malformed cursor: unexpected additional separator.');
+  }
 
-  if (sigBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(sigBuffer, expectedBuffer)) {
-    throw new Error('Invalid cursor signature or cursor tampering detected.');
+  const expectedSignature = generateSignature(base64Data, resolvedSecret);
+
+  // Both buffers use 'base64url' encoding so we compare the actual signature
+  // bytes — not the UTF-8 byte representation of the base64url string.
+  const providedBuffer = Buffer.from(providedSignature, 'base64url');
+  const expectedBuffer = Buffer.from(expectedSignature, 'base64url');
+
+  if (
+    providedBuffer.length !== expectedBuffer.length ||
+    !crypto.timingSafeEqual(providedBuffer, expectedBuffer)
+  ) {
+    throw new Error('Invalid cursor: signature verification failed.');
   }
 
   try {
-    /** @type {any} */
-    const encoding = 'base64url';
-    const rawJson = Buffer.from(base64Data, encoding).toString('utf8');
+    const rawJson = Buffer.from(base64Data, 'base64url').toString('utf8');
     const parsed = JSON.parse(rawJson);
     if (parsed.sortValue === undefined || !parsed.id) {
       throw new Error('Invalid payload fields in cursor.');
     }
     return parsed;
-  } catch (err) {
+  } catch (_err) {
     throw new Error('Failed to parse cursor payload.');
   }
 }
@@ -87,10 +128,10 @@ function decodeCursor(signedCursor, secret = DEFAULT_SECRET) {
  * @param {string} [options.cursor]
  * @param {string} [options.sortField='_id']
  * @param {number} [options.limit=20]
- * @param {string} [options.secret=DEFAULT_SECRET]
+ * @param {string} [options.secret] - explicit secret; falls back to env var
  * @returns {{ filter: Record<string, any>, limit: number }}
  */
-function buildKeysetQuery({ cursor, sortField = '_id', limit = 20, secret = DEFAULT_SECRET }) {
+function buildKeysetQuery({ cursor, sortField = '_id', limit = 20, secret }) {
   const safeLimit = Math.min(Math.max(1, limit), MAX_PAGE_SIZE);
 
   if (!cursor) {
