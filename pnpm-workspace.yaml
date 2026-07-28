@@ -4,5 +4,8 @@ packages:
   - "libs/**"
 
 allowBuilds:
+  '@parcel/watcher': true
   esbuild: true
+  less: true
+  nx: true
   sharp: true
