@@ -1,0 +1,20 @@
+{
+  "name": "@vami/monorepo-root",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Production FAANG-grade monorepo architecture for Vami platform",
+  "scripts": {
+    "lint": "nx run-many -t lint",
+    "test": "nx run-many -t test",
+    "typecheck": "nx run-many -t typecheck",
+    "build": "nx run-many -t build"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.1",
+    "@nx/eslint-plugin": "^23.1.0",
+    "eslint": "^10.8.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "nx": "^23.1.0",
+    "vitest": "^4.1.10"
+  }
+}

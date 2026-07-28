@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "module": "CommonJS",
+    "moduleResolution": "node10",
+    "target": "ES2022",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "ignoreDeprecations": "6.0",
+    "baseUrl": ".",
+    "paths": {}
+  },
+  "exclude": ["node_modules", "dist"]
+}
