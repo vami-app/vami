@@ -21,24 +21,21 @@ const REDACTED_FIELDS = [
  * Winston format that strips known PII/secret fields from every log entry.
  * Applied before any transport receives the entry.
  */
+function redactDeep(obj, depth = 0, maxDepth = 3) {
+  if (depth > maxDepth || obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+    return;
+  }
+  for (const [key, value] of Object.entries(obj)) {
+    if (REDACTED_FIELDS.includes(key)) {
+      obj[key] = '[REDACTED]';
+    } else if (value !== null && typeof value === 'object') {
+      redactDeep(value, depth + 1, maxDepth);
+    }
+  }
+}
+
 const redactFormat = winston.format((info) => {
-  for (const field of REDACTED_FIELDS) {
-    if (Object.prototype.hasOwnProperty.call(info, field)) {
-      info[field] = '[REDACTED]';
-    }
-  }
-  // Also redact nested objects one level deep (e.g. info.body.password)
-  for (const [key, value] of Object.entries(info)) {
-    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-      /** @type {Record<string, unknown>} */
-      const nested = /** @type {Record<string, unknown>} */ (value);
-      for (const field of REDACTED_FIELDS) {
-        if (Object.prototype.hasOwnProperty.call(nested, field)) {
-          nested[field] = '[REDACTED]';
-        }
-      }
-    }
-  }
+  redactDeep(info);
   return info;
 });
 
@@ -114,7 +111,7 @@ function createLogger(options = {}) {
       new winston.transports.Console({
         // In dev, override with human-readable format.
         // In prod, sharedFormat (JSON) is already applied at logger level.
-        format: isDev ? devConsoleFormat : winston.format.json(),
+        ...(isDev ? { format: devConsoleFormat } : {})
       }),
       new winston.transports.DailyRotateFile({
         dirname: 'logs',
@@ -122,8 +119,6 @@ function createLogger(options = {}) {
         datePattern: 'YYYY-MM-DD',
         maxFiles: '14d',
         maxSize: '20m',
-        // Always JSON in file transport regardless of NODE_ENV.
-        format: winston.format.json(),
         // Compress rotated files to reduce disk usage.
         zippedArchive: true,
       }),

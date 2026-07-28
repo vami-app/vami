@@ -139,9 +139,14 @@ describe('@vami/identity-service', () => {
         });
 
       expect(loginRes.status).toBe(200);
-      expect(loginRes.body.accessToken).toBeDefined();
+      
+      const cookiesHeader = loginRes.headers['set-cookie'];
+      expect(cookiesHeader).toBeDefined();
+      const cookies = Array.isArray(cookiesHeader) ? cookiesHeader : [cookiesHeader];
+      const accessTokenCookie = cookies.find((/** @type {string} */ c) => c && c.startsWith('access_token='));
+      expect(accessTokenCookie).toBeDefined();
 
-      const { accessToken } = loginRes.body;
+      const accessToken = accessTokenCookie.split(';')[0].split('=')[1];
 
       // Statelessly verify access token against keyManager JWKS
       const jwks = keyManager.getJWKS();

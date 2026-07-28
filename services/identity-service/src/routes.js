@@ -3,7 +3,9 @@ const { hashPassword, verifyPassword } = require('./passwords');
 const { signAccessToken, signRefreshToken } = require('./tokens');
 const { BadRequestError, UnauthorizedError, ConflictError } = require('@vami/util');
 const crypto = require('crypto');
-
+const jose = require('jose');
+const { rateLimit } = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 /**
  * Creates the Express authentication router for identity-service.
  *
@@ -18,6 +20,39 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
 
   // Parse JSON bodies if Express body-parser is not attached globally
   router.use(express.json());
+  router.use(cookieParser());
+
+  const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => next(new UnauthorizedError('Too many login attempts, please try again after 15 minutes.'))
+  });
+
+  const registerLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => next(new UnauthorizedError('Too many registration attempts, please try again after 15 minutes.'))
+  });
+
+  const authenticate = async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
+    try {
+      const token = req.cookies?.access_token || (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+      if (!token) throw new UnauthorizedError('Authentication required');
+      const publicKey = keyManager.getPublicKey();
+      const { payload } = await jose.jwtVerify(token, publicKey, {
+        issuer: 'vami-identity',
+        audience: 'vami-platform'
+      });
+      req.user = payload;
+      next();
+    } catch (err) {
+      next(new UnauthorizedError('Invalid or expired token'));
+    }
+  };
 
   /**
    * GET /.well-known/jwks.json
@@ -30,7 +65,7 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
   /**
    * POST /api/v1/auth/register
    */
-  router.post('/api/v1/auth/register', async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
+  router.post('/api/v1/auth/register', registerLimiter, async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
     try {
       const { email, username, password, roles } = req.body || {};
 
@@ -77,7 +112,7 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
   /**
    * POST /api/v1/auth/login
    */
-  router.post('/api/v1/auth/login', async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
+  router.post('/api/v1/auth/login', loginLimiter, async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
     try {
       const { email, password } = req.body || {};
 
@@ -106,21 +141,27 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
       });
 
       // Sign tokens
-      const { accessToken } = await signAccessToken({ user, keyManager });
+      const { accessToken } = await signAccessToken({ user, sessionId, keyManager });
       const refreshToken = await signRefreshToken({ user, sessionId, keyManager });
 
       // Attach HTTP-Only refresh cookie
       res.cookie('access_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'strict',
         maxAge: 15 * 60 * 1000, // 15 mins
+      });
+
+      res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/api/v1/auth/refresh',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
       res.json({
         success: true,
-        accessToken,
-        refreshToken,
         user: {
           id: user.id,
           email: user.email,
@@ -137,14 +178,15 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
    * POST /api/v1/auth/logout
    * Logout Everywhere: revokes global session and places jti in revocation list.
    */
-  router.post('/api/v1/auth/logout', async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
+  router.post('/api/v1/auth/logout', authenticate, async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
     try {
-      const { sessionId, jti } = req.body || {};
+      const { sessionId, jti } = req.user || {};
       if (sessionId) {
         await sessionStore.revokeSession(sessionId, jti);
       }
 
       res.clearCookie('access_token');
+      res.clearCookie('refresh_token', { path: '/api/v1/auth/refresh' });
       res.json({ success: true, message: 'Logged out successfully.' });
     } catch (err) {
       next(err);
@@ -154,11 +196,12 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
   /**
    * GET /api/v1/auth/me
    */
-  router.get('/api/v1/auth/me', (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
+  router.get('/api/v1/auth/me', authenticate, (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
     try {
-      const userId = req.query.userId || req.user?.userId;
+      // @ts-ignore - req.user is set by authenticate middleware
+      const userId = req.user?.sub;
       if (!userId || typeof userId !== 'string') {
-        throw new BadRequestError('userId parameter required.');
+        throw new BadRequestError('User context required.');
       }
 
       const user = userStore.findById(userId);

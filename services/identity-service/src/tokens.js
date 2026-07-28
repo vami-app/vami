@@ -15,22 +15,25 @@ const crypto = require('crypto');
  *
  * @param {Object} params
  * @param {import('./user-store').UserRecord} params.user
+ * @param {string} params.sessionId
  * @param {import('./keys').KeyManager} params.keyManager
  * @param {string} [params.issuer='vami-identity']
  * @param {string} [params.audience='vami-platform']
  * @param {string} [params.expiresIn='15m']
  * @returns {Promise<{ accessToken: string, jti: string }>}
  */
-async function signAccessToken({ user, keyManager, issuer = 'vami-identity', audience = 'vami-platform', expiresIn = '15m' }) {
+async function signAccessToken({ user, sessionId, keyManager, issuer = 'vami-identity', audience = 'vami-platform', expiresIn = '15m' }) {
   const privateKey = keyManager.getPrivateKey();
+  const kid = keyManager.getKeyId();
   const jti = `jti_${crypto.randomUUID()}`;
 
   const accessToken = await new jose.SignJWT({
     email: user.email,
     roles: user.roles,
     tenantId: user.tenantId,
+    sessionId,
   })
-    .setProtectedHeader({ alg: 'RS256', kid: 'vami-key-1' })
+    .setProtectedHeader({ alg: 'RS256', kid })
     .setSubject(user.id)
     .setIssuer(issuer)
     .setAudience(audience)
@@ -56,12 +59,13 @@ async function signAccessToken({ user, keyManager, issuer = 'vami-identity', aud
  */
 async function signRefreshToken({ user, sessionId, keyManager, expiresIn = '7d' }) {
   const privateKey = keyManager.getPrivateKey();
+  const kid = keyManager.getKeyId();
 
   return new jose.SignJWT({
     sessionId,
     type: 'refresh',
   })
-    .setProtectedHeader({ alg: 'RS256', kid: 'vami-key-1' })
+    .setProtectedHeader({ alg: 'RS256', kid })
     .setSubject(user.id)
     .setIssuer('vami-identity')
     .setAudience('vami-platform')

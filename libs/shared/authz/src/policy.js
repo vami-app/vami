@@ -1,4 +1,4 @@
-const { ROLES, ROLE_PERMISSIONS } = require('./roles');
+const { ROLES, ROLE_PERMISSIONS, OWNER_PERMISSIONS } = require('./roles');
 
 /**
  * @typedef {Object} UserAuthContext
@@ -33,19 +33,7 @@ function can(user, permission, resourceContext, options = {}) {
     return true;
   }
 
-  // 2. Custom rule evaluation (if provided)
-  if (typeof options.customRule === 'function') {
-    if (options.customRule(user, resourceContext)) {
-      return true;
-    }
-  }
-
-  // 3. ABAC Owner Check (if resource has ownerId matching user.userId)
-  if (resourceContext && resourceContext.ownerId === user.userId) {
-    return true;
-  }
-
-  // 4. Tenant isolation check (if both contexts specify tenantId and they mismatch, deny)
+  // 2. Tenant isolation check (always evaluated, always wins over ownership)
   if (
     user.tenantId &&
     resourceContext &&
@@ -53,6 +41,22 @@ function can(user, permission, resourceContext, options = {}) {
     user.tenantId !== resourceContext.tenantId
   ) {
     return false;
+  }
+
+  // 3. Custom rule evaluation (if provided)
+  if (typeof options.customRule === 'function') {
+    if (options.customRule(user, resourceContext)) {
+      return true;
+    }
+  }
+
+  // 4. ABAC Owner Check (grants bounded OWNER_PERMISSIONS only)
+  if (
+    resourceContext &&
+    resourceContext.ownerId === user.userId &&
+    OWNER_PERMISSIONS.has(permission)
+  ) {
+    return true;
   }
 
   // 5. Role-Permission Matrix check

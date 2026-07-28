@@ -4,10 +4,15 @@
   "private": true,
   "main": "src/index.js",
   "dependencies": {
-    "@vami/util": "workspace:*",
-    "@vami/registry": "workspace:*",
     "@vami/pagination": "workspace:*",
+    "@vami/registry": "workspace:*",
+    "@vami/util": "workspace:*",
     "argon2": "^0.45.1",
+    "cookie-parser": "^1.4.7",
+    "express-rate-limit": "^8.6.1",
     "jose": "^6.2.4"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10"
   }
 }

@@ -58,8 +58,23 @@ const ROLE_PERMISSIONS = {
   ]),
 };
 
+/**
+ * Permissions that ownership of a resource unconditionally grants.
+ * Based on Zanzibar principle: ownership = a relationship that resolves
+ * to a bounded set of capabilities, NOT a bypass of the system.
+ * @type {Set<string>}
+ */
+const OWNER_PERMISSIONS = new Set([
+  PERMISSIONS.PROJECTS_READ,
+  PERMISSIONS.PROJECTS_UPDATE,
+  PERMISSIONS.PROJECTS_DELETE,
+  PERMISSIONS.MEDIA_UPLOAD,
+  PERMISSIONS.MEDIA_DELETE,
+]);
+
 module.exports = {
   ROLES,
   PERMISSIONS,
   ROLE_PERMISSIONS,
+  OWNER_PERMISSIONS,
 };

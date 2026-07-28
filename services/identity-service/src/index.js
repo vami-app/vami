@@ -5,6 +5,9 @@ const { createAuthRouter } = require('./routes');
 const { hashPassword, verifyPassword } = require('./passwords');
 const { signAccessToken, signRefreshToken } = require('./tokens');
 
+/** @type {import('@vami/registry/src/service-registry').ServiceRegistry | null} */
+let _registry = null;
+
 /**
  * AppModule definition for Identity Service.
  * Implements the modular-monolith contract for ModuleRegistry and ServiceRegistry.
@@ -19,6 +22,7 @@ const identityModule = {
    * @param {import('@vami/registry').ServiceRegistry} registry
    */
   registerServices(registry) {
+    _registry = registry;
     const keyManager = new KeyManager();
     const userStore = new UserStore();
     const sessionStore = new SessionStore();
@@ -47,9 +51,10 @@ const identityModule = {
    * @param {any} app
    */
   registerRoutes(app) {
-    const keyManager = new KeyManager();
-    const userStore = new UserStore();
-    const sessionStore = new SessionStore();
+    if (!_registry) throw new Error('identityModule.registerServices must be called before registerRoutes');
+    const keyManager = _registry.resolve('identity.keyManager');
+    const userStore = _registry.resolve('identity.userStore');
+    const sessionStore = _registry.resolve('identity.sessionStore');
 
     // Fire and forget initialization for dev keypair
     keyManager.initialize().catch((err) => {
@@ -68,7 +73,8 @@ const identityModule = {
   async onEvent(eventName, payload) {
     // Identity service event handlers (e.g. user.created, user.deleted)
     if (eventName === 'identity.revoke_session' && payload && payload.sessionId) {
-      const sessionStore = new SessionStore();
+      if (!_registry) return;
+      const sessionStore = _registry.resolve('identity.sessionStore');
       await sessionStore.revokeSession(payload.sessionId, payload.jti);
     }
   },

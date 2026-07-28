@@ -33,7 +33,8 @@ class KeyManager {
     const publicJwk = await jose.exportJWK(this.#publicKey);
     publicJwk.alg = 'RS256';
     publicJwk.use = 'sig';
-    publicJwk.kid = publicJwk.kid || 'vami-key-1';
+    const publicJwkString = JSON.stringify(publicJwk);
+    publicJwk.kid = crypto.createHash('sha256').update(publicJwkString).digest('base64url').substring(0, 16);
 
     this.#jwks = {
       keys: [publicJwk],
@@ -71,6 +72,17 @@ class KeyManager {
       throw new Error('KeyManager is not initialized. Call initialize() first.');
     }
     return this.#jwks;
+  }
+
+  /**
+   * Returns the kid (Key ID) for the active keypair.
+   * @returns {string}
+   */
+  getKeyId() {
+    if (!this.#jwks) {
+      throw new Error('KeyManager is not initialized. Call initialize() first.');
+    }
+    return this.#jwks.keys[0].kid;
   }
 }
 

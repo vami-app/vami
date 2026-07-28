@@ -22,7 +22,7 @@ const { UnauthorizedError } = require('@vami/util');
 /**
  * In-memory JWKS set resolver cache.
  * Keyed by JWKS URL string to prevent redundant network calls across verify calls.
- * @type {Map<string, any>}
+ * @type {Map<string, { resolver: any, expiresAt: number }>}
  */
 const jwksCache = new Map();
 
@@ -33,15 +33,20 @@ const jwksCache = new Map();
  */
 function getRemoteJWKS(url) {
   const urlStr = url.toString();
-  let getKey = jwksCache.get(urlStr);
-  if (!getKey) {
-    getKey = jose.createRemoteJWKSet(new URL(urlStr), {
-      cacheMaxAge: 5 * 60 * 1000, // 5 minutes
-      cooldownDuration: 30 * 1000, // 30 seconds
-    });
-    jwksCache.set(urlStr, getKey);
+  const cached = jwksCache.get(urlStr);
+  const now = Date.now();
+  
+  if (cached && cached.expiresAt > now) {
+    return cached.resolver;
   }
-  return getKey;
+
+  const resolver = jose.createRemoteJWKSet(new URL(urlStr), {
+    cacheMaxAge: 5 * 60 * 1000, // 5 minutes
+    cooldownDuration: 30 * 1000, // 30 seconds
+  });
+  
+  jwksCache.set(urlStr, { resolver, expiresAt: now + 10 * 60 * 1000 }); // 10 min TTL
+  return resolver;
 }
 
 /**

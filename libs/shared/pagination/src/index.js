@@ -123,37 +123,27 @@ function decodeCursor(signedCursor, secret) {
 }
 
 /**
- * Builds a keyset pagination query object for MongoDB/Postgres indexed B-tree composite searches.
+ * Builds a database-agnostic keyset pagination descriptor.
+ * Repository adapters will translate this descriptor into their native syntax
+ * (e.g. Postgres WHERE, MongoDB $or, etc).
  * @param {Object} options
  * @param {string} [options.cursor]
- * @param {string} [options.sortField='_id']
+ * @param {string} [options.sortField='id']
  * @param {number} [options.limit=20]
  * @param {string} [options.secret] - explicit secret; falls back to env var
- * @returns {{ filter: Record<string, any>, limit: number }}
+ * @returns {{ cursorCondition?: { sortField: string, sortValue: string|number, id: string, direction: 'lt'|'gt' }, limit: number }}
  */
-function buildKeysetQuery({ cursor, sortField = '_id', limit = 20, secret }) {
+function buildKeysetQuery({ cursor, sortField = 'id', limit = 20, secret }) {
   const safeLimit = Math.min(Math.max(1, limit), MAX_PAGE_SIZE);
 
   if (!cursor) {
-    return { filter: {}, limit: safeLimit };
+    return { limit: safeLimit };
   }
 
   const { sortValue, id } = decodeCursor(cursor, secret);
 
-  if (sortField === '_id') {
-    return {
-      filter: { _id: { $lt: id } },
-      limit: safeLimit,
-    };
-  }
-
   return {
-    filter: {
-      $or: [
-        { [sortField]: { $lt: sortValue } },
-        { [sortField]: sortValue, _id: { $lt: id } },
-      ],
-    },
+    cursorCondition: { sortField, sortValue, id, direction: 'lt' },
     limit: safeLimit,
   };
 }
