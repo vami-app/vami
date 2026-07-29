@@ -85,4 +85,41 @@ describe('@vami/authz', () => {
       expect(errorPassed.statusCode).toBe(401);
     });
   });
+
+  describe('OWNER_PERMISSIONS — Zanzibar bounded ownership model', () => {
+    const guestOwner = { userId: 'usr_guest', roles: [ROLES.GUEST] };
+    const ownedResource = { ownerId: 'usr_guest' };
+    const crossTenantResource = { ownerId: 'usr_guest', tenantId: 'tenant_B' };
+    const tenantUser = { userId: 'usr_guest', roles: [ROLES.GUEST], tenantId: 'tenant_A' };
+
+    it('GUEST owner can read and update their own resource (in OWNER_PERMISSIONS)', () => {
+      expect(can(guestOwner, PERMISSIONS.PROJECTS_READ, ownedResource)).toBe(true);
+      expect(can(guestOwner, PERMISSIONS.PROJECTS_UPDATE, ownedResource)).toBe(true);
+    });
+
+    it('GUEST owner can delete their own resource (in OWNER_PERMISSIONS)', () => {
+      // GUEST role does NOT have PROJECTS_DELETE in the role matrix
+      // But OWNER_PERMISSIONS grants it — verifies bounded ownership semantics
+      expect(can(guestOwner, PERMISSIONS.PROJECTS_DELETE, ownedResource)).toBe(true);
+    });
+
+    it('GUEST owner cannot access permissions outside OWNER_PERMISSIONS set', () => {
+      // SETTINGS_MANAGE is not in OWNER_PERMISSIONS — ownership must not grant it
+      expect(can(guestOwner, PERMISSIONS.SETTINGS_MANAGE, ownedResource)).toBe(false);
+      // USERS_DELETE is not in OWNER_PERMISSIONS — ownership must not grant it
+      expect(can(guestOwner, PERMISSIONS.USERS_DELETE, ownedResource)).toBe(false);
+    });
+
+    it('cross-tenant owner is denied — tenant isolation beats ownership', () => {
+      // Even if user owns the resource, cross-tenant access must be blocked
+      expect(can(tenantUser, PERMISSIONS.PROJECTS_UPDATE, crossTenantResource)).toBe(false);
+      expect(can(tenantUser, PERMISSIONS.PROJECTS_READ, crossTenantResource)).toBe(false);
+    });
+
+    it('non-owner cannot use ownership path even with matching permission name', () => {
+      const otherUser = { userId: 'usr_other', roles: [ROLES.GUEST] };
+      // ownedResource.ownerId is 'usr_guest', not 'usr_other'
+      expect(can(otherUser, PERMISSIONS.PROJECTS_UPDATE, ownedResource)).toBe(false);
+    });
+  });
 });

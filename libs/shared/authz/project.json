@@ -13,7 +13,8 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit -p libs/shared/authz/tsconfig.json"
+        "command": "tsc --noEmit -p tsconfig.json",
+        "cwd": "{workspaceRoot}"
       }
     },
     "test": {

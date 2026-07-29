@@ -57,6 +57,13 @@ class InternalServerError extends AppError {
   }
 }
 
+class ServiceUnavailableError extends AppError {
+  /** @param {string} [message='Service Unavailable'] @param {string} [errorCode='SERVICE_UNAVAILABLE'] */
+  constructor(message = 'Service Unavailable', errorCode = 'SERVICE_UNAVAILABLE') {
+    super(message, 503, errorCode, true);
+  }
+}
+
 module.exports = {
   AppError,
   BadRequestError,
@@ -65,4 +72,5 @@ module.exports = {
   NotFoundError,
   ConflictError,
   InternalServerError,
+  ServiceUnavailableError,
 };

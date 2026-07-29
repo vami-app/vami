@@ -1,0 +1,29 @@
+{
+  "name": "product-a-api",
+  "sourceRoot": "apps/product-a-api/src",
+  "projectType": "application",
+  "tags": ["scope:app", "domain:product-a"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node src/bootstrap/server.js",
+        "cwd": "apps/product-a-api"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run --reporter=verbose apps/product-a-api/src",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint apps/product-a-api/src --max-warnings=0",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}

@@ -131,7 +131,7 @@ function decodeCursor(signedCursor, secret) {
  * @param {string} [options.sortField='id']
  * @param {number} [options.limit=20]
  * @param {string} [options.secret] - explicit secret; falls back to env var
- * @returns {{ cursorCondition?: { sortField: string, sortValue: string|number, id: string, direction: 'lt'|'gt' }, limit: number }}
+ * @returns {{ cursorCondition?: { sortField: string, sortValue: string|number, id: string, direction: 'lt'|'gt' }, limit: number, filter?: any }}
  */
 function buildKeysetQuery({ cursor, sortField = 'id', limit = 20, secret }) {
   const safeLimit = Math.min(Math.max(1, limit), MAX_PAGE_SIZE);

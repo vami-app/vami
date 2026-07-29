@@ -13,6 +13,16 @@ module.exports = [
           allow: [],
           depConstraints: [
             {
+              sourceTag: 'scope:app',
+              onlyDependOnLibsWithTags: [
+                'scope:feature',
+                'scope:data-access',
+                'scope:domain',
+                'scope:util',
+                'scope:ui',
+              ],
+            },
+            {
               sourceTag: 'scope:feature',
               onlyDependOnLibsWithTags: [
                 'scope:data-access',

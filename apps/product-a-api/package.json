@@ -1,0 +1,28 @@
+{
+  "name": "@vami/product-a-api",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/bootstrap/server.js",
+  "scripts": {
+    "start": "node src/bootstrap/server.js",
+    "dev": "node --watch src/bootstrap/server.js"
+  },
+  "dependencies": {
+    "@vami/auth-client": "workspace:*",
+    "@vami/authz": "workspace:*",
+    "@vami/registry": "workspace:*",
+    "@vami/util": "workspace:*",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.1",
+    "helmet": "^8.1.0",
+    "opossum": "^8.4.0"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.19",
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.10"
+  }
+}

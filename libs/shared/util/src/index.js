@@ -8,6 +8,7 @@ const {
   NotFoundError,
   ConflictError,
   InternalServerError,
+  ServiceUnavailableError,
 } = require('./errors');
 const { validateEnv } = require('./env');
 
@@ -22,5 +23,6 @@ module.exports = {
   NotFoundError,
   ConflictError,
   InternalServerError,
+  ServiceUnavailableError,
   validateEnv,
 };

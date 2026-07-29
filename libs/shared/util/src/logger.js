@@ -20,6 +20,9 @@ const REDACTED_FIELDS = [
 /**
  * Winston format that strips known PII/secret fields from every log entry.
  * Applied before any transport receives the entry.
+ * @param {any} obj
+ * @param {number} [depth]
+ * @param {number} [maxDepth]
  */
 function redactDeep(obj, depth = 0, maxDepth = 3) {
   if (depth > maxDepth || obj === null || typeof obj !== 'object' || Array.isArray(obj)) {

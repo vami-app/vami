@@ -57,7 +57,7 @@ const identityModule = {
     const sessionStore = _registry.resolve('identity.sessionStore');
 
     // Fire and forget initialization for dev keypair
-    keyManager.initialize().catch((err) => {
+    keyManager.initialize().catch((/** @type {any} */ err) => {
       console.error('Failed to initialize KeyManager in identity module:', err);
     });
 
