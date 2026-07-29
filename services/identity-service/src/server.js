@@ -1,19 +1,13 @@
+const { config } = require('./config/env');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { identityModule } = require('./index');
 const { ServiceRegistry, ModuleRegistry } = require('@vami/registry');
-const { validateEnv, createLogger } = require('@vami/util');
+const { createLogger } = require('@vami/util');
 
 const logger = createLogger({ serviceName: 'identity-service' });
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-process.env.PORT = process.env.PORT || '5000';
-process.env.PAGINATION_SECRET = process.env.PAGINATION_SECRET || 'dev-pagination-secret-32-chars-long!';
-process.env.INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || 'dev-internal-secret';
-
-validateEnv(['NODE_ENV', 'PORT']);
-
-const PORT = Number(process.env.PORT) || 5000;
+const PORT = config.PORT;
 
 async function main() {
   const serviceRegistry = new ServiceRegistry();

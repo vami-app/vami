@@ -1,36 +1,15 @@
-const { validateEnv, createLogger } = require('@vami/util');
+const { config } = require('../config/env');
+const { createLogger } = require('@vami/util');
 const { createApp } = require('./app');
 
 const logger = createLogger({ serviceName: 'product-a-api' });
 
-/**
- * Required environment variables. validateEnv throws synchronously
- * if any are missing — preventing a silent misconfigured deployment.
- */
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-process.env.PORT = process.env.PORT || '4000';
-process.env.IDENTITY_JWKS_URL = process.env.IDENTITY_JWKS_URL || 'http://localhost:5000/.well-known/jwks.json';
-process.env.IDENTITY_SERVICE_URL = process.env.IDENTITY_SERVICE_URL || 'http://localhost:5000';
-process.env.PAGINATION_SECRET = process.env.PAGINATION_SECRET || 'dev-pagination-secret-32-chars-long!';
-process.env.REDIS_PASSWORD = process.env.REDIS_PASSWORD || 'vamipassword';
-process.env.INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || 'dev-internal-secret';
-
-validateEnv([
-  'NODE_ENV',
-  'PORT',
-  'IDENTITY_JWKS_URL',
-  'IDENTITY_SERVICE_URL',
-  'PAGINATION_SECRET',
-  'REDIS_PASSWORD',
-  'INTERNAL_SERVICE_SECRET',
-]);
-
-const PORT = Number(process.env.PORT) || 4000;
+const PORT = config.PORT;
 
 const { app } = createApp();
 
 const server = app.listen(PORT, () => {
-  logger.info(`product-a-api listening`, { port: PORT, env: process.env.NODE_ENV });
+  logger.info('product-a-api listening', { port: PORT, env: config.NODE_ENV });
 });
 
 // Configure keep-alive and headers timeouts to prevent 502 race conditions with upstream load balancers
