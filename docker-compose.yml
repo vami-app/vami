@@ -89,6 +89,8 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 5000
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
       PAGINATION_SECRET: ${PAGINATION_SECRET:-dev-pagination-secret-32-chars-long!}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       INTERNAL_SERVICE_SECRET: ${INTERNAL_SERVICE_SECRET:-dev-internal-secret}
@@ -109,6 +111,8 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 4000
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
       IDENTITY_SERVICE_URL: http://identity-service:5000
       IDENTITY_JWKS_URL: http://identity-service:5000/.well-known/jwks.json
       PAGINATION_SECRET: ${PAGINATION_SECRET:-dev-pagination-secret-32-chars-long!}

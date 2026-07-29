@@ -15,7 +15,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4000
 
-COPY --from=builder /app /app
+COPY --chown=node:node --from=builder /app /app
+RUN mkdir -p /app/logs && chown -R node:node /app
 
 EXPOSE 4000
 USER node

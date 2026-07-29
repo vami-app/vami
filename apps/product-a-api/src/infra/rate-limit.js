@@ -32,7 +32,7 @@ function getRedisClient() {
   });
 
   _redisClient.on('error', (/** @type {any} */ err) => {
-    logger.warn('Rate-limit Redis error — degrading to in-memory fallback', { error: err.message });
+    logger.warn('Rate-limit Redis error — degrading to in-memory fallback', { error: err.message || err.code || String(err) });
   });
 
   _redisClient.connect().catch(() => {});

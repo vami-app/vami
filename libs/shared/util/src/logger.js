@@ -117,7 +117,7 @@ function createLogger(options = {}) {
         ...(isDev ? { format: devConsoleFormat } : {})
       }),
       new winston.transports.DailyRotateFile({
-        dirname: 'logs',
+        dirname: process.env.LOG_DIR || 'logs',
         filename: '%DATE%-app.log',
         datePattern: 'YYYY-MM-DD',
         maxFiles: '14d',
