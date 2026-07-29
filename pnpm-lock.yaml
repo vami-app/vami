@@ -196,6 +196,10 @@ importers:
   libs/shared/registry: {}
 
   libs/shared/ui:
+    dependencies:
+      '@vami/design-tokens':
+        specifier: workspace:*
+        version: link:../design-tokens
     devDependencies:
       '@testing-library/react':
         specifier: ^16.2.0

@@ -34,13 +34,16 @@ const STORAGE_KEY = 'vami-theme-mode';
  * }} props
  */
 export function ThemeProvider({ lightTheme, darkTheme, defaultMode = 'system', children }) {
-  const [mode, setModeState] = React.useState(/** @type {ModeSetting} */ (() => {
+  /** @type {[ModeSetting, React.Dispatch<React.SetStateAction<ModeSetting>>]} */
+  const [mode, setModeState] = React.useState(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
       const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved === 'light' || saved === 'dark' || saved === 'system') return saved;
+      if (saved === 'light' || saved === 'dark' || saved === 'system') {
+        return /** @type {ModeSetting} */ (saved);
+      }
     }
     return defaultMode;
-  }));
+  });
 
   const [systemPrefersDark, setSystemPrefersDark] = React.useState(() => {
     if (typeof window !== 'undefined' && window.matchMedia) {
