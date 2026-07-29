@@ -10,7 +10,7 @@ import { Box } from '../layout/Box.jsx';
  */
 
 /** @type {React.Context<AvatarContextValue | null>} */
-const AvatarContext = createContext(null);
+const AvatarContext = createContext(/** @type {AvatarContextValue | null} */ (null));
 
 export function useAvatarContext() {
   const context = useContext(AvatarContext);
