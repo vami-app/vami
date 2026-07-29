@@ -99,6 +99,8 @@ async function verifyToken(token, options = {}) {
     const email = typeof payload.email === 'string' ? payload.email : '';
     const roles = Array.isArray(payload.roles) ? payload.roles : [];
     const jti = typeof payload.jti === 'string' ? payload.jti : undefined;
+    const sessionId = typeof payload.sessionId === 'string' ? payload.sessionId : undefined;
+    const tenantId = typeof payload.tenantId === 'string' ? payload.tenantId : undefined;
 
     if (!userId) {
       throw new UnauthorizedError('Token payload missing subject identifier (sub).');
@@ -117,6 +119,8 @@ async function verifyToken(token, options = {}) {
       email,
       roles,
       jti,
+      sessionId,
+      tenantId,
       exp: payload.exp,
     };
   } catch (err) {

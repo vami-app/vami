@@ -52,6 +52,8 @@ function makeBreakerFor(fn, name) {
   return breaker;
 }
 
+const INTERNAL_SECRET = process.env.INTERNAL_SERVICE_SECRET || 'dev-internal-secret';
+
 /**
  * Performs a POST to the identity-service with JSON body.
  * @param {string} path
@@ -61,7 +63,10 @@ function makeBreakerFor(fn, name) {
 async function identityPost(path, body) {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-internal-secret': INTERNAL_SECRET,
+    },
     body: JSON.stringify(body),
   });
 
@@ -94,19 +99,19 @@ function createIdentityClient() {
 
   const logoutBreaker = makeBreakerFor(
     (/** @type {{ jti?: string, sessionId?: string }} */ params) =>
-      identityPost('/api/v1/auth/logout', params),
+      identityPost('/internal/v1/auth/logout', params),
     'logout'
   );
 
-  // GET with server-to-server userId header (no query param — avoids IDOR in identity-service)
+  // GET internal user profile S2S endpoint with internal secret
   const profileBreaker = makeBreakerFor(
     async (/** @type {string} */ userId) => {
-      const res = await fetch(`${BASE_URL}/api/v1/auth/me`, {
-        headers: { 'x-user-id': userId, 'x-internal-call': '1' },
+      const res = await fetch(`${BASE_URL}/internal/v1/users/${encodeURIComponent(userId)}`, {
+        headers: { 'x-internal-secret': INTERNAL_SECRET },
       });
       if (!res.ok) {
         const text = await res.text().catch(() => '');
-        throw new Error(`identity-service /me failed: ${res.status} ${text}`);
+        throw new Error(`identity-service /internal/v1/users failed: ${res.status} ${text}`);
       }
       return res.json();
     },

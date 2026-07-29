@@ -48,19 +48,20 @@ function authenticate(options = {}) {
       const user = await verifyToken(token, verifyOpts);
       req.user = user;
 
-      // Merge verified user metadata into current AsyncLocalStorage request context
-      const existingContext = getContext() || {};
-      const updatedContext = {
-        ...existingContext,
-        userId: user.userId,
-        email: user.email,
-        roles: user.roles.join(','),
-      };
-
-      // Wrap downstream middleware execution in AsyncLocalStorage context
-      runWithContext(updatedContext, () => {
+      const existingContext = getContext();
+      if (existingContext) {
+        existingContext.userId = user.userId;
+        existingContext.email = user.email;
+        existingContext.roles = user.roles.join(',');
         next();
-      });
+      } else {
+        const newContext = {
+          userId: user.userId,
+          email: user.email,
+          roles: user.roles.join(','),
+        };
+        runWithContext(newContext, () => next());
+      }
     } catch (err) {
       if (!required) {
         req.user = null;

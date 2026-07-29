@@ -167,5 +167,57 @@ describe('@vami/identity-service', () => {
       expect(res.body.keys).toBeDefined();
       expect(res.body.keys[0].kty).toBe('RSA');
     });
+
+    it('Internal S2S endpoints enforce x-internal-secret authentication', async () => {
+      const unauth = await supertest(app).get('/internal/v1/users/usr_123');
+      expect(unauth.status).toBe(401);
+
+      const auth = await supertest(app)
+        .get('/internal/v1/users/usr_nonexistent')
+        .set('x-internal-secret', 'dev-internal-secret');
+      expect(auth.status).toBe(401); // User not found, not Secret missing
+    });
+
+    it('POST /internal/v1/auth/login and GET /internal/v1/users/:id work S2S', async () => {
+      const loginRes = await supertest(app)
+        .post('/internal/v1/auth/login')
+        .set('x-internal-secret', 'dev-internal-secret')
+        .send({
+          email: 'bob@vami.com',
+          password: 'Password123!',
+        });
+
+      expect(loginRes.status).toBe(200);
+      expect(loginRes.body.accessToken).toBeDefined();
+      expect(loginRes.body.refreshToken).toBeDefined();
+
+      const userRes = await supertest(app)
+        .get(`/internal/v1/users/${loginRes.body.user.id}`)
+        .set('x-internal-secret', 'dev-internal-secret');
+
+      expect(userRes.status).toBe(200);
+      expect(userRes.body.user.email).toBe('bob@vami.com');
+    });
+
+    it('POST /api/v1/auth/refresh performs refresh token rotation', async () => {
+      const loginRes = await supertest(app)
+        .post('/api/v1/auth/login')
+        .send({
+          email: 'bob@vami.com',
+          password: 'Password123!',
+        });
+
+      const refreshToken = loginRes.body.refreshToken;
+      expect(refreshToken).toBeDefined();
+
+      const refreshRes = await supertest(app)
+        .post('/api/v1/auth/refresh')
+        .send({ refreshToken });
+
+      expect(refreshRes.status).toBe(200);
+      expect(refreshRes.body.accessToken).toBeDefined();
+      expect(refreshRes.body.refreshToken).toBeDefined();
+      expect(refreshRes.body.refreshToken).not.toBe(refreshToken); // rotated!
+    });
   });
 });

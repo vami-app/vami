@@ -22,6 +22,7 @@ const { buildRegistries } = require('./registry');
  */
 function createApp() {
   const app = express();
+  app.set('trust proxy', 1);
   const { serviceRegistry, moduleRegistry } = buildRegistries();
 
   // 1. Security headers

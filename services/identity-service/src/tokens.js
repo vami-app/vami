@@ -74,7 +74,26 @@ async function signRefreshToken({ user, sessionId, keyManager, expiresIn = '7d' 
     .sign(privateKey);
 }
 
+/**
+ * Verifies an RS256 refresh token.
+ * @param {string} token
+ * @param {import('./keys').KeyManager} keyManager
+ * @returns {Promise<any>}
+ */
+async function verifyRefreshToken(token, keyManager) {
+  const publicKey = keyManager.getPublicKey();
+  const { payload } = await jose.jwtVerify(token, publicKey, {
+    issuer: 'vami-identity',
+    audience: 'vami-platform',
+  });
+  if (payload.type !== 'refresh') {
+    throw new Error('Invalid token type for refresh');
+  }
+  return payload;
+}
+
 module.exports = {
   signAccessToken,
   signRefreshToken,
+  verifyRefreshToken,
 };
