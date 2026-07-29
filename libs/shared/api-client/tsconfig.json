@@ -1,0 +1,11 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "declaration": true,
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": ["src/**/*.js", "src/**/*.d.ts"]
+}
