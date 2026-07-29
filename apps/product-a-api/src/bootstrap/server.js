@@ -40,6 +40,7 @@ server.headersTimeout = 65 * 1000;   // 65s (> keepAliveTimeout)
 /**
  * Graceful shutdown: stop accepting new connections, wait for in-flight
  * requests to complete, then exit. Kubernetes sends SIGTERM before SIGKILL.
+ * @param {string} signal
  */
 function gracefulShutdown(signal) {
   logger.info(`${signal} received — shutting down gracefully`);

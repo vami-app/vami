@@ -106,6 +106,7 @@ async function identityPost(path, body) {
  *
  * @returns {{
  *   login: (creds: { email: string, password: string }) => Promise<any>,
+ *   register: (payload: { email: string, username?: string, password: string }) => Promise<any>,
  *   logout: (params: { jti?: string, sessionId?: string }) => Promise<any>,
  *   getProfile: (userId: string) => Promise<any>,
  * }}
@@ -151,14 +152,14 @@ function createIdentityClient() {
   );
 
   const registerBreaker = makeBreakerFor(
-    (/** @type {{ email: string, username: string, password: string }} */ payload) =>
+    (/** @type {{ email: string, username?: string, password: string }} */ payload) =>
       identityPost('/api/v1/auth/register', payload),
     'register'
   );
 
   return {
     login: (creds) => loginBreaker.fire(creds),
-    register: (payload) => registerBreaker.fire(payload),
+    register: (/** @type {{ email: string, username?: string, password: string }} */ payload) => registerBreaker.fire(payload),
     logout: (params) => logoutBreaker.fire(params),
     getProfile: (userId) => profileBreaker.fire(userId),
   };

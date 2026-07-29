@@ -1,6 +1,6 @@
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
-const Redis = require('ioredis');
+const Redis = /** @type {any} */ (require('ioredis'));
 const { TooManyRequestsError, createLogger } = require('@vami/util');
 
 const logger = createLogger({ serviceName: 'product-a-api:rate-limit' });
@@ -15,6 +15,7 @@ const logger = createLogger({ serviceName: 'product-a-api:rate-limit' });
  * during Redis outages. A Redis failure should not lock users out.
  *
  * Recreates client if status is 'end' to recover from temporary Redis outages.
+ * @type {any}
  */
 let _redisClient = null;
 
@@ -30,7 +31,7 @@ function getRedisClient() {
     maxRetriesPerRequest: 1,
   });
 
-  _redisClient.on('error', (err) => {
+  _redisClient.on('error', (/** @type {any} */ err) => {
     logger.warn('Rate-limit Redis error — degrading to in-memory fallback', { error: err.message });
   });
 

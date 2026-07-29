@@ -1,4 +1,4 @@
-const Redis = require('ioredis');
+const Redis = /** @type {any} */ (require('ioredis'));
 
 /**
  * Health module controller.

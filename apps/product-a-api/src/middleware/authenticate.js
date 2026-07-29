@@ -1,5 +1,5 @@
 const { authenticate: authClientAuthenticate } = require('@vami/auth-client');
-const Redis = require('ioredis');
+const Redis = /** @type {any} */ (require('ioredis'));
 
 /**
  * Lazily-created Redis client for jti revocation lookups.

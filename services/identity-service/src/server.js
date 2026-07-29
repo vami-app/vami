@@ -39,6 +39,7 @@ async function main() {
   server.keepAliveTimeout = 61 * 1000;
   server.headersTimeout = 65 * 1000;
 
+  /** @param {string} signal */
   function gracefulShutdown(signal) {
     logger.info(`${signal} received — shutting down gracefully`);
     const forceExitTimer = setTimeout(() => {

@@ -7,6 +7,8 @@ const { UnauthorizedError } = require('@vami/util');
  * @property {string} email
  * @property {string[]} roles
  * @property {string} [jti]
+ * @property {string} [sessionId]
+ * @property {string} [tenantId]
  * @property {number} [exp]
  */
 
