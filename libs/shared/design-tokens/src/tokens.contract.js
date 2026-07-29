@@ -1,4 +1,13 @@
 /**
+ * @typedef {Object} ThemePrimitives
+ * @property {Record<string, string>} color
+ * @property {Record<string, string>} space
+ * @property {Record<string, string>} radius
+ * @property {Record<string, string>} typography
+ * @property {Record<string, string>} shadow
+ */
+
+/**
  * @typedef {Object} ThemeColorContract
  * @property {string} backgroundPrimary
  * @property {string} backgroundSecondary
@@ -57,6 +66,7 @@
  * @typedef {Object} ThemeContract
  * @property {string} name
  * @property {'light' | 'dark'} mode
+ * @property {ThemePrimitives} primitives
  * @property {ThemeColorContract} color
  * @property {ThemeSpacingContract} spacing
  * @property {ThemeRadiusContract} radius

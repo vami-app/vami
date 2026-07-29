@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Centered container layout primitive with max-width breakpoint bounds.
  *
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full',
  *   padding?: string,
  *   children?: React.ReactNode,
  *   className?: string,
- *   style?: React.CSSProperties
- * }} props
+ *   style?: React.CSSProperties,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function Container({ size = 'lg', padding = '0 16px', children, className = '', style = {} }) {
+export const Container = forwardRef(function Container({ size = 'lg', padding = '0 16px', children, className = '', style = {}, ...rest }, ref) {
   const maxWidths = {
     sm: '640px',
     md: '768px',
@@ -31,5 +32,6 @@ export function Container({ size = 'lg', padding = '0 16px', children, className
     ...style,
   };
 
-  return React.createElement('div', { className, style: combinedStyle }, children);
-}
+  return React.createElement('div', { ref, className, style: combinedStyle, ...rest }, children);
+});
+

@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Status Badge atom.
  *
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   variant?: 'brand' | 'success' | 'warning' | 'danger' | 'subtle',
  *   children?: React.ReactNode,
  *   style?: React.CSSProperties,
- *   className?: string
- * }} props
+ *   className?: string,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function Badge({ variant = 'brand', children, style = {}, className = '' }) {
+export const Badge = forwardRef(function Badge({ variant = 'brand', children, style = {}, className = '', ...rest }, ref) {
   const variantStyles = {
     brand: {
       background: 'var(--vami-color-brand-accent, #2563eb)',
@@ -50,5 +51,6 @@ export function Badge({ variant = 'brand', children, style = {}, className = '' 
     ...style,
   };
 
-  return React.createElement('span', { className, style: combinedStyle }, children);
-}
+  return React.createElement('span', { ref, className, style: combinedStyle, ...rest }, children);
+});
+

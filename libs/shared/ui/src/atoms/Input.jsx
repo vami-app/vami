@@ -1,36 +1,42 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useTheme } from '../theme/ThemeProvider.jsx';
 
 /**
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   type?: string,
  *   value?: string,
  *   placeholder?: string,
  *   onChange?: (e: any) => void,
  *   id?: string,
- *   ariaLabel?: string
- * }} props
+ *   className?: string,
+ *   style?: React.CSSProperties,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function Input({ type = 'text', value, placeholder, onChange, id, ariaLabel }) {
+export const Input = forwardRef(function Input({ type = 'text', value, placeholder, onChange, id, className = '', style = {}, ...rest }, ref) {
   const { theme } = useTheme();
 
   return React.createElement('input', {
+    ref,
     type,
     value,
     placeholder,
     onChange,
     id,
-    'aria-label': ariaLabel,
+    className,
     style: {
       backgroundColor: theme.color.backgroundPrimary,
       color: theme.color.textPrimary,
-      border: `1px solid ${theme.color.backgroundSubdued}`,
+      border: `1px solid ${theme.color.borderSubtle}`,
       borderRadius: theme.radius.sm,
       padding: `${theme.spacing.sm} ${theme.spacing.md}`,
       fontSize: '14px',
       outline: 'none',
       width: '100%',
       boxSizing: 'border-box',
+      ...style,
     },
+    ...rest,
   });
-}
+});
+

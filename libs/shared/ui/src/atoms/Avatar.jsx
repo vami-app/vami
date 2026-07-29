@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, forwardRef } from 'react';
 import { Box } from '../layout/Box.jsx';
 
 /** @typedef {'idle' | 'loading' | 'loaded' | 'error'} AvatarStatus */
@@ -25,14 +25,15 @@ export function useAvatarContext() {
  * Manages the state of the Avatar image (loading, loaded, error) and acts as the container.
  * Built on top of <Box> to leverage tokens.
  *
- * @param {import('react').ComponentProps<typeof Box>} props
+ * @type {React.ForwardRefExoticComponent<import('react').ComponentProps<typeof Box> & React.RefAttributes<any>>}
  */
-function AvatarRoot({ children, className = '', style = {}, borderRadius = '50%', ...rest }) {
+const AvatarRoot = forwardRef(function AvatarRoot({ children, className = '', style = {}, borderRadius = '50%', ...rest }, ref) {
   const [status, setStatus] = useState(/** @type {AvatarStatus} */ ('idle'));
 
   return (
     <AvatarContext.Provider value={{ status, setStatus }}>
       <Box
+        ref={ref}
         className={`vami-avatar-root ${className}`}
         borderRadius={borderRadius}
         style={{
@@ -50,15 +51,15 @@ function AvatarRoot({ children, className = '', style = {}, borderRadius = '50%'
       </Box>
     </AvatarContext.Provider>
   );
-}
+});
 
 /**
  * Avatar.Image
  * Renders the image and updates the root context on load or error.
  *
- * @param {import('react').ImgHTMLAttributes<HTMLImageElement>} props
+ * @type {React.ForwardRefExoticComponent<import('react').ImgHTMLAttributes<HTMLImageElement> & React.RefAttributes<HTMLImageElement>>}
  */
-function AvatarImage({ src, alt, onLoad, onError, style = {}, ...rest }) {
+const AvatarImage = forwardRef(function AvatarImage({ src, alt, onLoad, onError, style = {}, ...rest }, ref) {
   const { status, setStatus } = useAvatarContext();
 
   useEffect(() => {
@@ -75,6 +76,7 @@ function AvatarImage({ src, alt, onLoad, onError, style = {}, ...rest }) {
 
   return (
     <img
+      ref={ref}
       src={src}
       alt={alt || ''}
       onLoad={(e) => {
@@ -96,15 +98,15 @@ function AvatarImage({ src, alt, onLoad, onError, style = {}, ...rest }) {
       {...rest}
     />
   );
-}
+});
 
 /**
  * Avatar.Fallback
  * Renders when the image hasn't loaded yet or fails to load.
  *
- * @param {import('react').ComponentProps<typeof Box> & { delayMs?: number }} props
+ * @type {React.ForwardRefExoticComponent<import('react').ComponentProps<typeof Box> & { delayMs?: number } & React.RefAttributes<any>>}
  */
-function AvatarFallback({ children, className = '', delayMs, ...rest }) {
+const AvatarFallback = forwardRef(function AvatarFallback({ children, className = '', delayMs, ...rest }, ref) {
   const { status } = useAvatarContext();
   const [canRender, setCanRender] = useState(delayMs === undefined);
 
@@ -121,6 +123,7 @@ function AvatarFallback({ children, className = '', delayMs, ...rest }) {
 
   return (
     <Box
+      ref={ref}
       className={`vami-avatar-fallback ${className}`}
       background="var(--vami-color-surface-card)"
       color="var(--vami-color-text-primary)"
@@ -137,7 +140,7 @@ function AvatarFallback({ children, className = '', delayMs, ...rest }) {
       {children}
     </Box>
   );
-}
+});
 
 export const Avatar = {
   Root: AvatarRoot,

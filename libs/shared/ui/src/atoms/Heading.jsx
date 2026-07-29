@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Semantic Heading atom (h1 - h6).
  *
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   level?: 1 | 2 | 3 | 4 | 5 | 6,
  *   color?: string,
  *   children?: React.ReactNode,
  *   style?: React.CSSProperties,
- *   className?: string
- * }} props
+ *   className?: string,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function Heading({ level = 2, color = 'var(--vami-color-text-primary, inherit)', children, style = {}, className = '' }) {
+export const Heading = forwardRef(function Heading({ level = 2, color = 'var(--vami-color-text-primary, inherit)', children, style = {}, className = '', ...rest }, ref) {
   const Component = /** @type {React.ElementType} */ (`h${level}`);
 
   const levelSizes = {
@@ -34,5 +35,6 @@ export function Heading({ level = 2, color = 'var(--vami-color-text-primary, inh
     ...style,
   };
 
-  return React.createElement(Component, { className, style: combinedStyle }, children);
-}
+  return React.createElement(Component, { ref, className, style: combinedStyle, ...rest }, children);
+});
+

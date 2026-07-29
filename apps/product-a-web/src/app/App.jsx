@@ -4,6 +4,8 @@ import { ProtectedRoute } from '../shared/lib/ProtectedRoute';
 import { LoginPage } from '../pages/LoginPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { ProfilePage } from '../pages/ProfilePage';
+import { SettingsPage } from '../pages/SettingsPage';
+import { FeedPage } from '../pages/FeedPage';
 
 /**
  * App — root component. Composes Providers + Router + Routes.
@@ -35,6 +37,22 @@ export function App() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/feed"
+            element={
+              <ProtectedRoute>
+                <FeedPage />
               </ProtectedRoute>
             }
           />

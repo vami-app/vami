@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Typography Text atom.
  *
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   as?: React.ElementType,
  *   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl',
  *   weight?: 'normal' | 'medium' | 'semibold' | 'bold',
@@ -11,10 +11,11 @@ import React from 'react';
  *   align?: 'left' | 'center' | 'right',
  *   children?: React.ReactNode,
  *   style?: React.CSSProperties,
- *   className?: string
- * }} props
+ *   className?: string,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function Text({
+export const Text = forwardRef(function Text({
   as: Component = 'p',
   size = 'md',
   weight = 'normal',
@@ -23,7 +24,8 @@ export function Text({
   children,
   style = {},
   className = '',
-}) {
+  ...rest
+}, ref) {
   const fontSizes = {
     xs: 'var(--vami-typography-size-xs, 12px)',
     sm: 'var(--vami-typography-size-sm, 14px)',
@@ -50,5 +52,6 @@ export function Text({
     ...style,
   };
 
-  return React.createElement(Component, { className, style: combinedStyle }, children);
-}
+  return React.createElement(Component, { ref, className, style: combinedStyle, ...rest }, children);
+});
+

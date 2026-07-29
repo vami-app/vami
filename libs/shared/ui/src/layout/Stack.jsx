@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Flexbox stack layout primitive supporting vertical/horizontal direction and token-driven gap.
  *
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   direction?: 'column' | 'row' | 'row-reverse' | 'column-reverse',
  *   align?: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline',
  *   justify?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around',
@@ -11,10 +11,11 @@ import React from 'react';
  *   wrap?: boolean,
  *   children?: React.ReactNode,
  *   style?: React.CSSProperties,
- *   className?: string
- * }} props
+ *   className?: string,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function Stack({
+export const Stack = forwardRef(function Stack({
   direction = 'column',
   align = 'stretch',
   justify = 'flex-start',
@@ -23,7 +24,8 @@ export function Stack({
   children,
   style = {},
   className = '',
-}) {
+  ...rest
+}, ref) {
   /** @type {React.CSSProperties} */
   const combinedStyle = {
     display: 'flex',
@@ -35,5 +37,6 @@ export function Stack({
     ...style,
   };
 
-  return React.createElement('div', { className, style: combinedStyle }, children);
-}
+  return React.createElement('div', { ref, className, style: combinedStyle, ...rest }, children);
+});
+

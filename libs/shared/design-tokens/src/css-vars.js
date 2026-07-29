@@ -9,7 +9,17 @@ export function generateCssVariables(theme) {
   /** @type {Record<string, string>} */
   const vars = {};
 
-  // Colors
+  // Primitives (Tier 1)
+  if (theme.primitives) {
+    for (const [category, tokens] of Object.entries(theme.primitives)) {
+      for (const [key, val] of Object.entries(tokens)) {
+        const varName = `--vami-primitive-${kebabCase(category)}-${kebabCase(key)}`;
+        vars[varName] = val;
+      }
+    }
+  }
+
+  // Semantics / Colors (Tier 2)
   for (const [key, val] of Object.entries(theme.color)) {
     const varName = `--vami-color-${kebabCase(key)}`;
     vars[varName] = val;

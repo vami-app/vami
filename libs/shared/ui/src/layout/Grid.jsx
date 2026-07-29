@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Responsive CSS Grid layout primitive.
  * Supports breakpoint column maps or fixed column counts.
  *
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   cols?: number | { xs?: number, sm?: number, md?: number, lg?: number, xl?: number },
  *   gap?: string,
  *   children?: React.ReactNode,
  *   style?: React.CSSProperties,
- *   className?: string
- * }} props
+ *   className?: string,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function Grid({ cols = { xs: 1, sm: 2, md: 3, lg: 4 }, gap = 'var(--vami-space-md, 16px)', children, style = {}, className = '' }) {
+export const Grid = forwardRef(function Grid({ cols = { xs: 1, sm: 2, md: 3, lg: 4 }, gap = 'var(--vami-space-md, 16px)', children, style = {}, className = '', ...rest }, ref) {
   const [windowWidth, setWindowWidth] = React.useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1024));
 
   React.useEffect(() => {
@@ -41,5 +42,6 @@ export function Grid({ cols = { xs: 1, sm: 2, md: 3, lg: 4 }, gap = 'var(--vami-
     ...style,
   };
 
-  return React.createElement('div', { className, style: combinedStyle }, children);
-}
+  return React.createElement('div', { ref, className, style: combinedStyle, ...rest }, children);
+});
+

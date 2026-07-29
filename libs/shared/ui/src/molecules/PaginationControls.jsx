@@ -1,26 +1,27 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Button } from '../atoms/Button.jsx';
 import { Stack } from '../layout/Stack.jsx';
 
 /**
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   hasNextPage: boolean,
  *   hasPreviousPage?: boolean,
  *   onNext?: () => void,
- *   onPrevious?: () => void
- * }} props
+ *   onPrevious?: () => void,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function PaginationControls({ hasNextPage, hasPreviousPage = false, onNext, onPrevious }) {
+export const PaginationControls = forwardRef(function PaginationControls({ hasNextPage, hasPreviousPage = false, onNext, onPrevious, ...rest }, ref) {
   return React.createElement(
     Stack,
-    { direction: 'row', gap: 'sm', align: 'center', justify: 'center' },
+    { ref, direction: 'row', gap: 'sm', align: 'center', justify: 'center', ...rest },
     React.createElement(
       Button,
       {
         variant: 'subdued',
         disabled: !hasPreviousPage,
         onClick: onPrevious,
-        ariaLabel: 'Previous page',
+        'aria-label': 'Previous page',
       },
       'Previous'
     ),
@@ -30,9 +31,10 @@ export function PaginationControls({ hasNextPage, hasPreviousPage = false, onNex
         variant: 'primary',
         disabled: !hasNextPage,
         onClick: onNext,
-        ariaLabel: 'Next page',
+        'aria-label': 'Next page',
       },
       'Next'
     )
   );
-}
+});
+

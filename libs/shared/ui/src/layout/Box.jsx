@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 /**
  * Base token-driven layout primitive <Box>.
  * Supports token-driven padding, margin, background, border, radius, shadow, and color props.
  *
- * @param {{
+ * @type {React.ForwardRefExoticComponent<{
  *   as?: React.ElementType,
  *   padding?: string,
  *   margin?: string,
@@ -17,9 +17,9 @@ import React from 'react';
  *   style?: React.CSSProperties,
  *   children?: React.ReactNode,
  *   [key: string]: any
- * }} props
+ * } & React.RefAttributes<any>>}
  */
-export function Box({
+export const Box = forwardRef(function Box({
   as: Component = 'div',
   padding,
   margin,
@@ -32,7 +32,7 @@ export function Box({
   style = {},
   children,
   ...rest
-}) {
+}, ref) {
   /** @type {React.CSSProperties} */
   const combinedStyle = {
     padding,
@@ -48,10 +48,12 @@ export function Box({
   return React.createElement(
     Component,
     {
+      ref,
       className,
       style: combinedStyle,
       ...rest,
     },
     children
   );
-}
+});
+

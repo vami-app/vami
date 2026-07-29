@@ -1,17 +1,26 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useTheme } from '../theme/ThemeProvider.jsx';
 
 /**
- * @param {{ name: string, size?: number, ariaLabel?: string }} props
+ * @type {React.ForwardRefExoticComponent<{
+ *   name: string,
+ *   size?: number,
+ *   ariaLabel?: string,
+ *   className?: string,
+ *   style?: React.CSSProperties,
+ *   [key: string]: any
+ * } & React.RefAttributes<any>>}
  */
-export function Icon({ name, size = 20, ariaLabel }) {
+export const Icon = forwardRef(function Icon({ name, size = 20, ariaLabel, className = '', style = {}, ...rest }, ref) {
   const { theme } = useTheme();
 
   return React.createElement(
     'span',
     {
+      ref,
       role: 'img',
       'aria-label': ariaLabel || `${name} icon`,
+      className,
       style: {
         display: 'inline-flex',
         alignItems: 'center',
@@ -19,8 +28,10 @@ export function Icon({ name, size = 20, ariaLabel }) {
         width: `${size}px`,
         height: `${size}px`,
         color: theme.color.textPrimary,
+        ...style,
       },
+      ...rest,
     },
     `[${name}]`
   );
-}
+});
