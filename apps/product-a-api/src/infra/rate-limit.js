@@ -26,7 +26,6 @@ function getRedisClient() {
     lazyConnect: true,
     // Minimal retry — rate limiting degrades gracefully to memory on failure
     maxRetriesPerRequest: 1,
-    enableOfflineQueue: false,
   });
 
   _redisClient.on('error', (err) => {
@@ -46,7 +45,12 @@ function buildRedisStore(prefix) {
   const client = getRedisClient();
   try {
     return new RedisStore({
-      sendCommand: (...args) => client.call(...args),
+      sendCommand: async (...args) => {
+        if (client.status !== 'ready') {
+          throw new Error(`Redis client status is '${client.status}' — rate-limit failing open`);
+        }
+        return client.call(...args);
+      },
       prefix,
     });
   } catch {
@@ -58,6 +62,7 @@ function buildRedisStore(prefix) {
 /**
  * Creates a Redis-backed rate limiter for authentication login attempts.
  * 5 requests per 15 minutes per IP. Shared across all BFF pods.
+ * Fails OPEN: if Redis store errors, passOnStoreError lets request proceed.
  * @returns {import('express').RequestHandler}
  */
 function createLoginLimiter() {
@@ -66,6 +71,7 @@ function createLoginLimiter() {
     max: 5,
     standardHeaders: true,
     legacyHeaders: false,
+    passOnStoreError: true,
     store: buildRedisStore('rl:login:'),
     handler: (/** @type {any} */ _req, /** @type {any} */ _res, /** @type {any} */ next) =>
       next(new UnauthorizedError('Too many login attempts. Try again in 15 minutes.')),
@@ -75,6 +81,7 @@ function createLoginLimiter() {
 /**
  * Creates a Redis-backed general-purpose API rate limiter.
  * 200 requests per 15 minutes per IP. Shared across all BFF pods.
+ * Fails OPEN: if Redis store errors, passOnStoreError lets request proceed.
  * @returns {import('express').RequestHandler}
  */
 function createGeneralLimiter() {
@@ -83,6 +90,7 @@ function createGeneralLimiter() {
     max: 200,
     standardHeaders: true,
     legacyHeaders: false,
+    passOnStoreError: true,
     store: buildRedisStore('rl:general:'),
     handler: (/** @type {any} */ _req, /** @type {any} */ _res, /** @type {any} */ next) =>
       next(new UnauthorizedError('Rate limit exceeded. Please slow down.')),

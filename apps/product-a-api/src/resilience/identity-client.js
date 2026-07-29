@@ -93,7 +93,7 @@ async function identityPost(path, body) {
 function createIdentityClient() {
   const loginBreaker = makeBreakerFor(
     (/** @type {{ email: string, password: string }} */ creds) =>
-      identityPost('/api/v1/auth/login', creds),
+      identityPost('/internal/v1/auth/login', creds),
     'login'
   );
 
