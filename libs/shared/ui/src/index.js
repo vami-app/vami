@@ -5,6 +5,7 @@ export { Icon } from './atoms/Icon.jsx';
 export { Text } from './atoms/Text.jsx';
 export { Heading } from './atoms/Heading.jsx';
 export { Badge } from './atoms/Badge.jsx';
+export { Avatar } from './atoms/Avatar.jsx';
 export { Box } from './layout/Box.jsx';
 export { Container } from './layout/Container.jsx';
 export { Stack } from './layout/Stack.jsx';
