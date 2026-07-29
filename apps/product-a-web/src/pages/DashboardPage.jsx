@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Grid, Stack, Card, Heading, Text, Badge, Avatar, Button, Icon } from '@vami/ui';
+import { Box, Container, Grid, Stack, Card, Heading, Text, Badge, Avatar, Button, Icon, AppShell } from '@vami/ui';
 
 // --- Custom SVGs for FAANG Grade UI ---
 
@@ -223,244 +223,234 @@ export const DashboardSidebar = () => {
 
 export function DashboardPage() {
   return (
-    <Box style={{ width: '100%' }}>
-      
-      {/* Top Bar inside content area */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb="xl">
-        <Box>
-          <Text size="sm" color="var(--vami-color-text-subtle)" mb="xs">Dashboard <span style={{color: 'var(--vami-color-text-secondary)'}}>/ Overview</span></Text>
-          <Heading level={1} style={{ fontSize: '28px', marginBottom: '4px' }}>Hello Thomas,</Heading>
-          <Text size="sm" color="var(--vami-color-text-subtle)">
-            <span style={{ color: 'var(--vami-color-brand-accent)', textDecoration: 'underline', cursor: 'pointer' }}>Click here</span> to setup your double authentication.
-          </Text>
-        </Box>
-        <Box display="flex" alignItems="center" gap="lg">
-          <Box display="flex" alignItems="center" gap="sm" color="var(--vami-color-text-subtle)" style={{ cursor: 'pointer' }}>
-            <SearchIcon />
-            <Text size="sm" color="inherit">Click here to search</Text>
-          </Box>
-          <Box color="var(--vami-color-text-subtle)" style={{ cursor: 'pointer' }}>
-            <UserIcon />
-          </Box>
-          <Button style={{ background: 'var(--vami-color-brand-accent)', color: '#fff', borderRadius: '8px' }}>
-            Edit dashboard
-          </Button>
-        </Box>
-      </Box>
-
-      {/* Grid Layout Engine */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1.2fr 1fr 1fr',
-        gridAutoRows: 'minmax(200px, auto)',
-        gap: '24px',
-      }}>
+    <AppShell sidebar={<DashboardSidebar />}>
+      <Box style={{ width: '100%' }}>
         
-        {/* Quarterly Overview */}
-        <Card style={{ gridColumn: '1 / 2', gridRow: '1 / 3', background: 'var(--vami-color-surface-card)' }}>
-          <Stack gap="lg" align="center" style={{ height: '100%', justifyContent: 'center' }}>
-            <Heading level={3} style={{ alignSelf: 'flex-start', fontSize: '16px' }}>Quarterly Overview</Heading>
-            <Box position="relative" width="100%">
-              <DonutChart />
-              <Box position="absolute" top="0" right="0" display="flex" flexDirection="column" gap="md" style={{ transform: 'translate(20%, 30%)' }}>
-                <Box>
-                  <Box display="flex" alignItems="center" gap="sm">
-                    <Box width="8px" height="8px" borderRadius="50%" background="var(--vami-color-cyan)" />
-                    <Heading level={2} style={{ fontSize: '24px' }}>26.9%</Heading>
-                    <Text size="xs" color="var(--vami-color-success)">↑ 856</Text>
+        {/* Top Bar inside content area */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb="xl">
+          <Box>
+            <Text size="sm" color="var(--vami-color-text-subtle)" mb="xs">Dashboard <span style={{color: 'var(--vami-color-text-secondary)'}}>/ Overview</span></Text>
+            <Heading level={1} style={{ fontSize: '28px', marginBottom: '4px' }}>Hello Thomas,</Heading>
+            <Text size="sm" color="var(--vami-color-text-subtle)">
+              <span style={{ color: 'var(--vami-color-brand-accent)', textDecoration: 'underline', cursor: 'pointer' }}>Click here</span> to setup your double authentication.
+            </Text>
+          </Box>
+        </Box>
+
+        {/* Grid Layout Engine */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1.2fr 1fr 1fr',
+          gridAutoRows: 'minmax(200px, auto)',
+          gap: '24px',
+        }}>
+          
+          {/* Quarterly Overview */}
+          <Card style={{ gridColumn: '1 / 2', gridRow: '1 / 3', background: 'var(--vami-color-surface-card)' }}>
+            <Stack gap="lg" align="center" style={{ height: '100%', justifyContent: 'center' }}>
+              <Heading level={3} style={{ alignSelf: 'flex-start', fontSize: '16px' }}>Quarterly Overview</Heading>
+              <Box position="relative" width="100%">
+                <DonutChart />
+                <Box position="absolute" top="0" right="0" display="flex" flexDirection="column" gap="md" style={{ transform: 'translate(20%, 30%)' }}>
+                  <Box>
+                    <Box display="flex" alignItems="center" gap="sm">
+                      <Box width="8px" height="8px" borderRadius="50%" background="var(--vami-color-cyan)" />
+                      <Heading level={2} style={{ fontSize: '24px' }}>26.9%</Heading>
+                      <Text size="xs" color="var(--vami-color-success)">↑ 856</Text>
+                    </Box>
+                    <Text size="xs" color="var(--vami-color-text-subtle)" style={{ marginLeft: '16px' }}>New orders</Text>
                   </Box>
-                  <Text size="xs" color="var(--vami-color-text-subtle)" style={{ marginLeft: '16px' }}>New orders</Text>
-                </Box>
-                <Box>
-                  <Box display="flex" alignItems="center" gap="sm">
-                    <Box width="8px" height="8px" borderRadius="50%" background="var(--vami-color-brand-accent)" />
-                    <Heading level={2} style={{ fontSize: '24px' }}>56.2%</Heading>
-                    <Text size="xs" color="var(--vami-color-success)">↑ 1,892</Text>
+                  <Box>
+                    <Box display="flex" alignItems="center" gap="sm">
+                      <Box width="8px" height="8px" borderRadius="50%" background="var(--vami-color-brand-accent)" />
+                      <Heading level={2} style={{ fontSize: '24px' }}>56.2%</Heading>
+                      <Text size="xs" color="var(--vami-color-success)">↑ 1,892</Text>
+                    </Box>
+                    <Text size="xs" color="var(--vami-color-text-subtle)" style={{ marginLeft: '16px' }}>Completed sales</Text>
                   </Box>
-                  <Text size="xs" color="var(--vami-color-text-subtle)" style={{ marginLeft: '16px' }}>Completed sales</Text>
-                </Box>
-                <Box>
-                  <Box display="flex" alignItems="center" gap="sm">
-                    <Box width="8px" height="8px" borderRadius="50%" background="#3b82f6" />
-                    <Heading level={2} style={{ fontSize: '24px' }}>45.9%</Heading>
-                    <Text size="xs" color="var(--vami-color-success)">↑ 3,985</Text>
+                  <Box>
+                    <Box display="flex" alignItems="center" gap="sm">
+                      <Box width="8px" height="8px" borderRadius="50%" background="#3b82f6" />
+                      <Heading level={2} style={{ fontSize: '24px' }}>45.9%</Heading>
+                      <Text size="xs" color="var(--vami-color-success)">↑ 3,985</Text>
+                    </Box>
+                    <Text size="xs" color="var(--vami-color-text-subtle)" style={{ marginLeft: '16px' }}>Page views</Text>
                   </Box>
-                  <Text size="xs" color="var(--vami-color-text-subtle)" style={{ marginLeft: '16px' }}>Page views</Text>
                 </Box>
               </Box>
-            </Box>
-          </Stack>
-        </Card>
+            </Stack>
+          </Card>
 
-        {/* Subscriptions */}
-        <Card style={{ gridColumn: '2 / 3', gridRow: '1 / 2', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Box display="flex" flexDirection="column" justifyContent="space-between" width="50%">
-            <Text size="sm" weight="600" mb="sm">Subscriptions</Text>
-            <Box display="flex" alignItems="center" gap="sm">
-              <Heading level={1} style={{ fontSize: '32px' }}>278</Heading>
-              <Text size="xs" color="var(--vami-color-success)">↑ 16.2%</Text>
+          {/* Subscriptions */}
+          <Card style={{ gridColumn: '2 / 3', gridRow: '1 / 2', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Box display="flex" flexDirection="column" justifyContent="space-between" width="50%">
+              <Text size="sm" weight="600" mb="sm">Subscriptions</Text>
+              <Box display="flex" alignItems="center" gap="sm">
+                <Heading level={1} style={{ fontSize: '32px' }}>278</Heading>
+                <Text size="xs" color="var(--vami-color-success)">↑ 16.2%</Text>
+              </Box>
+              <Box mt="md" display="flex" alignItems="center" gap="xs">
+                <Text size="xs" color="var(--vami-color-text-subtle)">Weekly</Text>
+                <Text size="xs" color="var(--vami-color-text-subtle)">⌄</Text>
+              </Box>
             </Box>
-            <Box mt="md" display="flex" alignItems="center" gap="xs">
-              <Text size="xs" color="var(--vami-color-text-subtle)">Weekly</Text>
-              <Text size="xs" color="var(--vami-color-text-subtle)">⌄</Text>
-            </Box>
-          </Box>
-          <Box width="50%" position="relative">
-             <Badge variant="subtle" style={{ position: 'absolute', top: 0, right: 0, background: 'var(--vami-color-background-subdued)', color: '#fff', border: '1px solid var(--vami-color-border-subtle)' }}>+278 <span style={{color: 'var(--vami-color-danger)', marginLeft: '4px'}}>-4</span></Badge>
-             <Box mt="xl">
-               <SparkLine color="var(--vami-color-brand-accent)" type="up" />
-             </Box>
-          </Box>
-        </Card>
-
-        {/* Avg. Order Value */}
-        <Card style={{ gridColumn: '3 / 4', gridRow: '1 / 2', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Box display="flex" flexDirection="column" justifyContent="space-between" width="50%">
-            <Text size="sm" weight="600" mb="sm">Avg. Order Value</Text>
-            <Box display="flex" alignItems="center" gap="sm">
-              <Heading level={1} style={{ fontSize: '32px' }}>$182.70</Heading>
-              <Text size="xs" color="var(--vami-color-danger)">↓ 3.6%</Text>
-            </Box>
-            <Box mt="md" display="flex" alignItems="center" gap="xs">
-              <Text size="xs" color="var(--vami-color-text-subtle)">Weekly</Text>
-              <Text size="xs" color="var(--vami-color-text-subtle)">⌄</Text>
-            </Box>
-          </Box>
-          <Box width="50%" position="relative">
-             <Badge variant="subtle" style={{ position: 'absolute', top: 0, right: 0, background: 'var(--vami-color-background-subdued)', color: '#fff', border: '1px solid var(--vami-color-border-subtle)' }}>$180.70 <span style={{color: 'var(--vami-color-danger)', marginLeft: '4px'}}>-23.60</span></Badge>
-             <Box mt="xl">
-               <SparkLine color="var(--vami-color-cyan)" type="down" />
-             </Box>
-          </Box>
-        </Card>
-
-        {/* Calendar */}
-        <Card style={{ gridColumn: '2 / 3', gridRow: '2 / 3' }}>
-          <Text size="sm" weight="600" mb="md">Calendar</Text>
-          <Box display="flex" gap="md">
-            <Box flex="1" borderRight="1px solid var(--vami-color-border-subtle)" pr="md">
-              <Stack gap="md">
-                <Box>
-                  <Box display="flex" alignItems="center" gap="xs">
-                    <Box width="6px" height="6px" borderRadius="50%" background="var(--vami-color-success)" />
-                    <Text size="xs" weight="600">9:30 - 10:30 AM</Text>
-                  </Box>
-                  <Box display="flex" justifyContent="space-between" mt="xs" ml="sm">
-                    <Text size="xs" color="var(--vami-color-text-subtle)">Backlog Refinement</Text>
-                    <Text size="xs" color="var(--vami-color-brand-accent)">Join</Text>
-                  </Box>
-                </Box>
-                <Box>
-                  <Box display="flex" alignItems="center" gap="xs">
-                    <Box width="6px" height="6px" borderRadius="50%" background="var(--vami-color-success)" />
-                    <Text size="xs" weight="600">10:30 - 11:30 AM</Text>
-                  </Box>
-                  <Box display="flex" justifyContent="space-between" mt="xs" ml="sm">
-                    <Text size="xs" color="var(--vami-color-text-subtle)">DS Status - Process</Text>
-                    <Text size="xs" color="var(--vami-color-brand-accent)">Join</Text>
-                  </Box>
-                </Box>
-              </Stack>
-            </Box>
-            <Box width="100px" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-               <Text size="sm" mb="xs">Thursday</Text>
-               <Heading level={1} style={{ fontSize: '42px', margin: 0 }}>16th</Heading>
-               <Text size="sm">April</Text>
-            </Box>
-          </Box>
-        </Card>
-
-        {/* Latest Releases */}
-        <Card style={{ gridColumn: '3 / 4', gridRow: '2 / 4' }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb="md">
-            <Text size="sm" weight="600">Latest Releases</Text>
-            <Text size="xs" color="var(--vami-color-text-subtle)">Latest ⌄</Text>
-          </Box>
-          <Stack gap="md">
-            {/* Item 1 */}
-            <Box padding="md" borderLeft="3px solid var(--vami-color-success)" background="var(--vami-color-background-subdued)" borderRadius="sm">
-               <Box display="flex" justifyContent="space-between" alignItems="center" mb="sm">
-                 <Box display="flex" gap="sm" alignItems="center">
-                   <Badge variant="success" style={{ background: 'var(--vami-color-success)', color: '#000' }}>LIVE EXP</Badge>
-                   <Text size="xs" color="var(--vami-color-text-subtle)">End 12 May 2024</Text>
-                 </Box>
-                 <Box display="flex" style={{ marginLeft: '-10px' }}>
-                   <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>A</Avatar.Fallback></Avatar.Root>
-                   <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>B</Avatar.Fallback></Avatar.Root>
-                   <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>C</Avatar.Fallback></Avatar.Root>
-                 </Box>
-               </Box>
-               <Text size="sm" weight="600" mb="md">A/B Test - Bundling in Product Details Page | above the fold</Text>
-               <Box display="flex" justifyContent="space-between">
-                 <Text size="xs" color="var(--vami-color-text-subtle)">Last updated Thu 16 April 2024</Text>
-                 <Text size="xs" weight="bold">OPTI</Text>
-               </Box>
-            </Box>
-            
-            {/* Item 2 */}
-            <Box padding="md" borderLeft="3px solid var(--vami-color-brand-accent)" background="var(--vami-color-background-subdued)" borderRadius="sm">
-               <Box display="flex" justifyContent="space-between" alignItems="center" mb="sm">
-                 <Badge variant="brand">RELEASED</Badge>
-                 <Box display="flex" style={{ marginLeft: '-10px' }}>
-                   <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>D</Avatar.Fallback></Avatar.Root>
-                   <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>E</Avatar.Fallback></Avatar.Root>
-                 </Box>
-               </Box>
-               <Text size="sm" weight="600" mb="md">Customer Experience Enhancement Initiative - Stock availability</Text>
-               <Box display="flex" justifyContent="space-between">
-                 <Text size="xs" color="var(--vami-color-text-subtle)">Last updated Thu 16 April 2024</Text>
-                 <Text size="xs" weight="bold">JUMBO</Text>
-               </Box>
-            </Box>
-
-            {/* Item 3 */}
-            <Box padding="md" borderLeft="3px solid var(--vami-color-brand-accent)" background="var(--vami-color-background-subdued)" borderRadius="sm">
-               <Box display="flex" justifyContent="space-between" alignItems="center" mb="sm">
-                 <Badge variant="brand">RELEASED</Badge>
-                 <Box display="flex" style={{ marginLeft: '-10px' }}>
-                   <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>F</Avatar.Fallback></Avatar.Root>
-                   <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>G</Avatar.Fallback></Avatar.Root>
-                 </Box>
-               </Box>
-               <Text size="sm" weight="600" mb="md">Sustainability Initiative - Promote products that are sustainably prod...</Text>
-            </Box>
-          </Stack>
-        </Card>
-
-        {/* Asset Generated */}
-        <Card style={{ gridColumn: '1 / 3', gridRow: '3 / 4', position: 'relative', overflow: 'hidden' }}>
-           <Box position="absolute" bottom="0" left="0" width="300px" height="100px" background="linear-gradient(90deg, rgba(164,133,255,0.8) 0%, rgba(164,133,255,0) 100%)" style={{ filter: 'blur(50px)', opacity: 0.3 }} />
-           
-           <Box display="flex">
-             <Box width="40%">
-               <Text size="sm" weight="600" mb="sm">Asset Generated</Text>
-               <Box display="flex" alignItems="center" gap="sm">
-                 <Heading level={1} style={{ fontSize: '36px' }}>128,7K</Heading>
-                 <Text size="xs" color="var(--vami-color-success)">↑ 18.3%</Text>
-               </Box>
-               <Text size="xs" color="var(--vami-color-text-subtle)" mt="lg" style={{ lineHeight: '1.5' }}>
-                 Increasing the average order<br/>
-                 value fosters sustainable growth,<br/>
-                 amplifying revenue streams.
-               </Text>
-               
+            <Box width="50%" position="relative">
+               <Badge variant="subtle" style={{ position: 'absolute', top: 0, right: 0, background: 'var(--vami-color-background-subdued)', color: '#fff', border: '1px solid var(--vami-color-border-subtle)' }}>+278 <span style={{color: 'var(--vami-color-danger)', marginLeft: '4px'}}>-4</span></Badge>
                <Box mt="xl">
-                 <Button style={{ background: 'linear-gradient(90deg, var(--vami-color-brand-accent) 0%, #3b82f6 100%)', color: '#fff', padding: '12px 24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                   <Box width="20px" height="20px" border="2px solid #fff" borderRadius="50%" display="flex" alignItems="center" justifyContent="center">
-                     <Box width="10px" height="2px" background="#fff" />
+                 <SparkLine color="var(--vami-color-brand-accent)" type="up" />
+               </Box>
+            </Box>
+          </Card>
+
+          {/* Avg. Order Value */}
+          <Card style={{ gridColumn: '3 / 4', gridRow: '1 / 2', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Box display="flex" flexDirection="column" justifyContent="space-between" width="50%">
+              <Text size="sm" weight="600" mb="sm">Avg. Order Value</Text>
+              <Box display="flex" alignItems="center" gap="sm">
+                <Heading level={1} style={{ fontSize: '32px' }}>$182.70</Heading>
+                <Text size="xs" color="var(--vami-color-danger)">↓ 3.6%</Text>
+              </Box>
+              <Box mt="md" display="flex" alignItems="center" gap="xs">
+                <Text size="xs" color="var(--vami-color-text-subtle)">Weekly</Text>
+                <Text size="xs" color="var(--vami-color-text-subtle)">⌄</Text>
+              </Box>
+            </Box>
+            <Box width="50%" position="relative">
+               <Badge variant="subtle" style={{ position: 'absolute', top: 0, right: 0, background: 'var(--vami-color-background-subdued)', color: '#fff', border: '1px solid var(--vami-color-border-subtle)' }}>$180.70 <span style={{color: 'var(--vami-color-danger)', marginLeft: '4px'}}>-23.60</span></Badge>
+               <Box mt="xl">
+                 <SparkLine color="var(--vami-color-cyan)" type="down" />
+               </Box>
+            </Box>
+          </Card>
+
+          {/* Calendar */}
+          <Card style={{ gridColumn: '2 / 3', gridRow: '2 / 3' }}>
+            <Text size="sm" weight="600" mb="md">Calendar</Text>
+            <Box display="flex" gap="md">
+              <Box flex="1" borderRight="1px solid var(--vami-color-border-subtle)" pr="md">
+                <Stack gap="md">
+                  <Box>
+                    <Box display="flex" alignItems="center" gap="xs">
+                      <Box width="6px" height="6px" borderRadius="50%" background="var(--vami-color-success)" />
+                      <Text size="xs" weight="600">9:30 - 10:30 AM</Text>
+                    </Box>
+                    <Box display="flex" justifyContent="space-between" mt="xs" ml="sm">
+                      <Text size="xs" color="var(--vami-color-text-subtle)">Backlog Refinement</Text>
+                      <Text size="xs" color="var(--vami-color-brand-accent)">Join</Text>
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Box display="flex" alignItems="center" gap="xs">
+                      <Box width="6px" height="6px" borderRadius="50%" background="var(--vami-color-success)" />
+                      <Text size="xs" weight="600">10:30 - 11:30 AM</Text>
+                    </Box>
+                    <Box display="flex" justifyContent="space-between" mt="xs" ml="sm">
+                      <Text size="xs" color="var(--vami-color-text-subtle)">DS Status - Process</Text>
+                      <Text size="xs" color="var(--vami-color-brand-accent)">Join</Text>
+                    </Box>
+                  </Box>
+                </Stack>
+              </Box>
+              <Box width="100px" display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+                 <Text size="sm" mb="xs">Thursday</Text>
+                 <Heading level={1} style={{ fontSize: '42px', margin: 0 }}>16th</Heading>
+                 <Text size="sm">April</Text>
+              </Box>
+            </Box>
+          </Card>
+
+          {/* Latest Releases */}
+          <Card style={{ gridColumn: '3 / 4', gridRow: '2 / 4' }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb="md">
+              <Text size="sm" weight="600">Latest Releases</Text>
+              <Text size="xs" color="var(--vami-color-text-subtle)">Latest ⌄</Text>
+            </Box>
+            <Stack gap="md">
+              {/* Item 1 */}
+              <Box padding="md" borderLeft="3px solid var(--vami-color-success)" background="var(--vami-color-background-subdued)" borderRadius="sm">
+                 <Box display="flex" justifyContent="space-between" alignItems="center" mb="sm">
+                   <Box display="flex" gap="sm" alignItems="center">
+                     <Badge variant="success" style={{ background: 'var(--vami-color-success)', color: '#000' }}>LIVE EXP</Badge>
+                     <Text size="xs" color="var(--vami-color-text-subtle)">End 12 May 2024</Text>
                    </Box>
-                   Get the extension
-                 </Button>
+                   <Box display="flex" style={{ marginLeft: '-10px' }}>
+                     <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>A</Avatar.Fallback></Avatar.Root>
+                     <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>B</Avatar.Fallback></Avatar.Root>
+                     <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>C</Avatar.Fallback></Avatar.Root>
+                   </Box>
+                 </Box>
+                 <Text size="sm" weight="600" mb="md">A/B Test - Bundling in Product Details Page | above the fold</Text>
+                 <Box display="flex" justifyContent="space-between">
+                   <Text size="xs" color="var(--vami-color-text-subtle)">Last updated Thu 16 April 2024</Text>
+                   <Text size="xs" weight="bold">OPTI</Text>
+                 </Box>
+              </Box>
+              
+              {/* Item 2 */}
+              <Box padding="md" borderLeft="3px solid var(--vami-color-brand-accent)" background="var(--vami-color-background-subdued)" borderRadius="sm">
+                 <Box display="flex" justifyContent="space-between" alignItems="center" mb="sm">
+                   <Badge variant="brand">RELEASED</Badge>
+                   <Box display="flex" style={{ marginLeft: '-10px' }}>
+                     <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>D</Avatar.Fallback></Avatar.Root>
+                     <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>E</Avatar.Fallback></Avatar.Root>
+                   </Box>
+                 </Box>
+                 <Text size="sm" weight="600" mb="md">Customer Experience Enhancement Initiative - Stock availability</Text>
+                 <Box display="flex" justifyContent="space-between">
+                   <Text size="xs" color="var(--vami-color-text-subtle)">Last updated Thu 16 April 2024</Text>
+                   <Text size="xs" weight="bold">JUMBO</Text>
+                 </Box>
+              </Box>
+
+              {/* Item 3 */}
+              <Box padding="md" borderLeft="3px solid var(--vami-color-brand-accent)" background="var(--vami-color-background-subdued)" borderRadius="sm">
+                 <Box display="flex" justifyContent="space-between" alignItems="center" mb="sm">
+                   <Badge variant="brand">RELEASED</Badge>
+                   <Box display="flex" style={{ marginLeft: '-10px' }}>
+                     <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>F</Avatar.Fallback></Avatar.Root>
+                     <Avatar.Root style={{ width: 24, height: 24, border: '2px solid var(--vami-color-surface-card)', marginLeft: '-8px' }}><Avatar.Fallback>G</Avatar.Fallback></Avatar.Root>
+                   </Box>
+                 </Box>
+                 <Text size="sm" weight="600" mb="md">Sustainability Initiative - Promote products that are sustainably prod...</Text>
+              </Box>
+            </Stack>
+          </Card>
+
+          {/* Asset Generated */}
+          <Card style={{ gridColumn: '1 / 3', gridRow: '3 / 4', position: 'relative', overflow: 'hidden' }}>
+             <Box position="absolute" bottom="0" left="0" width="300px" height="100px" background="linear-gradient(90deg, rgba(164,133,255,0.8) 0%, rgba(164,133,255,0) 100%)" style={{ filter: 'blur(50px)', opacity: 0.3 }} />
+             
+             <Box display="flex">
+               <Box width="40%">
+                 <Text size="sm" weight="600" mb="sm">Asset Generated</Text>
+                 <Box display="flex" alignItems="center" gap="sm">
+                   <Heading level={1} style={{ fontSize: '36px' }}>128,7K</Heading>
+                   <Text size="xs" color="var(--vami-color-success)">↑ 18.3%</Text>
+                 </Box>
+                 <Text size="xs" color="var(--vami-color-text-subtle)" mt="lg" style={{ lineHeight: '1.5' }}>
+                   Increasing the average order<br/>
+                   value fosters sustainable growth,<br/>
+                   amplifying revenue streams.
+                 </Text>
+                 
+                 <Box mt="xl">
+                   <Button style={{ background: 'linear-gradient(90deg, var(--vami-color-brand-accent) 0%, #3b82f6 100%)', color: '#fff', padding: '12px 24px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                     <Box width="20px" height="20px" border="2px solid #fff" borderRadius="50%" display="flex" alignItems="center" justifyContent="center">
+                       <Box width="10px" height="2px" background="#fff" />
+                     </Box>
+                     Get the extension
+                   </Button>
+                 </Box>
+               </Box>
+               
+               <Box width="60%">
+                  <AreaChart />
                </Box>
              </Box>
-             
-             <Box width="60%">
-                <AreaChart />
-             </Box>
-           </Box>
-        </Card>
+          </Card>
 
-      </div>
-    </Box>
+        </div>
+      </Box>
+    </AppShell>
   );
 }
