@@ -1,4 +1,4 @@
-import { apiClient } from '../../../shared/api/apiClient';
+import { apiClient } from '@vami/api-client';
 
 /**
  * POST /api/v1/bff/auth/login

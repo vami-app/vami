@@ -1,29 +1,36 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiClient } from '../../../shared/api/apiClient';
+import React, { createContext, useContext, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchMe, userKeys } from '@vami/api-client';
 
 /** @typedef {{ id: string, email: string, username: string, roles: string[] }} UserRecord */
 
 const AuthContext = createContext(/** @type {{ user: UserRecord|null, isLoading: boolean, setUser: (u: UserRecord|null) => void } | null} */ (null));
 
 /**
- * AuthProvider — restores session on mount by calling /api/v1/bff/auth/me.
- *
- * The browser sends the httpOnly access_token cookie automatically.
- * If the token is valid, `user` is set. If not (401), `user` stays null.
- * Components never touch localStorage or cookies directly.
+ * AuthProvider — restores session on mount by calling /api/v1/bff/auth/me using TanStack Query.
  *
  * @param {{ children: React.ReactNode }} props
  */
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(/** @type {UserRecord|null} */ (null));
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    apiClient('/api/v1/bff/auth/me')
-      .then((/** @type {any} */ data) => setUser(data.user))
-      .catch(() => setUser(null))
-      .finally(() => setIsLoading(false));
-  }, []);
+  const { data, isLoading } = useQuery({
+    queryKey: userKeys.me(),
+    queryFn: fetchMe,
+    retry: (failureCount, error) => {
+      // Do not retry on 401 Unauthorized
+      if (/** @type {any} */ (error)?.status === 401) return false;
+      return failureCount < 1;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const user = data?.user || null;
+
+  // setUser is used for optimistic updates or logouts
+  const setUser = useCallback((/** @type {UserRecord|null} */ newUser) => {
+    queryClient.setQueryData(userKeys.me(), newUser ? { user: newUser } : null);
+  }, [queryClient]);
 
   return (
     <AuthContext.Provider value={{ user, isLoading, setUser }}>

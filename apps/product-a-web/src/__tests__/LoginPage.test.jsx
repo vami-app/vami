@@ -18,7 +18,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 // Mock the /api/v1/bff/auth/me call (AuthProvider uses this on mount)
-vi.mock('../shared/api/apiClient', () => ({
+vi.mock('@vami/api-client', () => ({
   apiClient: vi.fn().mockRejectedValue({ status: 401 }),  // unauthenticated by default
 }));
 

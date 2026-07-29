@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 // Mock /me as unauthenticated — ProtectedRoute must redirect to /login
-vi.mock('../shared/api/apiClient', () => ({
+vi.mock('@vami/api-client', () => ({
   apiClient: vi.fn().mockRejectedValue({ status: 401 }),
 }));
 
