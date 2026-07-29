@@ -199,7 +199,7 @@ describe('@vami/identity-service', () => {
       expect(userRes.body.user.email).toBe('bob@vami.com');
     });
 
-    it('POST /api/v1/auth/refresh performs refresh token rotation', async () => {
+    it('POST /api/v1/auth/refresh performs refresh token rotation via cookie', async () => {
       const loginRes = await supertest(app)
         .post('/api/v1/auth/login')
         .send({
@@ -207,17 +207,34 @@ describe('@vami/identity-service', () => {
           password: 'Password123!',
         });
 
-      const refreshToken = loginRes.body.refreshToken;
-      expect(refreshToken).toBeDefined();
+      expect(loginRes.status).toBe(200);
 
+      // P2-A: tokens are in cookies, NOT in body
+      expect(loginRes.body.refreshToken).toBeUndefined();
+
+      // Extract refresh token from Set-Cookie header
+      const cookiesHeader = loginRes.headers['set-cookie'];
+      expect(cookiesHeader).toBeDefined();
+      const cookies = Array.isArray(cookiesHeader) ? cookiesHeader : [cookiesHeader];
+      const refreshCookieHeader = cookies.find((/** @type {string} */ c) => c && c.startsWith('refresh_token='));
+      expect(refreshCookieHeader).toBeDefined();
+      const oldRefreshToken = refreshCookieHeader.split(';')[0].split('=')[1];
+
+      // P2-B: pass refresh token via cookie only — not via body
       const refreshRes = await supertest(app)
         .post('/api/v1/auth/refresh')
-        .send({ refreshToken });
+        .set('Cookie', `refresh_token=${oldRefreshToken}`);
 
       expect(refreshRes.status).toBe(200);
-      expect(refreshRes.body.accessToken).toBeDefined();
-      expect(refreshRes.body.refreshToken).toBeDefined();
-      expect(refreshRes.body.refreshToken).not.toBe(refreshToken); // rotated!
+      // New tokens are in response cookies
+      const refreshCookies = Array.isArray(refreshRes.headers['set-cookie'])
+        ? refreshRes.headers['set-cookie']
+        : [refreshRes.headers['set-cookie'] || ''];
+      const newRefreshCookie = refreshCookies.find((/** @type {string} */ c) => c && c.startsWith('refresh_token='));
+      expect(newRefreshCookie).toBeDefined();
+      const newRefreshToken = newRefreshCookie.split(';')[0].split('=')[1];
+      // Verify rotation — new token must differ from old
+      expect(newRefreshToken).not.toBe(oldRefreshToken);
     });
   });
 });

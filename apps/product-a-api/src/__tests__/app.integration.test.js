@@ -48,9 +48,11 @@ describe('product-a-api — Integration (full middleware stack)', () => {
       expect(res.status).toBe(200);
     });
 
-    it('GET /readyz returns 200 with env checks passing', async () => {
+    it('GET /readyz returns 503 when Redis is unavailable (Redis is now a critical dependency)', async () => {
       const res = await request.get('/readyz');
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(503); // Redis unavailable in test env — correct behavior
+      expect(res.body.checks.env).toBe(true);
+      expect(res.body.checks.redis).toBe(false);
     });
 
     it('GET /api/v1/bff/auth/me returns 401 without token (auth middleware active)', async () => {

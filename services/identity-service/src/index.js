@@ -48,6 +48,8 @@ const identityModule = {
 
   /**
    * Mounts identity HTTP routes onto an Express application instance.
+   * NOTE: KeyManager MUST be initialized before routes are mounted —
+   * call identityModule.onReady() and await it before app.listen().
    * @param {any} app
    */
   registerRoutes(app) {
@@ -56,13 +58,21 @@ const identityModule = {
     const userStore = _registry.resolve('identity.userStore');
     const sessionStore = _registry.resolve('identity.sessionStore');
 
-    // Fire and forget initialization for dev keypair
-    keyManager.initialize().catch((/** @type {any} */ err) => {
-      console.error('Failed to initialize KeyManager in identity module:', err);
-    });
-
     const router = createAuthRouter({ keyManager, userStore, sessionStore });
     app.use(router);
+  },
+
+  /**
+   * Async lifecycle hook — MUST be awaited before app.listen().
+   * Initializes the RSA KeyManager. Throws if key generation fails so the
+   * process exits with a non-zero code instead of silently accepting requests
+   * with an uninitialized key pair (which would throw on every login attempt).
+   * @returns {Promise<void>}
+   */
+  async onReady() {
+    if (!_registry) throw new Error('identityModule.registerServices must be called before onReady');
+    const keyManager = _registry.resolve('identity.keyManager');
+    await keyManager.initialize();
   },
 
   /**

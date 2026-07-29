@@ -4,6 +4,7 @@
  * @property {(app: any) => void} [registerRoutes]
  * @property {(registry: import('./service-registry').ServiceRegistry) => void} [registerServices]
  * @property {(eventName: string, payload: any) => Promise<void> | void} [onEvent]
+ * @property {() => Promise<void>} [onReady]
  */
 
 class ModuleRegistry {
@@ -63,6 +64,20 @@ class ModuleRegistry {
     });
 
     return Promise.allSettled(promises);
+  }
+
+  /**
+   * Calls each module's optional onReady() hook in parallel.
+   * Must be awaited BEFORE app.listen().
+   * Any module that throws in onReady() will reject the returned promise
+   * (unlike dispatch, which isolates failures — here a startup failure is fatal).
+   * @returns {Promise<void>}
+   */
+  async readyAll() {
+    const promises = this.#modules
+      .filter((mod) => typeof mod.onReady === 'function')
+      .map((mod) => /** @type {() => Promise<void>} */ (mod.onReady)());
+    await Promise.all(promises);
   }
 
   /**

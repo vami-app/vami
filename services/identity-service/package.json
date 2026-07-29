@@ -3,12 +3,17 @@
   "version": "0.0.1",
   "private": true,
   "main": "src/index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
   "dependencies": {
     "@vami/pagination": "workspace:*",
     "@vami/registry": "workspace:*",
     "@vami/util": "workspace:*",
     "argon2": "^0.45.1",
     "cookie-parser": "^1.4.7",
+    "express": "*",
     "express-rate-limit": "^8.6.1",
     "jose": "^6.2.4"
   },

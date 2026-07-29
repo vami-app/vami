@@ -47,6 +47,12 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
         issuer: 'vami-identity',
         audience: 'vami-platform'
       });
+
+      // P2-C: Check jti revocation list — prevents use of revoked tokens post-logout
+      if (payload.jti && await sessionStore.isRevoked(String(payload.jti))) {
+        throw new UnauthorizedError('Token has been revoked');
+      }
+
       req.user = payload;
       next();
     } catch (err) {
@@ -162,8 +168,6 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
 
       res.json({
         success: true,
-        accessToken,
-        refreshToken,
         user: {
           id: user.id,
           email: user.email,
@@ -182,7 +186,9 @@ function createAuthRouter({ userStore, sessionStore, keyManager }) {
    */
   router.post('/api/v1/auth/refresh', async (/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) => {
     try {
-      const oldRefreshToken = req.cookies?.refresh_token || req.body?.refreshToken;
+      // Only accept refresh token from httpOnly cookie — never from JSON body.
+      // Accepting from body would defeat the XSS protection of httpOnly cookies.
+      const oldRefreshToken = req.cookies?.refresh_token;
       if (!oldRefreshToken) throw new UnauthorizedError('Refresh token required.');
 
       const { verifyRefreshToken } = require('./tokens');

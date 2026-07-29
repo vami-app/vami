@@ -16,7 +16,9 @@ function buildHelmet() {
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        // P3-A: No 'unsafe-inline' — Vite bundles CSS into external files.
+        // If a future inline style is required, use a nonce instead.
+        styleSrc: ["'self'"],
         imgSrc: ["'self'", 'data:'],
         connectSrc: ["'self'"],
         fontSrc: ["'self'"],
@@ -50,7 +52,22 @@ function buildCors() {
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (!isProduction) {
-    return cors({ origin: true, credentials: true });
+    // P3-C: Explicit dev whitelist — not wildcard.
+    // origin: true accepts ANY origin including malicious local pages.
+    // In dev, credentials (httpOnly cookies) are real session cookies.
+    const devOrigins = [
+      'http://localhost:3000',  // product-a-web Vite dev server
+      'http://localhost:5173',  // Vite default port
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5173',
+    ];
+    return cors({
+      origin: (origin, callback) => {
+        if (!origin || devOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: dev origin '${origin}' not in whitelist`));
+      },
+      credentials: true,
+    });
   }
 
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
