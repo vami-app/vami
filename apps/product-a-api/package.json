@@ -10,6 +10,8 @@
   "dependencies": {
     "@vami/auth-client": "workspace:*",
     "@vami/authz": "workspace:*",
+    "@vami/media-service": "workspace:*",
+    "@vami/notification-service": "workspace:*",
     "@vami/registry": "workspace:*",
     "@vami/util": "workspace:*",
     "cookie-parser": "^1.4.7",

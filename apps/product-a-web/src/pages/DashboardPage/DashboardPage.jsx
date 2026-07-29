@@ -1,50 +1,55 @@
 import { useAuth } from '../../entities/user';
 import { AppHeader } from '../../widgets/AppHeader';
 import { UserProfileCard } from '../../widgets/UserProfileCard';
+import { NotificationCenterWidget } from '../../widgets/NotificationCenterWidget';
+import { MediaUploadWidget } from '../../widgets/MediaUploadWidget';
+import { AppShell, Grid, Card, Heading, Text, Stack } from '@vami/ui';
 import { Link } from 'react-router-dom';
 
 /**
  * DashboardPage — protected landing page after login.
- * Shows a welcome summary and links to key actions.
+ * Composes responsive atomic layout, Notification Center, and Media Upload Platform services.
  */
 export function DashboardPage() {
   const { user } = useAuth();
 
   return (
-    <div className="page-layout">
-      <AppHeader />
-      <main className="page-content" aria-label="Dashboard">
-        <div className="dashboard-welcome">
-          <h1 className="page-title">
+    <AppShell title="Product A — Platform Dashboard" userMenu={<AppHeader />}>
+      <Stack gap="24px">
+        <div>
+          <Heading level={1}>
             Welcome back{user?.username ? `, ${user.username}` : ''}
-          </h1>
-          <p className="page-subtitle">Here's what's happening with your account.</p>
+          </Heading>
+          <Text size="md" color="var(--vami-color-text-secondary)">
+            Here's what's happening across your platform services.
+          </Text>
         </div>
 
-        <div className="dashboard-grid">
-          <section className="dashboard-card" aria-label="Your profile">
-            <h2 className="dashboard-card__title">Your Profile</h2>
-            <div className="dashboard-card__profile-preview">
+        <Grid cols={{ xs: 1, md: 2 }} gap="24px">
+          {/* User Profile Card */}
+          <Card elevation="sm" padding="20px">
+            <Stack gap="16px">
+              <Heading level={3}>Your Profile</Heading>
               <UserProfileCard
                 profile={{
                   displayName: user?.username || user?.email,
                   avatarUrl: null,
                 }}
               />
-            </div>
-            <Link to="/profile" className="btn btn--secondary btn--sm" id="go-to-profile-btn">
-              Manage profile →
-            </Link>
-          </section>
+              <Link to="/profile" className="btn btn--secondary btn--sm" id="go-to-profile-btn" style={{ width: 'fit-content' }}>
+                Manage Profile →
+              </Link>
+            </Stack>
+          </Card>
 
-          <section className="dashboard-card" aria-label="Quick actions">
-            <h2 className="dashboard-card__title">Quick Actions</h2>
-            <ul className="dashboard-actions">
-              <li><Link to="/profile" className="action-link">Edit your profile</Link></li>
-            </ul>
-          </section>
-        </div>
-      </main>
-    </div>
+          {/* Platform Notification Center */}
+          <NotificationCenterWidget />
+        </Grid>
+
+        {/* Platform Direct-to-Storage Media Manager */}
+        <MediaUploadWidget />
+      </Stack>
+    </AppShell>
   );
 }
+

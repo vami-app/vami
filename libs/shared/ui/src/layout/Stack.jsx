@@ -1,25 +1,39 @@
-const React = require('react');
-const { useTheme } = require('../theme/ThemeProvider');
+import React from 'react';
 
 /**
- * @param {{ direction?: 'row' | 'column', gap?: 'xs' | 'sm' | 'md' | 'lg', align?: string, justify?: string, children?: React.ReactNode }} props
+ * Flexbox stack layout primitive supporting vertical/horizontal direction and token-driven gap.
+ *
+ * @param {{
+ *   direction?: 'column' | 'row' | 'row-reverse' | 'column-reverse',
+ *   align?: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline',
+ *   justify?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around',
+ *   gap?: string,
+ *   wrap?: boolean,
+ *   children?: React.ReactNode,
+ *   style?: React.CSSProperties,
+ *   className?: string
+ * }} props
  */
-function Stack({ direction = 'column', gap = 'md', align = 'stretch', justify = 'flex-start', children }) {
-  const theme = useTheme();
+export function Stack({
+  direction = 'column',
+  align = 'stretch',
+  justify = 'flex-start',
+  gap = 'var(--vami-space-md, 16px)',
+  wrap = false,
+  children,
+  style = {},
+  className = '',
+}) {
+  /** @type {React.CSSProperties} */
+  const combinedStyle = {
+    display: 'flex',
+    flexDirection: direction,
+    alignItems: align,
+    justifyContent: justify,
+    gap,
+    flexWrap: wrap ? 'wrap' : 'nowrap',
+    ...style,
+  };
 
-  return React.createElement(
-    'div',
-    {
-      style: {
-        display: 'flex',
-        flexDirection: direction,
-        gap: theme.spacing[gap] || theme.spacing.md,
-        alignItems: align,
-        justifyContent: justify,
-      },
-    },
-    children
-  );
+  return React.createElement('div', { className, style: combinedStyle }, children);
 }
-
-module.exports = Stack;

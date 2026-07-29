@@ -1,0 +1,22 @@
+{
+  "name": "service-media",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "services/media-service/src",
+  "tags": ["scope:domain", "domain:media", "platform:node"],
+
+  "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run services/media-service/src"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint services/media-service/src"
+      }
+    }
+  }
+}

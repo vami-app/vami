@@ -1,20 +1,14 @@
-const { ThemeProvider, useTheme } = require('./theme/ThemeProvider');
-const Button = require('./atoms/Button');
-const Input = require('./atoms/Input');
-const Icon = require('./atoms/Icon');
-const Container = require('./layout/Container');
-const Stack = require('./layout/Stack');
-const Grid = require('./layout/Grid');
-const PaginationControls = require('./molecules/PaginationControls');
-
-module.exports = {
-  ThemeProvider,
-  useTheme,
-  Button,
-  Input,
-  Icon,
-  Container,
-  Stack,
-  Grid,
-  PaginationControls,
-};
+export { ThemeProvider, useTheme, ThemeContext } from './theme/ThemeProvider.jsx';
+export { Button } from './atoms/Button.jsx';
+export { Input } from './atoms/Input.jsx';
+export { Icon } from './atoms/Icon.jsx';
+export { Text } from './atoms/Text.jsx';
+export { Heading } from './atoms/Heading.jsx';
+export { Badge } from './atoms/Badge.jsx';
+export { Box } from './layout/Box.jsx';
+export { Container } from './layout/Container.jsx';
+export { Stack } from './layout/Stack.jsx';
+export { Grid } from './layout/Grid.jsx';
+export { Card } from './molecules/Card.jsx';
+export { PaginationControls } from './molecules/PaginationControls.jsx';
+export { AppShell } from './templates/AppShell.jsx';

@@ -1,6 +1,6 @@
-const React = require('react');
-const Button = require('../atoms/Button');
-const Stack = require('../layout/Stack');
+import React from 'react';
+import { Button } from '../atoms/Button.jsx';
+import { Stack } from '../layout/Stack.jsx';
 
 /**
  * @param {{
@@ -10,7 +10,7 @@ const Stack = require('../layout/Stack');
  *   onPrevious?: () => void
  * }} props
  */
-function PaginationControls({ hasNextPage, hasPreviousPage = false, onNext, onPrevious }) {
+export function PaginationControls({ hasNextPage, hasPreviousPage = false, onNext, onPrevious }) {
   return React.createElement(
     Stack,
     { direction: 'row', gap: 'sm', align: 'center', justify: 'center' },
@@ -36,5 +36,3 @@ function PaginationControls({ hasNextPage, hasPreviousPage = false, onNext, onPr
     )
   );
 }
-
-module.exports = PaginationControls;

@@ -78,6 +78,12 @@ importers:
       '@vami/authz':
         specifier: workspace:*
         version: link:../../libs/shared/authz
+      '@vami/media-service':
+        specifier: workspace:*
+        version: link:../../services/media-service
+      '@vami/notification-service':
+        specifier: workspace:*
+        version: link:../../services/notification-service
       '@vami/registry':
         specifier: workspace:*
         version: link:../../libs/shared/registry
@@ -189,7 +195,11 @@ importers:
 
   libs/shared/registry: {}
 
-  libs/shared/ui: {}
+  libs/shared/ui:
+    devDependencies:
+      '@testing-library/react':
+        specifier: ^16.2.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
 
   libs/shared/util: {}
 
@@ -223,6 +233,30 @@ importers:
       '@types/cookie-parser':
         specifier: ^1.4.10
         version: 1.4.10(@types/express@5.0.6)
+
+  services/media-service:
+    dependencies:
+      '@vami/authz':
+        specifier: workspace:*
+        version: link:../../libs/shared/authz
+      '@vami/registry':
+        specifier: workspace:*
+        version: link:../../libs/shared/registry
+      '@vami/util':
+        specifier: workspace:*
+        version: link:../../libs/shared/util
+
+  services/notification-service:
+    dependencies:
+      '@vami/pagination':
+        specifier: workspace:*
+        version: link:../../libs/shared/pagination
+      '@vami/registry':
+        specifier: workspace:*
+        version: link:../../libs/shared/registry
+      '@vami/util':
+        specifier: workspace:*
+        version: link:../../libs/shared/util
 
 packages:
 

@@ -1,0 +1,11 @@
+{
+  "name": "@vami/media-service",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "dependencies": {
+    "@vami/authz": "workspace:*",
+    "@vami/registry": "workspace:*",
+    "@vami/util": "workspace:*"
+  }
+}

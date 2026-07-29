@@ -1,11 +1,11 @@
-const React = require('react');
-const { useTheme } = require('../theme/ThemeProvider');
+import React from 'react';
+import { useTheme } from '../theme/ThemeProvider.jsx';
 
 /**
  * @param {{ name: string, size?: number, ariaLabel?: string }} props
  */
-function Icon({ name, size = 20, ariaLabel }) {
-  const theme = useTheme();
+export function Icon({ name, size = 20, ariaLabel }) {
+  const { theme } = useTheme();
 
   return React.createElement(
     'span',
@@ -18,11 +18,9 @@ function Icon({ name, size = 20, ariaLabel }) {
         justifyContent: 'center',
         width: `${size}px`,
         height: `${size}px`,
-        color: theme.color.foregroundPrimary,
+        color: theme.color.textPrimary,
       },
     },
     `[${name}]`
   );
 }
-
-module.exports = Icon;

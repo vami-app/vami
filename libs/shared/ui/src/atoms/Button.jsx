@@ -1,5 +1,5 @@
-const React = require('react');
-const { useTheme } = require('../theme/ThemeProvider');
+import React from 'react';
+import { useTheme } from '../theme/ThemeProvider.jsx';
 
 /**
  * @param {{
@@ -10,8 +10,8 @@ const { useTheme } = require('../theme/ThemeProvider');
  *   children?: React.ReactNode
  * }} props
  */
-function Button({ variant = 'primary', ariaLabel, disabled = false, onClick, children }) {
-  const theme = useTheme();
+export function Button({ variant = 'primary', ariaLabel, disabled = false, onClick, children }) {
+  const { theme } = useTheme();
 
   let bg = theme.color.brandAccent;
   let fg = theme.color.backgroundPrimary;
@@ -20,7 +20,7 @@ function Button({ variant = 'primary', ariaLabel, disabled = false, onClick, chi
     bg = theme.color.danger;
   } else if (variant === 'subdued') {
     bg = theme.color.backgroundSubdued;
-    fg = theme.color.foregroundPrimary;
+    fg = theme.color.textPrimary;
   }
 
   return React.createElement(
@@ -45,5 +45,3 @@ function Button({ variant = 'primary', ariaLabel, disabled = false, onClick, chi
     children
   );
 }
-
-module.exports = Button;

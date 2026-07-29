@@ -1,0 +1,22 @@
+{
+  "name": "service-notification",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "services/notification-service/src",
+  "tags": ["scope:domain", "domain:notification", "platform:node"],
+
+  "targets": {
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run services/notification-service/src"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint services/notification-service/src"
+      }
+    }
+  }
+}

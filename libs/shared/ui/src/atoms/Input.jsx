@@ -1,5 +1,5 @@
-const React = require('react');
-const { useTheme } = require('../theme/ThemeProvider');
+import React from 'react';
+import { useTheme } from '../theme/ThemeProvider.jsx';
 
 /**
  * @param {{
@@ -11,8 +11,8 @@ const { useTheme } = require('../theme/ThemeProvider');
  *   ariaLabel?: string
  * }} props
  */
-function Input({ type = 'text', value, placeholder, onChange, id, ariaLabel }) {
-  const theme = useTheme();
+export function Input({ type = 'text', value, placeholder, onChange, id, ariaLabel }) {
+  const { theme } = useTheme();
 
   return React.createElement('input', {
     type,
@@ -23,7 +23,7 @@ function Input({ type = 'text', value, placeholder, onChange, id, ariaLabel }) {
     'aria-label': ariaLabel,
     style: {
       backgroundColor: theme.color.backgroundPrimary,
-      color: theme.color.foregroundPrimary,
+      color: theme.color.textPrimary,
       border: `1px solid ${theme.color.backgroundSubdued}`,
       borderRadius: theme.radius.sm,
       padding: `${theme.spacing.sm} ${theme.spacing.md}`,
@@ -34,5 +34,3 @@ function Input({ type = 'text', value, placeholder, onChange, id, ariaLabel }) {
     },
   });
 }
-
-module.exports = Input;

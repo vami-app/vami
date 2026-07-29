@@ -4,6 +4,8 @@ const { createIdentityClient } = require('../resilience/identity-client');
 const { healthModule } = require('../modules/health');
 const { authModule } = require('../modules/auth');
 const { profileModule } = require('../modules/profile');
+const { notificationModule } = require('@vami/notification-service');
+const { mediaModule } = require('@vami/media-service');
 
 /**
  * Builds and returns the wired DI container and module registry.
@@ -16,6 +18,8 @@ const { profileModule } = require('../modules/profile');
  *   2. Health module — /healthz available immediately
  *   3. Auth module — depends on bff.identity-client
  *   4. Profile module — depends on nothing initially (stub repository)
+ *   5. Notification module — platform notifications
+ *   6. Media module — direct-to-storage upload & presigned URLs
  *
  * @returns {{ serviceRegistry: ServiceRegistry, moduleRegistry: ModuleRegistry }}
  */
@@ -34,7 +38,9 @@ function buildRegistries() {
   moduleRegistry
     .register(healthModule)   // health first: /healthz available immediately
     .register(authModule)
-    .register(profileModule);
+    .register(profileModule)
+    .register(notificationModule)
+    .register(mediaModule);
 
   // Wire all module services into the DI container
   moduleRegistry.registerAllServices(serviceRegistry);

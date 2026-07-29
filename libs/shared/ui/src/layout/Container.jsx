@@ -1,27 +1,35 @@
-const React = require('react');
-const { useTheme } = require('../theme/ThemeProvider');
+import React from 'react';
 
 /**
- * @param {{ maxWidth?: string, children?: React.ReactNode }} props
+ * Centered container layout primitive with max-width breakpoint bounds.
+ *
+ * @param {{
+ *   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full',
+ *   padding?: string,
+ *   children?: React.ReactNode,
+ *   className?: string,
+ *   style?: React.CSSProperties
+ * }} props
  */
-function Container({ maxWidth = '1200px', children }) {
-  const theme = useTheme();
+export function Container({ size = 'lg', padding = '0 16px', children, className = '', style = {} }) {
+  const maxWidths = {
+    sm: '640px',
+    md: '768px',
+    lg: '1024px',
+    xl: '1280px',
+    full: '100%',
+  };
 
-  return React.createElement(
-    'div',
-    {
-      style: {
-        width: '100%',
-        maxWidth,
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        paddingLeft: theme.spacing.md,
-        paddingRight: theme.spacing.md,
-        boxSizing: 'border-box',
-      },
-    },
-    children
-  );
+  /** @type {React.CSSProperties} */
+  const combinedStyle = {
+    width: '100%',
+    maxWidth: maxWidths[size] || maxWidths.lg,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    padding,
+    boxSizing: 'border-box',
+    ...style,
+  };
+
+  return React.createElement('div', { className, style: combinedStyle }, children);
 }
-
-module.exports = Container;
