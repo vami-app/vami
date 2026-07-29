@@ -64,6 +64,13 @@ class ServiceUnavailableError extends AppError {
   }
 }
 
+class TooManyRequestsError extends AppError {
+  /** @param {string} [message='Too Many Requests'] @param {string} [errorCode='TOO_MANY_REQUESTS'] */
+  constructor(message = 'Too Many Requests', errorCode = 'TOO_MANY_REQUESTS') {
+    super(message, 429, errorCode, true);
+  }
+}
+
 module.exports = {
   AppError,
   BadRequestError,
@@ -73,4 +80,5 @@ module.exports = {
   ConflictError,
   InternalServerError,
   ServiceUnavailableError,
+  TooManyRequestsError,
 };

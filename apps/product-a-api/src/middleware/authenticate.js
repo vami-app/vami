@@ -11,7 +11,7 @@ const Redis = require('ioredis');
 let _revocationRedis = null;
 
 function getRevocationRedis() {
-  if (_revocationRedis) return _revocationRedis;
+  if (_revocationRedis && _revocationRedis.status !== 'end') return _revocationRedis;
   _revocationRedis = new Redis({
     host: process.env.REDIS_HOST || 'localhost',
     port: Number(process.env.REDIS_PORT) || 6379,
@@ -21,6 +21,7 @@ function getRevocationRedis() {
     enableOfflineQueue: false,
   });
   _revocationRedis.on('error', () => { /* silent — fail open */ });
+  _revocationRedis.connect().catch(() => {});
   return _revocationRedis;
 }
 

@@ -23,7 +23,7 @@ const Redis = require('ioredis');
 let _healthRedis = null;
 
 function getHealthRedis() {
-  if (_healthRedis) return _healthRedis;
+  if (_healthRedis && _healthRedis.status !== 'end') return _healthRedis;
   _healthRedis = new Redis({
     host: process.env.REDIS_HOST || 'localhost',
     port: Number(process.env.REDIS_PORT) || 6379,
@@ -34,6 +34,7 @@ function getHealthRedis() {
     connectTimeout: 2000, // 2s — readiness probe must respond quickly
   });
   _healthRedis.on('error', () => { /* handled per-ping in readiness */ });
+  _healthRedis.connect().catch(() => {});
   return _healthRedis;
 }
 

@@ -33,9 +33,17 @@ const BREAKER_OPTS = {
  * @returns {CircuitBreaker}
  */
 function makeBreakerFor(fn, name) {
-  const breaker = new CircuitBreaker(fn, BREAKER_OPTS);
+  const breaker = new CircuitBreaker(fn, {
+    ...BREAKER_OPTS,
+    // Do not count 4xx client errors toward circuit breaker failures
+    errorFilter: (/** @type {any} */ err) => Boolean(err && err.status >= 400 && err.status < 500),
+  });
 
-  breaker.fallback(() => {
+  breaker.fallback((/** @type {any} */ err) => {
+    // Pass 4xx client errors directly to caller without converting to 503
+    if (err && err.status >= 400 && err.status < 500) {
+      throw err;
+    }
     throw new ServiceUnavailableError(`Identity service temporarily unavailable (circuit: ${name})`);
   });
 
@@ -72,7 +80,19 @@ async function identityPost(path, body) {
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`identity-service ${path} failed: ${res.status} ${text}`);
+    let parsedMessage = '';
+    let parsedErrorCode = undefined;
+    try {
+      const json = JSON.parse(text);
+      parsedMessage = json.message || json.error;
+      parsedErrorCode = json.errorCode;
+    } catch {}
+    const message = parsedMessage || text || `identity-service ${path} failed: ${res.status}`;
+    const err = new Error(message);
+    /** @type {any} */ (err).status = res.status;
+    /** @type {any} */ (err).statusCode = res.status;
+    /** @type {any} */ (err).errorCode = parsedErrorCode;
+    throw err;
   }
 
   return res.json();
@@ -111,7 +131,19 @@ function createIdentityClient() {
       });
       if (!res.ok) {
         const text = await res.text().catch(() => '');
-        throw new Error(`identity-service /internal/v1/users failed: ${res.status} ${text}`);
+        let parsedMessage = '';
+        let parsedErrorCode = undefined;
+        try {
+          const json = JSON.parse(text);
+          parsedMessage = json.message || json.error;
+          parsedErrorCode = json.errorCode;
+        } catch {}
+        const message = parsedMessage || text || `identity-service /internal/v1/users failed: ${res.status}`;
+        const err = new Error(message);
+        /** @type {any} */ (err).status = res.status;
+        /** @type {any} */ (err).statusCode = res.status;
+        /** @type {any} */ (err).errorCode = parsedErrorCode;
+        throw err;
       }
       return res.json();
     },

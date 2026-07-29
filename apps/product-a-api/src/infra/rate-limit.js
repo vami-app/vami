@@ -1,7 +1,7 @@
 const { rateLimit } = require('express-rate-limit');
 const { RedisStore } = require('rate-limit-redis');
 const Redis = require('ioredis');
-const { UnauthorizedError, createLogger } = require('@vami/util');
+const { TooManyRequestsError, createLogger } = require('@vami/util');
 
 const logger = createLogger({ serviceName: 'product-a-api:rate-limit' });
 
@@ -13,11 +13,13 @@ const logger = createLogger({ serviceName: 'product-a-api:rate-limit' });
  * Fails OPEN: if Redis is unavailable, the in-memory fallback activates.
  * This is the correct trade-off: prefer availability over strict rate limiting
  * during Redis outages. A Redis failure should not lock users out.
+ *
+ * Recreates client if status is 'end' to recover from temporary Redis outages.
  */
 let _redisClient = null;
 
 function getRedisClient() {
-  if (_redisClient) return _redisClient;
+  if (_redisClient && _redisClient.status !== 'end') return _redisClient;
   _redisClient = new Redis({
     host: process.env.REDIS_HOST || 'localhost',
     port: Number(process.env.REDIS_PORT) || 6379,
@@ -31,6 +33,8 @@ function getRedisClient() {
   _redisClient.on('error', (err) => {
     logger.warn('Rate-limit Redis error — degrading to in-memory fallback', { error: err.message });
   });
+
+  _redisClient.connect().catch(() => {});
 
   return _redisClient;
 }
@@ -72,9 +76,10 @@ function createLoginLimiter() {
     standardHeaders: true,
     legacyHeaders: false,
     passOnStoreError: true,
+    validate: false,
     store: buildRedisStore('rl:login:'),
     handler: (/** @type {any} */ _req, /** @type {any} */ _res, /** @type {any} */ next) =>
-      next(new UnauthorizedError('Too many login attempts. Try again in 15 minutes.')),
+      next(new TooManyRequestsError('Too many login attempts. Try again in 15 minutes.')),
   });
 }
 
@@ -91,9 +96,10 @@ function createGeneralLimiter() {
     standardHeaders: true,
     legacyHeaders: false,
     passOnStoreError: true,
+    validate: false,
     store: buildRedisStore('rl:general:'),
     handler: (/** @type {any} */ _req, /** @type {any} */ _res, /** @type {any} */ next) =>
-      next(new UnauthorizedError('Rate limit exceeded. Please slow down.')),
+      next(new TooManyRequestsError('Rate limit exceeded. Please slow down.')),
   });
 }
 

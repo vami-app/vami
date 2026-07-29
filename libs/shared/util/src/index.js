@@ -9,6 +9,7 @@ const {
   ConflictError,
   InternalServerError,
   ServiceUnavailableError,
+  TooManyRequestsError,
 } = require('./errors');
 const { validateEnv } = require('./env');
 
@@ -24,5 +25,6 @@ module.exports = {
   ConflictError,
   InternalServerError,
   ServiceUnavailableError,
+  TooManyRequestsError,
   validateEnv,
 };

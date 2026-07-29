@@ -32,7 +32,17 @@ const jwksCache = new Map();
  * @returns {any}
  */
 function getRemoteJWKS(url) {
-  const urlStr = url.toString();
+  if (!url) {
+    throw new UnauthorizedError('Missing JWKS URL configuration.');
+  }
+  let parsedUrl;
+  try {
+    parsedUrl = url instanceof URL ? url : new URL(url.toString());
+  } catch {
+    throw new UnauthorizedError(`Invalid JWKS URL provided: ${url}`);
+  }
+
+  const urlStr = parsedUrl.toString();
   const cached = jwksCache.get(urlStr);
   const now = Date.now();
   
@@ -40,7 +50,7 @@ function getRemoteJWKS(url) {
     return cached.resolver;
   }
 
-  const resolver = jose.createRemoteJWKSet(new URL(urlStr), {
+  const resolver = jose.createRemoteJWKSet(parsedUrl, {
     cacheMaxAge: 5 * 60 * 1000, // 5 minutes
     cooldownDuration: 30 * 1000, // 30 seconds
   });

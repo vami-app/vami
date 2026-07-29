@@ -19,8 +19,10 @@ validateEnv([
   'NODE_ENV',
   'PORT',
   'IDENTITY_JWKS_URL',
+  'IDENTITY_SERVICE_URL',
   'PAGINATION_SECRET',
   'REDIS_PASSWORD',
+  'INTERNAL_SERVICE_SECRET',
 ]);
 
 const PORT = Number(process.env.PORT) || 4000;
@@ -61,6 +63,11 @@ function gracefulShutdown(signal) {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught exception', { error: err.message, stack: err.stack });
+  process.exit(1);
+});
 
 process.on('unhandledRejection', (reason) => {
   logger.error('Unhandled promise rejection', { reason: String(reason) });
