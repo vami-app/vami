@@ -59,6 +59,23 @@ function createAuthController(registry) {
     },
 
     /**
+     * POST /api/v1/bff/auth/register
+     */
+    async register(/** @type {any} */ req, /** @type {any} */ res, /** @type {any} */ next) {
+      try {
+        const { email, username, password } = req.body || {};
+        if (!email || typeof email !== 'string') throw new BadRequestError('email is required');
+        if (!username || typeof username !== 'string') throw new BadRequestError('username is required');
+        if (!password || typeof password !== 'string') throw new BadRequestError('password is required');
+
+        const result = await authService.register({ email, username, password });
+        res.status(201).json(result);
+      } catch (err) {
+        next(err);
+      }
+    },
+
+    /**
      * POST /api/v1/bff/auth/logout
      * Requires authentication. Extracts jti + sessionId from verified token payload (req.user).
      * NEVER reads these from req.body (IDOR prevention).

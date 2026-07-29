@@ -118,8 +118,15 @@ function createIdentityClient() {
     'profile'
   );
 
+  const registerBreaker = makeBreakerFor(
+    (/** @type {{ email: string, username: string, password: string }} */ payload) =>
+      identityPost('/api/v1/auth/register', payload),
+    'register'
+  );
+
   return {
     login: (creds) => loginBreaker.fire(creds),
+    register: (payload) => registerBreaker.fire(payload),
     logout: (params) => logoutBreaker.fire(params),
     getProfile: (userId) => profileBreaker.fire(userId),
   };

@@ -14,6 +14,9 @@
       "inputs": ["default"],
       "cache": true
     },
+    "dev": {
+      "cache": false
+    },
     "test": {
       "inputs": ["default"],
       "cache": true

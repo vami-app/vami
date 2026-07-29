@@ -52,21 +52,20 @@ function buildCors() {
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (!isProduction) {
-    // P3-C: Explicit dev whitelist — not wildcard.
-    // origin: true accepts ANY origin including malicious local pages.
-    // In dev, credentials (httpOnly cookies) are real session cookies.
-    const devOrigins = [
-      'http://localhost:3000',  // product-a-web Vite dev server
-      'http://localhost:5173',  // Vite default port
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:5173',
-    ];
+    // P3-C: Dev CORS — strictly allows any localhost / 127.0.0.1 origin regardless of port
+    // (e.g. http://localhost:3000, http://localhost:3001, http://127.0.0.1:5173),
+    // while blocking external/malicious non-local origins.
+    const isLocalOrigin = (/** @type {string} */ url) =>
+      /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(url);
+
     return cors({
       origin: (origin, callback) => {
-        if (!origin || devOrigins.includes(origin)) return callback(null, true);
-        callback(new Error(`CORS: dev origin '${origin}' not in whitelist`));
+        if (!origin || isLocalOrigin(origin)) return callback(null, true);
+        callback(new Error(`CORS: dev origin '${origin}' not in local whitelist`));
       },
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     });
   }
 

@@ -39,6 +39,15 @@ class AuthService {
   }
 
   /**
+   * Registers a new user via the identity service.
+   * @param {{ email: string, username: string, password: string }} payload
+   * @returns {Promise<any>}
+   */
+  async register({ email, username, password }) {
+    return this._identityClient.register({ email, username, password });
+  }
+
+  /**
    * Revokes the user session via the identity service.
    * @param {LogoutParams} params
    * @returns {Promise<void>}

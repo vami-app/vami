@@ -4,6 +4,13 @@
   "projectType": "application",
   "tags": ["scope:app", "domain:product-a", "platform:web"],
   "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vite",
+        "cwd": "apps/product-a-web"
+      }
+    },
     "serve": {
       "executor": "nx:run-commands",
       "options": {

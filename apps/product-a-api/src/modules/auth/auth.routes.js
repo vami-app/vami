@@ -23,6 +23,9 @@ function createAuthRouter(registry) {
   // POST /api/v1/bff/auth/login — rate limited, no auth required
   router.post('/api/v1/bff/auth/login', loginLimiter, controller.login);
 
+  // POST /api/v1/bff/auth/register — registration
+  router.post('/api/v1/bff/auth/register', controller.register);
+
   // POST /api/v1/bff/auth/logout — must be authenticated (prevent anonymous session revocation)
   router.post('/api/v1/bff/auth/logout', authenticate(), controller.logout);
 

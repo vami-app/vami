@@ -73,6 +73,21 @@ const identityModule = {
     if (!_registry) throw new Error('identityModule.registerServices must be called before onReady');
     const keyManager = _registry.resolve('identity.keyManager');
     await keyManager.initialize();
+
+    // In development mode, seed a default admin user if absent for zero-config local testing
+    if (process.env.NODE_ENV !== 'production') {
+      const userStore = _registry.resolve('identity.userStore');
+      if (!userStore.findByEmail('admin@vami.dev')) {
+        const { hashPassword } = require('./passwords');
+        const passHash = await hashPassword('Password123!');
+        userStore.createUser({
+          email: 'admin@vami.dev',
+          username: 'admin',
+          passwordHash: passHash,
+          roles: ['SUPER_ADMIN', 'MEMBER'],
+        });
+      }
+    }
   },
 
   /**

@@ -7,6 +7,14 @@ const logger = createLogger({ serviceName: 'product-a-api' });
  * Required environment variables. validateEnv throws synchronously
  * if any are missing — preventing a silent misconfigured deployment.
  */
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.env.PORT = process.env.PORT || '4000';
+process.env.IDENTITY_JWKS_URL = process.env.IDENTITY_JWKS_URL || 'http://localhost:5000/.well-known/jwks.json';
+process.env.IDENTITY_SERVICE_URL = process.env.IDENTITY_SERVICE_URL || 'http://localhost:5000';
+process.env.PAGINATION_SECRET = process.env.PAGINATION_SECRET || 'dev-pagination-secret-32-chars-long!';
+process.env.REDIS_PASSWORD = process.env.REDIS_PASSWORD || 'vamipassword';
+process.env.INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || 'dev-internal-secret';
+
 validateEnv([
   'NODE_ENV',
   'PORT',
