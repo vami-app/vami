@@ -1,8 +1,0 @@
-{
-  "name": "@vami/pagination",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/pagination/src",
-  "projectType": "library",
-  "tags": ["scope:util", "platform:node"],
-  "targets": {}
-}

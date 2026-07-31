@@ -1,8 +1,0 @@
-{
-  "name": "@vami/registry",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/registry/src",
-  "projectType": "library",
-  "tags": ["scope:util", "platform:node"],
-  "targets": {}
-}

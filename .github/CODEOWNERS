@@ -1,6 +1,0 @@
-# Vami Monorepo CODEOWNERS
-*                   @vami-team
-/apps/              @vami-team/frontend
-/services/          @vami-team/backend
-/libs/shared/ui/    @vami-team/design-system
-/libs/shared/       @vami-team/platform

@@ -1,8 +1,0 @@
-{
-  "name": "@vami/design-tokens",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/design-tokens/src",
-  "projectType": "library",
-  "tags": ["scope:util", "platform:web"],
-  "targets": {}
-}
