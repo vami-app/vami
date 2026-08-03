@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import Category from '@/models/Category';

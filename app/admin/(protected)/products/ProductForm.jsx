@@ -167,28 +167,28 @@ export default function ProductForm({ initialData = null }) {
         {/* Basic Information */}
         <div>
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Basic Information</h3>
+            <h3 className="text-2xl font-headline font-light text-gray-900 tracking-tight">Basic Information</h3>
             <p className="mt-1 text-sm text-gray-500">Public product details and categorization.</p>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-3">
               <label className="block text-sm font-medium text-gray-700">Product Name</label>
               <div className="mt-1">
-                <input type="text" name="name" required value={formData.name} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+                <input type="text" name="name" required value={formData.name} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-3">
               <label className="block text-sm font-medium text-gray-700">Slug</label>
               <div className="mt-1">
-                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-3">
               <label className="block text-sm font-medium text-gray-700">Category</label>
               <div className="mt-1">
-                <select name="category" required value={formData.category} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border">
+                <select name="category" required value={formData.category} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm">
                   {loadingCategories ? <option>Loading...</option> : categories.map(c => (
                     <option key={c._id} value={c._id}>{c.name}</option>
                   ))}
@@ -199,7 +199,7 @@ export default function ProductForm({ initialData = null }) {
             <div className="sm:col-span-3">
               <label className="block text-sm font-medium text-gray-700">Status</label>
               <div className="mt-1">
-                <select name="status" value={formData.status} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border">
+                <select name="status" value={formData.status} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm">
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
                 </select>
@@ -209,14 +209,14 @@ export default function ProductForm({ initialData = null }) {
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">Short Description</label>
               <div className="mt-1">
-                <textarea name="shortDescription" rows={2} value={formData.shortDescription} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md py-2 px-3" />
+                <textarea name="shortDescription" rows={2} value={formData.shortDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">Long Description (HTML supported)</label>
               <div className="mt-1">
-                <textarea name="longDescription" rows={6} value={formData.longDescription} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md py-2 px-3" />
+                <textarea name="longDescription" rows={6} value={formData.longDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               </div>
             </div>
           </div>
@@ -231,8 +231,8 @@ export default function ProductForm({ initialData = null }) {
           <div className="mt-6 space-y-4">
             {formData.specs.map((spec, index) => (
               <div key={index} className="flex items-center space-x-4">
-                <input type="text" placeholder="Key (e.g. Material)" required value={spec.key} onChange={(e) => updateSpec(index, 'key', e.target.value)} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
-                <input type="text" placeholder="Value (e.g. Aluminum)" required value={spec.value} onChange={(e) => updateSpec(index, 'value', e.target.value)} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+                <input type="text" placeholder="Key (e.g. Material)" required value={spec.key} onChange={(e) => updateSpec(index, 'key', e.target.value)} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <input type="text" placeholder="Value (e.g. Aluminum)" required value={spec.value} onChange={(e) => updateSpec(index, 'value', e.target.value)} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
                 <button type="button" onClick={() => removeSpec(index)} className="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-red-600 hover:bg-red-50 focus:outline-none">
                   <Trash2 className="h-5 w-5" />
                 </button>
@@ -260,11 +260,11 @@ export default function ProductForm({ initialData = null }) {
                 <div className="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Variant Name</label>
-                    <input type="text" required value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+                    <input type="text" required value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Price / Note</label>
-                    <input type="text" value={variant.priceNote} onChange={(e) => updateVariant(index, 'priceNote', e.target.value)} className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+                    <input type="text" value={variant.priceNote} onChange={(e) => updateVariant(index, 'priceNote', e.target.value)} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
                   </div>
                 </div>
               </div>
@@ -310,24 +310,24 @@ export default function ProductForm({ initialData = null }) {
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">SEO Title</label>
-              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               <p className="mt-1 text-xs text-gray-500">{formData.seoTitle.length}/60</p>
             </div>
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">SEO Description</label>
-              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               <p className="mt-1 text-xs text-gray-500">{formData.seoDescription.length}/160</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-5 pb-10">
+      <div className="pt-8 pb-10 border-t border-gray-100">
         <div className="flex justify-end space-x-3">
-          <button type="button" onClick={() => router.push('/admin/products')} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button type="button" onClick={() => router.push('/admin/products')} className="inline-flex justify-center rounded-full border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
             Cancel
           </button>
-          <button type="submit" disabled={isSaving} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button type="submit" disabled={isSaving} className="inline-flex justify-center rounded-full border border-transparent shadow-sm px-6 py-2.5 bg-black text-sm font-medium text-white hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
             {isSaving ? 'Saving...' : 'Save Product'}
           </button>
         </div>

@@ -7,18 +7,11 @@ export default async function EditBlogPage({ params }) {
   const { id } = await params;
   await dbConnect();
   
-  const post = await BlogPost.findById(id).lean();
-  if (!post) {
+  const rawPost = await BlogPost.findById(id).lean();
+  if (!rawPost) {
     notFound();
   }
-
-  // Convert ObjectIds and Dates to strings for Client Component
-  post._id = post._id.toString();
-  post.createdAt = post.createdAt.toISOString();
-  post.updatedAt = post.updatedAt.toISOString();
-  if (post.publishedAt) {
-    post.publishedAt = post.publishedAt.toISOString();
-  }
+  const post = JSON.parse(JSON.stringify(rawPost));
 
   return (
     <div>

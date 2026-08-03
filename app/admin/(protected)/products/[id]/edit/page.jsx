@@ -7,16 +7,11 @@ export default async function EditProductPage({ params }) {
   const { id } = await params;
   await dbConnect();
   
-  const product = await Product.findById(id).lean();
-  if (!product) {
+  const rawProduct = await Product.findById(id).lean();
+  if (!rawProduct) {
     notFound();
   }
-
-  // Convert ObjectIds and Dates to strings for Client Component
-  product._id = product._id.toString();
-  if (product.category) product.category = product.category.toString();
-  product.createdAt = product.createdAt.toISOString();
-  product.updatedAt = product.updatedAt.toISOString();
+  const product = JSON.parse(JSON.stringify(rawProduct));
 
   return (
     <div>

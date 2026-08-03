@@ -95,10 +95,11 @@ export default function CategoryClient() {
   return (
     <>
       <Toaster position="top-right" />
-      <div className="mb-4 flex justify-end">
+      <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
+        <h2 className="text-2xl font-headline font-light text-gray-900 tracking-tight">Categories</h2>
         <button
           onClick={() => handleOpenModal()}
-          className="inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+          className="inline-flex items-center justify-center rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800 transition-colors"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Category
         </button>
@@ -107,94 +108,134 @@ export default function CategoryClient() {
       {loading ? (
         <p className="text-gray-500">Loading...</p>
       ) : (
-        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-          <table className="min-w-full divide-y divide-gray-300">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Name</th>
-                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 hidden md:table-cell">Slug</th>
-                <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                  <span className="sr-only">Edit</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {categories.map((category) => (
-                <tr key={category._id}>
-                  <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                    {category.name}
-                    <dl className="font-normal md:hidden">
-                      <dt className="sr-only">Slug</dt>
-                      <dd className="mt-1 text-gray-500">{category.slug}</dd>
-                    </dl>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 hidden md:table-cell">{category.slug}</td>
-                  <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-2">
-                    <button onClick={() => handleOpenModal(category)} className="text-blue-600 hover:text-blue-900">
-                      <Pencil className="h-4 w-4 inline" />
-                    </button>
-                    <button onClick={() => handleDelete(category._id)} className="text-red-600 hover:text-red-900">
-                      <Trash2 className="h-4 w-4 inline" />
-                    </button>
-                  </td>
+        <div className="bg-white rounded-[calc(var(--outer-radius)-8px)] border border-black/5 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-black/5">
+              <thead className="bg-[#f9f9f9]">
+                <tr>
+                  <th scope="col" className="py-4 pl-6 pr-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-widest">Name</th>
+                  <th scope="col" className="px-3 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-widest hidden md:table-cell">Slug</th>
+                  <th scope="col" className="relative py-4 pl-3 pr-6">
+                    <span className="sr-only">Edit</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-black/5 bg-white">
+                {categories.map((category) => (
+                  <tr key={category._id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-medium text-gray-900">
+                      {category.name}
+                      <dl className="font-normal md:hidden mt-1">
+                        <dt className="sr-only">Slug</dt>
+                        <dd className="text-gray-500">{category.slug}</dd>
+                      </dl>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500 hidden md:table-cell">{category.slug}</td>
+                    <td className="relative whitespace-nowrap py-5 pl-3 pr-6 text-right text-sm font-medium space-x-3">
+                      <button onClick={() => handleOpenModal(category)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors">
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button onClick={() => handleDelete(category._id)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {categories.length === 0 && (
-            <p className="text-center text-gray-500 py-6">No categories found.</p>
+            <div className="text-center py-16">
+              <h3 className="text-lg font-medium text-gray-900">No categories found</h3>
+              <p className="mt-1 text-sm text-gray-500">Get started by creating a new category.</p>
+            </div>
           )}
         </div>
       )}
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={() => setIsModalOpen(false)}></div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-              <div>
-                <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                  {currentCategory ? 'Edit Category' : 'New Category'}
-                </h3>
-                <div className="mt-4">
-                  <form onSubmit={handleSave} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Name</label>
-                      <input type="text" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value={formData.name} onChange={(e) => {
-                          const val = e.target.value;
-                          setFormData({...formData, name: val, slug: !currentCategory ? val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : formData.slug});
-                        }} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Slug</label>
-                      <input type="text" required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">Description</label>
-                      <textarea className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">SEO Title</label>
-                      <input type="text" className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value={formData.seoTitle} onChange={(e) => setFormData({...formData, seoTitle: e.target.value})} />
-                      <p className="mt-1 text-xs text-gray-500">{formData.seoTitle.length}/60</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">SEO Description</label>
-                      <textarea className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" value={formData.seoDescription} onChange={(e) => setFormData({...formData, seoDescription: e.target.value})} />
-                      <p className="mt-1 text-xs text-gray-500">{formData.seoDescription.length}/160</p>
-                    </div>
-                    <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-                      <button type="submit" disabled={isSaving} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:col-start-2 sm:text-sm">
-                        {isSaving ? 'Saving...' : 'Save'}
-                      </button>
-                      <button type="button" onClick={() => setIsModalOpen(false)} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:col-start-1 sm:text-sm">
-                        Cancel
-                      </button>
-                    </div>
-                  </form>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+          {/* Backdrop overlay */}
+          <div className="fixed inset-0 bg-black/40 transition-opacity" onClick={() => setIsModalOpen(false)} aria-hidden="true" />
+
+          {/* Modal Content Box */}
+          <div className="relative bg-white rounded-2xl p-6 sm:p-8 shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-black/5 z-10 animate-in zoom-in-95 duration-200">
+            <h3 className="text-2xl font-headline font-light text-gray-900 tracking-tight" id="modal-title">
+              {currentCategory ? 'Edit Category' : 'New Category'}
+            </h3>
+            <div className="mt-6">
+              <form onSubmit={handleSave} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm"
+                    value={formData.name}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData({
+                        ...formData,
+                        name: val,
+                        slug: !currentCategory ? val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : formData.slug
+                      });
+                    }}
+                  />
                 </div>
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+                  <input
+                    type="text"
+                    required
+                    className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <textarea
+                    className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">SEO Title</label>
+                  <input
+                    type="text"
+                    className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm"
+                    value={formData.seoTitle}
+                    onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">{formData.seoTitle.length}/60</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">SEO Description</label>
+                  <textarea
+                    className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm"
+                    value={formData.seoDescription}
+                    onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
+                  />
+                  <p className="mt-1 text-xs text-gray-500">{formData.seoDescription.length}/160</p>
+                </div>
+                <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row-reverse gap-3">
+                  <button
+                    type="submit"
+                    disabled={isSaving}
+                    className="w-full sm:w-auto inline-flex justify-center rounded-full border border-transparent shadow-sm px-6 py-2.5 bg-black text-sm font-medium text-white hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                  >
+                    {isSaving ? 'Saving...' : 'Save Category'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="w-full sm:w-auto inline-flex justify-center rounded-full border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

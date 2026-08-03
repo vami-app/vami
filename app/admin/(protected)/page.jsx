@@ -19,22 +19,20 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Dashboard Overview</h1>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      <h1 className="text-3xl sm:text-4xl font-headline font-light text-gray-900 mb-8 tracking-tight">Dashboard Overview</h1>
       
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((item) => (
           <Link key={item.name} href={item.href}>
-            <div className="relative bg-white pt-5 px-4 pb-12 sm:pt-6 sm:px-6 shadow rounded-lg overflow-hidden hover:shadow-md transition-shadow group">
-              <dt>
-                <div className="absolute bg-blue-600 rounded-md p-3 group-hover:bg-blue-700 transition-colors">
-                  <item.icon className="h-6 w-6 text-white" aria-hidden="true" />
-                </div>
-                <p className="ml-16 text-sm font-medium text-gray-500 truncate">{item.name}</p>
-              </dt>
-              <dd className="ml-16 pb-6 flex items-baseline sm:pb-7">
-                <p className="text-2xl font-semibold text-gray-900">{item.stat}</p>
-              </dd>
+            <div className="relative bg-white p-6 sm:p-8 border border-black/5 rounded-[calc(var(--outer-radius)-8px)] overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 tracking-wide uppercase">{item.name}</p>
+                <p className="mt-4 text-4xl sm:text-5xl font-headline font-light text-gray-900 tracking-tight">{item.stat}</p>
+              </div>
+              <div className="bg-gray-50 rounded-2xl p-4 border border-black/5 group-hover:bg-black group-hover:border-black transition-colors duration-300 flex items-center justify-center">
+                <item.icon className="h-6 w-6 text-gray-400 group-hover:text-white transition-colors duration-300" aria-hidden="true" />
+              </div>
             </div>
           </Link>
         ))}

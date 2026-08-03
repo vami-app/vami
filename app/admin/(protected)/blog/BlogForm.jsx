@@ -25,9 +25,10 @@ export default function BlogForm({ initialData = null }) {
   const editor = useEditor({
     extensions: [StarterKit],
     content: initialData?.content || '<p>Write your post content here...</p>',
+    immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[300px] border border-gray-300 rounded-md p-4',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[300px] border border-gray-200 rounded-xl bg-gray-50 hover:bg-white transition-colors p-6',
       },
     },
   });
@@ -116,20 +117,20 @@ export default function BlogForm({ initialData = null }) {
         
         <div>
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Blog Post Details</h3>
+            <h3 className="text-2xl font-headline font-light text-gray-900 tracking-tight">Blog Post Details</h3>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-4">
               <label className="block text-sm font-medium text-gray-700">Title</label>
               <div className="mt-1">
-                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700">Status</label>
               <div className="mt-1">
-                <select name="status" value={formData.status} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border">
+                <select name="status" value={formData.status} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm">
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
                 </select>
@@ -139,21 +140,21 @@ export default function BlogForm({ initialData = null }) {
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">Slug</label>
               <div className="mt-1">
-                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">Excerpt</label>
               <div className="mt-1">
-                <textarea name="excerpt" rows={2} value={formData.excerpt} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md py-2 px-3" />
+                <textarea name="excerpt" rows={2} value={formData.excerpt} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               </div>
             </div>
             
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">Tags (comma separated)</label>
               <div className="mt-1">
-                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               </div>
             </div>
           </div>
@@ -195,24 +196,24 @@ export default function BlogForm({ initialData = null }) {
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">SEO Title</label>
-              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               <p className="mt-1 text-xs text-gray-500">{formData.seoTitle.length}/60</p>
             </div>
             <div className="sm:col-span-6">
               <label className="block text-sm font-medium text-gray-700">SEO Description</label>
-              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="mt-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md py-2 px-3 border" />
+              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
               <p className="mt-1 text-xs text-gray-500">{formData.seoDescription.length}/160</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-5 pb-10">
+      <div className="pt-8 pb-10 border-t border-gray-100">
         <div className="flex justify-end space-x-3">
-          <button type="button" onClick={() => router.push('/admin/blog')} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button type="button" onClick={() => router.push('/admin/blog')} className="inline-flex justify-center rounded-full border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
             Cancel
           </button>
-          <button type="submit" disabled={isSaving} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button type="submit" disabled={isSaving} className="inline-flex justify-center rounded-full border border-transparent shadow-sm px-6 py-2.5 bg-black text-sm font-medium text-white hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
             {isSaving ? 'Saving...' : 'Save Post'}
           </button>
         </div>

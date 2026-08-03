@@ -18,7 +18,8 @@ export default function ContactPage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmit = (e) => {
@@ -50,7 +51,7 @@ export default function ContactPage() {
             <div className={`flex flex-col justify-center transition-all duration-1000 ease-out transform ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <span className="text-xs font-semibold text-gray-500 tracking-[0.2em] uppercase mb-6 block">Engineering Consultation</span>
               <h1 className="font-headline font-light text-gray-900 leading-tight text-5xl sm:text-6xl lg:text-7xl text-balance mb-8">
-                Let's Engineer the Future.
+                Let&apos;s Engineer the Future.
               </h1>
               <p className="text-gray-500 text-lg sm:text-xl font-light leading-relaxed max-w-xl mb-12">
                 Whether you need a custom CuNi 70/30 marine flange or high-volume C11000 copper die casting, our metallurgical experts are ready to review your specifications.
