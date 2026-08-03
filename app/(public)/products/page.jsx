@@ -9,13 +9,17 @@ export const metadata = {
 };
 
 export default async function AllProductsPage() {
-  await dbConnect();
-
-  // Fetch all published products and populate the category
-  const productsDocs = await Product.find({ status: 'published' })
-    .populate('category')
-    .sort({ createdAt: -1 })
-    .lean();
+  let productsDocs = [];
+  try {
+    await dbConnect();
+    // Fetch all published products and populate the category
+    productsDocs = await Product.find({ status: 'published' })
+      .populate('category')
+      .sort({ createdAt: -1 })
+      .lean();
+  } catch (error) {
+    console.error('Database connection failed on Products page render:', error.message);
+  }
 
   return (
     <div className="bg-white">

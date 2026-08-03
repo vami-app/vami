@@ -6,29 +6,35 @@ import Product from '@/models/Product';
 import Category from '@/models/Category';
 
 export default async function HomePage() {
-  await dbConnect();
-  
-  // Fetch Featured Products
-  const featuredDocs = await Product.find({ status: 'published', featured: true })
-    .populate('category')
-    .limit(4)
-    .lean();
+  let featuredProducts = [];
+  let categories = [];
+  try {
+    await dbConnect();
     
-  // Format for client
-  const featuredProducts = featuredDocs.map(p => ({
-    ...p,
-    _id: p._id.toString(),
-    category: p.category ? { ...p.category, _id: p.category._id.toString() } : null,
-  }));
+    // Fetch Featured Products
+    const featuredDocs = await Product.find({ status: 'published', featured: true })
+      .populate('category')
+      .limit(4)
+      .lean();
+      
+    // Format for client
+    featuredProducts = featuredDocs.map(p => ({
+      ...p,
+      _id: p._id.toString(),
+      category: p.category ? { ...p.category, _id: p.category._id.toString() } : null,
+    }));
 
-  // Fetch Categories for Grid
-  const categoryDocs = await Category.find().limit(6).lean();
-  const categories = categoryDocs.map(c => ({
-    _id: c._id.toString(),
-    name: c.name,
-    slug: c.slug,
-    description: c.description
-  }));
+    // Fetch Categories for Grid
+    const categoryDocs = await Category.find().limit(6).lean();
+    categories = categoryDocs.map(c => ({
+      _id: c._id.toString(),
+      name: c.name,
+      slug: c.slug,
+      description: c.description
+    }));
+  } catch (error) {
+    console.error('Database connection failed on HomePage render:', error.message);
+  }
 
   return (
     <div>

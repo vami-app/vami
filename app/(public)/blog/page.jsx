@@ -4,11 +4,19 @@ import Link from 'next/link';
 import { Calendar } from 'lucide-react';
 
 export default async function BlogListingPage() {
-  await dbConnect();
-  
-  const posts = await BlogPost.find({ status: 'published' })
-    .sort({ publishedAt: -1 })
-    .lean();
+  let posts = [];
+  try {
+    await dbConnect();
+    const postDocs = await BlogPost.find({ status: 'published' })
+      .sort({ publishedAt: -1 })
+      .lean();
+    posts = postDocs.map(post => ({
+      ...post,
+      _id: post._id.toString()
+    }));
+  } catch (error) {
+    console.error('Database connection failed on Blog page render:', error.message);
+  }
 
   return (
     <div className="bg-white pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
