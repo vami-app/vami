@@ -85,8 +85,8 @@ export default function Navbar({ categories = [] }) {
             </Link>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <ThemeToggle className="hidden lg:flex" />
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <ThemeToggle />
             <Link
               href="/contact"
               className="hidden lg:inline-flex items-center justify-center bg-text-primary px-6 h-10 rounded-full text-sm font-medium text-text-inverse hover:opacity-90 transition-colors"
@@ -94,21 +94,18 @@ export default function Navbar({ categories = [] }) {
               Request Quote
             </Link>
             
-            <div className="flex items-center space-x-2 lg:hidden">
-              <ThemeToggle />
-              <button
-                type="button"
-                className="bg-surface-muted p-2.5 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-subtle flex-shrink-0 transition-colors"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
-                <span className="sr-only">Open menu</span>
-                {isMobileMenuOpen ? (
-                  <X className="h-5 w-5" aria-hidden="true" />
-                ) : (
-                  <Menu className="h-5 w-5" aria-hidden="true" />
-                )}
-              </button>
-            </div>
+            <button
+              type="button"
+              className="lg:hidden bg-surface-muted p-2.5 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-subtle flex-shrink-0 transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              <span className="sr-only">Open menu</span>
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              )}
+            </button>
           </div>
         </div>
         

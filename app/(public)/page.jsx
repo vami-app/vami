@@ -45,22 +45,22 @@ export default async function HomePage() {
     <div className="layout-main">
       {/* Hero Showcase Section */}
       <section className="hero-section" aria-label="Hero showcase">
-        <div className="relative w-full min-h-[85dvh] lg:min-h-[92dvh] rounded-[var(--outer-radius)] overflow-hidden shadow-card flex flex-col justify-center border border-border-subtle bg-gray-900">
-          <div className="absolute inset-0 z-0 bg-gray-600">
+        <div className="relative w-full min-h-[85dvh] lg:min-h-[92dvh] rounded-[var(--outer-radius)] overflow-hidden shadow-2xl flex flex-col justify-center border border-border-subtle bg-black">
+          <div className="absolute inset-0 z-0">
             <img
-              className="absolute inset-0 w-full h-full object-cover object-center mix-blend-overlay"
+              className="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 brightness-110"
               src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
               alt="Molten metal pouring in a high-temperature foundry"
             />
           </div>
-          <div className="absolute inset-0 z-10 pointer-events-none bg-black/40" />
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-tr from-black/80 via-black/20 to-transparent" />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
           <div className="relative z-20 flex flex-col items-center text-center p-[var(--space-6)] pt-28 lg:pt-[var(--space-6)] transform transition-transform duration-700 translate-y-0 opacity-100 mt-20">
-            <span className="text-xs font-bold text-white/80 tracking-[0.25em] uppercase px-4 py-1.5 border border-white/20 rounded-full backdrop-blur-md bg-white/5 mb-6">
+            <span className="text-xs font-bold text-white/90 tracking-[0.25em] uppercase px-4 py-1.5 border border-white/30 rounded-full backdrop-blur-md bg-white/10 mb-6 shadow-xl">
               ISO 9001:2015 Certified
             </span>
-            <h1 className="font-headline font-light text-text-inverse leading-[1.1] tracking-tight max-w-4xl text-4xl sm:text-5xl md:text-6xl">
+            <h1 className="font-headline font-light text-white leading-[1.1] tracking-tight max-w-4xl text-4xl sm:text-5xl md:text-6xl drop-shadow-2xl">
               Precision Copper & Bronze Casting for the Modern Era.
             </h1>
             <p
@@ -74,13 +74,13 @@ export default async function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
               <Link
                 href="/products"
-                className="inline-flex justify-center items-center px-8 py-4 bg-surface text-text-primary rounded-full text-[var(--text-cta)] font-medium shadow-cta hover:bg-surface-subtle transition-colors"
+                className="inline-flex justify-center items-center px-8 py-4 bg-white text-black rounded-full text-[var(--text-cta)] font-medium shadow-2xl hover:bg-gray-100 hover:scale-105 transition-all duration-300"
               >
                 Browse Catalog <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex justify-center items-center px-8 py-4 bg-black/40 text-text-inverse border border-white/20 rounded-full text-[var(--text-cta)] font-medium hover:bg-black/60 transition-colors"
+                className="inline-flex justify-center items-center px-8 py-4 bg-black/40 text-white border border-white/30 rounded-full text-[var(--text-cta)] font-medium hover:bg-black/60 hover:border-white/50 backdrop-blur-md transition-all duration-300"
               >
                 Request Quote
               </Link>
@@ -180,7 +180,7 @@ export default async function HomePage() {
                             ? `/products/${featuredProducts[0].category.slug}/${featuredProducts[0].slug}`
                             : "#"
                         }
-                        className="inline-flex items-center text-sm font-medium text-text-primary hover:text-gray-600 transition-colors"
+                        className="inline-flex items-center text-sm font-medium text-text-primary hover:text-text-muted transition-colors"
                       >
                         View Product Details{" "}
                         <ArrowRight className="ml-1 w-4 h-4" />
@@ -193,7 +193,7 @@ export default async function HomePage() {
                   <img
                     alt={featuredProducts[0]?.name || "Featured Product"}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 lg:group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover saturate-150 contrast-110 transition-transform duration-1000 lg:group-hover:scale-105"
                     src={
                       featuredProducts[0]?.images?.[0] ||
                       "https://images.unsplash.com/photo-1581092335397-9583eb92d232?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
@@ -214,8 +214,8 @@ export default async function HomePage() {
                         <div className="text-base sm:text-xl font-light text-text-primary">
                           99.9%
                         </div>
-                        <div className="h-1 sm:h-1.5 w-full bg-surface-subtle rounded-full overflow-hidden">
-                          <div className="h-full bg-gray-900 w-[99%]" />
+                        <div className="h-1 sm:h-1.5 w-full bg-border-base rounded-full overflow-hidden">
+                          <div className="h-full bg-text-primary w-[99%]" />
                         </div>
                       </div>
                       <div className="space-y-1 sm:space-y-2">
@@ -225,8 +225,8 @@ export default async function HomePage() {
                         <div className="text-base sm:text-xl font-light text-text-primary">
                           ±0.002&quot;
                         </div>
-                        <div className="h-1 sm:h-1.5 w-full bg-surface-subtle rounded-full overflow-hidden">
-                          <div className="h-full bg-gray-900 w-[95%]" />
+                        <div className="h-1 sm:h-1.5 w-full bg-border-base rounded-full overflow-hidden">
+                          <div className="h-full bg-text-primary w-[95%]" />
                         </div>
                       </div>
                     </div>
@@ -267,7 +267,7 @@ export default async function HomePage() {
                   key={category._id}
                   className="flex flex-col relative group"
                 >
-                  <div className="w-full border-t-2 border-border-base group-hover:border-black transition-colors duration-300"></div>
+                  <div className="w-full border-t-2 border-border-base group-hover:border-text-primary transition-colors duration-300"></div>
                   <h3
                     className="text-lg sm:text-xl font-medium text-text-primary mb-3 mt-8 sm:mt-10 tracking-tight line-clamp-2"
                     title={category.name}
@@ -311,15 +311,18 @@ export default async function HomePage() {
       {/* Interstitial Section */}
       <section className="py-12 sm:py-16 w-full">
         <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
-          <div className="relative w-full aspect-square sm:aspect-video md:min-h-[500px] rounded-[var(--outer-radius)] overflow-hidden flex items-center justify-center shadow-sm bg-gray-900">
+          <div className="relative w-full aspect-square sm:aspect-video md:min-h-[500px] rounded-[var(--outer-radius)] overflow-hidden flex items-center justify-center shadow-2xl bg-black group">
             <img
               alt="Bright sparks from precision metal machining and casting."
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover mix-blend-overlay"
-              src="https://images.unsplash.com/photo-1580983546522-383792cb0023?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
+              className="absolute inset-0 w-full h-full object-cover saturate-200 contrast-125 brightness-110 transition-transform duration-1000 group-hover:scale-105"
+              src="https://images.unsplash.com/photo-1530982011887-3cc11cc85693?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
             />
+            {/* Modern vibrant glow/overlay */}
+            <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-r from-orange-900/40 via-transparent to-blue-900/40 mix-blend-overlay" />
+            <div className="absolute inset-0 z-10 pointer-events-none bg-black/30 group-hover:bg-black/20 transition-colors duration-500" />
             <div className="relative z-10 w-full px-6 sm:px-8 text-center flex flex-col items-center justify-center h-full max-w-4xl mx-auto">
-              <h2 className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-text-inverse leading-tight tracking-tight text-balance shadow-black/20 drop-shadow-md">
+              <h2 className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-white leading-tight tracking-tight text-balance drop-shadow-2xl">
                 Over 200 distinct copper alloys poured on-site daily.
               </h2>
             </div>
