@@ -118,8 +118,8 @@ export default async function HomePage() {
       {/* Featured Products as Smart Insights Split-Pane */}
       {featuredProducts.length > 0 && (
         <>
-          <section className="pt-20 sm:pt-24 lg:pt-32 pb-8 sm:pb-12 px-[var(--gap)] w-full">
-            <div className="max-w-[var(--max-width-layout)] mx-auto">
+          <section className="pt-20 sm:pt-24 lg:pt-32 pb-8 sm:pb-12 w-full">
+            <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
               <div className="max-w-3xl">
                 <span className="text-xs font-semibold text-gray-500 tracking-[0.2em] uppercase">
                   Featured Showcase
@@ -132,8 +132,8 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <section className="pb-16 lg:pb-24 px-[var(--gap)] w-full">
-            <div className="max-w-[var(--max-width-layout)] mx-auto">
+          <section className="pb-16 lg:pb-24 w-full">
+            <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
               <div className="border border-black/10 rounded-[var(--outer-radius)] overflow-hidden flex flex-col lg:flex-row w-full bg-white shadow-sm">
                 <div className="w-full lg:w-5/12 flex flex-col p-6 sm:p-8 lg:p-12 justify-between">
                   <div className="w-full">
@@ -238,8 +238,8 @@ export default async function HomePage() {
       )}
 
       {/* Categories Grid - Core Tools structure */}
-      <section className="py-16 sm:py-20 lg:py-28 px-[var(--gap)] w-full bg-[#f9f9f9]">
-        <div className="max-w-[var(--max-width-layout)] mx-auto">
+      <section className="py-16 sm:py-20 lg:py-28 w-full bg-[#f9f9f9]">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
           <div className="mb-12 sm:mb-16">
             <span className="text-xs font-semibold text-gray-500 tracking-[0.2em] uppercase">
               Inventory
@@ -294,8 +294,8 @@ export default async function HomePage() {
       </section>
 
       {/* Interstitial Section */}
-      <section className="py-12 sm:py-16 px-[var(--gap)] w-full">
-        <div className="max-w-[var(--max-width-layout)] mx-auto">
+      <section className="py-12 sm:py-16 w-full">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
           <div className="relative w-full aspect-square sm:aspect-video md:min-h-[500px] rounded-[var(--outer-radius)] overflow-hidden flex items-center justify-center shadow-sm bg-gray-900">
             <img
               alt="Bright sparks from precision metal machining and casting."
