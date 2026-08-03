@@ -62,7 +62,7 @@ export default async function ProductDetailPage({ params }) {
   };
 
   return (
-    <div className="layout-main bg-[#f9f9f9] min-h-screen">
+    <div className="layout-main">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

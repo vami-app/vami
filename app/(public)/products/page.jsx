@@ -22,7 +22,7 @@ export default async function AllProductsPage() {
   }
 
   return (
-    <div className="layout-main bg-[#f9f9f9] min-h-screen">
+    <div className="layout-main">
       <section className="py-12 sm:py-16 lg:py-24 w-full">
         <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
           <div className="mb-12 sm:mb-20">

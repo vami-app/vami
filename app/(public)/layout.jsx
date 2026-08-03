@@ -21,7 +21,7 @@ export default async function PublicLayout({ children }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-[#f9f9f9]">
       <Navbar categories={categories} />
       <main className="flex-grow">
         {children}
