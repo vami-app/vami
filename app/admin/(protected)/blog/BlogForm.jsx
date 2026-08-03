@@ -28,7 +28,7 @@ export default function BlogForm({ initialData = null }) {
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[300px] border border-gray-200 rounded-xl bg-gray-50 hover:bg-white transition-colors p-6',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[300px] border border-border-subtle rounded-xl bg-surface-muted hover:bg-white transition-colors p-6',
       },
     },
   });
@@ -117,20 +117,20 @@ export default function BlogForm({ initialData = null }) {
         
         <div>
           <div>
-            <h3 className="text-2xl font-headline font-light text-gray-900 tracking-tight">Blog Post Details</h3>
+            <h3 className="text-2xl font-headline font-light text-text-primary tracking-tight">Blog Post Details</h3>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-4">
-              <label className="block text-sm font-medium text-gray-700">Title</label>
+              <label className="block text-sm font-medium text-text-secondary">Title</label>
               <div className="mt-1">
-                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700">Status</label>
+              <label className="block text-sm font-medium text-text-secondary">Status</label>
               <div className="mt-1">
-                <select name="status" value={formData.status} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm">
+                <select name="status" value={formData.status} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm">
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
                 </select>
@@ -138,35 +138,35 @@ export default function BlogForm({ initialData = null }) {
             </div>
 
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">Slug</label>
+              <label className="block text-sm font-medium text-text-secondary">Slug</label>
               <div className="mt-1">
-                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">Excerpt</label>
+              <label className="block text-sm font-medium text-text-secondary">Excerpt</label>
               <div className="mt-1">
-                <textarea name="excerpt" rows={2} value={formData.excerpt} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <textarea name="excerpt" rows={2} value={formData.excerpt} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
               </div>
             </div>
             
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">Tags (comma separated)</label>
+              <label className="block text-sm font-medium text-text-secondary">Tags (comma separated)</label>
               <div className="mt-1">
-                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
               </div>
             </div>
           </div>
         </div>
 
         <div className="pt-8">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Content</h3>
+          <h3 className="text-lg leading-6 font-medium text-text-primary mb-4">Content</h3>
           {editor && (
             <div className="mb-4 flex space-x-2 border-b pb-2">
-              <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`px-2 py-1 border rounded ${editor.isActive('bold') ? 'bg-gray-200' : 'bg-white'}`}>Bold</button>
-              <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`px-2 py-1 border rounded ${editor.isActive('italic') ? 'bg-gray-200' : 'bg-white'}`}>Italic</button>
-              <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`px-2 py-1 border rounded ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : 'bg-white'}`}>H2</button>
+              <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`px-2 py-1 border rounded ${editor.isActive('bold') ? 'bg-gray-200' : 'bg-surface'}`}>Bold</button>
+              <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`px-2 py-1 border rounded ${editor.isActive('italic') ? 'bg-gray-200' : 'bg-surface'}`}>Italic</button>
+              <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`px-2 py-1 border rounded ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : 'bg-surface'}`}>H2</button>
             </div>
           )}
           <EditorContent editor={editor} />
@@ -175,14 +175,14 @@ export default function BlogForm({ initialData = null }) {
         {/* Media */}
         <div className="pt-8">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Cover Image</h3>
+            <h3 className="text-lg leading-6 font-medium text-text-primary">Cover Image</h3>
           </div>
           <div className="mt-6 flex items-center space-x-6">
             {formData.coverImage && (
               <img src={formData.coverImage} alt="Cover" className="h-32 w-48 object-cover rounded-md border" />
             )}
-            <label className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
-              <UploadCloud className="-ml-1 mr-2 h-5 w-5 text-gray-400" /> Upload Image
+            <label className="inline-flex items-center px-4 py-2 border border-border-base shadow-sm text-sm font-medium rounded-md text-text-secondary bg-surface hover:bg-surface-muted cursor-pointer">
+              <UploadCloud className="-ml-1 mr-2 h-5 w-5 text-text-muted" /> Upload Image
               <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
             </label>
           </div>
@@ -191,29 +191,29 @@ export default function BlogForm({ initialData = null }) {
         {/* SEO */}
         <div className="pt-8">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">SEO Settings</h3>
+            <h3 className="text-lg leading-6 font-medium text-text-primary">SEO Settings</h3>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">SEO Title</label>
-              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
-              <p className="mt-1 text-xs text-gray-500">{formData.seoTitle.length}/60</p>
+              <label className="block text-sm font-medium text-text-secondary">SEO Title</label>
+              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
+              <p className="mt-1 text-xs text-text-muted">{formData.seoTitle.length}/60</p>
             </div>
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">SEO Description</label>
-              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
-              <p className="mt-1 text-xs text-gray-500">{formData.seoDescription.length}/160</p>
+              <label className="block text-sm font-medium text-text-secondary">SEO Description</label>
+              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
+              <p className="mt-1 text-xs text-text-muted">{formData.seoDescription.length}/160</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-8 pb-10 border-t border-gray-100">
+      <div className="pt-8 pb-10 border-t border-surface-subtle">
         <div className="flex justify-end space-x-3">
-          <button type="button" onClick={() => router.push('/admin/blog')} className="inline-flex justify-center rounded-full border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+          <button type="button" onClick={() => router.push('/admin/blog')} className="inline-flex justify-center rounded-full border border-border-base shadow-sm px-6 py-2.5 bg-surface text-sm font-medium text-text-secondary hover:bg-surface-muted transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
             Cancel
           </button>
-          <button type="submit" disabled={isSaving} className="inline-flex justify-center rounded-full border border-transparent shadow-sm px-6 py-2.5 bg-black text-sm font-medium text-white hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+          <button type="submit" disabled={isSaving} className="inline-flex justify-center rounded-full border border-transparent shadow-sm px-6 py-2.5 bg-text-primary text-sm font-medium text-text-inverse hover:opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
             {isSaving ? 'Saving...' : 'Save Post'}
           </button>
         </div>

@@ -2,26 +2,28 @@
 
 import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { Building2, Lock, Globe, Save, Eye, EyeOff } from 'lucide-react';
+import { Building2, Lock, Globe, Save, Eye, EyeOff, Palette, Monitor, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 const TABS = [
   { id: 'general',  label: 'General',  icon: Building2 },
   { id: 'seo',      label: 'SEO',      icon: Globe },
   { id: 'security', label: 'Security', icon: Lock },
+  { id: 'appearance', label: 'Appearance', icon: Palette },
 ];
 
 const Field = ({ label, hint, children }) => (
   <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
+    <label className="block text-sm font-medium text-text-secondary mb-1.5">{label}</label>
     {children}
-    {hint && <p className="mt-1 text-xs text-gray-400">{hint}</p>}
+    {hint && <p className="mt-1 text-xs text-text-muted">{hint}</p>}
   </div>
 );
 
 const Input = (props) => (
   <input
     {...props}
-    className="block w-full py-2.5 px-3.5 bg-[#f9f9f9] border border-black/10 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-all"
+    className="block w-full py-2.5 px-3.5 bg-surface-muted border border-border-base rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-border-base focus:border-text-primary transition-all"
   />
 );
 
@@ -29,7 +31,7 @@ const Textarea = (props) => (
   <textarea
     rows={3}
     {...props}
-    className="block w-full py-2.5 px-3.5 bg-[#f9f9f9] border border-black/10 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-all resize-none"
+    className="block w-full py-2.5 px-3.5 bg-surface-muted border border-border-base rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-border-base focus:border-text-primary transition-all resize-none"
   />
 );
 
@@ -37,6 +39,10 @@ export default function SettingsClient() {
   const [activeTab, setActiveTab] = useState('general');
   const [saving, setSaving] = useState(false);
   const [loadingSettings, setLoadingSettings] = useState(true);
+
+  // Theme settings
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   // General + SEO settings
   const [settings, setSettings] = useState({
@@ -51,6 +57,7 @@ export default function SettingsClient() {
   const [savingPw, setSavingPw] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetch('/api/settings')
       .then((r) => r.json())
       .then((data) => {
@@ -111,7 +118,7 @@ export default function SettingsClient() {
     <button
       type="submit"
       disabled={loading}
-      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
     >
       <Save className="h-4 w-4" />
       {loading ? 'Saving…' : 'Save Changes'}
@@ -132,7 +139,7 @@ export default function SettingsClient() {
       <button
         type="button"
         onClick={() => setShowPw((p) => ({ ...p, [field]: !p[field] }))}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary"
       >
         {showPw[field] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>
@@ -145,12 +152,12 @@ export default function SettingsClient() {
 
       {/* Header */}
       <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-500 ease-out">
-        <h1 className="text-xl sm:text-2xl font-headline font-semibold text-gray-900 tracking-tight">Settings</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Manage your site configuration and account.</p>
+        <h1 className="text-xl sm:text-2xl font-headline font-semibold text-text-primary tracking-tight">Settings</h1>
+        <p className="text-sm text-text-muted mt-0.5">Manage your site configuration and account.</p>
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 mb-6 bg-[#f9f9f9] rounded-2xl p-1 w-fit animate-in fade-in duration-500 delay-100">
+      <div className="flex gap-1 mb-6 bg-surface-muted rounded-2xl p-1 w-fit animate-in fade-in duration-500 delay-100">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -158,8 +165,8 @@ export default function SettingsClient() {
             className={[
               'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
               activeTab === id
-                ? 'bg-white text-gray-900 shadow-sm border border-black/5'
-                : 'text-gray-500 hover:text-gray-800',
+                ? 'bg-surface text-text-primary shadow-sm border border-border-subtle'
+                : 'text-text-muted hover:text-text-primary',
             ].join(' ')}
           >
             <Icon className="h-4 w-4" />
@@ -169,7 +176,7 @@ export default function SettingsClient() {
       </div>
 
       {loadingSettings ? (
-        <div className="text-sm text-gray-400 py-8">Loading…</div>
+        <div className="text-sm text-text-muted py-8">Loading…</div>
       ) : (
         <div className="animate-in fade-in duration-300">
 
@@ -177,7 +184,7 @@ export default function SettingsClient() {
           {activeTab === 'general' && (
             <form onSubmit={saveSettings} className="space-y-6 max-w-2xl">
               <section>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Branding</h2>
+                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Branding</h2>
                 <div className="space-y-4">
                   <Field label="Site Name">
                     <Input value={settings.siteName} onChange={set('siteName')} placeholder="Smalloys" />
@@ -188,10 +195,10 @@ export default function SettingsClient() {
                 </div>
               </section>
 
-              <div className="border-t border-black/5" />
+              <div className="border-t border-border-subtle" />
 
               <section>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Contact</h2>
+                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Contact</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Field label="Email">
                     <Input type="email" value={settings.contactEmail} onChange={set('contactEmail')} placeholder="info@smalloys.com" />
@@ -207,10 +214,10 @@ export default function SettingsClient() {
                 </div>
               </section>
 
-              <div className="border-t border-black/5" />
+              <div className="border-t border-border-subtle" />
 
               <section>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Links</h2>
+                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Links</h2>
                 <div className="space-y-4">
                   <Field label="Website URL">
                     <Input type="url" value={settings.website} onChange={set('website')} placeholder="https://smalloys.com" />
@@ -231,8 +238,8 @@ export default function SettingsClient() {
           {activeTab === 'seo' && (
             <form onSubmit={saveSettings} className="space-y-6 max-w-2xl">
               <section>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Default SEO</h2>
-                <p className="text-sm text-gray-500 mb-5">
+                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Default SEO</h2>
+                <p className="text-sm text-text-muted mb-5">
                   These are fallback values used when a page doesn&apos;t have its own SEO fields set.
                 </p>
                 <div className="space-y-4">
@@ -266,11 +273,54 @@ export default function SettingsClient() {
             </form>
           )}
 
+          {/* ── APPEARANCE TAB ────────────────────────────── */}
+          {activeTab === 'appearance' && (
+            <div className="max-w-md">
+              <section>
+                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Theme Preference</h2>
+                {mounted && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <button
+                      onClick={() => setTheme('light')}
+                      className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${
+                        theme === 'light' ? 'border-text-primary bg-surface-muted' : 'border-border-subtle bg-surface hover:border-border-base'
+                      }`}
+                    >
+                      <Sun className={`h-6 w-6 mb-2 ${theme === 'light' ? 'text-text-primary' : 'text-text-muted'}`} />
+                      <span className={`text-sm font-medium ${theme === 'light' ? 'text-text-primary' : 'text-text-secondary'}`}>Light</span>
+                    </button>
+                    <button
+                      onClick={() => setTheme('dark')}
+                      className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${
+                        theme === 'dark' ? 'border-text-primary bg-surface-muted' : 'border-border-subtle bg-surface hover:border-border-base'
+                      }`}
+                    >
+                      <Moon className={`h-6 w-6 mb-2 ${theme === 'dark' ? 'text-text-primary' : 'text-text-muted'}`} />
+                      <span className={`text-sm font-medium ${theme === 'dark' ? 'text-text-primary' : 'text-text-secondary'}`}>Dark</span>
+                    </button>
+                    <button
+                      onClick={() => setTheme('system')}
+                      className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${
+                        theme === 'system' ? 'border-text-primary bg-surface-muted' : 'border-border-subtle bg-surface hover:border-border-base'
+                      }`}
+                    >
+                      <Monitor className={`h-6 w-6 mb-2 ${theme === 'system' ? 'text-text-primary' : 'text-text-muted'}`} />
+                      <span className={`text-sm font-medium ${theme === 'system' ? 'text-text-primary' : 'text-text-secondary'}`}>System</span>
+                    </button>
+                  </div>
+                )}
+                {!mounted && (
+                  <div className="h-[104px] rounded-2xl bg-surface-muted animate-pulse border border-border-subtle"></div>
+                )}
+              </section>
+            </div>
+          )}
+
           {/* ── SECURITY TAB ──────────────────────────────── */}
           {activeTab === 'security' && (
             <div className="max-w-md">
               <section>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Change Password</h2>
+                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Change Password</h2>
                 <form onSubmit={changePassword} className="space-y-4">
                   <Field label="Current Password">
                     <PwInput field="current" placeholder="Enter current password" autocomplete="current-password" />
@@ -285,7 +335,7 @@ export default function SettingsClient() {
                     <button
                       type="submit"
                       disabled={savingPw}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black text-white text-sm font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <Lock className="h-4 w-4" />
                       {savingPw ? 'Updating…' : 'Update Password'}
@@ -294,12 +344,12 @@ export default function SettingsClient() {
                 </form>
               </section>
 
-              <div className="mt-8 pt-6 border-t border-black/5">
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Session</h2>
-                <p className="text-sm text-gray-500 mb-4">Sign out of all admin sessions.</p>
+              <div className="mt-8 pt-6 border-t border-border-subtle">
+                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-3">Session</h2>
+                <p className="text-sm text-text-muted mb-4">Sign out of all admin sessions.</p>
                 <a
                   href="/admin/logout"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-black/10 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border-base text-sm font-medium text-red-600 hover:bg-red-50 hover:border-red-100 transition-colors"
                 >
                   Sign Out
                 </a>

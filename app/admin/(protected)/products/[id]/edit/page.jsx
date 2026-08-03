@@ -22,9 +22,9 @@ export default async function EditProductPage({ params }) {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-gray-900">Edit Product: {product.name}</h1>
+        <h1 className="text-xl font-semibold text-text-primary">Edit Product: {product.name}</h1>
       </div>
-      <div className="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
+      <div className="bg-surface shadow px-4 py-5 sm:rounded-lg sm:p-6">
         <ProductForm initialData={product} />
       </div>
     </div>

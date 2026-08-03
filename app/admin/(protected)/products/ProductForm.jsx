@@ -167,28 +167,28 @@ export default function ProductForm({ initialData = null }) {
         {/* Basic Information */}
         <div>
           <div>
-            <h3 className="text-2xl font-headline font-light text-gray-900 tracking-tight">Basic Information</h3>
-            <p className="mt-1 text-sm text-gray-500">Public product details and categorization.</p>
+            <h3 className="text-2xl font-headline font-light text-text-primary tracking-tight">Basic Information</h3>
+            <p className="mt-1 text-sm text-text-muted">Public product details and categorization.</p>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-3">
-              <label className="block text-sm font-medium text-gray-700">Product Name</label>
+              <label className="block text-sm font-medium text-text-secondary">Product Name</label>
               <div className="mt-1">
-                <input type="text" name="name" required value={formData.name} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <input type="text" name="name" required value={formData.name} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-3">
-              <label className="block text-sm font-medium text-gray-700">Slug</label>
+              <label className="block text-sm font-medium text-text-secondary">Slug</label>
               <div className="mt-1">
-                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-3">
-              <label className="block text-sm font-medium text-gray-700">Category</label>
+              <label className="block text-sm font-medium text-text-secondary">Category</label>
               <div className="mt-1">
-                <select name="category" required value={formData.category} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm">
+                <select name="category" required value={formData.category} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm">
                   {loadingCategories ? <option>Loading...</option> : categories.map(c => (
                     <option key={c._id} value={c._id}>{c.name}</option>
                   ))}
@@ -197,9 +197,9 @@ export default function ProductForm({ initialData = null }) {
             </div>
 
             <div className="sm:col-span-3">
-              <label className="block text-sm font-medium text-gray-700">Status</label>
+              <label className="block text-sm font-medium text-text-secondary">Status</label>
               <div className="mt-1">
-                <select name="status" value={formData.status} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm">
+                <select name="status" value={formData.status} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm">
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
                 </select>
@@ -207,16 +207,16 @@ export default function ProductForm({ initialData = null }) {
             </div>
 
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">Short Description</label>
+              <label className="block text-sm font-medium text-text-secondary">Short Description</label>
               <div className="mt-1">
-                <textarea name="shortDescription" rows={2} value={formData.shortDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <textarea name="shortDescription" rows={2} value={formData.shortDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
               </div>
             </div>
 
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">Long Description (HTML supported)</label>
+              <label className="block text-sm font-medium text-text-secondary">Long Description (HTML supported)</label>
               <div className="mt-1">
-                <textarea name="longDescription" rows={6} value={formData.longDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <textarea name="longDescription" rows={6} value={formData.longDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
               </div>
             </div>
           </div>
@@ -225,21 +225,21 @@ export default function ProductForm({ initialData = null }) {
         {/* Dynamic Specs */}
         <div className="pt-8">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Specifications (Key-Value)</h3>
-            <p className="mt-1 text-sm text-gray-500">Add dynamic attributes (e.g. Material: Steel, Size: Large).</p>
+            <h3 className="text-lg leading-6 font-medium text-text-primary">Specifications (Key-Value)</h3>
+            <p className="mt-1 text-sm text-text-muted">Add dynamic attributes (e.g. Material: Steel, Size: Large).</p>
           </div>
           <div className="mt-6 space-y-4">
             {formData.specs.map((spec, index) => (
               <div key={index} className="flex items-center space-x-4">
-                <input type="text" placeholder="Key (e.g. Material)" required value={spec.key} onChange={(e) => updateSpec(index, 'key', e.target.value)} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
-                <input type="text" placeholder="Value (e.g. Aluminum)" required value={spec.value} onChange={(e) => updateSpec(index, 'value', e.target.value)} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                <input type="text" placeholder="Key (e.g. Material)" required value={spec.key} onChange={(e) => updateSpec(index, 'key', e.target.value)} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
+                <input type="text" placeholder="Value (e.g. Aluminum)" required value={spec.value} onChange={(e) => updateSpec(index, 'value', e.target.value)} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
                 <button type="button" onClick={() => removeSpec(index)} className="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-red-600 hover:bg-red-50 focus:outline-none">
                   <Trash2 className="h-5 w-5" />
                 </button>
               </div>
             ))}
-            <button type="button" onClick={addSpec} className="mt-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-              <Plus className="-ml-1 mr-2 h-5 w-5 text-gray-400" /> Add Specification
+            <button type="button" onClick={addSpec} className="mt-2 inline-flex items-center px-4 py-2 border border-border-base shadow-sm text-sm font-medium rounded-md text-text-secondary bg-surface hover:bg-surface-muted">
+              <Plus className="-ml-1 mr-2 h-5 w-5 text-text-muted" /> Add Specification
             </button>
           </div>
         </div>
@@ -247,30 +247,30 @@ export default function ProductForm({ initialData = null }) {
         {/* Dynamic Variants */}
         <div className="pt-8">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Variants</h3>
-            <p className="mt-1 text-sm text-gray-500">Different forms of this product (e.g. sizes, colors, grades).</p>
+            <h3 className="text-lg leading-6 font-medium text-text-primary">Variants</h3>
+            <p className="mt-1 text-sm text-text-muted">Different forms of this product (e.g. sizes, colors, grades).</p>
           </div>
           <div className="mt-6 space-y-6">
             {formData.variants.map((variant, index) => (
-              <div key={index} className="bg-gray-50 p-4 rounded-md border border-gray-200">
+              <div key={index} className="bg-surface-muted p-4 rounded-md border border-border-subtle">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-medium text-gray-900">Variant #{index + 1}</h4>
+                  <h4 className="text-sm font-medium text-text-primary">Variant #{index + 1}</h4>
                   <button type="button" onClick={() => removeVariant(index)} className="text-red-600 hover:text-red-900">Remove</button>
                 </div>
                 <div className="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Variant Name</label>
-                    <input type="text" required value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                    <label className="block text-sm font-medium text-text-secondary">Variant Name</label>
+                    <input type="text" required value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Price / Note</label>
-                    <input type="text" value={variant.priceNote} onChange={(e) => updateVariant(index, 'priceNote', e.target.value)} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
+                    <label className="block text-sm font-medium text-text-secondary">Price / Note</label>
+                    <input type="text" value={variant.priceNote} onChange={(e) => updateVariant(index, 'priceNote', e.target.value)} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
                   </div>
                 </div>
               </div>
             ))}
-            <button type="button" onClick={addVariant} className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-              <Plus className="-ml-1 mr-2 h-5 w-5 text-gray-400" /> Add Variant
+            <button type="button" onClick={addVariant} className="inline-flex items-center px-4 py-2 border border-border-base shadow-sm text-sm font-medium rounded-md text-text-secondary bg-surface hover:bg-surface-muted">
+              <Plus className="-ml-1 mr-2 h-5 w-5 text-text-muted" /> Add Variant
             </button>
           </div>
         </div>
@@ -278,24 +278,24 @@ export default function ProductForm({ initialData = null }) {
         {/* Media */}
         <div className="pt-8">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">Media Gallery</h3>
-            <p className="mt-1 text-sm text-gray-500">Upload primary images for this product.</p>
+            <h3 className="text-lg leading-6 font-medium text-text-primary">Media Gallery</h3>
+            <p className="mt-1 text-sm text-text-muted">Upload primary images for this product.</p>
           </div>
           <div className="mt-6">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
               {formData.images.map((img, index) => (
-                <div key={index} className="relative group rounded-lg overflow-hidden border border-gray-200 aspect-w-1 aspect-h-1">
+                <div key={index} className="relative group rounded-lg overflow-hidden border border-border-subtle aspect-w-1 aspect-h-1">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={img} alt={`Product ${index}`} className="object-cover w-full h-32" />
-                  <button type="button" onClick={() => removeImage(index)} className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button type="button" onClick={() => removeImage(index)} className="absolute top-1 right-1 p-1 bg-red-600 text-text-inverse rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               ))}
             </div>
             <div>
-              <label className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer">
-                <UploadCloud className="-ml-1 mr-2 h-5 w-5 text-gray-400" /> Upload Image
+              <label className="inline-flex items-center px-4 py-2 border border-border-base shadow-sm text-sm font-medium rounded-md text-text-secondary bg-surface hover:bg-surface-muted cursor-pointer">
+                <UploadCloud className="-ml-1 mr-2 h-5 w-5 text-text-muted" /> Upload Image
                 <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
               </label>
             </div>
@@ -305,29 +305,29 @@ export default function ProductForm({ initialData = null }) {
         {/* SEO */}
         <div className="pt-8">
           <div>
-            <h3 className="text-lg leading-6 font-medium text-gray-900">SEO Settings</h3>
+            <h3 className="text-lg leading-6 font-medium text-text-primary">SEO Settings</h3>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">SEO Title</label>
-              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
-              <p className="mt-1 text-xs text-gray-500">{formData.seoTitle.length}/60</p>
+              <label className="block text-sm font-medium text-text-secondary">SEO Title</label>
+              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
+              <p className="mt-1 text-xs text-text-muted">{formData.seoTitle.length}/60</p>
             </div>
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-gray-700">SEO Description</label>
-              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-gray-900 shadow-sm" />
-              <p className="mt-1 text-xs text-gray-500">{formData.seoDescription.length}/160</p>
+              <label className="block text-sm font-medium text-text-secondary">SEO Description</label>
+              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-black focus:border-black transition-all hover:bg-white outline-none text-text-primary shadow-sm" />
+              <p className="mt-1 text-xs text-text-muted">{formData.seoDescription.length}/160</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-8 pb-10 border-t border-gray-100">
+      <div className="pt-8 pb-10 border-t border-surface-subtle">
         <div className="flex justify-end space-x-3">
-          <button type="button" onClick={() => router.push('/admin/products')} className="inline-flex justify-center rounded-full border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+          <button type="button" onClick={() => router.push('/admin/products')} className="inline-flex justify-center rounded-full border border-border-base shadow-sm px-6 py-2.5 bg-surface text-sm font-medium text-text-secondary hover:bg-surface-muted transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
             Cancel
           </button>
-          <button type="submit" disabled={isSaving} className="inline-flex justify-center rounded-full border border-transparent shadow-sm px-6 py-2.5 bg-black text-sm font-medium text-white hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
+          <button type="submit" disabled={isSaving} className="inline-flex justify-center rounded-full border border-transparent shadow-sm px-6 py-2.5 bg-text-primary text-sm font-medium text-text-inverse hover:opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black">
             {isSaving ? 'Saving...' : 'Save Product'}
           </button>
         </div>
