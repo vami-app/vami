@@ -7,6 +7,7 @@ import { Menu, X, ChevronDown } from 'lucide-react';
 
 export default function Navbar({ categories = [] }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -48,19 +49,28 @@ export default function Navbar({ categories = [] }) {
               <button className="text-[var(--text-body)] font-medium text-gray-700 hover:text-black inline-flex items-center transition-colors">
                 Products <ChevronDown className="ml-1 h-4 w-4" />
               </button>
-              <div className="absolute left-1/2 -translate-x-1/2 mt-6 w-56 rounded-2xl shadow-lg bg-white border border-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
-                {categories.map((category) => (
-                  <Link
-                    key={category._id}
-                    href={`/products/${category.slug}`}
-                    className="block px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-black transition-colors mx-2 rounded-lg"
-                  >
-                    {category.name}
-                  </Link>
-                ))}
-                {categories.length === 0 && (
-                  <span className="block px-4 py-2.5 text-sm text-gray-400">No categories</span>
-                )}
+              <div className="absolute left-1/2 -translate-x-1/2 mt-6 w-64 rounded-2xl shadow-lg bg-white border border-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 flex flex-col">
+                <Link
+                  href="/products"
+                  className="block px-4 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors mx-2 rounded-lg mb-1 flex-shrink-0"
+                >
+                  View All Products
+                </Link>
+                <div className="h-px bg-gray-100 mx-4 mb-1 flex-shrink-0"></div>
+                <div className="overflow-y-auto max-h-64" style={{ scrollbarWidth: 'thin' }}>
+                  {categories.map((category) => (
+                    <Link
+                      key={category._id}
+                      href={`/products/${category.slug}`}
+                      className="block px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-black transition-colors mx-2 rounded-lg"
+                    >
+                      {category.name}
+                    </Link>
+                  ))}
+                  {categories.length === 0 && (
+                    <span className="block px-4 py-2.5 text-sm text-gray-400 mx-2">No categories</span>
+                  )}
+                </div>
               </div>
             </div>
             <Link href="/blog" className="text-[var(--text-body)] font-medium text-gray-700 hover:text-black transition-colors">
@@ -102,19 +112,36 @@ export default function Navbar({ categories = [] }) {
             <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-2xl text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors">
               Home
             </Link>
-            <div className="block px-4 py-3 text-base font-medium text-gray-700">
-              Products
-              <div className="mt-2 space-y-1 pl-4 border-l-2 border-gray-100 ml-2">
-                {categories.map((category) => (
+            <div className="block">
+              <button 
+                type="button" 
+                onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
+                className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-black rounded-2xl transition-colors"
+              >
+                Products
+                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileProductsOpen ? 'max-h-[350px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className="mt-1 mb-2 space-y-1 pl-4 border-l-2 border-gray-100 ml-6 mr-4 overflow-y-auto max-h-[300px] pr-2" style={{ scrollbarWidth: 'thin' }}>
                   <Link
-                    key={category._id}
-                    href={`/products/${category.slug}`}
+                    href="/products"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                    className="block px-4 py-2.5 rounded-xl text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
                   >
-                    {category.name}
+                    View All Products
                   </Link>
-                ))}
+                  {categories.map((category) => (
+                    <Link
+                      key={category._id}
+                      href={`/products/${category.slug}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:text-black hover:bg-gray-50 transition-colors"
+                    >
+                      {category.name}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
             <Link href="/blog" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-2xl text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-black transition-colors">
