@@ -70,10 +70,10 @@ export default async function ProductDetailPage({ params }) {
       <section className="py-12 sm:py-20 lg:py-24 w-full">
         <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
           {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="mb-10 sm:mb-16">
+          <nav aria-label="Breadcrumb" className="mb-10 sm:mb-16 relative w-full">
             <ol
               role="list"
-              className="flex items-center space-x-3 sm:space-x-4"
+              className="flex items-center space-x-3 sm:space-x-4 overflow-x-auto whitespace-nowrap hide-scrollbar pb-2 w-full"
             >
               <li>
                 <div className="flex items-center text-xs font-semibold tracking-[0.2em] uppercase">

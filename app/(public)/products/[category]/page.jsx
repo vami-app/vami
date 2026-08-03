@@ -34,8 +34,8 @@ export default async function CategoryPage({ params }) {
         <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
           
           <div className="mb-12 sm:mb-20">
-            <nav aria-label="Breadcrumb" className="mb-6">
-              <ol role="list" className="flex items-center space-x-3 sm:space-x-4">
+            <nav aria-label="Breadcrumb" className="mb-6 relative w-full">
+              <ol role="list" className="flex items-center space-x-3 sm:space-x-4 overflow-x-auto whitespace-nowrap hide-scrollbar pb-2 w-full">
                 <li>
                   <div className="flex items-center text-xs font-semibold tracking-[0.2em] uppercase">
                     <Link href="/" className="text-gray-400 hover:text-gray-900 transition-colors">Home</Link>
@@ -68,32 +68,35 @@ export default async function CategoryPage({ params }) {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 lg:gap-y-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {products.map((product) => (
-              <Link key={product._id.toString()} href={`/products/${category.slug}/${product.slug}`} className="flex flex-col relative group">
-                <div className="w-full border-t-2 border-black/10 group-hover:border-black transition-colors duration-300 mb-6"></div>
-                
-                <div className="w-full aspect-square sm:aspect-[4/3] rounded-[var(--inner-radius)] overflow-hidden bg-gray-50 border border-black/5 relative shadow-sm">
+              <Link key={product._id} href={`/products/${category.slug}/${product.slug}`} className="relative group block">
+                <div className="w-full aspect-[5/4] sm:aspect-square rounded-[var(--inner-radius)] overflow-hidden bg-gray-50 border border-black/5 relative shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   {product.images && product.images.length > 0 ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={product.images[0]}
-                      alt={product.name}
-                      className="absolute inset-0 w-full h-full object-center object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
+                    <img src={product.images[0]} alt={product.name} className="absolute inset-0 w-full h-full object-center object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
-                    <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-light text-sm">
-                      No image available
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-gray-400 font-light">No image</span>
                     </div>
                   )}
+                  
+                  {/* Top Badge */}
+                  {product.category && (
+                    <div className="absolute top-3 left-3 max-w-[calc(100%-1.5rem)] truncate block bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-semibold text-gray-900 uppercase tracking-wider shadow-sm border border-black/5 z-10" title={category.name}>
+                      {category.name}
+                    </div>
+                  )}
+
+                  {/* Gradient Overlay for Sub-card Contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                  {/* Glassmorphism Sub-card */}
+                  <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md border border-white/20 p-4 rounded-[calc(var(--inner-radius)-8px)] shadow-lg transform transition-all duration-500 group-hover:-translate-y-1 z-10">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-900 tracking-tight line-clamp-1">{product.name}</h3>
+                    <p className="mt-1 text-xs text-gray-500 font-light leading-relaxed line-clamp-1 sm:line-clamp-2">{product.shortDescription}</p>
+                  </div>
                 </div>
-                
-                <h3 className="mt-6 text-lg sm:text-xl font-medium text-gray-900 tracking-tight line-clamp-2">
-                  {product.name}
-                </h3>
-                <p className="mt-2 text-xs font-semibold text-gray-500 tracking-[0.1em] uppercase">
-                  {product.variants && product.variants.length > 0 ? 'View Options' : 'Request Quote'}
-                </p>
               </Link>
             ))}
           </div>
