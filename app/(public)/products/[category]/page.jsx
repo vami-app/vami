@@ -68,42 +68,43 @@ export default async function CategoryPage({ params }) {
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {products.map((product) => (
-              <Link key={product._id} href={`/products/${category.slug}/${product.slug}`} className="relative group block">
-                <div className="w-full aspect-[5/4] sm:aspect-square rounded-[var(--inner-radius)] overflow-hidden bg-gray-50 border border-black/5 relative shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {product.images && product.images.length > 0 ? (
-                    <img src={product.images[0]} alt={product.name} className="absolute inset-0 w-full h-full object-center object-cover transition-transform duration-700 group-hover:scale-105" />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-gray-400 font-light">No image</span>
-                    </div>
-                  )}
-                  
-                  {/* Top Badge */}
-                  {product.category && (
-                    <div className="absolute top-3 left-3 max-w-[calc(100%-1.5rem)] truncate block bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-semibold text-gray-900 uppercase tracking-wider shadow-sm border border-black/5 z-10" title={category.name}>
-                      {category.name}
-                    </div>
-                  )}
+          {products.length === 0 ? (
+            <div className="text-center py-24 border border-dashed border-gray-300 rounded-[var(--outer-radius)] bg-white mt-8">
+              <h3 className="text-lg font-medium text-gray-900">No products found</h3>
+              <p className="mt-2 text-gray-500 font-light">There are currently no items in this category.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+              {products.map((product) => (
+                <Link key={product._id} href={`/products/${category.slug}/${product.slug}`} className="relative group block">
+                  <div className="w-full aspect-[5/4] sm:aspect-square rounded-[var(--inner-radius)] overflow-hidden bg-gray-50 border border-black/5 relative shadow-sm">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {product.images && product.images.length > 0 ? (
+                      <img src={product.images[0]} alt={product.name} className="absolute inset-0 w-full h-full object-center object-cover transition-transform duration-700 group-hover:scale-105" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-gray-400 font-light">No image</span>
+                      </div>
+                    )}
+                    
+                    {/* Top Badge */}
+                    {product.category && (
+                      <div className="absolute top-3 left-3 max-w-[calc(100%-1.5rem)] truncate block bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-semibold text-gray-900 uppercase tracking-wider shadow-sm border border-black/5 z-10" title={category.name}>
+                        {category.name}
+                      </div>
+                    )}
 
-                  {/* Gradient Overlay for Sub-card Contrast */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    {/* Gradient Overlay for Sub-card Contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                  {/* Glassmorphism Sub-card */}
-                  <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md border border-white/20 p-4 rounded-[calc(var(--inner-radius)-8px)] shadow-lg transform transition-all duration-500 group-hover:-translate-y-1 z-10">
-                    <h3 className="text-sm sm:text-base font-medium text-gray-900 tracking-tight line-clamp-1">{product.name}</h3>
-                    <p className="mt-1 text-xs text-gray-500 font-light leading-relaxed line-clamp-1 sm:line-clamp-2">{product.shortDescription}</p>
+                    {/* Glassmorphism Sub-card */}
+                    <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md border border-white/20 p-4 rounded-[calc(var(--inner-radius)-8px)] shadow-lg transform transition-all duration-500 group-hover:-translate-y-1 z-10">
+                      <h3 className="text-sm sm:text-base font-medium text-gray-900 tracking-tight line-clamp-1">{product.name}</h3>
+                      <p className="mt-1 text-xs text-gray-500 font-light leading-relaxed line-clamp-1 sm:line-clamp-2">{product.shortDescription}</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-          
-          {products.length === 0 && (
-            <div className="mt-12 text-center text-gray-500 font-light">
-              No products found in this category.
+                </Link>
+              ))}
             </div>
           )}
 

@@ -48,7 +48,7 @@ export default async function HomePage() {
           <div className="absolute inset-0 z-0 bg-gray-600">
             <img
               className="absolute inset-0 w-full h-full object-cover object-center mix-blend-overlay"
-              src="https://loremflickr.com/2400/1200/copper,foundry"
+              src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
               alt="Molten metal pouring in a high-temperature foundry"
             />
           </div>
@@ -195,7 +195,7 @@ export default async function HomePage() {
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 lg:group-hover:scale-105"
                     src={
                       featuredProducts[0]?.images?.[0] ||
-                      "https://loremflickr.com/2400/1200/copper,foundry"
+                      "https://images.unsplash.com/photo-1581092335397-9583eb92d232?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
                     }
                   />
                   <div className="relative z-10 w-full max-w-sm rounded-[var(--inner-radius)] p-6 sm:p-8 shadow-xl bg-white space-y-4 sm:space-y-6 transform transition-transform duration-500 hover:-translate-y-2">
@@ -250,37 +250,44 @@ export default async function HomePage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 lg:gap-y-16">
-            {categories.map((category) => (
-              <div key={category._id} className="flex flex-col relative group">
-                <div className="w-full border-t-2 border-black/10 group-hover:border-black transition-colors duration-300"></div>
-                <h3
-                  className="text-lg sm:text-xl font-medium text-gray-900 mb-3 mt-8 sm:mt-10 tracking-tight line-clamp-2"
-                  title={category.name}
-                >
+          {categories.length === 0 ? (
+            <div className="text-center py-24 border border-dashed border-gray-300 rounded-[var(--outer-radius)] bg-white mt-8">
+              <h3 className="text-lg font-medium text-gray-900">No categories found</h3>
+              <p className="mt-2 text-gray-500 font-light">Inventory categories are currently being updated.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 lg:gap-y-16">
+              {categories.map((category) => (
+                <div key={category._id} className="flex flex-col relative group">
+                  <div className="w-full border-t-2 border-black/10 group-hover:border-black transition-colors duration-300"></div>
+                  <h3
+                    className="text-lg sm:text-xl font-medium text-gray-900 mb-3 mt-8 sm:mt-10 tracking-tight line-clamp-2"
+                    title={category.name}
+                  >
+                    <Link
+                      href={`/products/${category.slug}`}
+                      className="hover:underline"
+                    >
+                      {category.name}
+                    </Link>
+                  </h3>
+                  <p
+                    className="text-sm sm:text-base text-gray-500 font-light leading-relaxed mb-4 line-clamp-3"
+                    title={category.description}
+                  >
+                    {category.description ||
+                      `Browse our selection of premium ${category.name.toLowerCase()} for industrial applications.`}
+                  </p>
                   <Link
                     href={`/products/${category.slug}`}
-                    className="hover:underline"
+                    className="text-sm font-medium text-black mt-auto inline-flex items-center hover:opacity-70 transition-opacity"
                   >
-                    {category.name}
+                    Explore <ArrowRight className="w-4 h-4 ml-1" />
                   </Link>
-                </h3>
-                <p
-                  className="text-sm sm:text-base text-gray-500 font-light leading-relaxed mb-4 line-clamp-3"
-                  title={category.description}
-                >
-                  {category.description ||
-                    `Browse our selection of premium ${category.name.toLowerCase()} for industrial applications.`}
-                </p>
-                <Link
-                  href={`/products/${category.slug}`}
-                  className="text-sm font-medium text-black mt-auto inline-flex items-center hover:opacity-70 transition-opacity"
-                >
-                  Explore <ArrowRight className="w-4 h-4 ml-1" />
-                </Link>
-              </div>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-16 pt-8 border-t border-black/5 text-center">
             <Link
@@ -301,7 +308,7 @@ export default async function HomePage() {
               alt="Bright sparks from precision metal machining and casting."
               loading="lazy"
               className="absolute inset-0 w-full h-full object-cover mix-blend-overlay"
-              src="https://loremflickr.com/2400/1200/copper,foundry"
+              src="https://images.unsplash.com/photo-1580983546522-383792cb0023?ixlib=rb-4.0.3&auto=format&fit=crop&w=2400&q=80"
             />
             <div className="relative z-10 w-full px-6 sm:px-8 text-center flex flex-col items-center justify-center h-full max-w-4xl mx-auto">
               <h2 className="font-headline text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-white leading-tight tracking-tight text-balance shadow-black/20 drop-shadow-md">

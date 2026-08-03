@@ -24,7 +24,7 @@ export default async function BlogListingPage() {
   }
 
   return (
-    <div className="layout-main bg-[#f9f9f9]">
+    <div className="layout-main">
       {/* Hero Section */}
       <section className="pt-12 pb-16 sm:pt-20 sm:pb-24 lg:pt-28 lg:pb-20 w-full bg-white border-b border-black/5">
         <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">

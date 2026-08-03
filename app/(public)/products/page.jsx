@@ -36,8 +36,9 @@ export default async function AllProductsPage() {
           </div>
 
         {productsDocs.length === 0 ? (
-          <div className="pt-12 text-center text-gray-500 font-light">
-            No products found. Please check back later.
+          <div className="text-center py-24 border border-dashed border-gray-300 rounded-[var(--outer-radius)] bg-white">
+            <h3 className="text-lg font-medium text-gray-900">No products found</h3>
+            <p className="mt-2 text-gray-500 font-light">Check back soon for new inventory.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">

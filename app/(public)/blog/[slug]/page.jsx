@@ -45,7 +45,7 @@ export default async function BlogDetailPage({ params }) {
   };
 
   return (
-    <div className="layout-main bg-[#f9f9f9] min-h-screen">
+    <div className="layout-main min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
