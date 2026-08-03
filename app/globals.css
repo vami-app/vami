@@ -83,3 +83,68 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Raw HTML typography (Prose) */
+.prose {
+  color: var(--text-body);
+  max-width: 65ch;
+  line-height: 1.75;
+}
+.prose p {
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--color-foreground);
+  font-family: var(--font-headline);
+  font-weight: 300;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  line-height: 1.33;
+}
+.prose h1 { font-size: 2.25em; }
+.prose h2 { font-size: 1.75em; }
+.prose h3 { font-size: 1.5em; }
+.prose strong {
+  color: var(--color-foreground);
+  font-weight: 600;
+}
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.625em;
+  margin-top: 1.25em;
+  margin-bottom: 1.25em;
+}
+.prose li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.prose a {
+  color: #2563eb;
+  text-decoration: underline;
+  font-weight: 500;
+}
+.prose blockquote {
+  font-style: italic;
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1em;
+  margin-top: 1.6em;
+  margin-bottom: 1.6em;
+  color: #4b5563;
+}
+.prose table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+.prose th, .prose td {
+  padding: 0.75em;
+  border-bottom: 1px solid #e5e7eb;
+}
+.prose th {
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+

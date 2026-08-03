@@ -26,10 +26,10 @@ if (!MONGODB_URI) {
 }
 
 const mockImages = [
-  'https://loremflickr.com/800/800/bronze,casting',
-  'https://loremflickr.com/800/800/copper,pipe',
-  'https://loremflickr.com/800/800/brass,metal',
-  'https://loremflickr.com/800/800/copper,heatsink'
+  'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80', // Sparks/Foundry
+  'https://images.unsplash.com/photo-1565439390118-b229fae1bc9c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80', // Copper coils
+  'https://images.unsplash.com/photo-1605814529321-7299f2a00bf8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80', // Copper pipes
+  'https://images.unsplash.com/photo-1581092335397-9583eb92d232?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'  // CNC Machining/Tech
 ];
 
 async function seed() {
@@ -174,7 +174,7 @@ async function seed() {
       {
         title: 'The Future of Copper Die Casting in EVs',
         slug: 'future-copper-casting-evs',
-        coverImage: mockImages[1],
+        coverImage: 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80',
         content: `<h2>The Rise of Copper Rotors</h2><p>As electric vehicles demand higher efficiency, the shift toward high-purity copper casting accelerates.</p><p>${'This is a very long paragraph detailing thermal dynamics. '.repeat(30)}</p>`,
         excerpt: 'An exploration into the high-conductivity materials defining the next generation of EVs.',
         tags: ['Automotive', 'Copper', 'Innovation'],

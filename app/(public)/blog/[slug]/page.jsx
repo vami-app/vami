@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
   if (!post) return { title: 'Post Not Found' };
   
   return {
-    title: post.seoTitle || `${post.title} | Smalloys Blog`,
+    title: post.seoTitle || `${post.title} | Smalloys Journal`,
     description: post.seoDescription || post.excerpt || `Read ${post.title} on the Smalloys blog.`,
     openGraph: {
       images: post.coverImage ? [post.coverImage] : [],
@@ -45,40 +45,74 @@ export default async function BlogDetailPage({ params }) {
   };
 
   return (
-    <div className="bg-white px-4 pt-16 pb-20 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
+    <div className="layout-main bg-[#f9f9f9] min-h-screen">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="max-w-3xl mx-auto">
-        <Link href="/blog" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 mb-8">
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back to blog
-        </Link>
-        
-        <div className="text-center">
-          <p className="text-sm font-semibold text-blue-600 tracking-wide uppercase">
-            {post.tags && post.tags.join(', ')}
-          </p>
-          <h1 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-            {post.title}
-          </h1>
-          <div className="mt-4 flex justify-center items-center text-gray-500 text-sm">
-            <Calendar className="h-4 w-4 mr-2" />
-            <time dateTime={post.publishedAt?.toISOString()}>
-              {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}
-            </time>
+      
+      {/* Article Header Section */}
+      <section className="pt-8 pb-12 sm:pt-16 sm:pb-16 w-full">
+        <div className="w-full max-w-3xl mx-auto px-[var(--gap)]">
+          <Link href="/blog" className="inline-flex items-center text-xs font-semibold tracking-[0.2em] uppercase text-gray-400 hover:text-black transition-colors mb-10 sm:mb-16">
+            <ArrowLeft className="h-4 w-4 mr-2 flex-shrink-0" /> Back to Journal
+          </Link>
+          
+          <div className="mb-10">
+            {post.tags && post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {post.tags.map((tag, idx) => (
+                  <span key={idx} className="inline-block px-3 py-1 rounded-full bg-white border border-black/10 text-xs font-medium text-gray-600 tracking-wide">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            <h1 className="font-headline font-light text-gray-900 leading-tight text-4xl sm:text-5xl lg:text-6xl text-balance">
+              {post.title}
+            </h1>
+            
+            <div className="mt-8 flex items-center text-sm text-gray-500 font-light border-t border-black/5 pt-6">
+              <div className="flex items-center mr-6">
+                <span className="font-medium text-gray-900 mr-2">Smalloys Engineering</span>
+              </div>
+              <div className="flex items-center text-gray-400">
+                <Calendar className="h-4 w-4 mr-2" strokeWidth={1.5} />
+                <time dateTime={post.publishedAt?.toISOString()}>
+                  {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}
+                </time>
+              </div>
+            </div>
           </div>
         </div>
-        
-        {post.coverImage && (
-          <div className="mt-10">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="w-full h-auto rounded-lg shadow-lg object-cover" src={post.coverImage} alt={post.title} />
+      </section>
+      
+      {/* Cover Image Section */}
+      {post.coverImage && (
+        <section className="w-full mb-12 sm:mb-20">
+          <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+            <div className="w-full aspect-video lg:aspect-[21/9] rounded-[var(--outer-radius)] overflow-hidden border border-black/5 shadow-sm relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                className="absolute inset-0 w-full h-full object-cover" 
+                src={post.coverImage} 
+                alt={post.title} 
+              />
+            </div>
           </div>
-        )}
+        </section>
+      )}
 
-        <div className="mt-12 prose prose-blue prose-lg text-gray-500 mx-auto" dangerouslySetInnerHTML={{ __html: post.content }} />
-      </div>
+      {/* Article Content Section */}
+      <section className="pb-24 sm:pb-32 w-full">
+        <div className="w-full max-w-3xl mx-auto px-[var(--gap)]">
+          <article 
+            className="prose prose-blue mx-auto bg-white p-8 sm:p-12 lg:p-16 rounded-[var(--outer-radius)] shadow-sm border border-black/5"
+            dangerouslySetInnerHTML={{ __html: post.content }} 
+          />
+        </div>
+      </section>
     </div>
   );
 }
