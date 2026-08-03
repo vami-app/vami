@@ -17,68 +17,63 @@ const navigation = [
   { name: 'Settings',   href: '/admin/settings',    icon: Settings },
 ];
 
-export default function AdminShell({ children }) {
-  const [tabletExpanded, setTabletExpanded] = useState(false);
-  const pathname = usePathname();
+// Sidebar nav links (desktop / tablet)
+function SidebarNavLinks({ showLabel, pathname }) {
+  const labeled = showLabel !== false;
+  return (
+    <nav className={labeled
+      ? 'flex-1 px-3 space-y-1 py-4'
+      : 'flex-1 flex flex-col items-center space-y-1 py-4 px-2'
+    }>
+      {navigation.map(({ name, href, icon: Icon }) => {
+        const active = pathname === href;
 
-  /* ── Sub-components ──────────────────────────────────── */
-
-  // Sidebar nav links (desktop / tablet)
-  const SidebarNavLinks = ({ showLabel }) => {
-    const labeled = showLabel !== false;
-    return (
-      <nav className={labeled
-        ? 'flex-1 px-3 space-y-1 py-4'
-        : 'flex-1 flex flex-col items-center space-y-1 py-4 px-2'
-      }>
-        {navigation.map(({ name, href, icon: Icon }) => {
-          const active = pathname === href;
-
-          if (!labeled) {
-            return (
-              <Link
-                key={name}
-                href={href}
-                title={name}
-                className={[
-                  'flex items-center justify-center w-11 h-11 rounded-full transition-all duration-150',
-                  active
-                    ? 'bg-black text-white'
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-black',
-                ].join(' ')}
-              >
-                <Icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-              </Link>
-            );
-          }
-
+        if (!labeled) {
           return (
             <Link
               key={name}
               href={href}
+              title={name}
               className={[
-                'group flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-150',
+                'flex items-center justify-center w-11 h-11 rounded-full transition-all duration-150',
                 active
                   ? 'bg-black text-white'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-black',
+                  : 'text-gray-500 hover:bg-gray-100 hover:text-black',
               ].join(' ')}
             >
-              <Icon
-                className={[
-                  'flex-shrink-0 h-5 w-5 transition-colors',
-                  active ? 'text-white' : 'text-gray-400 group-hover:text-black',
-                ].join(' ')}
-                aria-hidden="true"
-              />
-              <span className="truncate">{name}</span>
+              <Icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
             </Link>
           );
-        })}
-      </nav>
-    );
-  };
+        }
 
-  const SidebarSignOut = ({ compact }) => (
+        return (
+          <Link
+            key={name}
+            href={href}
+            className={[
+              'group flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-150',
+              active
+                ? 'bg-black text-white'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-black',
+            ].join(' ')}
+          >
+            <Icon
+              className={[
+                'flex-shrink-0 h-5 w-5 transition-colors',
+                active ? 'text-white' : 'text-gray-400 group-hover:text-black',
+              ].join(' ')}
+              aria-hidden="true"
+            />
+            <span className="truncate">{name}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+function SidebarSignOut({ compact }) {
+  return (
     <div className={compact
       ? 'flex-shrink-0 border-t border-black/5 py-3 flex justify-center'
       : 'flex-shrink-0 border-t border-black/5 p-3'
@@ -100,6 +95,11 @@ export default function AdminShell({ children }) {
       </Link>
     </div>
   );
+}
+
+export default function AdminShell({ children }) {
+  const [tabletExpanded, setTabletExpanded] = useState(false);
+  const pathname = usePathname();
 
   /* ── Layout ──────────────────────────────────────────── */
 
@@ -119,7 +119,7 @@ export default function AdminShell({ children }) {
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
             <div className="flex-1 overflow-y-auto">
-              <SidebarNavLinks showLabel={true} />
+              <SidebarNavLinks showLabel={true} pathname={pathname} />
             </div>
             <SidebarSignOut compact={false} />
           </div>
@@ -157,7 +157,7 @@ export default function AdminShell({ children }) {
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
             <div className="flex-1 overflow-y-auto">
-              <SidebarNavLinks showLabel={tabletExpanded} />
+              <SidebarNavLinks showLabel={tabletExpanded} pathname={pathname} />
             </div>
             <SidebarSignOut compact={!tabletExpanded} />
           </div>

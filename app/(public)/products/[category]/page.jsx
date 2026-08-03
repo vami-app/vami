@@ -79,7 +79,6 @@ export default async function CategoryPage({ params }) {
               {products.map((product) => (
                 <Link key={product._id} href={`/products/${category.slug}/${product.slug}`} className="relative group block">
                   <div className="w-full aspect-[5/4] sm:aspect-square rounded-[var(--inner-radius)] overflow-hidden bg-gray-50 border border-black/5 relative shadow-sm">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     {product.images && product.images.length > 0 ? (
                       <img src={product.images[0]} alt={product.name} className="absolute inset-0 w-full h-full object-center object-cover transition-transform duration-700 group-hover:scale-105" />
                     ) : (
