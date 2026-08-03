@@ -1,26 +1,76 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #f9f9f9;
   --foreground: #171717;
+
+  --space-2: clamp(0.5rem, 1vw, 0.75rem);
+  --space-3: clamp(0.75rem, 2vw, 1.25rem);
+  --space-4: clamp(1rem, 2.5vw, 1.5rem);
+  --space-6: clamp(1.25rem, 4vw, 3rem);
+
+  --text-body: clamp(0.9375rem, 0.5vw + 0.85rem, 1rem);
+  --text-cta: clamp(0.9375rem, 0.3vw + 0.85rem, 1.0625rem);
+  --text-display: clamp(2rem, 5vw + 1rem, 4.5rem);
+
+  --outer-radius: 36px;
+  --padding: 16px;
+  --inner-radius: calc(var(--outer-radius) - var(--padding));
+  --gap: var(--space-3);
+
+  --nav-block-h: 4.5rem;
+  --max-width-layout: 80rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --outer-radius: 44px;
+    --padding: 24px;
+    --nav-block-h: 5rem;
+  }
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: "Manrope", var(--font-geist-sans), -apple-system, sans-serif;
+  --font-headline: "Noto Serif", Georgia, serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Base layouts */
+.layout-main {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-section {
+  width: 100%;
+  max-width: var(--max-width-layout);
+  margin-inline: auto;
+  padding: 0 var(--gap) var(--gap) var(--gap);
+}
+
+.layout-main > section:not(.hero-section) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
 }
