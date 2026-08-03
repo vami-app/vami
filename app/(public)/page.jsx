@@ -252,13 +252,20 @@ export default async function HomePage() {
 
           {categories.length === 0 ? (
             <div className="text-center py-24 border border-dashed border-gray-300 rounded-[var(--outer-radius)] bg-white mt-8">
-              <h3 className="text-lg font-medium text-gray-900">No categories found</h3>
-              <p className="mt-2 text-gray-500 font-light">Inventory categories are currently being updated.</p>
+              <h3 className="text-lg font-medium text-gray-900">
+                No categories found
+              </h3>
+              <p className="mt-2 text-gray-500 font-light">
+                Inventory categories are currently being updated.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 lg:gap-y-16">
               {categories.map((category) => (
-                <div key={category._id} className="flex flex-col relative group">
+                <div
+                  key={category._id}
+                  className="flex flex-col relative group"
+                >
                   <div className="w-full border-t-2 border-black/10 group-hover:border-black transition-colors duration-300"></div>
                   <h3
                     className="text-lg sm:text-xl font-medium text-gray-900 mb-3 mt-8 sm:mt-10 tracking-tight line-clamp-2"

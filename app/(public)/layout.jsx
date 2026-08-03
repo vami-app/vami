@@ -1,7 +1,7 @@
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import dbConnect from '@/lib/db';
-import Category from '@/models/Category';
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import dbConnect from "@/lib/db";
+import Category from "@/models/Category";
 
 export default async function PublicLayout({ children }) {
   let categories = [];
@@ -9,23 +9,24 @@ export default async function PublicLayout({ children }) {
     await dbConnect();
     // Fetch categories for Navbar and Footer
     const categoriesDocs = await Category.find().sort({ name: 1 }).lean();
-    
+
     // Serialize for client components
-    categories = categoriesDocs.map(c => ({
+    categories = categoriesDocs.map((c) => ({
       _id: c._id.toString(),
       name: c.name,
       slug: c.slug,
     }));
   } catch (error) {
-    console.error('Database connection skipped or failed during render:', error.message);
+    console.error(
+      "Database connection skipped or failed during render:",
+      error.message,
+    );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f9f9f9]">
+    <div className="flex flex-col min-h-screen bg-white">
       <Navbar categories={categories} />
-      <main className="flex-grow">
-        {children}
-      </main>
+      <main className="flex-grow">{children}</main>
       <Footer categories={categories} />
     </div>
   );
