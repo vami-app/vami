@@ -1,33 +1,264 @@
+import Link from "next/link";
+import {
+  MapPin,
+  Mail,
+  Phone,
+  ShieldCheck,
+  Settings,
+  Droplets,
+} from "lucide-react";
+
+export const metadata = {
+  title: "About Us | Smalloys Copper & Bronze Foundry",
+  description:
+    "Mastering the most demanding alloys. Smalloys specializes in high-conductivity copper and complex marine bronze casting and CNC machining.",
+};
+
 export default function AboutPage() {
   return (
-    <div className="bg-white">
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-base font-semibold text-blue-600 tracking-wide uppercase">About Us</h2>
-          <p className="mt-1 text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-            Smalloys: Engineered for Excellence
-          </p>
-          <p className="max-w-xl mt-5 mx-auto text-xl text-gray-500">
-            For over two decades, we have been the premier supplier of industrial alloys, serving the world&apos;s most demanding engineering sectors.
-          </p>
-        </div>
-        
-        <div className="mt-16">
-          <div className="prose prose-blue prose-lg text-gray-500 mx-auto">
-            <p>
-              Smalloys was founded on a simple premise: engineering excellence begins with the materials. Our commitment to metallurgical precision and supply chain reliability has made us the trusted partner for aerospace, automotive, and defense manufacturers globally.
-            </p>
-            <h3>Our Mission</h3>
-            <p>
-              To provide uncompromised material quality, ensuring that every product manufactured with our alloys can withstand the rigors of its intended environment. We believe in sustainable practices, continuous innovation, and rigorous quality control.
-            </p>
-            <h3>Our Facilities</h3>
-            <p>
-              Headquartered in Manufacturing City, NY, our state-of-the-art facilities include advanced spectrographic analysis labs, automated cutting and milling centers, and environmentally controlled storage to ensure materials reach you in pristine condition.
+    <div className="layout-main">
+      {/* 1. Premium Hero Section */}
+      <section className="pt-12 pb-16 sm:pt-20 sm:pb-24 lg:pt-28 lg:pb-32 w-full">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+          <div className="max-w-4xl">
+            <span className="text-xs font-semibold text-gray-500 tracking-[0.2em] uppercase">
+              About Smalloys
+            </span>
+            <h1 className="font-headline font-light text-gray-900 mt-6 leading-tight text-5xl sm:text-6xl lg:text-7xl text-balance">
+              Mastering the Most Demanding Alloys.
+            </h1>
+            <p className="mt-8 text-gray-500 text-lg sm:text-xl font-light leading-relaxed max-w-2xl">
+              Casting high-conductivity copper and complex marine bronzes
+              requires uncompromising thermal control and metallurgical
+              precision. At Smalloys, we don&apos;t just pour metal; we engineer
+              material integrity.
             </p>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* 2. Our Legacy & Technical Competencies (Split Pane Layout) */}
+      <section className="py-16 sm:py-24 w-full bg-white border-y border-black/5">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            {/* Left: Rich text */}
+            <div>
+              <h2 className="font-headline text-3xl sm:text-4xl text-gray-900 font-light mb-6">
+                Uncompromising Quality for Critical Applications.
+              </h2>
+              <div className="space-y-6 text-gray-500 font-light leading-relaxed text-base sm:text-lg">
+                <p>
+                  Since our inception, Smalloys has been dedicated to solving
+                  the complex metallurgical challenges that generic foundries
+                  avoid. Copper is notoriously difficult to cast—highly
+                  susceptible to gas porosity and rapid oxidation at extreme
+                  melting temperatures.
+                </p>
+                <p>
+                  Our proprietary degassing processes and strict thermal
+                  controls allow us to cast flawless{" "}
+                  <strong className="text-gray-900 font-medium">
+                    High-Conductivity Electrolytic Tough Pitch Copper (C11000)
+                  </strong>{" "}
+                  components, essential for modern EV infrastructure and heavy
+                  electrical switchgears where pure conductivity is paramount.
+                </p>
+                <p>
+                  For the Marine and Defense sectors, our expertise in{" "}
+                  <strong className="text-gray-900 font-medium">
+                    C95800 Nickel-Aluminum Bronze
+                  </strong>{" "}
+                  and{" "}
+                  <strong className="text-gray-900 font-medium">
+                    Marine Grade CuNi 70/30
+                  </strong>{" "}
+                  ensures pump casings and high-pressure flanges that withstand
+                  decades of highly corrosive saltwater environments.
+                </p>
+              </div>
+            </div>
+            {/* Right: High-quality image */}
+            <div className="w-full aspect-[4/3] sm:aspect-video lg:aspect-square rounded-[var(--outer-radius)] overflow-hidden relative shadow-sm border border-black/5 group">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://loremflickr.com/1200/1200/foundry,copper"
+                alt="Molten copper being poured in a precision foundry"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+              <div className="absolute bottom-6 left-6 right-6 lg:bottom-10 lg:left-10 text-white">
+                <div className="text-sm font-semibold tracking-[0.1em] uppercase mb-2 opacity-90">
+                  Precision Pouring
+                </div>
+                <div className="text-xl sm:text-2xl font-light">
+                  Eliminating gas porosity through controlled environment
+                  casting.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Foundry & Quality Assurance Grid */}
+      <section className="py-20 sm:py-32 w-full">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+          <div className="text-center max-w-2xl mx-auto mb-16 sm:mb-24">
+            <h2 className="font-headline text-3xl sm:text-4xl text-gray-900 font-light mb-6">
+              Integrated Foundry Capabilities
+            </h2>
+            <p className="text-gray-500 font-light text-lg">
+              From raw ingot to finished tolerance, our end-to-end process
+              guarantees total traceability and unyielding dimensional accuracy.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {/* Card 1 */}
+            <div className="bg-white rounded-[var(--outer-radius)] p-8 sm:p-10 border border-black/5 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-gray-50 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
+              <div className="relative z-10">
+                <div className="h-14 w-14 rounded-2xl bg-black text-white flex items-center justify-center mb-8">
+                  <Droplets className="h-6 w-6" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 mb-4 tracking-tight">
+                  Advanced Sand & Die Casting
+                </h3>
+                <p className="text-gray-500 font-light leading-relaxed">
+                  Specializing in precision sand casting for complex,
+                  large-scale geometries (like industrial pump casings) and
+                  high-volume die casting for tight-tolerance repetitive parts.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-white rounded-[var(--outer-radius)] p-8 sm:p-10 border border-black/5 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-gray-50 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
+              <div className="relative z-10">
+                <div className="h-14 w-14 rounded-2xl bg-black text-white flex items-center justify-center mb-8">
+                  <ShieldCheck className="h-6 w-6" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 mb-4 tracking-tight">
+                  Spectrographic Analysis & NDT
+                </h3>
+                <p className="text-gray-500 font-light leading-relaxed">
+                  Copper alloys demand strict chemical verification. We perform
+                  in-house spectrographic analysis and Non-Destructive Testing
+                  (NDT) to guarantee zero porosity and structural perfection.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white rounded-[var(--outer-radius)] p-8 sm:p-10 border border-black/5 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-gray-50 rounded-full group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
+              <div className="relative z-10">
+                <div className="h-14 w-14 rounded-2xl bg-black text-white flex items-center justify-center mb-8">
+                  <Settings className="h-6 w-6" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 mb-4 tracking-tight">
+                  In-House CNC Machining
+                </h3>
+                <p className="text-gray-500 font-light leading-relaxed">
+                  Delivering turnkey solutions. Our state-of-the-art CNC milling
+                  and turning centers take your components from near-net casting
+                  shape to final precision tolerance under one roof.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Location & Map Embed */}
+      <section className="pb-12 sm:pb-16 w-full">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+          <div className="flex flex-col lg:block relative w-full rounded-[var(--outer-radius)] overflow-hidden border border-black/5 shadow-sm group bg-white">
+            {/* Google Map iframe */}
+            <div className="w-full aspect-square sm:aspect-video lg:aspect-[21/9] relative">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d193595.25280010998!2d-74.14448744577884!3d40.69766374859258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="absolute inset-0 grayscale contrast-125 opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000"
+                title="Smalloys Headquarters Location"
+              ></iframe>
+            </div>
+
+            {/* Overlay Contact Card */}
+            <div className="bg-white lg:bg-white/95 lg:backdrop-blur-md p-6 sm:p-8 lg:absolute lg:bottom-12 lg:left-12 lg:rounded-[calc(var(--outer-radius)-8px)] lg:shadow-xl lg:border lg:border-white/20 lg:max-w-sm z-10 lg:transform lg:transition-transform lg:duration-500 lg:hover:-translate-y-2">
+              <h3 className="text-xl font-medium text-gray-900 mb-6">
+                Global Headquarters
+              </h3>
+
+              <ul className="space-y-4">
+                <li>
+                  <div className="flex items-start text-sm text-gray-600 font-light">
+                    <MapPin
+                      className="flex-shrink-0 h-5 w-5 mr-3 mt-0.5 text-black"
+                      aria-hidden="true"
+                      strokeWidth={1.5}
+                    />
+                    <span>
+                      123 Manufacturing Way
+                      <br />
+                      New York, NY 10001
+                      <br />
+                      United States
+                    </span>
+                  </div>
+                </li>
+                <li>
+                  <a
+                    href="mailto:sales@smalloys.com"
+                    className="flex items-center text-sm text-gray-600 hover:text-black font-light transition-colors group/link"
+                  >
+                    <Mail
+                      className="flex-shrink-0 h-5 w-5 mr-3 text-black"
+                      aria-hidden="true"
+                      strokeWidth={1.5}
+                    />
+                    <span className="group-hover/link:underline">
+                      sales@smalloys.com
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="tel:+15551234567"
+                    className="flex items-center text-sm text-gray-600 hover:text-black font-light transition-colors group/link"
+                  >
+                    <Phone
+                      className="flex-shrink-0 h-5 w-5 mr-3 text-black"
+                      aria-hidden="true"
+                      strokeWidth={1.5}
+                    />
+                    <span className="group-hover/link:underline">
+                      +1 (555) 123-4567
+                    </span>
+                  </a>
+                </li>
+              </ul>
+
+              <div className="mt-8">
+                <a
+                  href="https://maps.google.com/?q=New+York,+NY"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-full bg-black text-white rounded-full py-3 px-4 text-sm font-medium hover:bg-gray-800 transition-colors"
+                >
+                  Get Directions
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
