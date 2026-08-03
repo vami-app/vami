@@ -3,6 +3,10 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dns from 'dns';
+
+// Fix Windows DNS SRV lookup issues for MongoDB Atlas
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 // Manually load .env.local
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
