@@ -5,6 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, Trash2, Plus, Package } from 'lucide-react';
 import Link from 'next/link';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import CursorPagination from '@/components/ui/CursorPagination';
 
 export default function ProductClient() {
   const [products, setProducts] = useState([]);
@@ -12,14 +13,24 @@ export default function ProductClient() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  async function fetchProducts() {
+  // Pagination state
+  const [cursorHistory, setCursorHistory] = useState([]);
+  const [currentCursor, setCurrentCursor] = useState(null);
+  const [pageInfo, setPageInfo] = useState({ hasNextPage: false, endCursor: null });
+  const [isPaginating, setIsPaginating] = useState(false);
+
+  async function fetchProducts(cursor = null) {
+    if (cursor) setIsPaginating(true);
+    else setLoading(true);
+
     try {
-      const res = await fetch('/api/products');
+      const url = cursor ? `/api/products?cursor=${encodeURIComponent(cursor)}` : '/api/products';
+      const res = await fetch(url);
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setProducts(data);
-      } else if (data && Array.isArray(data.products)) {
-        setProducts(data.products);
+      
+      if (data && data.edges) {
+        setProducts(data.edges.map(e => e.node));
+        setPageInfo(data.pageInfo || { hasNextPage: false, endCursor: null });
       } else {
         setProducts([]);
       }
@@ -28,13 +39,29 @@ export default function ProductClient() {
       setProducts([]);
     } finally {
       setLoading(false);
+      setIsPaginating(false);
     }
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchProducts();
-  }, []);
+    fetchProducts(currentCursor);
+  }, [currentCursor]);
+
+  const handleNext = () => {
+    if (pageInfo.hasNextPage && pageInfo.endCursor) {
+      setCursorHistory(prev => [...prev, currentCursor]);
+      setCurrentCursor(pageInfo.endCursor);
+    }
+  };
+
+  const handlePrev = () => {
+    if (cursorHistory.length > 0) {
+      const newHistory = [...cursorHistory];
+      const prevCursor = newHistory.pop();
+      setCursorHistory(newHistory);
+      setCurrentCursor(prevCursor);
+    }
+  };
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -139,6 +166,13 @@ export default function ProductClient() {
               <p className="mt-1 text-sm text-text-muted">Get started by creating a new product.</p>
             </div>
           )}
+          <CursorPagination
+            onNext={handleNext}
+            onPrev={handlePrev}
+            hasNext={pageInfo.hasNextPage}
+            hasPrev={cursorHistory.length > 0}
+            isLoading={loading || isPaginating}
+          />
         </div>
       )}
     </>

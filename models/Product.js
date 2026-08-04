@@ -65,6 +65,9 @@ const ProductSchema = new mongoose.Schema(
 // Compound index for querying published products by category efficiently
 ProductSchema.index({ status: 1, category: 1 });
 
+// Compound index for cursor-based pagination (FAANG-grade keyset)
+ProductSchema.index({ createdAt: -1, _id: -1 });
+
 // Text index for native MongoDB search
 ProductSchema.index({ name: 'text', shortDescription: 'text' });
 

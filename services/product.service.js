@@ -4,6 +4,7 @@ import Product from '@/models/Product';
 import Category from '@/models/Category';
 import { emit } from '@/lib/events';
 import { serializeDoc, serializeDocs } from '@/lib/serialize';
+import { buildCursorQuery, buildRelayConnection } from '@/lib/pagination';
 
 // ─── READS (Cached) ──────────────────────────────────────────────────────────
 
@@ -43,18 +44,27 @@ export async function getProductsByCategory(categoryId) {
 }
 
 /**
- * Fetches all published products (for sitemap, product listings).
+ * Fetches published products using cursor pagination (Relay Connection spec).
+ * @param {{ cursor?: string, limit?: number }} opts 
  */
-export async function getAllPublishedProducts() {
+export async function getAllPublishedProducts({ cursor = null, limit = 20 } = {}) {
   'use cache';
   cacheTag('products', 'categories');
   cacheLife('hours');
   await dbConnect();
-  const products = await Product.find({ status: 'published' })
+  
+  const baseQuery = { status: 'published' };
+  const cursorQuery = cursor ? buildCursorQuery(cursor, 'createdAt', true) : {};
+  const query = { ...baseQuery, ...cursorQuery };
+
+  // Fetch limit + 1 to determine if there's a next page
+  const products = await Product.find(query)
     .populate('category', 'name slug')
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1, _id: -1 })
+    .limit(limit + 1)
     .lean();
-  return serializeDocs(products);
+    
+  return buildRelayConnection(serializeDocs(products), limit, 'createdAt');
 }
 
 /**
@@ -88,36 +98,23 @@ export async function getProductById(id) {
 
 /**
  * Paginated product list for admin panel.
- * Offset-based pagination (stable for small admin catalogs).
+ * Uses FAANG-grade Keyset/Cursor pagination.
  *
- * @param {{ categoryId?: string|null, page?: number, limit?: number }} opts
+ * @param {{ categoryId?: string|null, cursor?: string|null, limit?: number }} opts
  */
-export const getProductsList = async ({ categoryId = null, page = 1, limit = 20 } = {}) => {
+export const getProductsList = async ({ categoryId = null, cursor = null, limit = 20 } = {}) => {
   await dbConnect();
-  const query = categoryId ? { category: categoryId } : {};
-  const skip = (page - 1) * limit;
+  const baseQuery = categoryId ? { category: categoryId } : {};
+  const cursorQuery = cursor ? buildCursorQuery(cursor, 'createdAt', true) : {};
+  const query = { ...baseQuery, ...cursorQuery };
 
-  const [products, total] = await Promise.all([
-    Product.find(query)
-      .populate('category', 'name slug')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    Product.countDocuments(query),
-  ]);
+  const products = await Product.find(query)
+    .populate('category', 'name slug')
+    .sort({ createdAt: -1, _id: -1 })
+    .limit(limit + 1)
+    .lean();
 
-  return {
-    products: serializeDocs(products),
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-      hasNextPage: page * limit < total,
-      hasPrevPage: page > 1,
-    },
-  };
+  return buildRelayConnection(serializeDocs(products), limit, 'createdAt');
 };
 
 export const getProductByIdUncached = async (id) => {

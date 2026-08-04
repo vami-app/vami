@@ -3,22 +3,31 @@ import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import { emit } from '@/lib/events';
 import { serializeDoc, serializeDocs } from '@/lib/serialize';
+import { buildCursorQuery, buildRelayConnection } from '@/lib/pagination';
 
 // ─── READS (Cached via 'use cache' directive) ────────────────────────────────
 
 /**
- * Fetches all published blog posts, sorted by publishedAt descending.
+ * Fetches published blog posts using cursor pagination (Relay Connection spec).
  * Cache is tagged 'blog' — revalidated by revalidateTag('blog') on any mutation.
+ * @param {{ cursor?: string, limit?: number }} opts 
  */
-export async function getPublishedBlogPosts() {
+export async function getPublishedBlogPosts({ cursor = null, limit = 20 } = {}) {
   'use cache';
   cacheTag('blog');
   cacheLife('hours');
   await dbConnect();
-  const posts = await BlogPost.find({ status: 'published' })
-    .sort({ publishedAt: -1, createdAt: -1 })
+  
+  const baseQuery = { status: 'published' };
+  const cursorQuery = cursor ? buildCursorQuery(cursor, 'publishedAt', true) : {};
+  const query = { ...baseQuery, ...cursorQuery };
+
+  const posts = await BlogPost.find(query)
+    .sort({ publishedAt: -1, _id: -1 })
+    .limit(limit + 1)
     .lean();
-  return serializeDocs(posts);
+    
+  return buildRelayConnection(serializeDocs(posts), limit, 'publishedAt');
 }
 
 /**
@@ -48,10 +57,22 @@ export async function getBlogPostById(id) {
 
 // ─── ADMIN QUERIES (Uncached — always fresh for admin views) ─────────────────
 
-export const getBlogListUncached = async () => {
+export const getBlogListUncached = async ({ cursor = null, limit = 20 } = {}) => {
   await dbConnect();
-  const posts = await BlogPost.find({}).sort({ createdAt: -1 }).lean();
-  return serializeDocs(posts);
+  
+  const baseQuery = {};
+  // For uncached list, we probably want to sort by createdAt, not publishedAt (since drafts don't have publishedAt)
+  // But wait, the schema index is on publishedAt.
+  // Actually, drafts might not have publishedAt. Let's sort by createdAt for admin list to match what it had.
+  const cursorQuery = cursor ? buildCursorQuery(cursor, 'createdAt', true) : {};
+  const query = { ...baseQuery, ...cursorQuery };
+  
+  const posts = await BlogPost.find(query)
+    .sort({ createdAt: -1, _id: -1 })
+    .limit(limit + 1)
+    .lean();
+    
+  return buildRelayConnection(serializeDocs(posts), limit, 'createdAt');
 };
 
 export const getBlogPostByIdUncached = async (id) => {

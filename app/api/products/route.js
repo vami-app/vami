@@ -7,11 +7,11 @@ import { createProduct } from '@/modules/products';
 export const GET = withApiHandler(async (req) => {
   const { searchParams } = new URL(req.url);
   const category = searchParams.get('category') || null;
-  const page = parseInt(searchParams.get('page') || '1', 10);
+  const cursor = searchParams.get('cursor') || null;
   const limit = parseInt(searchParams.get('limit') || '20', 10);
 
   const { getProductsList } = await import('@/modules/products');
-  const result = await getProductsList({ categoryId: category, page, limit });
+  const result = await getProductsList({ categoryId: category, cursor, limit });
 
   return NextResponse.json(result);
 });

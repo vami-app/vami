@@ -3,9 +3,13 @@ import { BlogPostSchema, formatZodIssues } from '@/lib/validations';
 import { withApiHandler } from '@/lib/apiHandler';
 import { PERMISSIONS } from '@/lib/permissions';
 
-export const GET = withApiHandler(async () => {
+export const GET = withApiHandler(async (req) => {
+  const { searchParams } = new URL(req.url);
+  const cursor = searchParams.get('cursor') || null;
+  const limit = parseInt(searchParams.get('limit') || '20', 10);
+
   const { getBlogListUncached } = await import('@/modules/blog');
-  const posts = await getBlogListUncached();
+  const posts = await getBlogListUncached({ cursor, limit });
   return NextResponse.json(posts);
 });
 

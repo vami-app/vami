@@ -5,6 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, Trash2, Plus } from 'lucide-react';
 import Link from 'next/link';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import CursorPagination from '@/components/ui/CursorPagination';
 
 export default function BlogClient() {
   const [posts, setPosts] = useState([]);
@@ -12,23 +13,55 @@ export default function BlogClient() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  async function fetchPosts() {
+  // Pagination state
+  const [cursorHistory, setCursorHistory] = useState([]);
+  const [currentCursor, setCurrentCursor] = useState(null);
+  const [pageInfo, setPageInfo] = useState({ hasNextPage: false, endCursor: null });
+  const [isPaginating, setIsPaginating] = useState(false);
+
+  async function fetchPosts(cursor = null) {
+    if (cursor) setIsPaginating(true);
+    else setLoading(true);
+
     try {
-      const res = await fetch('/api/blog');
+      const url = cursor ? `/api/blog?cursor=${encodeURIComponent(cursor)}` : '/api/blog';
+      const res = await fetch(url);
       const data = await res.json();
-      setPosts(Array.isArray(data) ? data : (data?.posts || []));
+      
+      if (data && data.edges) {
+        setPosts(data.edges.map(e => e.node));
+        setPageInfo(data.pageInfo || { hasNextPage: false, endCursor: null });
+      } else {
+        setPosts([]);
+      }
     } catch (err) {
       toast.error('Failed to load posts');
       setPosts([]);
     } finally {
       setLoading(false);
+      setIsPaginating(false);
     }
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
-    fetchPosts();
-  }, []);
+    fetchPosts(currentCursor);
+  }, [currentCursor]);
+
+  const handleNext = () => {
+    if (pageInfo.hasNextPage && pageInfo.endCursor) {
+      setCursorHistory(prev => [...prev, currentCursor]);
+      setCurrentCursor(pageInfo.endCursor);
+    }
+  };
+
+  const handlePrev = () => {
+    if (cursorHistory.length > 0) {
+      const newHistory = [...cursorHistory];
+      const prevCursor = newHistory.pop();
+      setCursorHistory(newHistory);
+      setCurrentCursor(prevCursor);
+    }
+  };
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
@@ -128,10 +161,17 @@ export default function BlogClient() {
           </div>
           {postList.length === 0 && (
             <div className="text-center py-16">
-              <h3 className="text-lg font-medium text-text-primary">No posts found</h3>
-              <p className="mt-1 text-sm text-text-muted">Get started by creating a new blog post.</p>
+              <h3 className="text-lg font-medium text-text-primary">No blog posts found</h3>
+              <p className="mt-1 text-sm text-text-muted">Get started by writing a new post.</p>
             </div>
           )}
+          <CursorPagination
+            onNext={handleNext}
+            onPrev={handlePrev}
+            hasNext={pageInfo.hasNextPage}
+            hasPrev={cursorHistory.length > 0}
+            isLoading={loading || isPaginating}
+          />
         </div>
       )}
     </>
