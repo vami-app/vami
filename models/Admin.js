@@ -25,4 +25,6 @@ const AdminSchema = new mongoose.Schema(
   }
 );
 
+AdminSchema.index({ createdAt: -1 });
+
 export default mongoose.models.Admin || mongoose.model('Admin', AdminSchema);

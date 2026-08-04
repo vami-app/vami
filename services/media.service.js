@@ -1,11 +1,17 @@
 import { unstable_after as after } from 'next/server';
-import { deleteImage } from '@/lib/cloudinary';
+import { deleteImage, uploadImage } from '@/lib/cloudinary';
 
 /**
  * Domain Service for orchestrating Media Lifecycle Events.
  * Decouples Cloudinary HTTP requests from the primary API lifecycle.
  */
 export const MediaService = {
+  /**
+   * Uploads an image payload to Cloudinary.
+   */
+  async uploadMedia(fileBase64, folder = 'general') {
+    return await uploadImage(fileBase64, folder);
+  },
   /**
    * Robustly extracts the Cloudinary public_id from a secure delivery URL.
    * Handles optional version strings (v123456789).

@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { uploadImage } from '@/lib/cloudinary';
 import { withApiHandler } from '@/lib/apiHandler';
 import { PERMISSIONS } from '@/lib/permissions';
 
@@ -11,8 +10,8 @@ export const POST = withApiHandler(async (req) => {
     return NextResponse.json({ error: 'File data is required' }, { status: 400 });
   }
 
-  // Expecting base64 string
-  const result = await uploadImage(file, folder);
+  const { MediaService } = await import('@/services/media.service');
+  const result = await MediaService.uploadMedia(file, folder);
 
   return NextResponse.json({
     url: result.secure_url,
