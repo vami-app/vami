@@ -61,5 +61,11 @@ const ProductSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+// ─── INDEXES ────────────────────────────────────────────────────────
+// Compound index for querying published products by category efficiently
+ProductSchema.index({ status: 1, category: 1 });
+
+// Text index for native MongoDB search
+ProductSchema.index({ name: 'text', shortDescription: 'text' });
 
 export default mongoose.models.Product || mongoose.model('Product', ProductSchema);

@@ -34,5 +34,9 @@ const CategorySchema = new mongoose.Schema(
   }
 );
 
+// ─── INDEXES ────────────────────────────────────────────────────────
+// Index for querying categories sorted by creation date efficiently (prevents in-memory sort)
+CategorySchema.index({ createdAt: -1 });
+
 // Prevent re-compilation of models in Next.js development mode
 export default mongoose.models.Category || mongoose.model('Category', CategorySchema);
