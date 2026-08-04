@@ -3,12 +3,17 @@
 import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, Trash2, Plus } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function CategoryClient() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
+  
+  // Delete modal state
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({ name: '', slug: '', description: '', seoTitle: '', seoDescription: '' });
@@ -78,26 +83,39 @@ export default function CategoryClient() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     
     try {
-      const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/categories/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) {
         toast.success('Category deleted');
+        setDeleteTarget(null);
         fetchCategories();
       } else {
         const error = await res.json();
-        toast.error(error.error || 'Failed to delete');
+        toast.error(error.error || 'Failed to delete category');
       }
     } catch (err) {
       toast.error('An error occurred');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   return (
     <>
       <Toaster position="top-right" />
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete Category"
+        description={`Are you sure you want to delete "${deleteTarget?.name || 'this category'}"? Products in this category may be affected.`}
+        confirmText="Delete Category"
+        isLoading={isDeleting}
+      />
       <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Categories</h2>
         <button
@@ -138,7 +156,7 @@ export default function CategoryClient() {
                       <button onClick={() => handleOpenModal(category)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button onClick={() => handleDelete(category._id)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
+                      <button onClick={() => setDeleteTarget({ id: category._id, name: category.name })} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>

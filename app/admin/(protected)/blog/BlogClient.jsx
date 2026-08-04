@@ -4,10 +4,13 @@ import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, Trash2, Plus } from 'lucide-react';
 import Link from 'next/link';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function BlogClient() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function fetchPosts() {
     try {
@@ -27,20 +30,24 @@ export default function BlogClient() {
     fetchPosts();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     
     try {
-      const res = await fetch(`/api/blog/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/blog/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) {
         toast.success('Post deleted');
+        setDeleteTarget(null);
         fetchPosts();
       } else {
         const error = await res.json();
-        toast.error(error.error || 'Failed to delete');
+        toast.error(error.error || 'Failed to delete post');
       }
     } catch (err) {
       toast.error('An error occurred');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -49,6 +56,15 @@ export default function BlogClient() {
   return (
     <>
       <Toaster position="top-right" />
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete Blog Post"
+        description={`Are you sure you want to delete "${deleteTarget?.title || 'this post'}"? This action cannot be undone.`}
+        confirmText="Delete Post"
+        isLoading={isDeleting}
+      />
       <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Blog Posts</h2>
         <Link
@@ -101,7 +117,7 @@ export default function BlogClient() {
                       <Link href={`/admin/blog/${post._id}/edit`} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
                         <Pencil className="h-4 w-4" />
                       </Link>
-                      <button onClick={() => handleDelete(post._id)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
+                      <button onClick={() => setDeleteTarget({ id: post._id, title: post.title })} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>

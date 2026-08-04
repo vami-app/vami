@@ -4,10 +4,13 @@ import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, Trash2, Plus, Package } from 'lucide-react';
 import Link from 'next/link';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function ProductClient() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function fetchProducts() {
     try {
@@ -33,20 +36,24 @@ export default function ProductClient() {
     fetchProducts();
   }, []);
 
-  async function handleDelete(id) {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     
     try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/products/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) {
         toast.success('Product deleted');
+        setDeleteTarget(null);
         fetchProducts();
       } else {
         const error = await res.json();
-        toast.error(error.error || 'Failed to delete');
+        toast.error(error.error || 'Failed to delete product');
       }
     } catch (err) {
       toast.error('An error occurred');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -55,6 +62,15 @@ export default function ProductClient() {
   return (
     <>
       <Toaster position="top-right" />
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete Product"
+        description={`Are you sure you want to delete "${deleteTarget?.name || 'this product'}"? This action cannot be undone.`}
+        confirmText="Delete Product"
+        isLoading={isDeleting}
+      />
       <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Inventory Management</h2>
         <Link
@@ -107,7 +123,7 @@ export default function ProductClient() {
                       <Link href={`/admin/products/${product._id}/edit`} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
                         <Pencil className="h-4 w-4" />
                       </Link>
-                      <button onClick={() => handleDelete(product._id)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
+                      <button onClick={() => setDeleteTarget({ id: product._id, name: product.name })} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
