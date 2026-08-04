@@ -62,3 +62,43 @@ export const getProductById = unstable_cache(
   ['product-by-id'],
   { tags: ['products'], revalidate: 86400 }
 );
+
+// ─── MUTATIONS & ADMIN QUERIES (Uncached) ─────────────────────────
+import { MediaService } from './media.service';
+
+export const getProductsList = async (categoryId = null) => {
+  await dbConnect();
+  let query = {};
+  if (categoryId) query.category = categoryId;
+  
+  return await Product.find(query)
+    .populate('category', 'name slug')
+    .sort({ createdAt: -1 })
+    .lean();
+};
+
+export const getProductByIdUncached = async (id) => {
+  await dbConnect();
+  return await Product.findById(id).populate('category', 'name slug').lean();
+};
+
+export const createProduct = async (data) => {
+  await dbConnect();
+  return await Product.create(data);
+};
+
+export const updateProduct = async (id, data) => {
+  await dbConnect();
+  return await Product.findByIdAndUpdate(id, data, { new: true, runValidators: true }).lean();
+};
+
+export const deleteProduct = async (id) => {
+  await dbConnect();
+  const product = await Product.findByIdAndDelete(id).lean();
+  
+  if (product && product.images && product.images.length > 0) {
+    MediaService.deleteAssetsInBackground(product.images);
+  }
+  
+  return product;
+};

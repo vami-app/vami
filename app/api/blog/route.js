@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server';
-import BlogPost from '@/models/BlogPost';
 import { BlogPostSchema } from '@/lib/validations';
 import { withApiHandler } from '@/lib/apiHandler';
 import { PERMISSIONS } from '@/lib/permissions';
 
-export const GET = withApiHandler(async (req) => {
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get('status');
-  
-  let query = {};
-  if (status) query.status = status;
-  
-  const posts = await BlogPost.find(query).sort({ createdAt: -1 });
+export const GET = withApiHandler(async () => {
+  const { getBlogListUncached } = await import('@/services/blog.service');
+  const posts = await getBlogListUncached();
   return NextResponse.json(posts);
 });
 
@@ -23,6 +17,7 @@ export const POST = withApiHandler(async (req) => {
     return NextResponse.json({ error: 'Validation failed', details: parsed.error.format() }, { status: 400 });
   }
 
-  const post = await BlogPost.create(parsed.data);
+  const { createBlogPost } = await import('@/services/blog.service');
+  const post = await createBlogPost(parsed.data);
   return NextResponse.json(post, { status: 201 });
 }, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_BLOG });

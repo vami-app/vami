@@ -1,21 +1,18 @@
 import { NextResponse } from 'next/server';
-import SiteSettings from '@/models/SiteSettings';
 import { withApiHandler } from '@/lib/apiHandler';
 import { PERMISSIONS } from '@/lib/permissions';
 
 export const GET = withApiHandler(async () => {
-  const settings = await SiteSettings.findById('site').lean();
-  return NextResponse.json(settings || {});
+  const { getSiteSettingsUncached } = await import('@/services/settings.service');
+  const settings = await getSiteSettingsUncached();
+  return NextResponse.json(settings);
 });
 
 export const PUT = withApiHandler(async (req) => {
   const body = await req.json();
 
-  const settings = await SiteSettings.findByIdAndUpdate(
-    'site',
-    { $set: body },
-    { new: true, upsert: true, runValidators: true }
-  );
+  const { updateSiteSettings } = await import('@/services/settings.service');
+  const settings = await updateSiteSettings(body);
 
   return NextResponse.json(settings);
 }, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_SETTINGS });

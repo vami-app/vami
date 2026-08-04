@@ -27,3 +27,32 @@ export const getCategoryBySlug = unstable_cache(
   ['category-by-slug'],
   { tags: ['categories'], revalidate: 86400 }
 );
+
+// ─── MUTATIONS & ADMIN QUERIES (Uncached) ─────────────────────────
+import { MediaService } from './media.service';
+
+export const getCategoryByIdUncached = async (id) => {
+  await dbConnect();
+  return await Category.findById(id).lean();
+};
+
+export const createCategory = async (data) => {
+  await dbConnect();
+  return await Category.create(data);
+};
+
+export const updateCategory = async (id, data) => {
+  await dbConnect();
+  return await Category.findByIdAndUpdate(id, data, { new: true, runValidators: true }).lean();
+};
+
+export const deleteCategory = async (id) => {
+  await dbConnect();
+  const category = await Category.findByIdAndDelete(id).lean();
+  
+  if (category && category.image) {
+    MediaService.deleteAssetsInBackground([category.image]);
+  }
+  
+  return category;
+};

@@ -37,3 +37,37 @@ export const getBlogPostById = unstable_cache(
   ['blog-post-by-id'],
   { tags: ['blog'], revalidate: 86400 }
 );
+
+// ─── MUTATIONS & ADMIN QUERIES (Uncached) ─────────────────────────
+import { MediaService } from './media.service';
+
+export const getBlogListUncached = async () => {
+  await dbConnect();
+  return await BlogPost.find({}).sort({ createdAt: -1 }).lean();
+};
+
+export const getBlogPostByIdUncached = async (id) => {
+  await dbConnect();
+  return await BlogPost.findById(id).lean();
+};
+
+export const createBlogPost = async (data) => {
+  await dbConnect();
+  return await BlogPost.create(data);
+};
+
+export const updateBlogPost = async (id, data) => {
+  await dbConnect();
+  return await BlogPost.findByIdAndUpdate(id, data, { new: true, runValidators: true }).lean();
+};
+
+export const deleteBlogPost = async (id) => {
+  await dbConnect();
+  const post = await BlogPost.findByIdAndDelete(id).lean();
+  
+  if (post && post.coverImage) {
+    MediaService.deleteAssetsInBackground([post.coverImage]);
+  }
+  
+  return post;
+};
