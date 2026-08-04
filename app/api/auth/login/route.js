@@ -5,6 +5,8 @@ import { signToken } from '@/lib/auth';
 import { withApiHandler } from '@/lib/apiHandler';
 import { env } from '@/env.mjs';
 
+import { ROLE_PERMISSIONS, ROLES } from '@/lib/permissions';
+
 export const POST = withApiHandler(async (req) => {
   const { email, password } = await req.json();
 
@@ -18,7 +20,9 @@ export const POST = withApiHandler(async (req) => {
   const isValid = await bcrypt.compare(password, admin.passwordHash);
   if (!isValid) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
 
-  const token = await signToken({ adminId: admin._id });
+  const role = admin.role || ROLES.SUPER_ADMIN;
+  const permissions = ROLE_PERMISSIONS[role];
+  const token = await signToken({ adminId: admin._id, role, permissions });
   const response = NextResponse.json({ message: 'Login successful' });
   
   response.cookies.set('auth_token', token, {

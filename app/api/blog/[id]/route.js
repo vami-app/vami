@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import BlogPost from '@/models/BlogPost';
 import { BlogPostSchema } from '@/lib/validations';
 import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export const GET = withApiHandler(async (req, { params }) => {
   const { id } = await params;
@@ -23,7 +24,7 @@ export const PUT = withApiHandler(async (req, { params }) => {
   if (!post) return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
   
   return NextResponse.json(post);
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_BLOG });
 
 export const DELETE = withApiHandler(async (req, { params }) => {
   const { id } = await params;
@@ -32,4 +33,4 @@ export const DELETE = withApiHandler(async (req, { params }) => {
   if (!post) return NextResponse.json({ error: 'Blog post not found' }, { status: 404 });
   
   return NextResponse.json({ message: 'Blog post deleted successfully' });
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_BLOG });

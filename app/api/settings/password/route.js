@@ -4,6 +4,7 @@ import Admin from '@/models/Admin';
 import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export const PUT = withApiHandler(async (req) => {
   const cookieStore = await cookies();
@@ -29,4 +30,4 @@ export const PUT = withApiHandler(async (req) => {
   await admin.save();
 
   return NextResponse.json({ message: 'Password updated successfully' });
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_SETTINGS });

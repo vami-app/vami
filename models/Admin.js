@@ -13,6 +13,12 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    role: {
+      type: String,
+      enum: ['SUPER_ADMIN', 'EDITOR'],
+      default: 'SUPER_ADMIN',
+      required: true,
+    },
   },
   {
     timestamps: true,

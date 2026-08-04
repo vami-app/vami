@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { uploadImage } from '@/lib/cloudinary';
 import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export const POST = withApiHandler(async (req) => {
   const body = await req.json();
@@ -17,4 +18,4 @@ export const POST = withApiHandler(async (req) => {
     url: result.secure_url,
     public_id: result.public_id,
   });
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_MEDIA });

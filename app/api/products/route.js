@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Product from '@/models/Product';
 import { ProductSchema } from '@/lib/validations';
 import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export const GET = withApiHandler(async (req) => {
   const { searchParams } = new URL(req.url);
@@ -29,4 +30,4 @@ export const POST = withApiHandler(async (req) => {
 
   const product = await Product.create(parsed.data);
   return NextResponse.json(product, { status: 201 });
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_PRODUCTS });

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import BlogPost from '@/models/BlogPost';
 import { BlogPostSchema } from '@/lib/validations';
 import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export const GET = withApiHandler(async (req) => {
   const { searchParams } = new URL(req.url);
@@ -24,4 +25,4 @@ export const POST = withApiHandler(async (req) => {
 
   const post = await BlogPost.create(parsed.data);
   return NextResponse.json(post, { status: 201 });
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_BLOG });

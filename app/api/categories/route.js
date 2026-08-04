@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Category from '@/models/Category';
 import { CategorySchema } from '@/lib/validations';
 import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export const GET = withApiHandler(async () => {
   const categories = await Category.find({}).sort({ createdAt: -1 });
@@ -18,4 +19,4 @@ export const POST = withApiHandler(async (req) => {
 
   const category = await Category.create(parsed.data);
   return NextResponse.json(category, { status: 201 });
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_CATEGORIES });

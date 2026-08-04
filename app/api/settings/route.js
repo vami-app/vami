@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import SiteSettings from '@/models/SiteSettings';
 import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export const GET = withApiHandler(async () => {
   const settings = await SiteSettings.findById('site').lean();
@@ -17,4 +18,4 @@ export const PUT = withApiHandler(async (req) => {
   );
 
   return NextResponse.json(settings);
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_SETTINGS });

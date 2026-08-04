@@ -9,14 +9,14 @@ import { adminConfig } from '@/config/admin';
 const navigation = adminConfig.navigation;
 
 // Sidebar nav links (desktop / tablet)
-function SidebarNavLinks({ showLabel, pathname }) {
+function SidebarNavLinks({ showLabel, pathname, allowedNavigation }) {
   const labeled = showLabel !== false;
   return (
     <nav className={labeled
       ? 'flex-1 px-3 space-y-1 py-4'
       : 'flex-1 flex flex-col items-center space-y-1 py-4 px-2'
     }>
-      {navigation.map(({ name, href, icon: Icon }) => {
+      {allowedNavigation.map(({ name, href, icon: Icon }) => {
         const active = pathname === href;
 
         if (!labeled) {
@@ -88,9 +88,12 @@ function SidebarSignOut({ compact }) {
   );
 }
 
-export default function AdminShell({ children }) {
+export default function AdminShell({ children, permissions = [] }) {
   const [tabletExpanded, setTabletExpanded] = useState(false);
   const pathname = usePathname();
+
+  // CDUI: Cryptographically filter UI navigation based on PBAC array from JWT
+  const allowedNavigation = navigation.filter(nav => permissions.includes(nav.permission));
 
   /* ── Layout ──────────────────────────────────────────── */
 
@@ -110,7 +113,7 @@ export default function AdminShell({ children }) {
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
             <div className="flex-1 overflow-y-auto">
-              <SidebarNavLinks showLabel={true} pathname={pathname} />
+              <SidebarNavLinks showLabel={true} pathname={pathname} allowedNavigation={allowedNavigation} />
             </div>
             <SidebarSignOut compact={false} />
           </div>
@@ -148,7 +151,7 @@ export default function AdminShell({ children }) {
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
             <div className="flex-1 overflow-y-auto">
-              <SidebarNavLinks showLabel={tabletExpanded} pathname={pathname} />
+              <SidebarNavLinks showLabel={tabletExpanded} pathname={pathname} allowedNavigation={allowedNavigation} />
             </div>
             <SidebarSignOut compact={!tabletExpanded} />
           </div>
@@ -196,7 +199,7 @@ export default function AdminShell({ children }) {
         {/* Safe area spacer for phones with home indicator */}
         <div className="flex items-start justify-around px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                   {/* Navigation items */}
-          {navigation.map(({ name, href, icon: Icon }) => {
+          {allowedNavigation.map(({ name, href, icon: Icon }) => {
             const active = pathname === href;
             return (
               <Link

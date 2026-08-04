@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Product from '@/models/Product';
 import { ProductSchema } from '@/lib/validations';
 import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
 export const GET = withApiHandler(async (req, { params }) => {
   const { id } = await params;
@@ -23,7 +24,7 @@ export const PUT = withApiHandler(async (req, { params }) => {
   if (!product) return NextResponse.json({ error: 'Product not found' }, { status: 404 });
   
   return NextResponse.json(product);
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_PRODUCTS });
 
 export const DELETE = withApiHandler(async (req, { params }) => {
   const { id } = await params;
@@ -34,4 +35,4 @@ export const DELETE = withApiHandler(async (req, { params }) => {
   // Note: In Phase 4, we will add logic here to delete associated Cloudinary images
   
   return NextResponse.json({ message: 'Product deleted successfully' });
-}, { requireAuth: true });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_PRODUCTS });
