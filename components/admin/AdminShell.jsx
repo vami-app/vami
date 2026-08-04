@@ -116,7 +116,7 @@ export default function AdminShell({ children, permissions = [] }) {
             </span>
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto hide-scrollbar">
               <SidebarNavLinks showLabel={true} pathname={pathname} allowedNavigation={allowedNavigation} />
             </div>
             <SidebarSignOut compact={false} />
@@ -154,7 +154,7 @@ export default function AdminShell({ children, permissions = [] }) {
             </button>
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto hide-scrollbar">
               <SidebarNavLinks showLabel={tabletExpanded} pathname={pathname} allowedNavigation={allowedNavigation} />
             </div>
             <SidebarSignOut compact={!tabletExpanded} />
@@ -182,9 +182,9 @@ export default function AdminShell({ children, permissions = [] }) {
           Mobile  (< md): no outer gap, no card — content fills wall-to-wall.
           Tablet+ (≥ md): outer gap re-appears, white card with border/shadow/radius.
         */}
-        <main className="flex-1 overflow-y-auto w-full pb-16 md:pb-0 md:p-[var(--gap)]">
-          <div className="w-full md:bg-surface md:border md:border-border-subtle md:rounded-[var(--outer-radius)] md:shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-8 py-5 md:py-8">
+        <main className="flex-1 w-full p-0 pb-20 md:p-[var(--gap)] overflow-hidden flex flex-col">
+          <div className="w-full h-full overflow-y-auto hide-scrollbar md:bg-surface md:border md:border-border-subtle md:rounded-[var(--outer-radius)] md:shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-8 py-5 md:py-8 min-h-full">
               {children}
             </div>
           </div>
