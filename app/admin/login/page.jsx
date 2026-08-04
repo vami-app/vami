@@ -1,54 +1,54 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import toast, { Toaster } from 'react-hot-toast';
-import { Lock, Mail, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { useState } from "react";
+
+import toast, { Toaster } from "react-hot-toast";
+import { Lock, Mail, Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function AdminLogin() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
 
       if (res.ok) {
-        toast.success('Logged in successfully');
-        router.push('/admin');
-        router.refresh();
+        toast.success("Logged in successfully");
+        window.location.href = "/admin";
+        return; // Prevent setLoading(false) to avoid state update during redirect
       } else {
         const data = await res.json();
-        toast.error(data.error || 'Login failed');
+        toast.error(data.error || "Login failed");
       }
     } catch (error) {
-      toast.error('An error occurred during authentication');
-    } finally {
-      setLoading(false);
+      toast.error("An error occurred during authentication");
     }
+
+    setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4 py-12">
       <Toaster position="top-right" />
-      
+
       <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500 ease-out">
         {/* Brand Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-headline font-bold text-text-primary tracking-tight">
-            Smalloys<span className="text-text-muted font-light ml-2">Admin</span>
+            Smalloys
+            <span className="text-text-muted font-light ml-2">Admin</span>
           </h1>
           <p className="mt-2 text-sm text-text-muted font-light">
             Sign in to manage catalog, categories, and content
@@ -87,7 +87,7 @@ export default function AdminLogin() {
                   <Lock className="h-4 w-4" />
                 </div>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   required
                   autoComplete="current-password"
                   placeholder="••••••••"
@@ -99,9 +99,13 @@ export default function AdminLogin() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-text-muted hover:text-gray-600 transition-colors"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>

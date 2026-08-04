@@ -12,28 +12,12 @@ const TABS = [
   { id: 'appearance', label: 'Appearance', icon: Palette },
 ];
 
-const Field = ({ label, hint, children }) => (
-  <div>
-    <label className="block text-sm font-medium text-text-secondary mb-1.5">{label}</label>
-    {children}
-    {hint && <p className="mt-1 text-xs text-text-muted">{hint}</p>}
-  </div>
-);
-
-const Input = (props) => (
-  <input
-    {...props}
-    className="block w-full py-2.5 px-3.5 bg-surface-muted border border-border-base rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-border-base focus:border-text-primary transition-all"
-  />
-);
-
-const Textarea = (props) => (
-  <textarea
-    rows={3}
-    {...props}
-    className="block w-full py-2.5 px-3.5 bg-surface-muted border border-border-base rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-border-base focus:border-text-primary transition-all resize-none"
-  />
-);
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { FormField } from '@/components/ui/form-field';
+import { PasswordInput } from '@/components/ui/password-input';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 export default function SettingsClient() {
   const [activeTab, setActiveTab] = useState('general');
@@ -116,35 +100,21 @@ export default function SettingsClient() {
   }
 
   const renderSaveButton = (loading) => (
-    <button
-      type="submit"
-      disabled={loading}
-      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-    >
+    <Button type="submit" disabled={loading} className="w-fit">
       <Save className="h-4 w-4" />
       {loading ? 'Saving…' : 'Save Changes'}
-    </button>
+    </Button>
   );
 
   const renderPwInput = ({ field, placeholder, autocomplete }) => (
-    <div className="relative">
-      <Input
-        type={showPw[field] ? 'text' : 'password'}
-        name={field === 'new' ? 'newPassword' : field === 'confirm' ? 'confirmPassword' : 'currentPassword'}
-        autoComplete={autocomplete}
-        value={pwForm[field === 'new' ? 'newPassword' : field === 'confirm' ? 'confirmPassword' : 'currentPassword']}
-        onChange={setPw(field === 'new' ? 'newPassword' : field === 'confirm' ? 'confirmPassword' : 'currentPassword')}
-        placeholder={placeholder}
-        required
-      />
-      <button
-        type="button"
-        onClick={() => setShowPw((p) => ({ ...p, [field]: !p[field] }))}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary"
-      >
-        {showPw[field] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-      </button>
-    </div>
+    <PasswordInput
+      name={field === 'new' ? 'newPassword' : field === 'confirm' ? 'confirmPassword' : 'currentPassword'}
+      autoComplete={autocomplete}
+      value={pwForm[field === 'new' ? 'newPassword' : field === 'confirm' ? 'confirmPassword' : 'currentPassword']}
+      onChange={setPw(field === 'new' ? 'newPassword' : field === 'confirm' ? 'confirmPassword' : 'currentPassword')}
+      placeholder={placeholder}
+      required
+    />
   );
 
   return (
@@ -157,24 +127,18 @@ export default function SettingsClient() {
         <p className="text-sm text-text-muted mt-0.5">Manage your site configuration and account.</p>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex gap-1 mb-6 bg-surface-muted rounded-2xl p-1 w-fit animate-in fade-in duration-500 delay-100">
-        {TABS.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            className={[
-              'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200',
-              activeTab === id
-                ? 'bg-surface text-text-primary shadow-sm border border-border-subtle'
-                : 'text-text-muted hover:text-text-primary',
-            ].join(' ')}
-          >
-            <Icon className="h-4 w-4" />
-            <span className="hidden sm:inline">{label}</span>
-          </button>
-        ))}
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        {/* Tab bar */}
+        <div className="mb-6 animate-in fade-in duration-500 delay-100">
+          <TabsList>
+            {TABS.map(({ id, label, icon: Icon }) => (
+              <TabsTrigger key={id} value={id}>
+                <Icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{label}</span>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
       {loadingSettings ? (
         <div className="text-sm text-text-muted py-8">Loading…</div>
@@ -182,17 +146,17 @@ export default function SettingsClient() {
         <div className="animate-in fade-in duration-300">
 
           {/* ── GENERAL TAB ───────────────────────────────── */}
-          {activeTab === 'general' && (
+          <TabsContent value="general">
             <form onSubmit={saveSettings} className="space-y-6 max-w-2xl">
               <section>
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Branding</h2>
                 <div className="space-y-4">
-                  <Field label="Site Name">
+                  <FormField label="Site Name">
                     <Input value={settings.siteName} onChange={set('siteName')} placeholder="Smalloys" />
-                  </Field>
-                  <Field label="Tagline" hint="Displayed on the public homepage">
+                  </FormField>
+                  <FormField label="Tagline" hint="Displayed on the public homepage">
                     <Input value={settings.tagline} onChange={set('tagline')} placeholder="Precision copper casting for demanding industries" />
-                  </Field>
+                  </FormField>
                 </div>
               </section>
 
@@ -201,17 +165,15 @@ export default function SettingsClient() {
               <section>
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Contact</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label="Email">
+                  <FormField label="Email">
                     <Input type="email" value={settings.contactEmail} onChange={set('contactEmail')} placeholder="info@smalloys.com" />
-                  </Field>
-                  <Field label="Phone">
+                  </FormField>
+                  <FormField label="Phone">
                     <Input type="tel" value={settings.contactPhone} onChange={set('contactPhone')} placeholder="+91 00000 00000" />
-                  </Field>
-                  <Field label="Address" >
-                    <div className="sm:col-span-2">
-                      <Textarea value={settings.address} onChange={set('address')} placeholder="123 Industrial Area, City, State" />
-                    </div>
-                  </Field>
+                  </FormField>
+                  <FormField label="Address" className="sm:col-span-2">
+                    <Textarea value={settings.address} onChange={set('address')} placeholder="123 Industrial Area, City, State" />
+                  </FormField>
                 </div>
               </section>
 
@@ -220,12 +182,12 @@ export default function SettingsClient() {
               <section>
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Links</h2>
                 <div className="space-y-4">
-                  <Field label="Website URL">
+                  <FormField label="Website URL">
                     <Input type="url" value={settings.website} onChange={set('website')} placeholder="https://smalloys.com" />
-                  </Field>
-                  <Field label="LinkedIn URL">
+                  </FormField>
+                  <FormField label="LinkedIn URL">
                     <Input type="url" value={settings.linkedIn} onChange={set('linkedIn')} placeholder="https://linkedin.com/company/smalloys" />
-                  </Field>
+                  </FormField>
                 </div>
               </section>
 
@@ -233,10 +195,10 @@ export default function SettingsClient() {
                 {renderSaveButton(saving)}
               </div>
             </form>
-          )}
+          </TabsContent>
 
           {/* ── SEO TAB ───────────────────────────────────── */}
-          {activeTab === 'seo' && (
+          <TabsContent value="seo">
             <form onSubmit={saveSettings} className="space-y-6 max-w-2xl">
               <section>
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Default SEO</h2>
@@ -244,7 +206,7 @@ export default function SettingsClient() {
                   These are fallback values used when a page doesn&apos;t have its own SEO fields set.
                 </p>
                 <div className="space-y-4">
-                  <Field
+                  <FormField
                     label="Default SEO Title"
                     hint={`${settings.seoTitle.length}/60 characters`}
                   >
@@ -254,8 +216,8 @@ export default function SettingsClient() {
                       maxLength={60}
                       placeholder="Smalloys — Precision Copper Castings"
                     />
-                  </Field>
-                  <Field
+                  </FormField>
+                  <FormField
                     label="Default Meta Description"
                     hint={`${settings.seoDescription.length}/160 characters`}
                   >
@@ -265,17 +227,17 @@ export default function SettingsClient() {
                       maxLength={160}
                       placeholder="Smalloys manufactures high-quality copper and bronze castings for marine, industrial, and precision engineering applications."
                     />
-                  </Field>
+                  </FormField>
                 </div>
               </section>
               <div className="pt-2">
                 {renderSaveButton(saving)}
               </div>
             </form>
-          )}
+          </TabsContent>
 
           {/* ── APPEARANCE TAB ────────────────────────────── */}
-          {activeTab === 'appearance' && (
+          <TabsContent value="appearance">
             <div className="max-w-md">
               <section>
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Theme Preference</h2>
@@ -315,32 +277,28 @@ export default function SettingsClient() {
                 )}
               </section>
             </div>
-          )}
+          </TabsContent>
 
           {/* ── SECURITY TAB ──────────────────────────────── */}
-          {activeTab === 'security' && (
+          <TabsContent value="security">
             <div className="max-w-md">
               <section>
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Change Password</h2>
                 <form onSubmit={changePassword} className="space-y-4">
-                  <Field label="Current Password">
+                  <FormField label="Current Password">
                     {renderPwInput({ field: 'current', placeholder: 'Enter current password', autocomplete: 'current-password' })}
-                  </Field>
-                  <Field label="New Password" hint="Minimum 8 characters">
+                  </FormField>
+                  <FormField label="New Password" hint="Minimum 8 characters">
                     {renderPwInput({ field: 'new', placeholder: 'Enter new password', autocomplete: 'new-password' })}
-                  </Field>
-                  <Field label="Confirm New Password">
+                  </FormField>
+                  <FormField label="Confirm New Password">
                     {renderPwInput({ field: 'confirm', placeholder: 'Re-enter new password', autocomplete: 'new-password' })}
-                  </Field>
+                  </FormField>
                   <div className="pt-2">
-                    <button
-                      type="submit"
-                      disabled={savingPw}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
+                    <Button type="submit" disabled={savingPw} className="w-fit">
                       <Lock className="h-4 w-4" />
                       {savingPw ? 'Updating…' : 'Update Password'}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </section>
@@ -348,18 +306,18 @@ export default function SettingsClient() {
               <div className="mt-8 pt-6 border-t border-border-subtle">
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-3">Session</h2>
                 <p className="text-sm text-text-muted mb-4">Sign out of all admin sessions.</p>
-                <a
-                  href="/admin/logout"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-border-base text-sm font-medium text-red-600 hover:bg-red-50 hover:border-red-100 transition-colors"
-                >
-                  Sign Out
-                </a>
+                <Button asChild variant="destructive">
+                  <a href="/admin/logout">
+                    Sign Out
+                  </a>
+                </Button>
               </div>
             </div>
-          )}
+          </TabsContent>
 
         </div>
       )}
+      </Tabs>
     </>
   );
 }
