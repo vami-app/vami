@@ -4,50 +4,102 @@ import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, Trash2, Plus, Package } from 'lucide-react';
 import Link from 'next/link';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import CursorPagination from '@/components/ui/CursorPagination';
 
 export default function ProductClient() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  async function fetchProducts() {
+  // Pagination state
+  const [cursorHistory, setCursorHistory] = useState([]);
+  const [currentCursor, setCurrentCursor] = useState(null);
+  const [pageInfo, setPageInfo] = useState({ hasNextPage: false, endCursor: null });
+  const [isPaginating, setIsPaginating] = useState(false);
+
+  async function fetchProducts(cursor = null) {
+    if (cursor) setIsPaginating(true);
+    else setLoading(true);
+
     try {
-      const res = await fetch('/api/products');
+      const url = cursor ? `/api/products?cursor=${encodeURIComponent(cursor)}` : '/api/products';
+      const res = await fetch(url);
       const data = await res.json();
-      setProducts(data);
+      
+      if (data && data.edges) {
+        setProducts(data.edges.map(e => e.node));
+        setPageInfo(data.pageInfo || { hasNextPage: false, endCursor: null });
+      } else {
+        setProducts([]);
+      }
     } catch (err) {
       toast.error('Failed to load products');
+      setProducts([]);
     } finally {
       setLoading(false);
+      setIsPaginating(false);
     }
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchProducts();
-  }, []);
+    fetchProducts(currentCursor);
+  }, [currentCursor]);
 
-  async function handleDelete(id) {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
-    
-    try {
-      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        toast.success('Product deleted');
-        fetchProducts();
-      } else {
-        const error = await res.json();
-        toast.error(error.error || 'Failed to delete');
-      }
-    } catch (err) {
-      toast.error('An error occurred');
+  const handleNext = () => {
+    if (pageInfo.hasNextPage && pageInfo.endCursor) {
+      setCursorHistory(prev => [...prev, currentCursor]);
+      setCurrentCursor(pageInfo.endCursor);
     }
   };
 
+  const handlePrev = () => {
+    if (cursorHistory.length > 0) {
+      const newHistory = [...cursorHistory];
+      const prevCursor = newHistory.pop();
+      setCursorHistory(newHistory);
+      setCurrentCursor(prevCursor);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    
+    try {
+      const res = await fetch(`/api/products/${deleteTarget.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        toast.success('Product deleted');
+        setDeleteTarget(null);
+        fetchProducts();
+      } else {
+        const error = await res.json();
+        toast.error(error.error || 'Failed to delete product');
+      }
+    } catch (err) {
+      toast.error('An error occurred');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const productList = Array.isArray(products) ? products : [];
+
   return (
-    <>
+    <div className="flex flex-col flex-1 w-full min-h-0">
       <Toaster position="top-right" />
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete Product"
+        description={`Are you sure you want to delete "${deleteTarget?.name || 'this product'}"? This action cannot be undone.`}
+        confirmText="Delete Product"
+        isLoading={isDeleting}
+      />
       <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
-        <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Inventory Management</h2>
+        <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Products</h2>
         <Link
           href="/admin/products/new"
           className="inline-flex items-center justify-center rounded-full bg-text-primary px-6 py-2.5 text-sm font-medium text-text-inverse shadow-sm hover:opacity-90 transition-colors"
@@ -57,10 +109,12 @@ export default function ProductClient() {
       </div>
 
       {loading ? (
-        <p className="text-text-muted">Loading...</p>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-text-muted">Loading...</p>
+        </div>
       ) : (
-        <div className="bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
-          <div className="overflow-x-auto">
+        <div className="flex-1 bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
+          <div className="flex-1 overflow-auto hide-scrollbar">
             <table className="min-w-full divide-y divide-black/5">
               <thead className="bg-background">
                 <tr>
@@ -73,7 +127,7 @@ export default function ProductClient() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 bg-surface">
-                {products.map((product) => (
+                {productList.map((product) => (
                   <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-medium text-text-primary">
                       {product.name}
@@ -98,7 +152,7 @@ export default function ProductClient() {
                       <Link href={`/admin/products/${product._id}/edit`} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
                         <Pencil className="h-4 w-4" />
                       </Link>
-                      <button onClick={() => handleDelete(product._id)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
+                      <button onClick={() => setDeleteTarget({ id: product._id, name: product.name })} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
@@ -107,15 +161,22 @@ export default function ProductClient() {
               </tbody>
             </table>
           </div>
-          {products.length === 0 && (
+          {productList.length === 0 && (
             <div className="text-center py-16">
               <Package className="mx-auto h-12 w-12 text-text-muted mb-4" />
               <h3 className="text-lg font-medium text-text-primary">No products found</h3>
               <p className="mt-1 text-sm text-text-muted">Get started by creating a new product.</p>
             </div>
           )}
+          <CursorPagination
+            onNext={handleNext}
+            onPrev={handlePrev}
+            hasNext={pageInfo.hasNextPage}
+            hasPrev={cursorHistory.length > 0}
+            isLoading={loading || isPaginating}
+          />
         </div>
       )}
-    </>
+    </div>
   );
 }

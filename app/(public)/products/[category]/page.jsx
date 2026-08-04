@@ -1,14 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
-import Category from '@/models/Category';
+import { getCategoryBySlug } from '@/modules/categories';
+import { getProductsByCategory } from '@/modules/products';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 export async function generateMetadata({ params }) {
   const { category: categorySlug } = await params;
-  await dbConnect();
-  const category = await Category.findOne({ slug: categorySlug }).lean();
+  const category = await getCategoryBySlug(categorySlug);
   
   if (!category) return { title: 'Category Not Found' };
   
@@ -20,14 +18,11 @@ export async function generateMetadata({ params }) {
 
 export default async function CategoryPage({ params }) {
   const { category: categorySlug } = await params;
-  await dbConnect();
+  
+  const category = await getCategoryBySlug(categorySlug);
+  if (!category) notFound();
 
-  const category = await Category.findOne({ slug: categorySlug }).lean();
-  if (!category) {
-    notFound();
-  }
-
-  const products = await Product.find({ category: category._id, status: 'published' }).lean();
+  const products = await getProductsByCategory(category._id);
 
   return (
     <div className="layout-main">

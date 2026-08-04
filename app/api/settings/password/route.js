@@ -1,19 +1,14 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import dbConnect from '@/lib/db';
-import Admin from '@/models/Admin';
-import { requireAuth, verifyToken } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
-export async function PUT(req) {
-  const authError = await requireAuth(req);
-  if (authError) return authError;
-
+export const PUT = withApiHandler(async (req) => {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth_token')?.value;
   const decoded = await verifyToken(token);
 
-  await dbConnect();
   const { currentPassword, newPassword } = await req.json();
 
   if (!currentPassword || !newPassword) {
@@ -23,14 +18,12 @@ export async function PUT(req) {
     return NextResponse.json({ error: 'New password must be at least 8 characters' }, { status: 400 });
   }
 
-  const admin = await Admin.findOne({ email: decoded.email });
-  if (!admin) return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
+  const { updateAdminPassword } = await import('@/modules/auth');
+  const result = await updateAdminPassword(decoded.email, currentPassword, newPassword);
 
-  const valid = await bcrypt.compare(currentPassword, admin.passwordHash);
-  if (!valid) return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
-
-  admin.passwordHash = await bcrypt.hash(newPassword, 12);
-  await admin.save();
+  if (result.error) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
 
   return NextResponse.json({ message: 'Password updated successfully' });
-}
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_SETTINGS });

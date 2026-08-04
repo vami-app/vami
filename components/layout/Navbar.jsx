@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { siteConfig } from '@/config/site';
 
 export default function Navbar({ categories = [] }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -37,52 +38,52 @@ export default function Navbar({ categories = [] }) {
         <div className="flex items-center justify-between w-full min-h-[var(--nav-block-h)]">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0" onClick={() => setIsMobileMenuOpen(false)}>
-              <span className="sr-only">Smalloys</span>
-              <span className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight font-headline">Smalloys</span>
+              <span className="sr-only">{siteConfig.name}</span>
+              <span className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight font-headline">{siteConfig.name}</span>
             </Link>
           </div>
           
           <div className="hidden lg:flex space-x-8 absolute left-1/2 -translate-x-1/2">
-            <Link href="/" className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary transition-colors">
-              Home
-            </Link>
-            <div className="relative group inline-block">
-              <button className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary inline-flex items-center transition-colors">
-                Products <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              <div className="absolute left-1/2 -translate-x-1/2 mt-6 w-64 rounded-2xl shadow-lg bg-surface border border-border-subtle opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 flex flex-col">
-                <Link
-                  href="/products"
-                  className="block px-4 py-2.5 text-sm font-semibold text-text-primary hover:bg-surface-muted transition-colors mx-2 rounded-lg mb-1 flex-shrink-0"
-                >
-                  View All Products
+            {siteConfig.mainNav.map((navItem) => {
+              if (navItem.hasDropdown) {
+                return (
+                  <div key={navItem.title} className="relative group inline-block">
+                    <button className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary inline-flex items-center transition-colors">
+                      {navItem.title} <ChevronDown className="ml-1 h-4 w-4" />
+                    </button>
+                    <div className="absolute left-1/2 -translate-x-1/2 mt-6 w-64 rounded-2xl shadow-lg bg-surface border border-border-subtle opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 flex flex-col">
+                      <Link
+                        href={navItem.href}
+                        className="block px-4 py-2.5 text-sm font-semibold text-text-primary hover:bg-surface-muted transition-colors mx-2 rounded-lg mb-1 flex-shrink-0"
+                      >
+                        View All {navItem.title}
+                      </Link>
+                      <div className="h-px bg-surface-subtle mx-4 mb-1 flex-shrink-0"></div>
+                      <div className="overflow-y-auto max-h-64" style={{ scrollbarWidth: 'thin' }}>
+                        {categories.map((category) => (
+                          <Link
+                            key={category._id}
+                            href={`${navItem.href}/${category.slug}`}
+                            className="block px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors mx-2 rounded-lg"
+                          >
+                            {category.name}
+                          </Link>
+                        ))}
+                        {categories.length === 0 && (
+                          <span className="block px-4 py-2.5 text-sm text-text-muted mx-2">No categories</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <Link key={navItem.title} href={navItem.href} className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary transition-colors">
+                  {navItem.title}
                 </Link>
-                <div className="h-px bg-surface-subtle mx-4 mb-1 flex-shrink-0"></div>
-                <div className="overflow-y-auto max-h-64" style={{ scrollbarWidth: 'thin' }}>
-                  {categories.map((category) => (
-                    <Link
-                      key={category._id}
-                      href={`/products/${category.slug}`}
-                      className="block px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors mx-2 rounded-lg"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                  {categories.length === 0 && (
-                    <span className="block px-4 py-2.5 text-sm text-text-muted mx-2">No categories</span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <Link href="/blog" className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary transition-colors">
-              Blog
-            </Link>
-            <Link href="/about" className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary transition-colors">
-              Contact
-            </Link>
+              );
+            })}
           </div>
 
           <div className="flex items-center space-x-2 sm:space-x-4">
@@ -112,50 +113,52 @@ export default function Navbar({ categories = [] }) {
         {/* Mobile menu - Inline accordion inside nav */}
         <div className={`w-full lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMobileMenuOpen ? 'max-h-[80vh] opacity-100 pb-6' : 'max-h-0 opacity-0 pb-0'}`}>
           <div className="pt-4 space-y-1 border-t border-border-subtle overflow-y-auto max-h-[70vh]">
-            <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-2xl text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
-              Home
-            </Link>
-            <div className="block">
-              <button 
-                type="button" 
-                onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-                className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary rounded-2xl transition-colors"
-              >
-                Products
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
-              </button>
-              
-              <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileProductsOpen ? 'max-h-[350px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="mt-1 mb-2 space-y-1 pl-4 border-l-2 border-surface-subtle ml-6 mr-4 overflow-y-auto max-h-[300px] pr-2" style={{ scrollbarWidth: 'thin' }}>
-                  <Link
-                    href="/products"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-4 py-2.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-surface-muted transition-colors"
-                  >
-                    View All Products
-                  </Link>
-                  {categories.map((category) => (
-                    <Link
-                      key={category._id}
-                      href={`/products/${category.slug}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors"
+            
+            {siteConfig.mainNav.map((navItem) => {
+              if (navItem.hasDropdown) {
+                return (
+                  <div key={navItem.title} className="block">
+                    <button 
+                      type="button" 
+                      onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
+                      className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary rounded-2xl transition-colors"
                     >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <Link href="/blog" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-2xl text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
-              Blog
-            </Link>
-            <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-2xl text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
-              About
-            </Link>
-            <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-2xl text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
-              Contact
-            </Link>
+                      {navItem.title}
+                      <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isMobileProductsOpen ? 'max-h-[350px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                      <div className="mt-1 mb-2 space-y-1 pl-4 border-l-2 border-surface-subtle ml-6 mr-4 overflow-y-auto max-h-[300px] pr-2" style={{ scrollbarWidth: 'thin' }}>
+                        <Link
+                          href={navItem.href}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="block px-4 py-2.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-surface-muted transition-colors"
+                        >
+                          View All {navItem.title}
+                        </Link>
+                        {categories.map((category) => (
+                          <Link
+                            key={category._id}
+                            href={`${navItem.href}/${category.slug}`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="block px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors"
+                          >
+                            {category.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <Link key={navItem.title} href={navItem.href} onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-2xl text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
+                  {navItem.title}
+                </Link>
+              );
+            })}
+
             <div className="mt-4 pt-4 border-t border-surface-subtle">
                <Link
                   href="/contact"

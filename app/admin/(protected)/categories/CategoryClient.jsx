@@ -3,12 +3,17 @@
 import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, Trash2, Plus } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function CategoryClient() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState(null);
+  
+  // Delete modal state
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({ name: '', slug: '', description: '', seoTitle: '', seoDescription: '' });
@@ -22,13 +27,16 @@ export default function CategoryClient() {
     try {
       const res = await fetch('/api/categories');
       const data = await res.json();
-      setCategories(data);
+      setCategories(Array.isArray(data) ? data : (data?.categories || []));
     } catch (err) {
       toast.error('Failed to load categories');
+      setCategories([]);
     } finally {
       setLoading(false);
     }
   };
+
+  const categoryList = Array.isArray(categories) ? categories : [];
 
   const handleOpenModal = (category = null) => {
     setCurrentCategory(category);
@@ -75,26 +83,39 @@ export default function CategoryClient() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this category?')) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
     
     try {
-      const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/categories/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) {
         toast.success('Category deleted');
+        setDeleteTarget(null);
         fetchCategories();
       } else {
         const error = await res.json();
-        toast.error(error.error || 'Failed to delete');
+        toast.error(error.error || 'Failed to delete category');
       }
     } catch (err) {
       toast.error('An error occurred');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   return (
-    <>
+    <div className="flex flex-col flex-1 w-full min-h-0">
       <Toaster position="top-right" />
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete Category"
+        description={`Are you sure you want to delete "${deleteTarget?.name || 'this category'}"? Products in this category may be affected.`}
+        confirmText="Delete Category"
+        isLoading={isDeleting}
+      />
       <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Categories</h2>
         <button
@@ -106,10 +127,12 @@ export default function CategoryClient() {
       </div>
 
       {loading ? (
-        <p className="text-text-muted">Loading...</p>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-text-muted">Loading...</p>
+        </div>
       ) : (
-        <div className="bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
-          <div className="overflow-x-auto">
+        <div className="flex-1 bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
+          <div className="flex-1 overflow-auto hide-scrollbar">
             <table className="min-w-full divide-y divide-black/5">
               <thead className="bg-background">
                 <tr>
@@ -121,7 +144,7 @@ export default function CategoryClient() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 bg-surface">
-                {categories.map((category) => (
+                {categoryList.map((category) => (
                   <tr key={category._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-medium text-text-primary">
                       {category.name}
@@ -135,7 +158,7 @@ export default function CategoryClient() {
                       <button onClick={() => handleOpenModal(category)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button onClick={() => handleDelete(category._id)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
+                      <button onClick={() => setDeleteTarget({ id: category._id, name: category.name })} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
@@ -144,7 +167,7 @@ export default function CategoryClient() {
               </tbody>
             </table>
           </div>
-          {categories.length === 0 && (
+          {categoryList.length === 0 && (
             <div className="text-center py-16">
               <h3 className="text-lg font-medium text-text-primary">No categories found</h3>
               <p className="mt-1 text-sm text-text-muted">Get started by creating a new category.</p>
@@ -240,6 +263,6 @@ export default function CategoryClient() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

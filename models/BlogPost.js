@@ -46,5 +46,11 @@ const BlogPostSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+// ─── INDEXES ────────────────────────────────────────────────────────
+// Compound index for querying published blogs sorted by date efficiently
+BlogPostSchema.index({ status: 1, publishedAt: -1 });
+
+// Compound index for cursor-based pagination (FAANG-grade keyset)
+BlogPostSchema.index({ publishedAt: -1, _id: -1 });
 
 export default mongoose.models.BlogPost || mongoose.model('BlogPost', BlogPostSchema);

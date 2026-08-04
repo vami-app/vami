@@ -1,47 +1,30 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
-import { BlogPostSchema } from '@/lib/validations';
-import { requireAuth } from '@/lib/auth';
+import { BlogPostSchema, formatZodIssues } from '@/lib/validations';
+import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
 
-export async function GET(req) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const status = searchParams.get('status');
-    
-    await dbConnect();
-    
-    let query = {};
-    if (status) {
-      query.status = status;
-    }
-    
-    const posts = await BlogPost.find(query).sort({ createdAt: -1 });
-    return NextResponse.json(posts);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch blog posts' }, { status: 500 });
+export const GET = withApiHandler(async (req) => {
+  const { searchParams } = new URL(req.url);
+  const cursor = searchParams.get('cursor') || null;
+  const limit = parseInt(searchParams.get('limit') || '20', 10);
+
+  const { getBlogListUncached } = await import('@/modules/blog');
+  const posts = await getBlogListUncached({ cursor, limit });
+  return NextResponse.json(posts);
+});
+
+export const POST = withApiHandler(async (req) => {
+  const body = await req.json();
+
+  const parsed = BlogPostSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: formatZodIssues(parsed.error) },
+      { status: 400 }
+    );
   }
-}
 
-export async function POST(req) {
-  try {
-    const authError = await requireAuth(req);
-    if (authError) return authError;
-
-    await dbConnect();
-    const body = await req.json();
-    
-    const parsed = BlogPostSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Validation failed', details: parsed.error.format() }, { status: 400 });
-    }
-
-    const post = await BlogPost.create(parsed.data);
-    return NextResponse.json(post, { status: 201 });
-  } catch (error) {
-    if (error.code === 11000) {
-      return NextResponse.json({ error: 'Blog post with this slug already exists' }, { status: 400 });
-    }
-    return NextResponse.json({ error: 'Failed to create blog post' }, { status: 500 });
-  }
-}
+  const { createBlogPost } = await import('@/modules/blog');
+  const post = await createBlogPost(parsed.data);
+  return NextResponse.json(post, { status: 201 });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_BLOG });

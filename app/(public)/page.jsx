@@ -2,23 +2,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Box } from "lucide-react";
-import dbConnect from "@/lib/db";
-import Product from "@/models/Product";
-import Category from "@/models/Category";
+import { getFeaturedProducts } from "@/modules/products";
+import { getAllCategories } from "@/modules/categories";
 
 export default async function HomePage() {
   let featuredProducts = [];
   let categories = [];
 
   try {
-    await dbConnect();
-    const featuredDocs = await Product.find({
-      status: "published",
-      featured: true,
-    })
-      .populate("category")
-      .limit(4)
-      .lean();
+    const featuredDocs = await getFeaturedProducts(4);
     featuredProducts = featuredDocs.map((p) => ({
       ...p,
       _id: p._id.toString(),
@@ -27,7 +19,7 @@ export default async function HomePage() {
         : null,
     }));
 
-    const categoryDocs = await Category.find().limit(6).lean();
+    const categoryDocs = await getAllCategories(6);
     categories = categoryDocs.map((c) => ({
       _id: c._id.toString(),
       name: c.name,

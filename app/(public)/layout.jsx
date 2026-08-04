@@ -1,18 +1,15 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import dbConnect from "@/lib/db";
-import Category from "@/models/Category";
+import { getAllCategories } from "@/services/category.service";
 
 export default async function PublicLayout({ children }) {
   let categories = [];
   try {
-    await dbConnect();
-    // Fetch categories for Navbar and Footer
-    const categoriesDocs = await Category.find().sort({ name: 1 }).lean();
+    const categoriesDocs = await getAllCategories();
 
     // Serialize for client components
-    categories = categoriesDocs.map((c) => ({
-      _id: c._id.toString(),
+    categories = (categoriesDocs || []).map((c) => ({
+      _id: String(c._id || ''),
       name: c.name,
       slug: c.slug,
     }));

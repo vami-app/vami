@@ -1,19 +1,15 @@
 import ProductForm from '../../ProductForm';
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
-import mongoose from 'mongoose';
+import { getProductById } from '@/modules/products';
 import { notFound } from 'next/navigation';
 
 export default async function EditProductPage({ params }) {
   const { id } = await params;
   
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!/^[0-9a-fA-F]{24}$/.test(id)) {
     notFound();
   }
 
-  await dbConnect();
-  
-  const rawProduct = await Product.findById(id).lean();
+  const rawProduct = await getProductById(id);
   if (!rawProduct) {
     notFound();
   }

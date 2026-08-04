@@ -1,43 +1,37 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import dbConnect from '@/lib/db';
-import Admin from '@/models/Admin';
-import { signToken } from '@/lib/auth';
-import { cookies } from 'next/headers';
+import { withApiHandler } from '@/lib/apiHandler';
+import { env } from '@/env.mjs';
 
-export async function POST(req) {
-  try {
-    const { email, password } = await req.json();
+// ─── Cookie Configuration ───────────────────────────────────────────────────
+// 4 hours: aligned with JWT ACCESS_TOKEN_EXPIRY in lib/auth.js.
+// Shorter than the previous 7 days to limit blast radius if token is stolen.
+// tokenVersion check in lib/auth.js provides instant revocation regardless.
+const COOKIE_MAX_AGE_SECONDS = 4 * 60 * 60; // 4 hours
 
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
-    }
+export const POST = withApiHandler(async (req) => {
+  const body = await req.json();
+  const { email, password } = body;
 
-    await dbConnect();
-    const admin = await Admin.findOne({ email: email.toLowerCase() });
-
-    if (!admin) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    const isValid = await bcrypt.compare(password, admin.passwordHash);
-    if (!isValid) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    const token = await signToken({ adminId: admin._id });
-    const cookieStore = await cookies();
-    
-    cookieStore.set('auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: '/',
-    });
-
-    return NextResponse.json({ message: 'Logged in successfully' });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  if (!email || !password) {
+    return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
   }
-}
+
+  const { authenticateAdmin } = await import('@/services/auth.service');
+  const result = await authenticateAdmin(email, password);
+
+  if (result.error) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+
+  const response = NextResponse.json({ message: 'Login successful' });
+
+  response.cookies.set('auth_token', result.token, {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: COOKIE_MAX_AGE_SECONDS,
+  });
+
+  return response;
+});

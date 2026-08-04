@@ -1,50 +1,32 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
-import { ProductSchema } from '@/lib/validations';
-import { requireAuth } from '@/lib/auth';
+import { ProductSchema, formatZodIssues } from '@/lib/validations';
+import { withApiHandler } from '@/lib/apiHandler';
+import { PERMISSIONS } from '@/lib/permissions';
+import { createProduct } from '@/modules/products';
 
-export async function GET(req) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const category = searchParams.get('category');
-    
-    await dbConnect();
-    
-    let query = {};
-    if (category) {
-      query.category = category;
-    }
-    
-    const products = await Product.find(query)
-      .populate('category', 'name slug')
-      .sort({ createdAt: -1 });
-      
-    return NextResponse.json(products);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+export const GET = withApiHandler(async (req) => {
+  const { searchParams } = new URL(req.url);
+  const category = searchParams.get('category') || null;
+  const cursor = searchParams.get('cursor') || null;
+  const limit = parseInt(searchParams.get('limit') || '20', 10);
+
+  const { getProductsList } = await import('@/modules/products');
+  const result = await getProductsList({ categoryId: category, cursor, limit });
+
+  return NextResponse.json(result);
+});
+
+export const POST = withApiHandler(async (req) => {
+  const body = await req.json();
+
+  const parsed = ProductSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: formatZodIssues(parsed.error) },
+      { status: 400 }
+    );
   }
-}
 
-export async function POST(req) {
-  try {
-    const authError = await requireAuth(req);
-    if (authError) return authError;
-
-    await dbConnect();
-    const body = await req.json();
-    
-    const parsed = ProductSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Validation failed', details: parsed.error.format() }, { status: 400 });
-    }
-
-    const product = await Product.create(parsed.data);
-    return NextResponse.json(product, { status: 201 });
-  } catch (error) {
-    if (error.code === 11000) {
-      return NextResponse.json({ error: 'Product with this slug already exists' }, { status: 400 });
-    }
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
-  }
-}
+  const product = await createProduct(parsed.data);
+  return NextResponse.json(product, { status: 201 });
+}, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_PRODUCTS });

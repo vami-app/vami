@@ -1,23 +1,15 @@
-import dbConnect from "@/lib/db";
-import Product from "@/models/Product";
-import Category from "@/models/Category";
+import { getProductBySlug } from "@/services/product.service";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check, Info } from "lucide-react";
 
 export async function generateMetadata({ params }) {
   const { category: categorySlug, slug: productSlug } = await params;
-  await dbConnect();
-
-  const category = await Category.findOne({ slug: categorySlug }).lean();
-  if (!category) return { title: "Product Not Found" };
-
-  const product = await Product.findOne({
-    slug: productSlug,
-    category: category._id,
-    status: "published",
-  }).lean();
-  if (!product) return { title: "Product Not Found" };
+  
+  const data = await getProductBySlug(categorySlug, productSlug);
+  if (!data) return { title: "Product Not Found" };
+  
+  const { product } = data;
 
   return {
     title: product.seoTitle || `${product.name} | Smalloys`,
@@ -34,17 +26,11 @@ export async function generateMetadata({ params }) {
 
 export default async function ProductDetailPage({ params }) {
   const { category: categorySlug, slug: productSlug } = await params;
-  await dbConnect();
-
-  const category = await Category.findOne({ slug: categorySlug }).lean();
-  if (!category) notFound();
-
-  const product = await Product.findOne({
-    slug: productSlug,
-    category: category._id,
-    status: "published",
-  }).lean();
-  if (!product) notFound();
+  
+  const data = await getProductBySlug(categorySlug, productSlug);
+  if (!data) notFound();
+  
+  const { product, category } = data;
 
   const jsonLd = {
     "@context": "https://schema.org",

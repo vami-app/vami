@@ -1,14 +1,12 @@
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
+import { getBlogPostBySlug } from '@/modules/blog';
 import { notFound } from 'next/navigation';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  await dbConnect();
+  const post = await getBlogPostBySlug(slug);
   
-  const post = await BlogPost.findOne({ slug, status: 'published' }).lean();
   if (!post) return { title: 'Post Not Found' };
   
   return {
@@ -24,9 +22,8 @@ export async function generateMetadata({ params }) {
 
 export default async function BlogDetailPage({ params }) {
   const { slug } = await params;
-  await dbConnect();
   
-  const post = await BlogPost.findOne({ slug, status: 'published' }).lean();
+  const post = await getBlogPostBySlug(slug);
   if (!post) notFound();
 
   const jsonLd = {
@@ -79,7 +76,7 @@ export default async function BlogDetailPage({ params }) {
               </div>
               <div className="flex items-center text-text-muted">
                 <Calendar className="h-4 w-4 mr-2" strokeWidth={1.5} />
-                <time dateTime={post.publishedAt?.toISOString()}>
+                <time dateTime={post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined}>
                   {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}
                 </time>
               </div>

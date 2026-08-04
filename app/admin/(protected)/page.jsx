@@ -1,16 +1,9 @@
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
-import BlogPost from '@/models/BlogPost';
-import Category from '@/models/Category';
+import { getDashboardStats } from '@/modules/admin';
 import { Package, FileText, FolderTree } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function AdminDashboard() {
-  await dbConnect();
-  
-  const productCount = await Product.countDocuments();
-  const blogCount = await BlogPost.countDocuments();
-  const categoryCount = await Category.countDocuments();
+  const { productCount, blogCount, categoryCount } = await getDashboardStats();
 
   const stats = [
     { name: 'Total Products', stat: productCount, icon: Package, href: '/admin/products' },
