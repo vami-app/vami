@@ -1,6 +1,5 @@
 import ProductForm from '../../ProductForm';
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
+import { getProductById } from '@/services/product.service';
 import mongoose from 'mongoose';
 import { notFound } from 'next/navigation';
 
@@ -11,9 +10,7 @@ export default async function EditProductPage({ params }) {
     notFound();
   }
 
-  await dbConnect();
-  
-  const rawProduct = await Product.findById(id).lean();
+  const rawProduct = await getProductById(id);
   if (!rawProduct) {
     notFound();
   }

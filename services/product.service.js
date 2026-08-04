@@ -3,11 +3,6 @@ import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
 
-/**
- * Fetches a published product by its slug and category slug.
- * Wrapped in React cache() to prevent duplicate database queries
- * during the same request lifecycle (e.g., generateMetadata + Page render).
- */
 export const getProductBySlug = cache(async (categorySlug, productSlug) => {
   await dbConnect();
 
@@ -23,4 +18,27 @@ export const getProductBySlug = cache(async (categorySlug, productSlug) => {
   if (!product) return null;
 
   return { product, category };
+});
+
+export const getProductsByCategory = cache(async (categoryId) => {
+  await dbConnect();
+  return await Product.find({ category: categoryId, status: 'published' }).lean();
+});
+
+export const getAllPublishedProducts = cache(async () => {
+  await dbConnect();
+  return await Product.find({ status: 'published' }).populate('category', 'name slug').sort({ createdAt: -1 }).lean();
+});
+
+export const getFeaturedProducts = cache(async (limit = 4) => {
+  await dbConnect();
+  return await Product.find({ status: 'published', featured: true })
+    .populate('category', 'name slug')
+    .limit(limit)
+    .lean();
+});
+
+export const getProductById = cache(async (id) => {
+  await dbConnect();
+  return await Product.findById(id).lean();
 });

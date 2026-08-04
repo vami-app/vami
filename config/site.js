@@ -7,4 +7,10 @@ export const siteConfig = {
     { title: 'About', href: '/about' },
     { title: 'Contact', href: '/contact' },
   ],
+  footerNav: [
+    { title: 'Products', href: '/products' },
+    { title: 'About', href: '/about' },
+    { title: 'Contact', href: '/contact' },
+    { title: 'Certificates', href: '/certificates' },
+  ],
 };

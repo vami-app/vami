@@ -1,6 +1,5 @@
 import BlogForm from '../../BlogForm';
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
+import { getBlogPostById } from '@/services/blog.service';
 import mongoose from 'mongoose';
 import { notFound } from 'next/navigation';
 
@@ -11,9 +10,7 @@ export default async function EditBlogPage({ params }) {
     notFound();
   }
 
-  await dbConnect();
-  
-  const rawPost = await BlogPost.findById(id).lean();
+  const rawPost = await getBlogPostById(id);
   if (!rawPost) {
     notFound();
   }

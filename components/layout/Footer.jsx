@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import { siteConfig } from '@/config/site';
 
 export default function Footer({ categories = [] }) {
   return (
@@ -46,10 +47,13 @@ export default function Footer({ categories = [] }) {
               <div className="lg:text-left w-full max-w-[200px]">
                 <h4 className="text-xs font-semibold text-text-primary tracking-[0.2em] uppercase mb-4">Company</h4>
                 <ul className="space-y-4">
-                  <li><Link href="/products" className="text-sm text-text-muted hover:text-text-primary font-light transition-colors">Products</Link></li>
-                  <li><Link href="/about" className="text-sm text-text-muted hover:text-text-primary font-light transition-colors">About</Link></li>
-                  <li><Link href="/contact" className="text-sm text-text-muted hover:text-text-primary font-light transition-colors">Contact</Link></li>
-                  <li><Link href="/certificates" className="text-sm text-text-muted hover:text-text-primary font-light transition-colors">Certificates</Link></li>
+                  {siteConfig.footerNav.map((link) => (
+                    <li key={link.title}>
+                      <Link href={link.href} className="text-sm text-text-muted hover:text-text-primary font-light transition-colors">
+                        {link.title}
+                      </Link>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

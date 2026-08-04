@@ -1,14 +1,12 @@
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
+import { getBlogPostBySlug } from '@/services/blog.service';
 import { notFound } from 'next/navigation';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  await dbConnect();
+  const post = await getBlogPostBySlug(slug);
   
-  const post = await BlogPost.findOne({ slug, status: 'published' }).lean();
   if (!post) return { title: 'Post Not Found' };
   
   return {
@@ -24,9 +22,8 @@ export async function generateMetadata({ params }) {
 
 export default async function BlogDetailPage({ params }) {
   const { slug } = await params;
-  await dbConnect();
   
-  const post = await BlogPost.findOne({ slug, status: 'published' }).lean();
+  const post = await getBlogPostBySlug(slug);
   if (!post) notFound();
 
   const jsonLd = {

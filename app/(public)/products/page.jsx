@@ -1,7 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
-import Category from '@/models/Category';
+import { getAllPublishedProducts } from '@/services/product.service';
 import Link from 'next/link';
 
 export const metadata = {
@@ -12,12 +10,7 @@ export const metadata = {
 export default async function AllProductsPage() {
   let productsDocs = [];
   try {
-    await dbConnect();
-    // Fetch all published products and populate the category
-    productsDocs = await Product.find({ status: 'published' })
-      .populate('category')
-      .sort({ createdAt: -1 })
-      .lean();
+    productsDocs = await getAllPublishedProducts();
   } catch (error) {
     console.error('Database connection failed on Products page render:', error.message);
   }

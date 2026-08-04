@@ -1,5 +1,4 @@
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
+import { getPublishedBlogPosts } from '@/services/blog.service';
 import Link from 'next/link';
 import { Calendar, ArrowRight } from 'lucide-react';
 
@@ -11,10 +10,7 @@ export const metadata = {
 export default async function BlogListingPage() {
   let posts = [];
   try {
-    await dbConnect();
-    const postDocs = await BlogPost.find({ status: 'published' })
-      .sort({ publishedAt: -1 })
-      .lean();
+    const postDocs = await getPublishedBlogPosts();
     posts = postDocs.map(post => ({
       ...post,
       _id: post._id.toString()
