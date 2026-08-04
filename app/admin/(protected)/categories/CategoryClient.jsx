@@ -105,7 +105,7 @@ export default function CategoryClient() {
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <Toaster position="top-right" />
       <ConfirmModal
         isOpen={Boolean(deleteTarget)}
@@ -127,10 +127,12 @@ export default function CategoryClient() {
       </div>
 
       {loading ? (
-        <p className="text-text-muted">Loading...</p>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-text-muted">Loading...</p>
+        </div>
       ) : (
-        <div className="bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
-          <div className="overflow-x-auto">
+        <div className="flex-1 bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
+          <div className="flex-1 overflow-auto hide-scrollbar">
             <table className="min-w-full divide-y divide-black/5">
               <thead className="bg-background">
                 <tr>
@@ -261,6 +263,6 @@ export default function CategoryClient() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

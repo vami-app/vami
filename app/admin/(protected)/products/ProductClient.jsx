@@ -87,7 +87,7 @@ export default function ProductClient() {
   const productList = Array.isArray(products) ? products : [];
 
   return (
-    <>
+    <div className="flex flex-col h-full">
       <Toaster position="top-right" />
       <ConfirmModal
         isOpen={Boolean(deleteTarget)}
@@ -99,7 +99,7 @@ export default function ProductClient() {
         isLoading={isDeleting}
       />
       <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
-        <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Inventory Management</h2>
+        <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Products</h2>
         <Link
           href="/admin/products/new"
           className="inline-flex items-center justify-center rounded-full bg-text-primary px-6 py-2.5 text-sm font-medium text-text-inverse shadow-sm hover:opacity-90 transition-colors"
@@ -109,10 +109,12 @@ export default function ProductClient() {
       </div>
 
       {loading ? (
-        <p className="text-text-muted">Loading...</p>
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-text-muted">Loading...</p>
+        </div>
       ) : (
-        <div className="bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
-          <div className="overflow-x-auto">
+        <div className="flex-1 bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
+          <div className="flex-1 overflow-auto hide-scrollbar">
             <table className="min-w-full divide-y divide-black/5">
               <thead className="bg-background">
                 <tr>
@@ -175,6 +177,6 @@ export default function ProductClient() {
           />
         </div>
       )}
-    </>
+    </div>
   );
 }

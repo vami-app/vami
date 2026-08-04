@@ -183,7 +183,7 @@ export default function AdminShell({ children, permissions = [] }) {
           Tablet+ (≥ md): outer gap re-appears, white card with border/shadow/radius.
         */}
         <main className="flex-1 w-full p-0 pb-20 md:p-[var(--gap)] overflow-hidden flex flex-col">
-          <div className="w-full h-full overflow-y-auto hide-scrollbar md:bg-surface md:border md:border-border-subtle md:rounded-[var(--outer-radius)] md:shadow-sm">
+          <div className="w-full h-full overflow-y-auto hide-scrollbar md:bg-surface md:border md:border-border-subtle md:rounded-[var(--outer-radius)] md:shadow-sm relative">
             <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-8 py-5 md:py-8 min-h-full">
               {children}
             </div>
