@@ -57,6 +57,7 @@ export default function SettingsClient() {
   const [savingPw, setSavingPw] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     fetch('/api/settings')
       .then((r) => r.json())
@@ -114,7 +115,7 @@ export default function SettingsClient() {
     }
   }
 
-  const SaveButton = ({ loading }) => (
+  const renderSaveButton = (loading) => (
     <button
       type="submit"
       disabled={loading}
@@ -125,7 +126,7 @@ export default function SettingsClient() {
     </button>
   );
 
-  const PwInput = ({ field, placeholder, autocomplete }) => (
+  const renderPwInput = ({ field, placeholder, autocomplete }) => (
     <div className="relative">
       <Input
         type={showPw[field] ? 'text' : 'password'}
@@ -229,7 +230,7 @@ export default function SettingsClient() {
               </section>
 
               <div className="pt-2">
-                <SaveButton loading={saving} />
+                {renderSaveButton(saving)}
               </div>
             </form>
           )}
@@ -268,7 +269,7 @@ export default function SettingsClient() {
                 </div>
               </section>
               <div className="pt-2">
-                <SaveButton loading={saving} />
+                {renderSaveButton(saving)}
               </div>
             </form>
           )}
@@ -323,13 +324,13 @@ export default function SettingsClient() {
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Change Password</h2>
                 <form onSubmit={changePassword} className="space-y-4">
                   <Field label="Current Password">
-                    <PwInput field="current" placeholder="Enter current password" autocomplete="current-password" />
+                    {renderPwInput({ field: 'current', placeholder: 'Enter current password', autocomplete: 'current-password' })}
                   </Field>
                   <Field label="New Password" hint="Minimum 8 characters">
-                    <PwInput field="new" placeholder="Enter new password" autocomplete="new-password" />
+                    {renderPwInput({ field: 'new', placeholder: 'Enter new password', autocomplete: 'new-password' })}
                   </Field>
                   <Field label="Confirm New Password">
-                    <PwInput field="confirm" placeholder="Re-enter new password" autocomplete="new-password" />
+                    {renderPwInput({ field: 'confirm', placeholder: 'Re-enter new password', autocomplete: 'new-password' })}
                   </Field>
                   <div className="pt-2">
                     <button

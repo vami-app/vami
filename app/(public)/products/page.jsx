@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+
 import { getAllPublishedProducts } from '@/modules/products';
 import ProductListInfinite from './ProductListInfinite';
 

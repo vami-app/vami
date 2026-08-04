@@ -6,10 +6,12 @@ export function proxy(request) {
   // Define strict Content Security Policy (PPR-compatible)
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ''};
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://res.cloudinary.com https://images.unsplash.com;
-    font-src 'self';
+    script-src 'self' 'unsafe-inline' https://vercel.live https://c.vercel-scripts.com ${isDev ? "'unsafe-eval'" : ''};
+    style-src 'self' 'unsafe-inline' https://vercel.live;
+    img-src 'self' blob: data: https://res.cloudinary.com https://images.unsplash.com https://vercel.live https://vercel.com;
+    font-src 'self' https://assets.vercel.com https://vercel.live;
+    connect-src 'self' https://vercel.live wss://ws-us3.pusher.com;
+    frame-src 'self' https://www.google.com https://vercel.live;
     object-src 'none';
     base-uri 'self';
     form-action 'self';
