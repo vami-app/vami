@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import Admin from '@/models/Admin';
 import { signToken } from '@/lib/auth';
-import { cookies } from 'next/headers';
 import { withApiHandler } from '@/lib/apiHandler';
+import { env } from '@/env.mjs';
 
 export const POST = withApiHandler(async (req) => {
   const { email, password } = await req.json();
@@ -19,15 +19,15 @@ export const POST = withApiHandler(async (req) => {
   if (!isValid) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
 
   const token = await signToken({ adminId: admin._id });
-  const cookieStore = await cookies();
+  const response = NextResponse.json({ message: 'Login successful' });
   
-  cookieStore.set('auth_token', token, {
+  response.cookies.set('auth_token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60, // 7 days
     path: '/',
   });
 
-  return NextResponse.json({ message: 'Logged in successfully' });
+  return response;
 });

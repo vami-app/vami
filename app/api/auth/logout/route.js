@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { withApiHandler } from '@/lib/apiHandler';
+import { env } from '@/env.mjs';
 
 export const POST = withApiHandler(async () => {
   const cookieStore = await cookies();
   cookieStore.set('auth_token', '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 0,
@@ -17,7 +18,7 @@ export const POST = withApiHandler(async () => {
   const response = NextResponse.json({ message: 'Logged out successfully' });
   response.cookies.set('auth_token', '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 0,

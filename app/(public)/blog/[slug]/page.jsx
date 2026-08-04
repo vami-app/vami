@@ -76,7 +76,7 @@ export default async function BlogDetailPage({ params }) {
               </div>
               <div className="flex items-center text-text-muted">
                 <Calendar className="h-4 w-4 mr-2" strokeWidth={1.5} />
-                <time dateTime={post.publishedAt?.toISOString()}>
+                <time dateTime={post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined}>
                   {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'N/A'}
                 </time>
               </div>

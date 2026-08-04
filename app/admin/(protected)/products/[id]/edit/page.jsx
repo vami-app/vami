@@ -1,12 +1,11 @@
 import ProductForm from '../../ProductForm';
 import { getProductById } from '@/services/product.service';
-import mongoose from 'mongoose';
 import { notFound } from 'next/navigation';
 
 export default async function EditProductPage({ params }) {
   const { id } = await params;
   
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!/^[0-9a-fA-F]{24}$/.test(id)) {
     notFound();
   }
 

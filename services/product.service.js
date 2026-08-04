@@ -1,44 +1,64 @@
-import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
 
-export const getProductBySlug = cache(async (categorySlug, productSlug) => {
-  await dbConnect();
+export const getProductBySlug = unstable_cache(
+  async (categorySlug, productSlug) => {
+    await dbConnect();
 
-  const category = await Category.findOne({ slug: categorySlug }).lean();
-  if (!category) return null;
+    const category = await Category.findOne({ slug: categorySlug }).lean();
+    if (!category) return null;
 
-  const product = await Product.findOne({
-    slug: productSlug,
-    category: category._id,
-    status: 'published',
-  }).lean();
+    const product = await Product.findOne({
+      slug: productSlug,
+      category: category._id,
+      status: 'published',
+    }).lean();
 
-  if (!product) return null;
+    if (!product) return null;
 
-  return { product, category };
-});
+    return { product, category };
+  },
+  ['product-by-slug'],
+  { tags: ['products', 'categories'], revalidate: 86400 }
+);
 
-export const getProductsByCategory = cache(async (categoryId) => {
-  await dbConnect();
-  return await Product.find({ category: categoryId, status: 'published' }).lean();
-});
+export const getProductsByCategory = unstable_cache(
+  async (categoryId) => {
+    await dbConnect();
+    return await Product.find({ category: categoryId, status: 'published' }).lean();
+  },
+  ['products-by-category'],
+  { tags: ['products'], revalidate: 86400 }
+);
 
-export const getAllPublishedProducts = cache(async () => {
-  await dbConnect();
-  return await Product.find({ status: 'published' }).populate('category', 'name slug').sort({ createdAt: -1 }).lean();
-});
+export const getAllPublishedProducts = unstable_cache(
+  async () => {
+    await dbConnect();
+    return await Product.find({ status: 'published' }).populate('category', 'name slug').sort({ createdAt: -1 }).lean();
+  },
+  ['all-published-products'],
+  { tags: ['products'], revalidate: 86400 }
+);
 
-export const getFeaturedProducts = cache(async (limit = 4) => {
-  await dbConnect();
-  return await Product.find({ status: 'published', featured: true })
-    .populate('category', 'name slug')
-    .limit(limit)
-    .lean();
-});
+export const getFeaturedProducts = unstable_cache(
+  async (limit = 4) => {
+    await dbConnect();
+    return await Product.find({ status: 'published', featured: true })
+      .populate('category', 'name slug')
+      .limit(limit)
+      .lean();
+  },
+  ['featured-products'],
+  { tags: ['products'], revalidate: 86400 }
+);
 
-export const getProductById = cache(async (id) => {
-  await dbConnect();
-  return await Product.findById(id).lean();
-});
+export const getProductById = unstable_cache(
+  async (id) => {
+    await dbConnect();
+    return await Product.findById(id).lean();
+  },
+  ['product-by-id'],
+  { tags: ['products'], revalidate: 86400 }
+);
