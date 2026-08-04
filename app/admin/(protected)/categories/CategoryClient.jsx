@@ -182,7 +182,7 @@ export default function CategoryClient() {
           <div className="fixed inset-0 bg-black/40 transition-opacity" onClick={() => setIsModalOpen(false)} aria-hidden="true" />
 
           {/* Modal Content Box */}
-          <div className="relative bg-surface rounded-2xl p-6 sm:p-8 shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-border-subtle z-10 animate-in zoom-in-95 duration-200">
+          <div className="relative bg-surface rounded-2xl p-6 sm:p-8 shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto hide-scrollbar border border-border-subtle z-10 animate-in zoom-in-95 duration-200">
             <h3 className="text-2xl font-headline font-light text-text-primary tracking-tight" id="modal-title">
               {currentCategory ? 'Edit Category' : 'New Category'}
             </h3>
