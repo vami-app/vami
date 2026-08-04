@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import { Suspense } from "react";
+
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -15,16 +16,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        {/*
-          ThemeProvider uses useState/useEffect (client-side state) from next-themes.
-          With cacheComponents: true (PPR), client-side dynamic state must be wrapped
-          in Suspense so the static shell can be emitted immediately.
-        */}
-        <Suspense>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Suspense>
             {children}
-          </ThemeProvider>
-        </Suspense>
+          </Suspense>
+        </ThemeProvider>
       </body>
     </html>
   );
