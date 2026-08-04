@@ -2,6 +2,7 @@ import { cacheTag, cacheLife, revalidateTag } from 'next/cache';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import { emit } from '@/lib/events';
+import { serializeDoc, serializeDocs } from '@/lib/serialize';
 
 // ─── READS (Cached via 'use cache' directive) ────────────────────────────────
 
@@ -14,9 +15,10 @@ export async function getPublishedBlogPosts() {
   cacheTag('blog');
   cacheLife('hours');
   await dbConnect();
-  return BlogPost.find({ status: 'published' })
+  const posts = await BlogPost.find({ status: 'published' })
     .sort({ publishedAt: -1, createdAt: -1 })
     .lean();
+  return serializeDocs(posts);
 }
 
 /**
@@ -28,7 +30,8 @@ export async function getBlogPostBySlug(slug) {
   cacheTag('blog', `post:${slug}`);
   cacheLife('hours');
   await dbConnect();
-  return BlogPost.findOne({ slug, status: 'published' }).lean();
+  const post = await BlogPost.findOne({ slug, status: 'published' }).lean();
+  return serializeDoc(post);
 }
 
 /**
@@ -39,19 +42,22 @@ export async function getBlogPostById(id) {
   cacheTag('blog', `post-id:${id}`);
   cacheLife('minutes');
   await dbConnect();
-  return BlogPost.findById(id).lean();
+  const post = await BlogPost.findById(id).lean();
+  return serializeDoc(post);
 }
 
 // ─── ADMIN QUERIES (Uncached — always fresh for admin views) ─────────────────
 
 export const getBlogListUncached = async () => {
   await dbConnect();
-  return BlogPost.find({}).sort({ createdAt: -1 }).lean();
+  const posts = await BlogPost.find({}).sort({ createdAt: -1 }).lean();
+  return serializeDocs(posts);
 };
 
 export const getBlogPostByIdUncached = async (id) => {
   await dbConnect();
-  return BlogPost.findById(id).lean();
+  const post = await BlogPost.findById(id).lean();
+  return serializeDoc(post);
 };
 
 // ─── MUTATIONS (Uncached + Cache Invalidation) ────────────────────────────────
@@ -62,7 +68,7 @@ export const createBlogPost = async (data) => {
   // Invalidate the entire blog cache so new post appears immediately
   revalidateTag('blog');
   revalidateTag('stats'); // Refresh dashboard counts
-  return post;
+  return serializeDoc(post.toObject ? post.toObject() : post);
 };
 
 export const updateBlogPost = async (id, data) => {
@@ -79,7 +85,7 @@ export const updateBlogPost = async (id, data) => {
     revalidateTag(`post-id:${id}`);
   }
 
-  return post;
+  return serializeDoc(post);
 };
 
 export const deleteBlogPost = async (id) => {
@@ -94,5 +100,5 @@ export const deleteBlogPost = async (id) => {
     emit('media:cleanup', post.coverImage ? [post.coverImage] : []);
   }
 
-  return post;
+  return serializeDoc(post);
 };

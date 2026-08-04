@@ -13,9 +13,10 @@ export default function BlogClient() {
     try {
       const res = await fetch('/api/blog');
       const data = await res.json();
-      setPosts(data);
+      setPosts(Array.isArray(data) ? data : (data?.posts || []));
     } catch (err) {
       toast.error('Failed to load posts');
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -42,6 +43,8 @@ export default function BlogClient() {
       toast.error('An error occurred');
     }
   };
+
+  const postList = Array.isArray(posts) ? posts : [];
 
   return (
     <>
@@ -73,7 +76,7 @@ export default function BlogClient() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 bg-surface">
-                {posts.map((post) => (
+                {postList.map((post) => (
                   <tr key={post._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-medium text-text-primary">
                       {post.title}
@@ -107,7 +110,7 @@ export default function BlogClient() {
               </tbody>
             </table>
           </div>
-          {posts.length === 0 && (
+          {postList.length === 0 && (
             <div className="text-center py-16">
               <h3 className="text-lg font-medium text-text-primary">No posts found</h3>
               <p className="mt-1 text-sm text-text-muted">Get started by creating a new blog post.</p>

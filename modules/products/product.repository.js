@@ -5,26 +5,30 @@
 import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
+import { serializeDoc, serializeDocs } from '@/lib/serialize';
 
 export const findPublishedProducts = async () => {
   await dbConnect();
-  return Product.find({ status: 'published' })
+  const products = await Product.find({ status: 'published' })
     .populate('category', 'name slug')
     .sort({ createdAt: -1 })
     .lean();
+  return serializeDocs(products);
 };
 
 export const findFeaturedProducts = async (limit = 4) => {
   await dbConnect();
-  return Product.find({ status: 'published', featured: true })
+  const products = await Product.find({ status: 'published', featured: true })
     .populate('category', 'name slug')
     .limit(limit)
     .lean();
+  return serializeDocs(products);
 };
 
 export const findProductsByCategory = async (categoryId) => {
   await dbConnect();
-  return Product.find({ category: categoryId, status: 'published' }).lean();
+  const products = await Product.find({ category: categoryId, status: 'published' }).lean();
+  return serializeDocs(products);
 };
 
 export const findProductBySlug = async (categorySlug, productSlug) => {
@@ -37,12 +41,13 @@ export const findProductBySlug = async (categorySlug, productSlug) => {
     status: 'published',
   }).lean();
   if (!product) return null;
-  return { product, category };
+  return { product: serializeDoc(product), category: serializeDoc(category) };
 };
 
 export const findProductById = async (id) => {
   await dbConnect();
-  return Product.findById(id).populate('category', 'name slug').lean();
+  const product = await Product.findById(id).populate('category', 'name slug').lean();
+  return serializeDoc(product);
 };
 
 export const findProductsPaginated = async ({ categoryId = null, page = 1, limit = 20 } = {}) => {
@@ -61,7 +66,7 @@ export const findProductsPaginated = async ({ categoryId = null, page = 1, limit
   ]);
 
   return {
-    products,
+    products: serializeDocs(products),
     pagination: {
       page,
       limit,
@@ -75,18 +80,21 @@ export const findProductsPaginated = async ({ categoryId = null, page = 1, limit
 
 export const insertProduct = async (data) => {
   await dbConnect();
-  return Product.create(data);
+  const product = await Product.create(data);
+  return serializeDoc(product.toObject ? product.toObject() : product);
 };
 
 export const patchProduct = async (id, data) => {
   await dbConnect();
-  return Product.findByIdAndUpdate(id, data, {
+  const product = await Product.findByIdAndUpdate(id, data, {
     new: true,
     runValidators: true,
   }).lean();
+  return serializeDoc(product);
 };
 
 export const removeProduct = async (id) => {
   await dbConnect();
-  return Product.findByIdAndDelete(id).lean();
+  const product = await Product.findByIdAndDelete(id).lean();
+  return serializeDoc(product);
 };

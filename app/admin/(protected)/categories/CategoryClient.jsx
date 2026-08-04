@@ -22,13 +22,16 @@ export default function CategoryClient() {
     try {
       const res = await fetch('/api/categories');
       const data = await res.json();
-      setCategories(data);
+      setCategories(Array.isArray(data) ? data : (data?.categories || []));
     } catch (err) {
       toast.error('Failed to load categories');
+      setCategories([]);
     } finally {
       setLoading(false);
     }
   };
+
+  const categoryList = Array.isArray(categories) ? categories : [];
 
   const handleOpenModal = (category = null) => {
     setCurrentCategory(category);
@@ -121,7 +124,7 @@ export default function CategoryClient() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 bg-surface">
-                {categories.map((category) => (
+                {categoryList.map((category) => (
                   <tr key={category._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-medium text-text-primary">
                       {category.name}
@@ -144,7 +147,7 @@ export default function CategoryClient() {
               </tbody>
             </table>
           </div>
-          {categories.length === 0 && (
+          {categoryList.length === 0 && (
             <div className="text-center py-16">
               <h3 className="text-lg font-medium text-text-primary">No categories found</h3>
               <p className="mt-1 text-sm text-text-muted">Get started by creating a new category.</p>

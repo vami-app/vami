@@ -1,6 +1,7 @@
 import { cacheTag, cacheLife, revalidateTag } from 'next/cache';
 import dbConnect from '@/lib/db';
 import SiteSettings from '@/models/SiteSettings';
+import { serializeDoc } from '@/lib/serialize';
 
 // ─── READS (Cached) ──────────────────────────────────────────────────────────
 
@@ -9,14 +10,16 @@ export async function getSiteSettings() {
   cacheTag('settings');
   cacheLife('hours');
   await dbConnect();
-  return (await SiteSettings.findById('site').lean()) || {};
+  const settings = await SiteSettings.findById('site').lean();
+  return serializeDoc(settings) || {};
 }
 
 // ─── ADMIN QUERIES (Uncached) ─────────────────────────────────────────────────
 
 export const getSiteSettingsUncached = async () => {
   await dbConnect();
-  return (await SiteSettings.findById('site').lean()) || {};
+  const settings = await SiteSettings.findById('site').lean();
+  return serializeDoc(settings) || {};
 };
 
 // ─── MUTATIONS ────────────────────────────────────────────────────────────────
@@ -30,5 +33,5 @@ export const updateSiteSettings = async (data) => {
   ).lean();
 
   revalidateTag('settings');
-  return settings;
+  return serializeDoc(settings);
 };

@@ -13,9 +13,16 @@ export default function ProductClient() {
     try {
       const res = await fetch('/api/products');
       const data = await res.json();
-      setProducts(data);
+      if (Array.isArray(data)) {
+        setProducts(data);
+      } else if (data && Array.isArray(data.products)) {
+        setProducts(data.products);
+      } else {
+        setProducts([]);
+      }
     } catch (err) {
       toast.error('Failed to load products');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -42,6 +49,8 @@ export default function ProductClient() {
       toast.error('An error occurred');
     }
   };
+
+  const productList = Array.isArray(products) ? products : [];
 
   return (
     <>
@@ -73,7 +82,7 @@ export default function ProductClient() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/5 bg-surface">
-                {products.map((product) => (
+                {productList.map((product) => (
                   <tr key={product._id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-medium text-text-primary">
                       {product.name}
@@ -107,7 +116,7 @@ export default function ProductClient() {
               </tbody>
             </table>
           </div>
-          {products.length === 0 && (
+          {productList.length === 0 && (
             <div className="text-center py-16">
               <Package className="mx-auto h-12 w-12 text-text-muted mb-4" />
               <h3 className="text-lg font-medium text-text-primary">No products found</h3>

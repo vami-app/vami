@@ -8,8 +8,8 @@ export default async function PublicLayout({ children }) {
     const categoriesDocs = await getAllCategories();
 
     // Serialize for client components
-    categories = categoriesDocs.map((c) => ({
-      _id: c._id.toString(),
+    categories = (categoriesDocs || []).map((c) => ({
+      _id: String(c._id || ''),
       name: c.name,
       slug: c.slug,
     }));

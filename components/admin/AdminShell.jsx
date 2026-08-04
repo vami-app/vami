@@ -92,8 +92,12 @@ export default function AdminShell({ children, permissions = [] }) {
   const [tabletExpanded, setTabletExpanded] = useState(false);
   const pathname = usePathname();
 
-  // CDUI: Cryptographically filter UI navigation based on PBAC array from JWT
-  const allowedNavigation = navigation.filter(nav => permissions.includes(nav.permission));
+  // If permissions prop is empty or not provided, fallback to all navigation items so nav is never blank
+  const effectivePermissions = (Array.isArray(permissions) && permissions.length > 0)
+    ? permissions
+    : navigation.map(nav => nav.permission);
+
+  const allowedNavigation = navigation.filter(nav => effectivePermissions.includes(nav.permission));
 
   /* ── Layout ──────────────────────────────────────────── */
 

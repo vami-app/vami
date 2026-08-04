@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
 import { emit } from '@/lib/events';
+import { serializeDoc, serializeDocs } from '@/lib/serialize';
 
 // ─── READS (Cached) ──────────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ export async function getProductBySlug(categorySlug, productSlug) {
   }).lean();
 
   if (!product) return null;
-  return { product, category };
+  return { product: serializeDoc(product), category: serializeDoc(category) };
 }
 
 /**
@@ -37,7 +38,8 @@ export async function getProductsByCategory(categoryId) {
   cacheTag('products', `category-products:${categoryId}`);
   cacheLife('hours');
   await dbConnect();
-  return Product.find({ category: categoryId, status: 'published' }).lean();
+  const products = await Product.find({ category: categoryId, status: 'published' }).lean();
+  return serializeDocs(products);
 }
 
 /**
@@ -48,10 +50,11 @@ export async function getAllPublishedProducts() {
   cacheTag('products', 'categories');
   cacheLife('hours');
   await dbConnect();
-  return Product.find({ status: 'published' })
+  const products = await Product.find({ status: 'published' })
     .populate('category', 'name slug')
     .sort({ createdAt: -1 })
     .lean();
+  return serializeDocs(products);
 }
 
 /**
@@ -62,10 +65,11 @@ export async function getFeaturedProducts(limit = 4) {
   cacheTag('products', 'categories');
   cacheLife('hours');
   await dbConnect();
-  return Product.find({ status: 'published', featured: true })
+  const products = await Product.find({ status: 'published', featured: true })
     .populate('category', 'name slug')
     .limit(limit)
     .lean();
+  return serializeDocs(products);
 }
 
 /**
@@ -76,7 +80,8 @@ export async function getProductById(id) {
   cacheTag('products', `product-id:${id}`);
   cacheLife('minutes');
   await dbConnect();
-  return Product.findById(id).lean();
+  const product = await Product.findById(id).lean();
+  return serializeDoc(product);
 }
 
 // ─── ADMIN QUERIES (Uncached + Paginated) ────────────────────────────────────
@@ -103,7 +108,7 @@ export const getProductsList = async ({ categoryId = null, page = 1, limit = 20 
   ]);
 
   return {
-    products,
+    products: serializeDocs(products),
     pagination: {
       page,
       limit,
@@ -117,7 +122,8 @@ export const getProductsList = async ({ categoryId = null, page = 1, limit = 20 
 
 export const getProductByIdUncached = async (id) => {
   await dbConnect();
-  return Product.findById(id).populate('category', 'name slug').lean();
+  const product = await Product.findById(id).populate('category', 'name slug').lean();
+  return serializeDoc(product);
 };
 
 // ─── MUTATIONS ────────────────────────────────────────────────────────────────
@@ -127,7 +133,7 @@ export const createProduct = async (data) => {
   const product = await Product.create(data);
   revalidateTag('products');
   revalidateTag('stats'); // Refresh dashboard counts
-  return product;
+  return serializeDoc(product.toObject ? product.toObject() : product);
 };
 
 export const updateProduct = async (id, data) => {
@@ -142,7 +148,7 @@ export const updateProduct = async (id, data) => {
     revalidateTag(`product-id:${id}`);
   }
 
-  return product;
+  return serializeDoc(product);
 };
 
 export const deleteProduct = async (id) => {
@@ -161,5 +167,5 @@ export const deleteProduct = async (id) => {
     emit('media:cleanup', allImages);
   }
 
-  return product;
+  return serializeDoc(product);
 };

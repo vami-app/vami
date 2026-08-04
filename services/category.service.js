@@ -2,6 +2,7 @@ import { cacheTag, cacheLife, revalidateTag } from 'next/cache';
 import dbConnect from '@/lib/db';
 import Category from '@/models/Category';
 import { emit } from '@/lib/events';
+import { serializeDoc, serializeDocs } from '@/lib/serialize';
 
 // ─── READS (Cached) ──────────────────────────────────────────────────────────
 
@@ -12,7 +13,8 @@ export async function getAllCategories(limit = 0) {
   await dbConnect();
   let query = Category.find({}).sort({ createdAt: -1 });
   if (limit) query = query.limit(limit);
-  return query.lean();
+  const categories = await query.lean();
+  return serializeDocs(categories);
 }
 
 export async function getCategoryBySlug(slug) {
@@ -20,14 +22,16 @@ export async function getCategoryBySlug(slug) {
   cacheTag('categories', `category:${slug}`);
   cacheLife('hours');
   await dbConnect();
-  return Category.findOne({ slug }).lean();
+  const category = await Category.findOne({ slug }).lean();
+  return serializeDoc(category);
 }
 
 // ─── ADMIN QUERIES (Uncached) ─────────────────────────────────────────────────
 
 export const getCategoryByIdUncached = async (id) => {
   await dbConnect();
-  return Category.findById(id).lean();
+  const category = await Category.findById(id).lean();
+  return serializeDoc(category);
 };
 
 // ─── MUTATIONS ────────────────────────────────────────────────────────────────
@@ -37,7 +41,7 @@ export const createCategory = async (data) => {
   const category = await Category.create(data);
   revalidateTag('categories');
   revalidateTag('stats'); // Refresh dashboard counts
-  return category;
+  return serializeDoc(category.toObject ? category.toObject() : category);
 };
 
 export const updateCategory = async (id, data) => {
@@ -52,7 +56,7 @@ export const updateCategory = async (id, data) => {
     revalidateTag(`category:${category.slug}`);
   }
 
-  return category;
+  return serializeDoc(category);
 };
 
 export const deleteCategory = async (id) => {
@@ -65,5 +69,5 @@ export const deleteCategory = async (id) => {
     emit('media:cleanup', category.image ? [category.image] : []);
   }
 
-  return category;
+  return serializeDoc(category);
 };

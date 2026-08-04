@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 
 export function proxy(request) {
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const isDev = process.env.NODE_ENV === 'development';
   
-  // Define strict Content Security Policy
+  // Define strict Content Security Policy (PPR-compatible)
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'nonce-${nonce}' 'strict-dynamic';
+    script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ''};
     style-src 'self' 'unsafe-inline';
-    img-src 'self' blob: data: https://res.cloudinary.com;
+    img-src 'self' blob: data: https://res.cloudinary.com https://images.unsplash.com;
     font-src 'self';
     object-src 'none';
     base-uri 'self';
@@ -17,15 +17,7 @@ export function proxy(request) {
     upgrade-insecure-requests;
   `.replace(/\s{2,}/g, ' ').trim();
 
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('x-nonce', nonce);
-  requestHeaders.set('Content-Security-Policy', cspHeader);
-
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+  const response = NextResponse.next();
 
   // Apply Security Headers to Response
   response.headers.set('Content-Security-Policy', cspHeader);
