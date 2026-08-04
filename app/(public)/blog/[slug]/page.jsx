@@ -1,4 +1,4 @@
-import { getBlogPostBySlug } from '@/services/blog.service';
+import { getBlogPostBySlug } from '@/modules/blog';
 import { notFound } from 'next/navigation';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';

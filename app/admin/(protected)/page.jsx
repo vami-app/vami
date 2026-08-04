@@ -1,4 +1,4 @@
-import { getDashboardStats } from '@/services/admin.service';
+import { getDashboardStats } from '@/modules/admin';
 import { Package, FileText, FolderTree } from 'lucide-react';
 import Link from 'next/link';
 

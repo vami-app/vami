@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { getCategoryBySlug } from '@/services/category.service';
-import { getProductsByCategory } from '@/services/product.service';
+import { getCategoryBySlug } from '@/modules/categories';
+import { getProductsByCategory } from '@/modules/products';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 

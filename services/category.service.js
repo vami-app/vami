@@ -1,58 +1,67 @@
-import { unstable_cache } from 'next/cache';
+import { cacheTag, cacheLife, revalidateTag } from 'next/cache';
 import dbConnect from '@/lib/db';
 import Category from '@/models/Category';
+import { emit } from '@/lib/events';
 
-/**
- * Fetches all categories.
- */
-export const getAllCategories = unstable_cache(
-  async (limit = 0) => {
-    await dbConnect();
-    let query = Category.find({}).sort({ createdAt: -1 });
-    if (limit) query = query.limit(limit);
-    return await query.lean();
-  },
-  ['all-categories'],
-  { tags: ['categories'], revalidate: 86400 }
-);
+// ─── READS (Cached) ──────────────────────────────────────────────────────────
 
-/**
- * Fetches a single category by slug.
- */
-export const getCategoryBySlug = unstable_cache(
-  async (slug) => {
-    await dbConnect();
-    return await Category.findOne({ slug }).lean();
-  },
-  ['category-by-slug'],
-  { tags: ['categories'], revalidate: 86400 }
-);
+export async function getAllCategories(limit = 0) {
+  'use cache';
+  cacheTag('categories');
+  cacheLife('hours');
+  await dbConnect();
+  let query = Category.find({}).sort({ createdAt: -1 });
+  if (limit) query = query.limit(limit);
+  return query.lean();
+}
 
-// ─── MUTATIONS & ADMIN QUERIES (Uncached) ─────────────────────────
-import { MediaService } from './media.service';
+export async function getCategoryBySlug(slug) {
+  'use cache';
+  cacheTag('categories', `category:${slug}`);
+  cacheLife('hours');
+  await dbConnect();
+  return Category.findOne({ slug }).lean();
+}
+
+// ─── ADMIN QUERIES (Uncached) ─────────────────────────────────────────────────
 
 export const getCategoryByIdUncached = async (id) => {
   await dbConnect();
-  return await Category.findById(id).lean();
+  return Category.findById(id).lean();
 };
+
+// ─── MUTATIONS ────────────────────────────────────────────────────────────────
 
 export const createCategory = async (data) => {
   await dbConnect();
-  return await Category.create(data);
+  const category = await Category.create(data);
+  revalidateTag('categories');
+  return category;
 };
 
 export const updateCategory = async (id, data) => {
   await dbConnect();
-  return await Category.findByIdAndUpdate(id, data, { new: true, runValidators: true }).lean();
+  const category = await Category.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  }).lean();
+
+  if (category) {
+    revalidateTag('categories');
+    revalidateTag(`category:${category.slug}`);
+  }
+
+  return category;
 };
 
 export const deleteCategory = async (id) => {
   await dbConnect();
   const category = await Category.findByIdAndDelete(id).lean();
-  
-  if (category && category.image) {
-    MediaService.deleteAssetsInBackground([category.image]);
+
+  if (category) {
+    revalidateTag('categories');
+    emit('media:cleanup', category.image ? [category.image] : []);
   }
-  
+
   return category;
 };

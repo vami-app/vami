@@ -1,5 +1,5 @@
 import ProductForm from '../../ProductForm';
-import { getProductById } from '@/services/product.service';
+import { getProductById } from '@/modules/products';
 import { notFound } from 'next/navigation';
 
 export default async function EditProductPage({ params }) {

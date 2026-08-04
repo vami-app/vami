@@ -1,5 +1,5 @@
 import BlogForm from '../../BlogForm';
-import { getBlogPostById } from '@/services/blog.service';
+import { getBlogPostById } from '@/modules/blog';
 import { notFound } from 'next/navigation';
 
 export default async function EditBlogPage({ params }) {

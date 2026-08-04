@@ -2,8 +2,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Box } from "lucide-react";
-import { getFeaturedProducts } from "@/services/product.service";
-import { getAllCategories } from "@/services/category.service";
+import { getFeaturedProducts } from "@/modules/products";
+import { getAllCategories } from "@/modules/categories";
 
 export default async function HomePage() {
   let featuredProducts = [];

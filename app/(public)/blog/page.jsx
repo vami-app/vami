@@ -1,4 +1,4 @@
-import { getPublishedBlogPosts } from '@/services/blog.service';
+import { getPublishedBlogPosts } from '@/modules/blog';
 import Link from 'next/link';
 import { Calendar, ArrowRight } from 'lucide-react';
 

@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { getAllPublishedProducts } from '@/services/product.service';
+import { getAllPublishedProducts } from '@/modules/products';
 import Link from 'next/link';
 
 export const metadata = {

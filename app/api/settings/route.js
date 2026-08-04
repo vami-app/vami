@@ -3,7 +3,7 @@ import { withApiHandler } from '@/lib/apiHandler';
 import { PERMISSIONS } from '@/lib/permissions';
 
 export const GET = withApiHandler(async () => {
-  const { getSiteSettingsUncached } = await import('@/services/settings.service');
+  const { getSiteSettingsUncached } = await import('@/modules/settings');
   const settings = await getSiteSettingsUncached();
   return NextResponse.json(settings);
 });
@@ -11,7 +11,7 @@ export const GET = withApiHandler(async () => {
 export const PUT = withApiHandler(async (req) => {
   const body = await req.json();
 
-  const { updateSiteSettings } = await import('@/services/settings.service');
+  const { updateSiteSettings } = await import('@/modules/settings');
   const settings = await updateSiteSettings(body);
 
   return NextResponse.json(settings);

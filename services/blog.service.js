@@ -1,73 +1,96 @@
-import { unstable_cache } from 'next/cache';
+import { cacheTag, cacheLife, revalidateTag } from 'next/cache';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
+import { emit } from '@/lib/events';
+
+// ─── READS (Cached via 'use cache' directive) ────────────────────────────────
 
 /**
- * Fetches all published blog posts.
+ * Fetches all published blog posts, sorted by publishedAt descending.
+ * Cache is tagged 'blog' — revalidated by revalidateTag('blog') on any mutation.
  */
-export const getPublishedBlogPosts = unstable_cache(
-  async () => {
-    await dbConnect();
-    return await BlogPost.find({ status: 'published' }).sort({ createdAt: -1 }).lean();
-  },
-  ['published-blog-posts'],
-  { tags: ['blog'], revalidate: 86400 }
-);
+export async function getPublishedBlogPosts() {
+  'use cache';
+  cacheTag('blog');
+  cacheLife('hours');
+  await dbConnect();
+  return BlogPost.find({ status: 'published' })
+    .sort({ publishedAt: -1, createdAt: -1 })
+    .lean();
+}
 
 /**
  * Fetches a single published blog post by slug.
+ * Individually tagged so a specific post can be precisely invalidated.
  */
-export const getBlogPostBySlug = unstable_cache(
-  async (slug) => {
-    await dbConnect();
-    return await BlogPost.findOne({ slug, status: 'published' }).lean();
-  },
-  ['blog-post-by-slug'],
-  { tags: ['blog'], revalidate: 86400 }
-);
+export async function getBlogPostBySlug(slug) {
+  'use cache';
+  cacheTag('blog', `post:${slug}`);
+  cacheLife('hours');
+  await dbConnect();
+  return BlogPost.findOne({ slug, status: 'published' }).lean();
+}
 
 /**
- * Fetches a single blog post by ID (for admin editing).
+ * Fetches a single blog post by ID (for admin editing — short cache).
  */
-export const getBlogPostById = unstable_cache(
-  async (id) => {
-    await dbConnect();
-    return await BlogPost.findById(id).lean();
-  },
-  ['blog-post-by-id'],
-  { tags: ['blog'], revalidate: 86400 }
-);
+export async function getBlogPostById(id) {
+  'use cache';
+  cacheTag('blog', `post-id:${id}`);
+  cacheLife('minutes');
+  await dbConnect();
+  return BlogPost.findById(id).lean();
+}
 
-// ─── MUTATIONS & ADMIN QUERIES (Uncached) ─────────────────────────
-import { MediaService } from './media.service';
+// ─── ADMIN QUERIES (Uncached — always fresh for admin views) ─────────────────
 
 export const getBlogListUncached = async () => {
   await dbConnect();
-  return await BlogPost.find({}).sort({ createdAt: -1 }).lean();
+  return BlogPost.find({}).sort({ createdAt: -1 }).lean();
 };
 
 export const getBlogPostByIdUncached = async (id) => {
   await dbConnect();
-  return await BlogPost.findById(id).lean();
+  return BlogPost.findById(id).lean();
 };
+
+// ─── MUTATIONS (Uncached + Cache Invalidation) ────────────────────────────────
 
 export const createBlogPost = async (data) => {
   await dbConnect();
-  return await BlogPost.create(data);
+  const post = await BlogPost.create(data);
+  // Invalidate the entire blog cache so new post appears immediately
+  revalidateTag('blog');
+  return post;
 };
 
 export const updateBlogPost = async (id, data) => {
   await dbConnect();
-  return await BlogPost.findByIdAndUpdate(id, data, { new: true, runValidators: true }).lean();
+  const post = await BlogPost.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  }).lean();
+
+  if (post) {
+    // Invalidate whole blog list + specific post cache entries
+    revalidateTag('blog');
+    revalidateTag(`post:${post.slug}`);
+    revalidateTag(`post-id:${id}`);
+  }
+
+  return post;
 };
 
 export const deleteBlogPost = async (id) => {
   await dbConnect();
   const post = await BlogPost.findByIdAndDelete(id).lean();
-  
-  if (post && post.coverImage) {
-    MediaService.deleteAssetsInBackground([post.coverImage]);
+
+  if (post) {
+    revalidateTag('blog');
+    revalidateTag(`post:${post.slug}`);
+    // Emit event — media cleanup listener registered in instrumentation.js
+    emit('media:cleanup', post.coverImage ? [post.coverImage] : []);
   }
-  
+
   return post;
 };

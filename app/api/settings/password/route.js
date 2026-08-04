@@ -18,7 +18,7 @@ export const PUT = withApiHandler(async (req) => {
     return NextResponse.json({ error: 'New password must be at least 8 characters' }, { status: 400 });
   }
 
-  const { updateAdminPassword } = await import('@/services/auth.service');
+  const { updateAdminPassword } = await import('@/modules/auth');
   const result = await updateAdminPassword(decoded.email, currentPassword, newPassword);
 
   if (result.error) {
