@@ -3,19 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  ChevronLeft, ChevronRight, LogOut,
-  LayoutDashboard, Package, FolderTree, FileText, Settings,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { adminConfig } from '@/config/admin';
 
-// Icons live here — never serialized over RSC boundary
-const navigation = [
-  { name: 'Dashboard',  href: '/admin',             icon: LayoutDashboard },
-  { name: 'Products',   href: '/admin/products',    icon: Package },
-  { name: 'Categories', href: '/admin/categories',  icon: FolderTree },
-  { name: 'Blog',       href: '/admin/blog',        icon: FileText },
-  { name: 'Settings',   href: '/admin/settings',    icon: Settings },
-];
+const navigation = adminConfig.navigation;
 
 // Sidebar nav links (desktop / tablet)
 function SidebarNavLinks({ showLabel, pathname }) {

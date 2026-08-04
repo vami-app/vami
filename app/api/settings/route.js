@@ -1,22 +1,15 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
 import SiteSettings from '@/models/SiteSettings';
-import { requireAuth } from '@/lib/auth';
+import { withApiHandler } from '@/lib/apiHandler';
 
-export async function GET() {
-  await dbConnect();
+export const GET = withApiHandler(async () => {
   const settings = await SiteSettings.findById('site').lean();
   return NextResponse.json(settings || {});
-}
+});
 
-export async function PUT(req) {
-  const authError = await requireAuth(req);
-  if (authError) return authError;
-
-  await dbConnect();
+export const PUT = withApiHandler(async (req) => {
   const body = await req.json();
 
-  // Upsert the singleton settings document
   const settings = await SiteSettings.findByIdAndUpdate(
     'site',
     { $set: body },
@@ -24,4 +17,4 @@ export async function PUT(req) {
   );
 
   return NextResponse.json(settings);
-}
+}, { requireAuth: true });

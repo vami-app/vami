@@ -1,19 +1,15 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import dbConnect from '@/lib/db';
 import Admin from '@/models/Admin';
-import { requireAuth, verifyToken } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
+import { withApiHandler } from '@/lib/apiHandler';
 
-export async function PUT(req) {
-  const authError = await requireAuth(req);
-  if (authError) return authError;
-
+export const PUT = withApiHandler(async (req) => {
   const cookieStore = await cookies();
   const token = cookieStore.get('auth_token')?.value;
   const decoded = await verifyToken(token);
 
-  await dbConnect();
   const { currentPassword, newPassword } = await req.json();
 
   if (!currentPassword || !newPassword) {
@@ -33,4 +29,4 @@ export async function PUT(req) {
   await admin.save();
 
   return NextResponse.json({ message: 'Password updated successfully' });
-}
+}, { requireAuth: true });
