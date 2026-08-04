@@ -87,7 +87,7 @@ export default function BlogClient() {
   const postList = Array.isArray(posts) ? posts : [];
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 w-full min-h-0">
       <Toaster position="top-right" />
       <ConfirmModal
         isOpen={Boolean(deleteTarget)}
