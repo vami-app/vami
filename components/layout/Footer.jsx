@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import { siteConfig } from '@/config/site';
+import { FooterYear } from './FooterYear';
 
 export default function Footer({ categories = [] }) {
   return (
@@ -67,7 +68,7 @@ export default function Footer({ categories = [] }) {
               Smalloys.
             </div>
             <div className="text-[10px] sm:text-xs text-text-muted font-light text-left">
-              &copy; {new Date().getFullYear()} Smalloys, Inc. All rights reserved.
+              &copy; <FooterYear /> Smalloys, Inc. All rights reserved.
             </div>
           </div>
 

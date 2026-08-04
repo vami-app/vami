@@ -11,13 +11,10 @@
  *
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
  */
-import dbConnect from '@/lib/db';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smalloys.com';
 
 export default async function sitemap() {
-  await dbConnect();
-
   // Lazy imports to avoid loading modules before DB is ready
   const [
     { getAllCategories } = {},

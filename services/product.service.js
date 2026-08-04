@@ -126,6 +126,7 @@ export const createProduct = async (data) => {
   await dbConnect();
   const product = await Product.create(data);
   revalidateTag('products');
+  revalidateTag('stats'); // Refresh dashboard counts
   return product;
 };
 
@@ -151,6 +152,7 @@ export const deleteProduct = async (id) => {
   if (product) {
     revalidateTag('products');
     revalidateTag(`product-id:${id}`);
+    revalidateTag('stats'); // Refresh dashboard counts
     // Collect all image URLs across main gallery + variants for cleanup
     const allImages = [
       ...(product.images || []),

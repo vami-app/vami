@@ -36,6 +36,7 @@ export const createCategory = async (data) => {
   await dbConnect();
   const category = await Category.create(data);
   revalidateTag('categories');
+  revalidateTag('stats'); // Refresh dashboard counts
   return category;
 };
 
@@ -60,6 +61,7 @@ export const deleteCategory = async (id) => {
 
   if (category) {
     revalidateTag('categories');
+    revalidateTag('stats'); // Refresh dashboard counts
     emit('media:cleanup', category.image ? [category.image] : []);
   }
 

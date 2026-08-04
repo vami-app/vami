@@ -61,6 +61,7 @@ export const createBlogPost = async (data) => {
   const post = await BlogPost.create(data);
   // Invalidate the entire blog cache so new post appears immediately
   revalidateTag('blog');
+  revalidateTag('stats'); // Refresh dashboard counts
   return post;
 };
 
@@ -88,6 +89,7 @@ export const deleteBlogPost = async (id) => {
   if (post) {
     revalidateTag('blog');
     revalidateTag(`post:${post.slug}`);
+    revalidateTag('stats'); // Refresh dashboard counts
     // Emit event — media cleanup listener registered in instrumentation.js
     emit('media:cleanup', post.coverImage ? [post.coverImage] : []);
   }
