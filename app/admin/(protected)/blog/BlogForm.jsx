@@ -10,6 +10,7 @@ import StarterKit from '@tiptap/starter-kit';
 export default function BlogForm({ initialData = null }) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
@@ -111,9 +112,10 @@ export default function BlogForm({ initialData = null }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 divide-y divide-border-subtle">
-      <Toaster position="top-right" />
-      <div className="space-y-8 divide-y divide-border-subtle">
+    <div className="bg-surface rounded-[var(--outer-radius)] p-8 sm:p-10 border border-border-subtle shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] transition-shadow duration-500 mb-12">
+      <form onSubmit={handleSubmit} className="space-y-8 divide-y divide-border-subtle">
+        <Toaster position="top-right" />
+        <div className="space-y-8 divide-y divide-border-subtle">
         
         <div>
           <div>
@@ -121,40 +123,74 @@ export default function BlogForm({ initialData = null }) {
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-4">
-              <label className="block text-sm font-medium text-text-secondary">Title</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Title</label>
               <div className="mt-1">
-                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm" />
+                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
               </div>
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-text-secondary">Status</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Status</label>
               <div className="mt-1">
-                <select name="status" value={formData.status} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm">
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                </select>
+                {isStatusOpen && (
+                  <div className="fixed inset-0 z-10" onClick={() => setIsStatusOpen(false)}></div>
+                )}
+                <div className={`relative ${isStatusOpen ? 'z-30' : 'z-10'}`}>
+                  <input type="hidden" name="status" value={formData.status} />
+                  <button 
+                    type="button" 
+                    onClick={() => setIsStatusOpen(!isStatusOpen)}
+                    className={`w-full py-3.5 px-5 bg-surface/50 border ${isStatusOpen ? 'border-text-primary ring-1 ring-text-primary bg-surface' : 'border-border-subtle hover:border-border-base'} rounded-2xl transition-all duration-300 outline-none text-left flex justify-between items-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]`}
+                  >
+                    <span className="text-text-primary font-medium capitalize">{formData.status}</span>
+                    <svg className={`h-4 w-4 text-text-muted transition-transform duration-300 ease-out ${isStatusOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </button>
+                  
+                  <div className={`absolute top-[calc(100%+8px)] left-0 w-full bg-surface/95 backdrop-blur-xl border border-border-base rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.08)] overflow-hidden p-2 transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.3,1)] ${isStatusOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
+                    <div className="space-y-1">
+                      {['draft', 'published'].map((option) => {
+                        const isSelected = formData.status === option;
+                        return (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() => {
+                              setFormData({ ...formData, status: option });
+                              setIsStatusOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 flex items-center justify-between capitalize ${isSelected ? 'bg-text-primary text-text-inverse font-medium shadow-md' : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary'}`}
+                          >
+                            {option}
+                            {isSelected && (
+                              <svg className="h-4 w-4 text-text-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary">Slug</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Slug</label>
               <div className="mt-1">
-                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm" />
+                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
               </div>
             </div>
 
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary">Excerpt</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Excerpt</label>
               <div className="mt-1">
-                <textarea name="excerpt" rows={2} value={formData.excerpt} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm" />
+                <textarea name="excerpt" rows={2} value={formData.excerpt} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
               </div>
             </div>
             
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary">Tags (comma separated)</label>
+              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Tags (comma separated)</label>
               <div className="mt-1">
-                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm" />
+                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
               </div>
             </div>
           </div>
@@ -195,13 +231,13 @@ export default function BlogForm({ initialData = null }) {
           </div>
           <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary">SEO Title</label>
-              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm" />
+              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Title</label>
+              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
               <p className="mt-1 text-xs text-text-muted">{formData.seoTitle.length}/60</p>
             </div>
             <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary">SEO Description</label>
-              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm" />
+              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Description</label>
+              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
               <p className="mt-1 text-xs text-text-muted">{formData.seoDescription.length}/160</p>
             </div>
           </div>
@@ -218,6 +254,7 @@ export default function BlogForm({ initialData = null }) {
           </button>
         </div>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }

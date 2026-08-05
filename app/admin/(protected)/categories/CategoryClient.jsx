@@ -189,11 +189,11 @@ export default function CategoryClient() {
             <div className="mt-6">
               <form onSubmit={handleSave} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">Name</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Name</label>
                   <input
                     type="text"
                     required
-                    className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.name}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -206,37 +206,37 @@ export default function CategoryClient() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">Slug</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Slug</label>
                   <input
                     type="text"
                     required
-                    className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">Description</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Description</label>
                   <textarea
-                    className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">SEO Title</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Title</label>
                   <input
                     type="text"
-                    className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.seoTitle}
                     onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
                   />
                   <p className="mt-1 text-xs text-text-muted">{formData.seoTitle.length}/60</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">SEO Description</label>
+                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Description</label>
                   <textarea
-                    className="block w-full py-3 px-4 bg-surface-muted border border-border-subtle rounded-xl focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface outline-none text-text-primary shadow-sm"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.seoDescription}
                     onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
                   />

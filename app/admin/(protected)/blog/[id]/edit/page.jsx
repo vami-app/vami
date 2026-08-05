@@ -1,10 +1,10 @@
-import BlogForm from '../../BlogForm';
-import { getBlogPostById } from '@/modules/blog';
-import { notFound } from 'next/navigation';
+import BlogForm from "../../BlogForm";
+import { getBlogPostById } from "@/modules/blog";
+import { notFound } from "next/navigation";
 
 export default async function EditBlogPage({ params }) {
   const { id } = await params;
-  
+
   if (!/^[0-9a-fA-F]{24}$/.test(id)) {
     notFound();
   }
@@ -18,11 +18,11 @@ export default async function EditBlogPage({ params }) {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-xl font-semibold text-text-primary">Edit Post: {post.title}</h1>
+        <h1 className="text-xl font-semibold text-text-primary">
+          Edit Post: {post.title}
+        </h1>
       </div>
-      <div className="bg-surface shadow px-4 py-5 sm:rounded-lg sm:p-6">
-        <BlogForm initialData={post} />
-      </div>
+      <BlogForm initialData={post} />
     </div>
   );
 }
