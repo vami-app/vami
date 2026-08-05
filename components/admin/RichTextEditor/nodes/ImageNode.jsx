@@ -84,6 +84,16 @@ export class ImageNode extends DecoratorNode {
   getAltText() { return this.__altText; }
   getCaption() { return this.__caption; }
 
+  setAltText(altText) {
+    const writable = this.getWritable();
+    writable.__altText = altText;
+  }
+
+  setCaption(caption) {
+    const writable = this.getWritable();
+    writable.__caption = caption;
+  }
+
   // ── Serialization (required for MongoDB persistence) ──────────────────────
 
   static importJSON(serializedNode) {

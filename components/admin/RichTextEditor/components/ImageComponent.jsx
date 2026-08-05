@@ -22,6 +22,7 @@
  */
 import { useCallback, useRef, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { $getNodeByKey } from 'lexical';
 import { $isImageNode } from '../nodes/ImageNode';
 
@@ -34,7 +35,7 @@ export function ImageComponent({
   nodeKey,
 }) {
   const [editor] = useLexicalComposerContext();
-  const [isSelected, setIsSelected] = useState(false);
+  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
   const [isEditingAlt, setIsEditingAlt] = useState(false);
   const [localAlt, setLocalAlt] = useState(altText);
   const [localCaption, setLocalCaption] = useState(caption);
@@ -48,8 +49,7 @@ export function ImageComponent({
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isImageNode(node)) {
-        const writable = node.getWritable();
-        writable.__altText = localAlt;
+        node.setAltText(localAlt);
       }
     });
   }, [editor, nodeKey, localAlt, altText]);
@@ -61,26 +61,42 @@ export function ImageComponent({
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
       if ($isImageNode(node)) {
-        const writable = node.getWritable();
-        writable.__caption = value;
+        node.setCaption(value);
       }
     });
   }, [editor, nodeKey]);
 
   // ── Delete node ────────────────────────────────────────────────────────────
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback((e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if ($isImageNode(node)) node.remove();
+      if ($isImageNode(node)) {
+        node.remove();
+      }
     });
   }, [editor, nodeKey]);
+
+  const handleWrapperClick = useCallback((e) => {
+    e.stopPropagation();
+    setSelected(true);
+  }, [setSelected]);
+
+  const handleBlur = useCallback((e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setSelected(false);
+    }
+  }, [setSelected]);
 
   return (
     <div
       className={`editor-image-wrapper ${isSelected ? 'editor-image-wrapper--selected' : ''}`}
-      onClick={() => setIsSelected(true)}
-      onBlur={() => setIsSelected(false)}
+      onClick={handleWrapperClick}
+      onBlur={handleBlur}
       tabIndex={0}
       role="figure"
       aria-label={`Image: ${localAlt || 'No alt text'}`}
@@ -121,7 +137,11 @@ export function ImageComponent({
           ) : (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setIsEditingAlt(true); }}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditingAlt(true);
+              }}
               className="editor-image-control-btn"
               aria-label="Edit alt text"
               title="Edit alt text"
@@ -133,7 +153,8 @@ export function ImageComponent({
           {/* Delete button */}
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleDelete}
             className="editor-image-control-btn editor-image-control-btn--delete"
             aria-label="Delete image"
             title="Delete image"
@@ -152,6 +173,7 @@ export function ImageComponent({
           placeholder="Add a caption (optional)..."
           className="editor-image-caption"
           aria-label="Image caption"
+          onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         />
       </figcaption>
