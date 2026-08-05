@@ -40,7 +40,6 @@ export const POST = withApiHandler(async (req) => {
     folder: cloudFolder,
     allowed_formats: 'jpg,jpeg,png,gif,webp',
     format: 'webp',
-    quality: 'auto:good',
   };
 
   const signature = generateUploadSignature(paramsToSign);
@@ -53,6 +52,5 @@ export const POST = withApiHandler(async (req) => {
     folder: cloudFolder,
     allowed_formats: paramsToSign.allowed_formats,
     format: paramsToSign.format,
-    quality: paramsToSign.quality,
   });
 }, { requireAuth: true, requiredPermission: PERMISSIONS.MANAGE_MEDIA });

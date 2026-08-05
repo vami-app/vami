@@ -38,11 +38,13 @@ export function OnChangePlugin({ onChange, ignoreInitialChange = true }) {
       // Skip no-op updates — selection changes, focus/blur, etc.
       if (dirtyElements.size === 0 && dirtyLeaves.size === 0) return;
 
+      let json, html;
       editorState.read(() => {
-        const json = editorState.toJSON();
-        const html = $generateHtmlFromNodes(editor, null);
-        onChange({ json, html });
+        json = editorState.toJSON();
+        html = $generateHtmlFromNodes(editor, null);
       });
+
+      onChange({ json, html });
     });
   }, [editor, onChange, ignoreInitialChange]);
 

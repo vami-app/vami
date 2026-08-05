@@ -8,9 +8,9 @@ export function proxy(request) {
     default-src 'self';
     script-src 'self' 'unsafe-inline' https://vercel.live https://c.vercel-scripts.com ${isDev ? "'unsafe-eval'" : ''};
     style-src 'self' 'unsafe-inline' https://vercel.live;
-    img-src 'self' blob: data: https://res.cloudinary.com https://images.unsplash.com https://vercel.live https://vercel.com;
+    img-src 'self' blob: data: https://*.cloudinary.com https://res.cloudinary.com https://images.unsplash.com https://vercel.live https://vercel.com;
     font-src 'self' https://assets.vercel.com https://vercel.live;
-    connect-src 'self' https://vercel.live wss://ws-us3.pusher.com;
+    connect-src 'self' https://*.cloudinary.com https://api.cloudinary.com https://vercel.live wss://ws-us3.pusher.com;
     frame-src 'self' https://www.google.com https://vercel.live;
     object-src 'none';
     base-uri 'self';

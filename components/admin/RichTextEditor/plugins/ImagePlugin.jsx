@@ -116,7 +116,7 @@ export function ImagePlugin({ showButton = false }) {
         throw new Error(err.error || 'Failed to get upload signature');
       }
 
-      const { signature, timestamp, cloudName, apiKey, folder, allowed_formats, format, quality } =
+      const { signature, timestamp, cloudName, apiKey, folder, allowed_formats, format } =
         await signRes.json();
 
       // Step 2: Upload directly to Cloudinary CDN (file never touches our server)
@@ -128,7 +128,6 @@ export function ImagePlugin({ showButton = false }) {
       formData.append('folder', folder);
       formData.append('allowed_formats', allowed_formats);
       formData.append('format', format);
-      formData.append('quality', quality);
 
       const uploadRes = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,

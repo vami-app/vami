@@ -46,6 +46,7 @@ import { ListNode } from '@lexical/list';
 import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
 import { TableInsertButton } from './TablePlugin';
 import { $createCodeNode } from '@lexical/code';
+import { toast } from 'react-hot-toast';
 
 
 
@@ -82,18 +83,21 @@ export function ToolbarPlugin() {
   // ─── Selection listener — runs on every editor state update ─────────────
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
+      let formats = null;
+      let detectedBlockType = null;
+
       editorState.read(() => {
         const selection = $getSelection();
         if (!$isRangeSelection(selection)) return;
 
         // Inline format state
-        setActiveFormats({
+        formats = {
           bold: selection.hasFormat('bold'),
           italic: selection.hasFormat('italic'),
           underline: selection.hasFormat('underline'),
           strikethrough: selection.hasFormat('strikethrough'),
           code: selection.hasFormat('code'),
-        });
+        };
 
         // Block type detection
         const anchorNode = selection.anchor.getNode();
@@ -115,18 +119,19 @@ export function ToolbarPlugin() {
         if (elementDOM !== null) {
           if ($isListNode(element)) {
             const parentList = $getNearestNodeOfType(anchorNode, ListNode);
-            const type = parentList
+            detectedBlockType = parentList
               ? parentList.getListType()
               : element.getListType();
-            setBlockType(type); // 'bullet' or 'number'
           } else {
-            const type = $isHeadingNode(element)
+            detectedBlockType = $isHeadingNode(element)
               ? element.getTag()
               : element.getType();
-            setBlockType(type);
           }
         }
       });
+
+      if (formats) setActiveFormats(formats);
+      if (detectedBlockType) setBlockType(detectedBlockType);
     });
   }, [editor]);
 
@@ -166,7 +171,7 @@ export function ToolbarPlugin() {
       });
       if (!signRes.ok) throw new Error('Failed to get upload signature');
 
-      const { signature, timestamp, cloudName, apiKey, folder, allowed_formats, format, quality } =
+      const { signature, timestamp, cloudName, apiKey, folder, allowed_formats, format } =
         await signRes.json();
 
       // Upload directly to Cloudinary CDN (no file relay through our server)
@@ -178,13 +183,15 @@ export function ToolbarPlugin() {
       fd.append('folder', folder);
       fd.append('allowed_formats', allowed_formats);
       fd.append('format', format);
-      fd.append('quality', quality);
 
       const uploadRes = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         { method: 'POST', body: fd }
       );
-      if (!uploadRes.ok) throw new Error('Upload failed');
+      if (!uploadRes.ok) {
+        const errData = await uploadRes.json().catch(() => ({}));
+        throw new Error(errData.error?.message || 'Upload to Cloudinary failed');
+      }
       const data = await uploadRes.json();
 
       // Insert ImageNode at current selection via command
@@ -195,8 +202,10 @@ export function ToolbarPlugin() {
         height: 'auto',
         caption: '',
       });
+      toast.success('Image uploaded successfully');
     } catch (err) {
       console.error('[ToolbarPlugin] Image upload failed:', err);
+      toast.error(err.message || 'Image upload failed');
     } finally {
       setIsUploadingImage(false);
     }

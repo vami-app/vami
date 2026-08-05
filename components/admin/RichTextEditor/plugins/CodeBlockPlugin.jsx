@@ -23,7 +23,7 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_LOW } from 'lexical';
+import { $getSelection, $isRangeSelection, $getNodeByKey, COMMAND_PRIORITY_LOW } from 'lexical';
 import { $isCodeNode, registerCodeHighlighting } from '@lexical/code';
 
 const SUPPORTED_LANGUAGES = [
@@ -59,26 +59,28 @@ export function CodeBlockPlugin() {
   // Track when cursor enters/leaves a CodeNode to show the language switcher
   useEffect(() => {
     return editor.registerUpdateListener(({ editorState }) => {
+      let codeNodeKey = null;
+      let lang = 'javascript';
+
       editorState.read(() => {
         const selection = $getSelection();
-        if (!$isRangeSelection(selection)) {
-          setActiveCodeNode(null);
-          return;
-        }
+        if (!$isRangeSelection(selection)) return;
 
         const anchorNode = selection.anchor.getNode();
         // Walk up the tree to find a CodeNode parent
         let node = anchorNode;
         while (node !== null) {
           if ($isCodeNode(node)) {
-            setActiveCodeNode(node.getKey());
-            setActiveLanguage(node.getLanguage() ?? 'javascript');
+            codeNodeKey = node.getKey();
+            lang = node.getLanguage() ?? 'javascript';
             return;
           }
           node = node.getParent?.() ?? null;
         }
-        setActiveCodeNode(null);
       });
+
+      setActiveCodeNode(codeNodeKey);
+      if (codeNodeKey) setActiveLanguage(lang);
     });
   }, [editor]);
 
@@ -87,7 +89,6 @@ export function CodeBlockPlugin() {
     if (!activeCodeNode) return;
     setActiveLanguage(language);
     editor.update(() => {
-      const { $getNodeByKey } = require('lexical');
       const node = $getNodeByKey(activeCodeNode);
       if ($isCodeNode(node)) {
         node.setLanguage(language);
