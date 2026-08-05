@@ -37,9 +37,9 @@ export default function Navbar({ categories = [] }) {
       >
         <div className="flex items-center justify-between w-full min-h-[var(--nav-block-h)]">
           <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0" onClick={() => setIsMobileMenuOpen(false)}>
+            <Link href="/" className="flex-shrink-0 flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
+              <img src="/images/logo.png" alt={siteConfig.name} className="h-10 sm:h-12 w-auto object-contain" />
               <span className="sr-only">{siteConfig.name}</span>
-              <span className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight font-headline">{siteConfig.name}</span>
             </Link>
           </div>
           

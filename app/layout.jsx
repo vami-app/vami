@@ -6,8 +6,9 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Smalloys - Premium Product Catalog",
-  description: "Browse our premium selection of materials and products.",
+  title: "Radhey Metal Alloys LLP | Non-Ferrous Sheet, Plate & Casting Manufacturer",
+  description: "Radhey Metal Alloys LLP manufactures NABL certified Copper, Brass & Phosphor Bronze sheets, plates, circles, ingots, and custom castings.",
+  keywords: "Radhey Metal Alloys LLP, Copper sheets, ETP C11000, DHP C12200, Brass plates, Naval Brass C464, Free-cutting brass C360, Phosphor Bronze C52100, non-ferrous ingots, copper casting, metal manufacturer Gujarat",
 };
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
