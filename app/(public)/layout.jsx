@@ -1,6 +1,7 @@
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { getAllCategories } from "@/services/category.service";
+import FloatingContactButton from "@/components/ui/FloatingContactButton";
 
 export default async function PublicLayout({ children }) {
   let categories = [];
@@ -21,10 +22,11 @@ export default async function PublicLayout({ children }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface">
+    <div className="flex flex-col min-h-screen bg-surface relative">
       <Navbar categories={categories} />
       <main className="flex-grow">{children}</main>
       <Footer categories={categories} />
+      <FloatingContactButton />
     </div>
   );
 }

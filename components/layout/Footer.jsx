@@ -23,7 +23,7 @@ export default function Footer({ categories = [] }) {
               </div>
               
               {/* Quick Links */}
-              <div className="lg:w-7/12 grid grid-cols-2 gap-8 lg:justify-items-end lg:text-right">
+              <div className="lg:w-7/12 grid grid-cols-1 sm:grid-cols-2 gap-8 lg:justify-items-end lg:text-right">
                 <div className="lg:text-left w-full max-w-[280px]">
                   <h4 className="text-xs font-semibold text-text-primary tracking-[0.2em] uppercase mb-4">Info</h4>
                   <ul className="space-y-4">
