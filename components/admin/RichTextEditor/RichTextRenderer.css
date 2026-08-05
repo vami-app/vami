@@ -134,6 +134,22 @@
   display: block;
 }
 
+.rte-output figure {
+  margin: 1.5em 0;
+}
+
+.rte-output figure img {
+  margin: 0;
+}
+
+.rte-output figcaption {
+  margin-top: 0.5em;
+  font-size: 0.875em;
+  color: var(--color-text-muted, hsl(220, 10%, 55%));
+  text-align: center;
+  font-style: italic;
+}
+
 /* ─── Horizontal rule ────────────────────────────────────────────────────────── */
 
 .rte-output hr {

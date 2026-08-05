@@ -15,8 +15,11 @@
  * - Block type dropdown uses a <select> for keyboard accessibility.
  * - All formatting commands go through editor.dispatchCommand() — never direct
  *   DOM manipulation. This ensures undo/redo and collaboration stay in sync.
+ * - Image upload: toolbar owns its own hidden file input. Uses signed direct
+ *   Cloudinary uploads (/api/upload/sign) and dispatches INSERT_IMAGE_COMMAND
+ *   after successful upload — fully decoupled from ImagePlugin.
  */
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
@@ -40,6 +43,11 @@ import {
 } from '@lexical/list';
 import { $getNearestNodeOfType, $findMatchingParent } from '@lexical/utils';
 import { ListNode } from '@lexical/list';
+import { INSERT_IMAGE_COMMAND } from './ImagePlugin';
+import { TableInsertButton } from './TablePlugin';
+import { $createCodeNode } from '@lexical/code';
+
+
 
 // ─── Block type label map ──────────────────────────────────────────────────
 const BLOCK_TYPE_LABELS = {
@@ -50,26 +58,26 @@ const BLOCK_TYPE_LABELS = {
   quote: 'Quote',
   bullet: 'Bullet List',
   number: 'Numbered List',
+  code: 'Code Block',
 };
+
+
+const ALLOWED_IMAGE_MIME = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']);
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+
 
 export function ToolbarPlugin() {
   const [editor] = useLexicalComposerContext();
 
-  // Active inline format state — drives aria-pressed on toggle buttons
   const [activeFormats, setActiveFormats] = useState({
-    bold: false,
-    italic: false,
-    underline: false,
-    strikethrough: false,
-    code: false,
+    bold: false, italic: false, underline: false, strikethrough: false, code: false,
   });
-
-  // Current block type — drives the block type <select>
   const [blockType, setBlockType] = useState('paragraph');
-
-  // Undo/redo availability
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const imageFileInputRef = useRef(null);
+
 
   // ─── Selection listener — runs on every editor state update ─────────────
   useEffect(() => {
@@ -137,7 +145,64 @@ export function ToolbarPlugin() {
     return () => { unsubUndo(); unsubRedo(); };
   }, [editor]);
 
-  // ─── Format block type ────────────────────────────────────────────────────
+  // ── Image upload handler ──────────────────────────────────────────────────
+  const handleImageFileChange = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input so same file can be re-selected on retry
+    if (imageFileInputRef.current) imageFileInputRef.current.value = '';
+
+    if (!ALLOWED_IMAGE_MIME.has(file.type)) return;
+    if (file.size > MAX_IMAGE_SIZE) return;
+
+    setIsUploadingImage(true);
+    try {
+      // Get signed upload params from our server
+      const signRes = await fetch('/api/upload/sign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folder: 'blog' }),
+      });
+      if (!signRes.ok) throw new Error('Failed to get upload signature');
+
+      const { signature, timestamp, cloudName, apiKey, folder, allowed_formats, format, quality } =
+        await signRes.json();
+
+      // Upload directly to Cloudinary CDN (no file relay through our server)
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('signature', signature);
+      fd.append('timestamp', timestamp);
+      fd.append('api_key', apiKey);
+      fd.append('folder', folder);
+      fd.append('allowed_formats', allowed_formats);
+      fd.append('format', format);
+      fd.append('quality', quality);
+
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        { method: 'POST', body: fd }
+      );
+      if (!uploadRes.ok) throw new Error('Upload failed');
+      const data = await uploadRes.json();
+
+      // Insert ImageNode at current selection via command
+      editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+        src: data.secure_url,
+        altText: file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
+        width: data.width ? `${Math.min(data.width, 800)}px` : 'auto',
+        height: 'auto',
+        caption: '',
+      });
+    } catch (err) {
+      console.error('[ToolbarPlugin] Image upload failed:', err);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }, [editor]);
+
+  // ── Format block type ─────────────────────────────────────────────────────
   const formatBlockType = useCallback((type) => {
     editor.update(() => {
       const selection = $getSelection();
@@ -171,6 +236,9 @@ export function ToolbarPlugin() {
         } else if (type === 'quote') {
           const quote = $createQuoteNode();
           topLevel.replace(quote, true);
+        } else if (type === 'code') {
+          const codeBlock = $createCodeNode('javascript');
+          topLevel.replace(codeBlock, true);
         } else if (['h1', 'h2', 'h3', 'h4'].includes(type)) {
           const heading = $createHeadingNode(type);
           topLevel.replace(heading, true);
@@ -178,6 +246,7 @@ export function ToolbarPlugin() {
       });
     });
   }, [editor, blockType]);
+
 
   // ─── Inline format buttons config ────────────────────────────────────────
   const inlineFormats = [
@@ -267,6 +336,34 @@ export function ToolbarPlugin() {
           {symbol}
         </button>
       ))}
+
+      {/* ── Insert Image ───────────────────────────────────────────── */}
+      <div className="editor-toolbar-divider" aria-hidden="true" />
+      <button
+        id="editor-btn-insert-image"
+        type="button"
+        onClick={() => imageFileInputRef.current?.click()}
+        disabled={isUploadingImage}
+        aria-label={isUploadingImage ? 'Uploading image...' : 'Insert image'}
+        title="Insert image"
+        className="editor-toolbar-btn"
+      >
+        {isUploadingImage ? '⏳' : '🖼️'}
+      </button>
+
+      {/* Hidden file input for image upload — triggered by button above */}
+      <input
+        ref={imageFileInputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+        style={{ display: 'none' }}
+        onChange={handleImageFileChange}
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+
+      {/* ── Insert Table ───────────────────────────────────────────── */}
+      <TableInsertButton />
     </div>
   );
 }

@@ -37,7 +37,11 @@ import { ToolbarPlugin } from './plugins/ToolbarPlugin';
 import { LinkPlugin } from './plugins/LinkPlugin';
 import { OnChangePlugin } from './plugins/OnChangePlugin';
 import { PasteNormalizerPlugin } from './plugins/PasteNormalizerPlugin';
+import { ImagePlugin } from './plugins/ImagePlugin';
+import { TablePlugin } from './plugins/TablePlugin';
+import { CodeBlockPlugin } from './plugins/CodeBlockPlugin';
 import './RichTextEditor.css';
+
 
 export function LexicalEditor({
   initialState = null,
@@ -104,6 +108,15 @@ export function LexicalEditor({
           {/* Paste normalization — DOMPurify + schema normalization */}
           <PasteNormalizerPlugin />
 
+          {/* Image uploads — signed direct-to-Cloudinary (no file relay through server) */}
+          {!readOnly && <ImagePlugin />}
+
+          {/* Tables — cell merge + Tab navigation */}
+          {!readOnly && <TablePlugin />}
+
+          {/* Code blocks — syntax highlighting with Prism.js */}
+          {!readOnly && <CodeBlockPlugin />}
+
           {/* Serialization bridge — only mounted when a change handler is provided */}
           {onChange && (
             <OnChangePlugin onChange={onChange} ignoreInitialChange />
@@ -113,3 +126,4 @@ export function LexicalEditor({
     </LexicalComposer>
   );
 }
+

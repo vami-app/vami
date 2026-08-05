@@ -217,7 +217,7 @@
 
 .editor-hr-container { padding: 0.25em 0; }
 
-/* ─── Image ──────────────────────────────────────────────────────────────────── */
+/* ─── Image node ─────────────────────────────────────────────────────────────── */
 
 .editor-image {
   display: block;
@@ -225,21 +225,156 @@
   margin: 0.75em 0;
 }
 
-.editor-image img {
+/* Wrapper rendered by ImageComponent */
+.editor-image-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.75em 0;
+  cursor: default;
+  border-radius: 6px;
+  outline: none;
+  transition: box-shadow 0.15s ease;
+}
+
+.editor-image-wrapper:focus,
+.editor-image-wrapper--selected {
+  box-shadow: 0 0 0 3px var(--color-brand-500, hsl(220, 90%, 56%));
+  border-radius: 6px;
+}
+
+.editor-image-img {
+  display: block;
   max-width: 100%;
   height: auto;
   border-radius: 6px;
+  pointer-events: none; /* Let wrapper handle clicks */
 }
 
-.editor-image-skeleton {
-  width: 100%;
-  height: 200px;
-  background: var(--color-surface-subtle, hsl(220, 20%, 97%));
+/* ─── Image controls (visible on selection) ──────────────────────────────────── */
+
+.editor-image-controls {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.65);
   border-radius: 6px;
-  animation: editor-pulse 1.5s ease-in-out infinite;
+  padding: 4px;
+  backdrop-filter: blur(4px);
+  z-index: 10;
 }
 
-/* ─── Loading skeleton ───────────────────────────────────────────────────────── */
+.editor-image-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  white-space: nowrap;
+}
+
+.editor-image-control-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.editor-image-control-btn--delete:hover {
+  background: hsl(0, 80%, 40%);
+  border-color: hsl(0, 80%, 55%);
+}
+
+.editor-image-control-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+
+/* ─── Alt text editor ────────────────────────────────────────────────────────── */
+
+.editor-image-alt-editor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editor-image-alt-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.editor-image-alt-input {
+  height: 24px;
+  padding: 0 6px;
+  font-size: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  outline: none;
+  width: 140px;
+}
+
+.editor-image-alt-input:focus {
+  border-color: var(--color-brand-500, hsl(220, 90%, 56%));
+}
+
+/* ─── Caption ────────────────────────────────────────────────────────────────── */
+
+.editor-image-caption {
+  display: block;
+  width: 100%;
+  padding: 4px 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, hsl(220, 10%, 60%));
+  background: transparent;
+  border: none;
+  border-top: 1px dashed var(--color-border, hsl(220, 15%, 85%));
+  text-align: center;
+  outline: none;
+  font-style: italic;
+}
+
+.editor-image-caption::placeholder {
+  color: var(--color-text-muted, hsl(220, 10%, 70%));
+}
+
+/* ─── Upload error toast ─────────────────────────────────────────────────────── */
+
+.editor-image-upload-error {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background: hsl(0, 80%, 40%);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 20;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  animation: editor-fade-in 0.2s ease;
+}
+
+@keyframes editor-fade-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.editor-image-file-input {
+  display: none;
+}
+
+/* ─── Loading skeleton ────────────────────────────────────────────────────────── */
+
 
 .editor-skeleton {
   border: 1px solid var(--color-border, hsl(220, 15%, 85%));
@@ -299,6 +434,180 @@
 }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────────── */
+
+/* ─── Table (Phase 4) ───────────────────────────────────────────────────────── */
+
+.editor-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.9375em;
+  table-layout: fixed;
+  overflow-x: auto;
+  display: block;
+}
+
+.editor-table-cell {
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  padding: 0.5em 0.75em;
+  vertical-align: top;
+  min-width: 60px;
+  position: relative;
+}
+
+.editor-table-cell-header {
+  background: var(--color-surface-subtle, hsl(220, 20%, 97%));
+  font-weight: 600;
+  text-align: left;
+}
+
+.editor-table-cell:focus-within {
+  outline: 2px solid var(--color-brand-500, hsl(220, 90%, 56%));
+  outline-offset: -1px;
+}
+
+/* Selected table cell highlight */
+.editor-table-selected-cell {
+  background: hsla(220, 90%, 56%, 0.08);
+}
+
+/* ─── Table insert button and picker ─────────────────────────────────────────── */
+
+.editor-table-insert {
+  position: relative;
+}
+
+.editor-table-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  min-width: 180px;
+}
+
+.editor-table-picker-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin: 0 0 10px;
+  color: var(--color-text-primary, hsl(220, 20%, 10%));
+}
+
+.editor-table-picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.editor-table-picker-label {
+  font-size: 12px;
+  color: var(--color-text-muted, hsl(220, 10%, 55%));
+}
+
+.editor-table-picker-input {
+  width: 56px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  border-radius: 4px;
+  font-size: 13px;
+  text-align: center;
+  outline: none;
+}
+
+.editor-table-picker-input:focus {
+  border-color: var(--color-brand-500, hsl(220, 90%, 56%));
+}
+
+.editor-table-picker-confirm {
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 0;
+  background: var(--color-brand-500, hsl(220, 90%, 56%));
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.12s ease;
+}
+
+.editor-table-picker-confirm:hover { opacity: 0.88; }
+
+/* ─── Code language switcher (Phase 4) ──────────────────────────────────────── */
+
+.editor-code-lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--color-surface-subtle, hsl(220, 20%, 97%));
+  border-top: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  font-size: 12px;
+}
+
+.editor-code-lang-label {
+  color: var(--color-text-muted, hsl(220, 10%, 55%));
+  white-space: nowrap;
+}
+
+.editor-code-lang-select {
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  border-radius: 4px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text-primary, hsl(220, 20%, 10%));
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.editor-code-lang-select:focus {
+  border-color: var(--color-brand-500, hsl(220, 90%, 56%));
+}
+
+/* ─── Prism.js syntax token colors (via @lexical/code) ─────────────────────── */
+/* Matches Prism's default token class names applied by CodeHighlightPlugin      */
+
+.editor-tokenComment,
+.editor-tokenPunctuation { color: hsl(220, 10%, 55%); }
+
+.editor-tokenProperty,
+.editor-tokenTag,
+.editor-tokenBoolean,
+.editor-tokenNumber,
+.editor-tokenConstant,
+.editor-tokenSymbol { color: hsl(330, 75%, 55%); }
+
+.editor-tokenSelector,
+.editor-tokenAttrName,
+.editor-tokenString,
+.editor-tokenChar,
+.editor-tokenBuiltin,
+.editor-tokenInserted { color: hsl(140, 60%, 38%); }
+
+.editor-tokenOperator,
+.editor-tokenEntity,
+.editor-tokenUrl { color: hsl(38, 80%, 46%); }
+
+.editor-tokenAtrule,
+.editor-tokenAttrValue,
+.editor-tokenKeyword { color: hsl(220, 90%, 56%); }
+
+.editor-tokenFunction,
+.editor-tokenClassName { color: hsl(260, 70%, 58%); }
+
+.editor-tokenRegex,
+.editor-tokenImportant,
+.editor-tokenVariable { color: hsl(16, 80%, 55%); }
+
 
 @media (max-width: 768px) {
   /* Prevent iOS Safari zoom on focus (requires font-size >= 16px on inputs) */

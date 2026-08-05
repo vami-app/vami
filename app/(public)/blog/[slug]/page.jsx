@@ -2,6 +2,11 @@ import { getBlogPostBySlug } from '@/modules/blog';
 import { notFound } from 'next/navigation';
 import { Calendar, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+// Direct import — Server Component pages must not import from the shared barrel
+// because the barrel also re-exports RichTextEditor.jsx which uses ssr:false (client-only).
+import { RichTextRenderer } from '@/components/admin/RichTextEditor/RichTextRenderer';
+
+
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -104,12 +109,15 @@ export default async function BlogDetailPage({ params }) {
       {/* Article Content Section */}
       <section className="pb-24 sm:pb-32 w-full">
         <div className="w-full max-w-3xl mx-auto px-[var(--gap)]">
-          <article 
-            className="prose prose-blue mx-auto bg-surface p-8 sm:p-12 lg:p-16 rounded-[var(--outer-radius)] shadow-sm border border-border-subtle"
-            dangerouslySetInnerHTML={{ __html: post.content }} 
-          />
+          <div className="bg-surface p-8 sm:p-12 lg:p-16 rounded-[var(--outer-radius)] shadow-sm border border-border-subtle">
+            <RichTextRenderer
+              html={post.content?.html ?? ''}
+              className="mx-auto"
+            />
+          </div>
         </div>
       </section>
+
     </div>
   );
 }

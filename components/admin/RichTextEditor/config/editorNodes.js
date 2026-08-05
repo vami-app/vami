@@ -11,15 +11,15 @@
  *
  * Phase progression:
  * - Phase 1: Core text nodes (headings, lists, links, quotes)
- * - Phase 3: Uncomment ImageNode
- * - Phase 4: Uncomment TableNode, TableCellNode, TableRowNode
+ * - Phase 3: ImageNode ✅
+ * - Phase 4: Tables + Code blocks ✅
  */
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
 import { LinkNode, AutoLinkNode } from '@lexical/link';
-// Phase 3: import { ImageNode } from '../nodes/ImageNode';
-// Phase 4: import { TableNode, TableCellNode, TableRowNode } from '@lexical/table';
-// Phase 4: import { CodeNode, CodeHighlightNode } from '@lexical/code';
+import { ImageNode } from '../nodes/ImageNode';
+import { TableNode, TableCellNode, TableRowNode } from '@lexical/table';
+import { CodeNode, CodeHighlightNode } from '@lexical/code';
 
 export const editorNodes = [
   HeadingNode,
@@ -28,7 +28,12 @@ export const editorNodes = [
   ListItemNode,
   LinkNode,
   AutoLinkNode,
-  // Phase 3: ImageNode,
-  // Phase 4: TableNode, TableCellNode, TableRowNode,
-  // Phase 4: CodeNode, CodeHighlightNode,
+  ImageNode,
+  TableNode,
+  TableCellNode,
+  TableRowNode,
+  CodeNode,
+  CodeHighlightNode,
 ];
+
+

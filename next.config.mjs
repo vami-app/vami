@@ -2,6 +2,9 @@ import "./env.mjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // turbopack: {
+  //   root: process.cwd(),
+  // },
   output: 'standalone',
 
   // ─── Cache Components (Next.js 16) ──────────────────────────────
