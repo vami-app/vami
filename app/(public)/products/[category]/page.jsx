@@ -90,7 +90,7 @@ export default async function CategoryPage({ params }) {
                     )}
 
                     {/* Gradient Overlay for Sub-card Contrast */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-surface/80 via-surface/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                     {/* Glassmorphism Sub-card */}
                     <div className="absolute bottom-3 left-3 right-3 bg-surface/95 backdrop-blur-md border border-border-subtle p-4 rounded-[calc(var(--inner-radius)-8px)] shadow-lg transform transition-all duration-500 group-hover:-translate-y-1 z-10">

@@ -65,7 +65,7 @@ export default async function ProductDetailPage({ params }) {
                 <div className="flex items-center text-xs font-semibold tracking-[0.2em] uppercase">
                   <Link
                     href="/"
-                    className="text-text-muted hover:text-gray-900 transition-colors"
+                    className="text-text-muted hover:text-text-primary transition-colors"
                   >
                     Home
                   </Link>
@@ -83,7 +83,7 @@ export default async function ProductDetailPage({ params }) {
                 <div className="flex items-center text-xs font-semibold tracking-[0.2em] uppercase">
                   <Link
                     href={`/products/${category.slug}`}
-                    className="text-text-muted hover:text-gray-900 transition-colors"
+                    className="text-text-muted hover:text-text-primary transition-colors"
                   >
                     {category.name}
                   </Link>
@@ -170,7 +170,7 @@ export default async function ProductDetailPage({ params }) {
                     Detailed Overview
                   </h2>
                   <div
-                    className="prose prose-gray sm:prose-lg font-light leading-relaxed text-text-muted max-w-none"
+                    className="prose sm:prose-lg font-light leading-relaxed text-text-muted max-w-none"
                     dangerouslySetInnerHTML={{
                       __html: product.longDescription,
                     }}
@@ -184,7 +184,7 @@ export default async function ProductDetailPage({ params }) {
                     Available Options
                   </h2>
                   <div className="border-t-2 border-border-base">
-                    <ul role="list" className="divide-y divide-black/5">
+                    <ul role="list" className="divide-y divide-border-subtle">
                       {product.variants.map((variant, idx) => (
                         <li
                           key={idx}
@@ -221,7 +221,7 @@ export default async function ProductDetailPage({ params }) {
                     <Info className="h-4 w-4 text-text-muted mr-2" />
                     Specifications
                   </h3>
-                  <dl className="divide-y divide-black/5">
+                  <dl className="divide-y divide-border-subtle">
                     {product.specs.map((spec, idx) => (
                       <div
                         key={idx}

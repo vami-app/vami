@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { siteConfig } from '@/config/site';
 
@@ -29,6 +30,12 @@ export default function Navbar({ categories = [] }) {
   const pathname = usePathname();
   const isHome = pathname === '/';
 
+  let activeNavItem = 'Home';
+  if (pathname !== '/') {
+    const match = siteConfig.mainNav.find(item => item.href !== '/' && !item.href.startsWith('/#') && pathname.startsWith(item.href));
+    if (match) activeNavItem = match.title;
+  }
+
   return (
     <header className={`sticky top-[var(--gap)] mt-[var(--gap)] z-50 w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)] pointer-events-none ${isHome ? 'h-0' : 'h-[calc(var(--nav-block-h)+var(--padding))] mb-[var(--gap)]'}`}>
       <nav 
@@ -43,35 +50,54 @@ export default function Navbar({ categories = [] }) {
             </Link>
           </div>
           
-          <div className="hidden lg:flex space-x-8 absolute left-1/2 -translate-x-1/2">
+          <div className="hidden lg:flex space-x-2 absolute left-1/2 -translate-x-1/2">
             {siteConfig.mainNav.map((navItem) => {
+              const isActive = activeNavItem === navItem.title;
+              const textColorClass = isActive ? 'text-text-inverse' : 'text-text-secondary hover:text-text-primary hover:bg-surface-subtle';
+
               if (navItem.hasDropdown) {
                 return (
-                  <div key={navItem.title} className="relative group inline-block">
-                    <button className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary inline-flex items-center transition-colors">
-                      {navItem.title} <ChevronDown className="ml-1 h-4 w-4" />
+                  <div 
+                    key={navItem.title} 
+                    className="relative group inline-block"
+                  >
+                    <button className={`relative px-4 py-2 rounded-full text-[var(--text-body)] font-medium inline-flex items-center transition-colors z-10 ${textColorClass}`}>
+                      {isActive && (
+                        <motion.div
+                          layoutId="navbar-capsule"
+                          className="absolute inset-0 rounded-full -z-10 bg-text-primary shadow-md"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center">
+                        {navItem.title} <ChevronDown className="ml-1 h-4 w-4" />
+                      </span>
                     </button>
-                    <div className="absolute left-1/2 -translate-x-1/2 mt-6 w-64 rounded-2xl shadow-lg bg-surface border border-border-subtle opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 flex flex-col">
-                      <Link
-                        href={navItem.href}
-                        className="block px-4 py-2.5 text-sm font-semibold text-text-primary hover:bg-surface-muted transition-colors mx-2 rounded-lg mb-1 flex-shrink-0"
-                      >
-                        View All {navItem.title}
-                      </Link>
-                      <div className="h-px bg-surface-subtle mx-4 mb-1 flex-shrink-0"></div>
-                      <div className="overflow-y-auto max-h-64" style={{ scrollbarWidth: 'thin' }}>
-                        {categories.map((category) => (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50">
+                      <div className="w-64 bg-surface/95 backdrop-blur-xl border border-border-base rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.08)] p-2 transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.3,1)] opacity-0 -translate-y-2 scale-[0.98] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:pointer-events-auto flex flex-col origin-top">
+                        <div className="space-y-1">
                           <Link
-                            key={category._id}
-                            href={`${navItem.href}/${category.slug}`}
-                            className="block px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors mx-2 rounded-lg"
+                            href={navItem.href}
+                            className="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-text-primary hover:bg-surface-subtle shadow-sm"
                           >
-                            {category.name}
+                            View All {navItem.title}
                           </Link>
-                        ))}
-                        {categories.length === 0 && (
-                          <span className="block px-4 py-2.5 text-sm text-text-muted mx-2">No categories</span>
-                        )}
+                          <div className="h-px bg-border-subtle my-1 mx-2 flex-shrink-0"></div>
+                          <div className="overflow-y-auto max-h-[60vh] space-y-1" style={{ scrollbarWidth: 'thin' }}>
+                            {categories.map((category) => (
+                              <Link
+                                key={category._id}
+                                href={`${navItem.href}/${category.slug}`}
+                                className="block w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 text-text-secondary hover:bg-surface-subtle hover:text-text-primary"
+                              >
+                                {category.name}
+                              </Link>
+                            ))}
+                            {categories.length === 0 && (
+                              <span className="block px-4 py-3 text-sm text-text-muted mx-2">No categories</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -79,9 +105,24 @@ export default function Navbar({ categories = [] }) {
               }
 
               return (
-                <Link key={navItem.title} href={navItem.href} className="text-[var(--text-body)] font-medium text-text-secondary hover:text-text-primary transition-colors">
-                  {navItem.title}
-                </Link>
+                <div 
+                  key={navItem.title}
+                  className="relative inline-block"
+                >
+                  <Link 
+                    href={navItem.href} 
+                    className={`relative block px-4 py-2 rounded-full text-[var(--text-body)] font-medium transition-colors z-10 ${textColorClass}`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="navbar-capsule"
+                        className="absolute inset-0 rounded-full -z-10 bg-text-primary shadow-md"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <span className="relative z-10">{navItem.title}</span>
+                  </Link>
+                </div>
               );
             })}
           </div>

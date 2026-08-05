@@ -9,9 +9,9 @@ import {
 } from "lucide-react";
 
 export const metadata = {
-  title: "About Us | Smalloys Copper & Bronze Foundry",
+  title: "About Us | Radhey Metal Alloys LLP",
   description:
-    "Mastering the most demanding alloys. Smalloys specializes in high-conductivity copper and complex marine bronze casting and CNC machining.",
+    "Mastering the most demanding alloys. Radhey Metal Alloys LLP specializes in high-conductivity copper and complex marine bronze casting and CNC machining.",
 };
 
 export default function AboutPage() {
@@ -22,7 +22,7 @@ export default function AboutPage() {
         <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
           <div className="max-w-4xl">
             <span className="text-xs font-semibold text-text-muted tracking-[0.2em] uppercase">
-              About Smalloys
+              About Radhey Metal Alloys LLP
             </span>
             <h1 className="font-headline font-light text-text-primary mt-6 leading-tight text-5xl sm:text-6xl lg:text-7xl text-balance">
               Mastering the Most Demanding Alloys.
@@ -30,7 +30,7 @@ export default function AboutPage() {
             <p className="mt-8 text-text-muted text-lg sm:text-xl font-light leading-relaxed max-w-2xl">
               Casting high-conductivity copper and complex marine bronzes
               requires uncompromising thermal control and metallurgical
-              precision. At Smalloys, we don&apos;t just pour metal; we engineer
+              precision. At Radhey Metal Alloys LLP, we don&apos;t just pour metal; we engineer
               material integrity.
             </p>
           </div>
@@ -48,7 +48,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-6 text-text-muted font-light leading-relaxed text-base sm:text-lg">
                 <p>
-                  Since our inception, Smalloys has been dedicated to solving
+                  Since our inception, Radhey Metal Alloys LLP has been dedicated to solving
                   the complex metallurgical challenges that generic foundries
                   avoid. Copper is notoriously difficult to cast—highly
                   susceptible to gas porosity and rapid oxidation at extreme
@@ -78,15 +78,15 @@ export default function AboutPage() {
               </div>
             </div>
             {/* Right: High-quality image */}
-            <div className="w-full aspect-[4/3] sm:aspect-video lg:aspect-square rounded-[var(--outer-radius)] overflow-hidden relative shadow-sm border border-border-subtle group">
+            <div className="w-full aspect-[4/3] sm:aspect-video lg:aspect-square rounded-[var(--outer-radius)] overflow-hidden relative shadow-sm border border-border-subtle group bg-surface">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
                 alt="Molten copper being poured in a precision foundry"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80 transition-transform duration-1000 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
-              <div className="absolute bottom-6 left-6 right-6 lg:bottom-10 lg:left-10 text-text-inverse">
+              <div className="absolute inset-0 bg-gradient-to-t from-surface/95 via-surface/40 to-transparent"></div>
+              <div className="absolute bottom-6 left-6 right-6 lg:bottom-10 lg:left-10 text-text-primary">
                 <div className="text-sm font-semibold tracking-[0.1em] uppercase mb-2 opacity-90">
                   Precision Pouring
                 </div>
@@ -178,7 +178,7 @@ export default function AboutPage() {
             {/* Google Map iframe */}
             <div className="w-full aspect-square sm:aspect-video lg:aspect-[21/9] relative">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d193595.25280010998!2d-74.14448744577884!3d40.69766374859258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
+                src="https://maps.google.com/maps?q=43,+Vardhmaan+Nagar,+Kalol,+Gandhinagar,+Gujarat,+India&t=&z=14&ie=UTF8&iwloc=B&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -186,7 +186,7 @@ export default function AboutPage() {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 className="absolute inset-0 grayscale contrast-125 opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000"
-                title="Smalloys Headquarters Location"
+                title="Radhey Metal Alloys Headquarters Location"
               ></iframe>
             </div>
 
@@ -205,17 +205,17 @@ export default function AboutPage() {
                       strokeWidth={1.5}
                     />
                     <span>
-                      123 Manufacturing Way
+                      43, Vardhmaan Nagar, Kalol
                       <br />
-                      New York, NY 10001
+                      Gandhinagar, Gujarat
                       <br />
-                      United States
+                      India - 382721
                     </span>
                   </div>
                 </li>
                 <li>
                   <a
-                    href="mailto:sales@smalloys.com"
+                    href="mailto:radhemetalalloysllp@gmail.com"
                     className="flex items-center text-sm text-text-secondary hover:text-text-primary font-light transition-colors group/link"
                   >
                     <Mail
@@ -224,13 +224,13 @@ export default function AboutPage() {
                       strokeWidth={1.5}
                     />
                     <span className="group-hover/link:underline">
-                      sales@smalloys.com
+                      radhemetalalloysllp@gmail.com
                     </span>
                   </a>
                 </li>
                 <li>
                   <a
-                    href="tel:+15551234567"
+                    href="tel:+919081358107"
                     className="flex items-center text-sm text-text-secondary hover:text-text-primary font-light transition-colors group/link"
                   >
                     <Phone
@@ -239,7 +239,7 @@ export default function AboutPage() {
                       strokeWidth={1.5}
                     />
                     <span className="group-hover/link:underline">
-                      +1 (555) 123-4567
+                      +91 9081358107
                     </span>
                   </a>
                 </li>
@@ -247,7 +247,7 @@ export default function AboutPage() {
 
               <div className="mt-8">
                 <a
-                  href="https://maps.google.com/?q=New+York,+NY"
+                  href="https://maps.google.com/?q=43,+Vardhmaan+Nagar,+Kalol,+Gandhinagar,+Gujarat,+India"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center w-full bg-text-primary text-text-inverse rounded-full py-3 px-4 text-sm font-medium hover:opacity-90 transition-colors"

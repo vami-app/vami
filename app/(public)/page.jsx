@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Box, FileText, CheckCircle, ShieldCheck } from "lucide-react";
+import { ArrowRight, Box, FileText, CheckCircle, ShieldCheck, Zap, Anchor, Car, Wrench } from "lucide-react";
 import { getFeaturedProducts } from "@/modules/products";
 import { getAllCategories } from "@/modules/categories";
 
@@ -38,23 +38,23 @@ export default async function HomePage() {
     <div className="layout-main">
       {/* Hero Showcase Section */}
       <section className="hero-section" aria-label="Hero showcase">
-        <div className="relative w-full min-h-[85dvh] lg:min-h-[92dvh] rounded-[var(--outer-radius)] overflow-hidden shadow-2xl flex flex-col justify-center border border-border-subtle bg-black">
+        <div className="relative w-full min-h-[85dvh] lg:min-h-[92dvh] rounded-[var(--outer-radius)] overflow-hidden shadow-2xl flex flex-col justify-center border border-border-subtle bg-surface">
           <div className="absolute inset-0 z-0">
             <img
-              className="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 brightness-110"
+              className="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 brightness-110 mix-blend-overlay opacity-80"
               src="/images/copper_sheets_1785916944432.png"
               alt="High-quality non-ferrous metallurgy"
             />
           </div>
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-tr from-black/80 via-black/40 to-transparent" />
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/90 via-transparent to-black/30" />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-tr from-surface/95 via-surface/60 to-surface/20" />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-surface/90 via-transparent to-surface/30" />
 
           <div className="relative z-20 flex flex-col items-center text-center p-[var(--space-6)] pt-28 lg:pt-[var(--space-6)] transform transition-transform duration-700 translate-y-0 opacity-100 mt-20">
-            <h1 className="font-headline font-light text-white leading-[1.1] tracking-tight max-w-4xl text-4xl sm:text-5xl md:text-6xl drop-shadow-2xl">
+            <h1 className="font-headline font-light text-text-primary leading-[1.1] tracking-tight max-w-4xl text-4xl sm:text-5xl md:text-6xl drop-shadow-sm">
               Engineering Excellence in Non-Ferrous Metallurgy & Casting
             </h1>
             <p
-              className="text-gray-200 max-w-3xl font-light leading-relaxed mt-6 mb-8 text-lg md:text-xl"
+              className="text-text-secondary max-w-3xl font-light leading-relaxed mt-6 mb-8 text-lg md:text-xl"
             >
               Radhey Metal Alloys LLP manufactures high-purity Copper, Brass, and Phosphor Bronze Sheets, Plates, Circles, Ingots, and Custom Castings—supplied with complete Company Test Certificates and NABL laboratory reports.
             </p>
@@ -62,14 +62,14 @@ export default async function HomePage() {
               <div className="transition-all duration-500 ease-in-out overflow-hidden flex justify-center lg:opacity-100 lg:max-w-xl lg:max-h-24 max-w-0 max-h-0 opacity-0">
                 <Link
                   href="/contact"
-                  className="inline-flex justify-center items-center px-8 py-4 bg-white text-black rounded-full text-[var(--text-cta)] font-medium shadow-2xl hover:bg-gray-100 hover:scale-105 transition-all duration-300 whitespace-nowrap"
+                  className="inline-flex justify-center items-center px-8 py-4 bg-text-primary text-text-inverse rounded-full text-[var(--text-cta)] font-medium shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300 whitespace-nowrap"
                 >
                   Request a Technical Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </div>
               <Link
                 href="/products"
-                className="inline-flex justify-center items-center px-8 py-4 rounded-full text-[var(--text-cta)] font-medium transition-all duration-500 bg-white text-black shadow-2xl hover:bg-gray-100 hover:scale-105 lg:bg-black/40 lg:text-white lg:border lg:border-white/30 lg:shadow-none lg:hover:scale-100 lg:hover:bg-black/60 lg:hover:border-white/50 lg:backdrop-blur-md whitespace-nowrap"
+                className="inline-flex justify-center items-center px-8 py-4 rounded-full text-[var(--text-cta)] font-medium transition-all duration-500 bg-surface text-text-primary shadow-xl hover:bg-surface-subtle hover:scale-105 lg:bg-surface/40 lg:text-text-primary lg:border lg:border-border-base lg:shadow-none lg:hover:scale-100 lg:hover:bg-surface/60 lg:backdrop-blur-md whitespace-nowrap"
               >
                 Browse Products
               </Link>
@@ -145,8 +145,91 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Industries Section */}
+      <section id="industries" className="py-16 sm:py-20 lg:py-28 w-full bg-surface border-t border-border-subtle">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+          <div className="mb-12 sm:mb-16">
+            <span className="text-xs font-semibold text-text-muted tracking-[0.2em] uppercase">
+              Sectors
+            </span>
+            <h2 className="font-headline font-light text-text-primary mt-4 leading-tight text-3xl sm:text-4xl lg:text-5xl text-balance">
+              Industries We Serve
+            </h2>
+            <p className="mt-6 text-lg text-text-muted max-w-2xl font-light">
+              Providing high-performance non-ferrous solutions tailored to the strict engineering demands of specialized sectors.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            {/* Electrical */}
+            <div className="bg-background rounded-[var(--inner-radius)] border border-border-base p-8 sm:p-10 shadow-sm flex flex-col items-start hover:shadow-md transition-shadow">
+              <div className="bg-surface-muted p-4 rounded-full mb-6 text-text-primary">
+                <Zap className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-medium text-text-primary mb-4">Electrical & Power Distribution</h3>
+              <p className="text-text-muted font-light leading-relaxed mb-6">
+                Supplying high-conductivity ETP copper tailored for electrical applications.
+              </p>
+              <ul className="list-disc list-inside text-text-secondary font-light space-y-2 mt-auto">
+                <li>Busbars & Switchgears</li>
+                <li>Transformers</li>
+                <li>Copper Castings & Control Panels</li>
+              </ul>
+            </div>
+
+            {/* Marine */}
+            <div className="bg-background rounded-[var(--inner-radius)] border border-border-base p-8 sm:p-10 shadow-sm flex flex-col items-start hover:shadow-md transition-shadow">
+              <div className="bg-surface-muted p-4 rounded-full mb-6 text-text-primary">
+                <Anchor className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-medium text-text-primary mb-4">Marine & Defense</h3>
+              <p className="text-text-muted font-light leading-relaxed mb-6">
+                Engineered for extreme saltwater resistance and high mechanical stress.
+              </p>
+              <ul className="list-disc list-inside text-text-secondary font-light space-y-2 mt-auto">
+                <li>Naval Brass (C464)</li>
+                <li>Phosphor Bronze alloys</li>
+                <li>Saltwater-resistant components</li>
+              </ul>
+            </div>
+
+            {/* Automotive */}
+            <div className="bg-background rounded-[var(--inner-radius)] border border-border-base p-8 sm:p-10 shadow-sm flex flex-col items-start hover:shadow-md transition-shadow">
+              <div className="bg-surface-muted p-4 rounded-full mb-6 text-text-primary">
+                <Car className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-medium text-text-primary mb-4">Automotive & Radiators</h3>
+              <p className="text-text-muted font-light leading-relaxed mb-6">
+                Precision metals designed for vehicular engineering and heat exchange.
+              </p>
+              <ul className="list-disc list-inside text-text-secondary font-light space-y-2 mt-auto">
+                <li>Deep-drawn Cartridge Brass (C260)</li>
+                <li>Custom aluminium castings</li>
+                <li>Heat Exchanger components</li>
+              </ul>
+            </div>
+
+            {/* Foundries */}
+            <div className="bg-background rounded-[var(--inner-radius)] border border-border-base p-8 sm:p-10 shadow-sm flex flex-col items-start hover:shadow-md transition-shadow">
+              <div className="bg-surface-muted p-4 rounded-full mb-6 text-text-primary">
+                <Wrench className="w-8 h-8" />
+              </div>
+              <h3 className="text-2xl font-medium text-text-primary mb-4">Foundries & Precision Machining</h3>
+              <p className="text-text-muted font-light leading-relaxed mb-6">
+                Supplying the base raw materials for heavy engineering workshops.
+              </p>
+              <ul className="list-disc list-inside text-text-secondary font-light space-y-2 mt-auto">
+                <li>Virgin-quality ingots</li>
+                <li>Casting blanks</li>
+                <li>Free-cutting C360 stocks</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Categories Grid */}
-      <section className="py-16 sm:py-20 lg:py-28 w-full bg-surface border-t border-border-subtle">
+      <section className="py-16 sm:py-20 lg:py-28 w-full bg-background border-t border-border-subtle">
         <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
           <div className="mb-12 sm:mb-16">
             <span className="text-xs font-semibold text-text-muted tracking-[0.2em] uppercase">
