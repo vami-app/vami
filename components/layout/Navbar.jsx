@@ -88,12 +88,7 @@ export default function Navbar({ categories = [] }) {
 
           <div className="flex items-center space-x-2 sm:space-x-4">
             <ThemeToggle />
-            <Link
-              href="/contact"
-              className="hidden lg:inline-flex items-center justify-center bg-text-primary px-6 h-10 rounded-full text-sm font-medium text-text-inverse hover:opacity-90 transition-colors"
-            >
-              Request Quote
-            </Link>
+
             
             <button
               type="button"

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Cookie, X } from 'lucide-react';
 
 export default function CookieBanner() {
   const [show, setShow] = useState(false);
@@ -8,7 +10,8 @@ export default function CookieBanner() {
   useEffect(() => {
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
-      setShow(true);
+      // Small delay for a smooth entrance animation
+      setTimeout(() => setShow(true), 500);
     }
   }, []);
 
@@ -17,20 +20,54 @@ export default function CookieBanner() {
     setShow(false);
   };
 
-  if (!show) return null;
+  const dismiss = () => {
+    // Dismiss without explicit consent
+    setShow(false);
+  };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border-base p-4 shadow-lg z-50 flex flex-col sm:flex-row items-center justify-between">
-      <div className="text-sm text-text-secondary mb-4 sm:mb-0 max-w-3xl">
-        🍪 Cookie Notice: Radhey Metal Alloys LLP uses basic cookies to optimize your browsing experience, track website performance, and remember your choices on our quotation forms. By continuing to use our website, you agree to our use of cookies.
-      </div>
-      <div className="flex gap-4">
-        <button onClick={() => setShow(false)} className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary">
-          Learn More
+    <div 
+      className={`fixed bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm z-50 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        show ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
+      }`}
+    >
+      <div className="bg-background/80 backdrop-blur-xl border border-border-subtle shadow-2xl rounded-2xl p-5 sm:p-6 flex flex-col gap-4 relative">
+        <button 
+          onClick={dismiss}
+          className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors"
+          aria-label="Close"
+        >
+          <X className="w-4 h-4" />
         </button>
-        <button onClick={accept} className="px-6 py-2 bg-text-primary text-text-inverse text-sm font-medium rounded-full hover:opacity-90">
-          Accept
-        </button>
+
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-surface-muted rounded-full shrink-0">
+            <Cookie className="w-5 h-5 text-text-primary" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-text-primary mb-1">
+              We value your privacy
+            </h3>
+            <p className="text-xs text-text-muted leading-relaxed">
+              We use essential cookies to make our site work safely. We also use analytics cookies to understand how you interact with our site so we can improve it. 
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 w-full mt-2">
+          <button 
+            onClick={accept} 
+            className="flex-1 px-4 py-2.5 bg-text-primary text-text-inverse text-sm font-medium rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-transform"
+          >
+            Accept
+          </button>
+          <Link 
+            href="/privacy" 
+            className="flex-1 px-4 py-2.5 bg-surface text-text-primary text-sm font-medium rounded-xl border border-border-subtle hover:bg-surface-muted transition-colors text-center"
+          >
+            Learn More
+          </Link>
+        </div>
       </div>
     </div>
   );

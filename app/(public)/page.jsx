@@ -42,7 +42,7 @@ export default async function HomePage() {
           <div className="absolute inset-0 z-0">
             <img
               className="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 brightness-110"
-              src="/images/copper_sheets.png"
+              src="/images/copper_sheets_1785916944432.png"
               alt="High-quality non-ferrous metallurgy"
             />
           </div>
@@ -58,18 +58,20 @@ export default async function HomePage() {
             >
               Radhey Metal Alloys LLP manufactures high-purity Copper, Brass, and Phosphor Bronze Sheets, Plates, Circles, Ingots, and Custom Castings—supplied with complete Company Test Certificates and NABL laboratory reports.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4">
-              <Link
-                href="/contact"
-                className="inline-flex justify-center items-center px-8 py-4 bg-white text-black rounded-full text-[var(--text-cta)] font-medium shadow-2xl hover:bg-gray-100 hover:scale-105 transition-all duration-300"
-              >
-                Request a Technical Quote <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+            <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 w-full sm:w-auto mt-4">
+              <div className="transition-all duration-500 ease-in-out overflow-hidden flex justify-center lg:opacity-100 lg:max-w-xl lg:max-h-24 max-w-0 max-h-0 opacity-0">
+                <Link
+                  href="/contact"
+                  className="inline-flex justify-center items-center px-8 py-4 bg-white text-black rounded-full text-[var(--text-cta)] font-medium shadow-2xl hover:bg-gray-100 hover:scale-105 transition-all duration-300 whitespace-nowrap"
+                >
+                  Request a Technical Quote <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </div>
               <Link
                 href="/products"
-                className="inline-flex justify-center items-center px-8 py-4 bg-black/40 text-white border border-white/30 rounded-full text-[var(--text-cta)] font-medium hover:bg-black/60 hover:border-white/50 backdrop-blur-md transition-all duration-300"
+                className="inline-flex justify-center items-center px-8 py-4 rounded-full text-[var(--text-cta)] font-medium transition-all duration-500 bg-white text-black shadow-2xl hover:bg-gray-100 hover:scale-105 lg:bg-black/40 lg:text-white lg:border lg:border-white/30 lg:shadow-none lg:hover:scale-100 lg:hover:bg-black/60 lg:hover:border-white/50 lg:backdrop-blur-md whitespace-nowrap"
               >
-                Download Product Brochure
+                Browse Products
               </Link>
             </div>
           </div>
@@ -96,7 +98,7 @@ export default async function HomePage() {
             </div>
             <div className="relative rounded-[var(--inner-radius)] overflow-hidden shadow-2xl aspect-video lg:aspect-square">
                <img
-                src="/images/brass_plates.png"
+                src="/images/brass_plates_1785916962925.png"
                 alt="Brass Plates"
                 className="absolute inset-0 w-full h-full object-cover"
               />
