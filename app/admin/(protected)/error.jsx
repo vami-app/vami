@@ -24,7 +24,7 @@ export default function AdminError({ error, reset }) {
       
       <button
         onClick={() => reset()}
-        className="inline-flex items-center justify-center px-6 py-2.5 bg-black text-white rounded-full font-medium hover:opacity-90 transition-opacity"
+        className="inline-flex items-center justify-center px-6 py-2.5 bg-text-primary text-text-inverse rounded-full font-medium hover:opacity-90 transition-opacity"
       >
         <RefreshCw className="h-4 w-4 mr-2" />
         Retry Module

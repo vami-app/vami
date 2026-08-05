@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, LayoutGroup } from 'framer-motion';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { siteConfig } from '@/config/site';
 
@@ -51,6 +51,7 @@ export default function Navbar({ categories = [] }) {
           </div>
           
           <div className="hidden lg:flex space-x-2 absolute left-1/2 -translate-x-1/2">
+            <LayoutGroup>
             {siteConfig.mainNav.map((navItem) => {
               const isActive = activeNavItem === navItem.title;
               const textColorClass = isActive ? 'text-text-inverse' : 'text-text-secondary hover:text-text-primary hover:bg-surface-subtle';
@@ -67,6 +68,7 @@ export default function Navbar({ categories = [] }) {
                           layoutId="navbar-capsule"
                           className="absolute inset-0 rounded-full -z-10 bg-text-primary shadow-md"
                           transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          initial={false}
                         />
                       )}
                       <span className="relative z-10 flex items-center">
@@ -118,6 +120,7 @@ export default function Navbar({ categories = [] }) {
                         layoutId="navbar-capsule"
                         className="absolute inset-0 rounded-full -z-10 bg-text-primary shadow-md"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        initial={false}
                       />
                     )}
                     <span className="relative z-10">{navItem.title}</span>
@@ -125,6 +128,7 @@ export default function Navbar({ categories = [] }) {
                 </div>
               );
             })}
+            </LayoutGroup>
           </div>
 
           <div className="flex items-center space-x-2 sm:space-x-4">

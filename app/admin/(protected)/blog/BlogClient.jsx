@@ -103,7 +103,7 @@ export default function BlogClient() {
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Blog Posts</h2>
         <Link
           href="/admin/blog/new"
-          className="inline-flex items-center justify-center rounded-full bg-text-primary px-6 py-2.5 text-sm font-medium text-text-inverse shadow-sm hover:opacity-90 transition-colors"
+          className="inline-flex items-center justify-center rounded-full bg-text-primary px-6 py-2.5 text-sm font-medium text-text-inverse shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300"
         >
           <Plus className="mr-2 h-4 w-4" /> New Post
         </Link>
@@ -116,8 +116,8 @@ export default function BlogClient() {
       ) : (
         <div className="flex-1 bg-surface rounded-[calc(var(--outer-radius)-8px)] border border-border-subtle shadow-sm overflow-hidden flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out delay-100 fill-mode-both">
           <div className="flex-1 overflow-auto hide-scrollbar">
-            <table className="min-w-full divide-y divide-black/5">
-              <thead className="bg-background">
+            <table className="min-w-full divide-y divide-border-subtle">
+              <thead className="sticky top-0 z-10 bg-surface/90 backdrop-blur-md border-b border-border-subtle">
                 <tr>
                   <th scope="col" className="py-4 pl-6 pr-3 text-left text-xs font-semibold text-text-muted uppercase tracking-widest">Title</th>
                   <th scope="col" className="px-3 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-widest hidden md:table-cell">Status</th>
@@ -127,9 +127,9 @@ export default function BlogClient() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-black/5 bg-surface">
+              <tbody className="divide-y divide-border-subtle bg-surface">
                 {postList.map((post) => (
-                  <tr key={post._id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={post._id} className="hover:bg-surface-subtle transition-colors">
                     <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm font-medium text-text-primary">
                       {post.title}
                       <dl className="font-normal md:hidden mt-1">

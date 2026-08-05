@@ -46,7 +46,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500 ease-out">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-headline font-bold text-text-primary tracking-tight">
+          <h1 className="text-3xl font-headline font-light text-text-primary tracking-tight">
             Smalloys
             <span className="text-text-muted font-light ml-2">Admin</span>
           </h1>
@@ -56,7 +56,7 @@ export default function AdminLogin() {
         </div>
 
         {/* Form Card */}
-        <div className="bg-surface rounded-[var(--outer-radius)] border border-border-subtle shadow-sm p-8 sm:p-10">
+        <div className="bg-surface/80 backdrop-blur-md rounded-[var(--outer-radius)] border border-border-subtle shadow-lg p-8 sm:p-10">
           <form className="space-y-6" onSubmit={handleLogin}>
             <div>
               <label className="block text-xs font-semibold text-text-muted uppercase tracking-widest mb-2">
@@ -73,7 +73,7 @@ export default function AdminLogin() {
                   placeholder="admin@smalloys.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-4 py-3 bg-background border border-border-base rounded-xl text-sm text-text-primary placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-all hover:bg-white"
+                  className="block w-full pl-10 pr-4 py-3 bg-background border border-border-base rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface"
                 />
               </div>
             </div>
@@ -93,12 +93,12 @@ export default function AdminLogin() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-3 bg-background border border-border-base rounded-xl text-sm text-text-primary placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/20 focus:border-black transition-all hover:bg-white"
+                  className="block w-full pl-10 pr-10 py-3 bg-background border border-border-base rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-text-muted hover:text-gray-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-text-muted hover:text-text-primary transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? (
@@ -114,7 +114,7 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 transition-all shadow-sm group"
+                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus disabled:opacity-50 transition-all duration-300 shadow-xl group"
               >
                 {loading ? (
                   <span>Authenticating...</span>

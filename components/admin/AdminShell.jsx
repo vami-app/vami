@@ -29,10 +29,10 @@ function SidebarNavLinks({ showLabel, pathname, allowedNavigation }) {
               href={href}
               title={name}
               className={[
-                "flex items-center justify-center w-11 h-11 rounded-full transition-all duration-150",
+                "flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300",
                 active
-                  ? "bg-text-primary text-text-inverse"
-                  : "text-text-muted hover:bg-surface-muted hover:text-text-primary",
+                  ? "bg-text-primary text-text-inverse shadow-md"
+                  : "text-text-muted hover:bg-surface-muted hover:text-text-primary hover:scale-110",
               ].join(" ")}
             >
               <Icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
@@ -45,10 +45,10 @@ function SidebarNavLinks({ showLabel, pathname, allowedNavigation }) {
             key={name}
             href={href}
             className={[
-              "group flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-150",
+              "group flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300",
               active
-                ? "bg-text-primary text-text-inverse"
-                : "text-text-secondary hover:bg-surface-muted hover:text-text-primary",
+                ? "bg-text-primary text-text-inverse shadow-md scale-[1.02]"
+                : "text-text-secondary hover:bg-surface-subtle hover:text-text-primary hover:scale-[1.02]",
             ].join(" ")}
           >
             <Icon
@@ -82,8 +82,8 @@ function SidebarSignOut({ compact }) {
         title="Sign Out"
         className={
           compact
-            ? "flex items-center justify-center w-11 h-11 rounded-full text-text-muted hover:bg-red-50 hover:text-red-600 transition-colors"
-            : "group flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-text-muted hover:bg-red-50 hover:text-red-700 transition-colors"
+            ? "flex items-center justify-center w-11 h-11 rounded-full text-text-muted hover:bg-red-50 hover:text-red-600 transition-all duration-300 hover:scale-110"
+            : "group flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-text-muted hover:bg-red-50 hover:text-red-700 transition-all duration-300 hover:scale-[1.02]"
         }
       >
         <svg
@@ -129,9 +129,9 @@ export default function AdminShell({ children, permissions = [] }) {
           Fixed left, always visible, 288 px.
           ══════════════════════════════════════════════════ */}
       <aside className="hidden lg:flex lg:w-72 lg:flex-col lg:fixed lg:inset-y-0 p-[var(--gap)]">
-        <div className="flex flex-col flex-grow bg-surface border border-border-subtle rounded-[var(--outer-radius)] overflow-hidden shadow-sm">
+        <div className="flex flex-col flex-grow bg-surface/90 backdrop-blur-md border border-border-subtle rounded-[var(--outer-radius)] overflow-hidden shadow-sm">
           <div className="flex items-center flex-shrink-0 px-6 py-7 border-b border-border-subtle">
-            <span className="text-xl font-headline font-bold text-text-primary tracking-tight">
+            <span className="text-xl font-headline font-light text-text-primary tracking-tight">
               Smalloys
               <span className="text-text-muted font-light ml-2">Admin</span>
             </span>
@@ -160,7 +160,7 @@ export default function AdminShell({ children, permissions = [] }) {
           tabletExpanded ? "w-64" : "w-[88px]",
         ].join(" ")}
       >
-        <div className="flex flex-col flex-grow bg-surface border border-border-subtle rounded-[var(--outer-radius)] overflow-hidden shadow-sm">
+        <div className="flex flex-col flex-grow bg-surface/90 backdrop-blur-md border border-border-subtle rounded-[var(--outer-radius)] overflow-hidden shadow-sm">
           <div
             className={[
               "flex items-center flex-shrink-0 border-b border-border-subtle py-6",
@@ -168,7 +168,7 @@ export default function AdminShell({ children, permissions = [] }) {
             ].join(" ")}
           >
             {tabletExpanded && (
-              <span className="text-sm font-headline font-bold text-text-primary tracking-tight whitespace-nowrap">
+              <span className="text-sm font-headline font-light text-text-primary tracking-tight whitespace-nowrap">
                 Smalloys
                 <span className="text-text-muted font-light ml-1">Admin</span>
               </span>
@@ -235,7 +235,7 @@ export default function AdminShell({ children, permissions = [] }) {
           Active item: black filled circle behind the icon.
           ══════════════════════════════════════════════════ */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-surface border-t border-border-subtle shadow-[0_-4px_24px_rgba(0,0,0,0.06)]"
+        className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-surface/90 backdrop-blur-md border-t border-border-subtle shadow-[0_-4px_24px_rgba(0,0,0,0.06)]"
         aria-label="Mobile navigation"
       >
         {/* Safe area spacer for phones with home indicator */}
