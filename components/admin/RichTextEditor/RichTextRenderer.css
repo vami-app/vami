@@ -1,0 +1,173 @@
+/**
+ * components/admin/RichTextEditor/RichTextRenderer.css
+ *
+ * Public-facing read-only content styles.
+ *
+ * These styles render the output of the Lexical HTML serializer on public pages
+ * (blog posts, product descriptions, etc.) with full typography treatment.
+ *
+ * Architecture:
+ * - Loaded only by RichTextRenderer.jsx (Server Component)
+ * - Never loaded on admin editing pages
+ * - Max-width 72ch for optimal reading line length
+ * - Prose-quality typography using design tokens
+ */
+
+.rte-output {
+  font-family: var(--font-body, Georgia, 'Times New Roman', serif);
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--color-text-primary, hsl(220, 20%, 10%));
+  max-width: 72ch;
+}
+
+/* ─── Headings ───────────────────────────────────────────────────────────────── */
+
+.rte-output h1 {
+  font-size: 2.25em;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 1.25em 0 0.5em;
+  letter-spacing: -0.025em;
+}
+
+.rte-output h2 {
+  font-size: 1.75em;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 1.1em 0 0.45em;
+  letter-spacing: -0.015em;
+}
+
+.rte-output h3 {
+  font-size: 1.375em;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1em 0 0.4em;
+}
+
+.rte-output h4 {
+  font-size: 1.125em;
+  font-weight: 600;
+  margin: 0.9em 0 0.35em;
+}
+
+/* ─── Paragraphs ─────────────────────────────────────────────────────────────── */
+
+.rte-output p { margin: 0 0 1.25em; }
+.rte-output p:last-child { margin-bottom: 0; }
+
+/* ─── Blockquote ─────────────────────────────────────────────────────────────── */
+
+.rte-output blockquote {
+  border-left: 4px solid var(--color-brand-500, hsl(220, 90%, 56%));
+  padding-left: 1.25em;
+  margin: 1.5em 0;
+  color: var(--color-text-muted, hsl(220, 10%, 50%));
+  font-style: italic;
+}
+
+/* ─── Lists ──────────────────────────────────────────────────────────────────── */
+
+.rte-output ul, .rte-output ol {
+  padding-left: 1.75em;
+  margin: 0.75em 0 1.25em;
+}
+
+.rte-output ul { list-style-type: disc; }
+.rte-output ol { list-style-type: decimal; }
+.rte-output li { margin: 0.3em 0; }
+
+/* ─── Inline code ────────────────────────────────────────────────────────────── */
+
+.rte-output code {
+  background: var(--color-surface-subtle, hsl(220, 20%, 97%));
+  border: 1px solid var(--color-border, hsl(220, 15%, 88%));
+  border-radius: 3px;
+  padding: 0.1em 0.4em;
+  font-family: var(--font-mono, 'Courier New', Consolas, monospace);
+  font-size: 0.875em;
+}
+
+/* ─── Code block ─────────────────────────────────────────────────────────────── */
+
+.rte-output pre {
+  background: hsl(220, 20%, 10%);
+  color: hsl(210, 15%, 90%);
+  padding: 1.25em 1.5em;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.25em 0;
+  font-family: var(--font-mono, 'Courier New', Consolas, monospace);
+  font-size: 0.875em;
+  line-height: 1.65;
+}
+
+.rte-output pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ─── Links ──────────────────────────────────────────────────────────────────── */
+
+.rte-output a {
+  color: var(--color-brand-500, hsl(220, 90%, 56%));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: hsla(220, 90%, 56%, 0.4);
+  transition: text-decoration-color 0.15s ease;
+}
+
+.rte-output a:hover {
+  text-decoration-color: var(--color-brand-500, hsl(220, 90%, 56%));
+}
+
+/* ─── Images ─────────────────────────────────────────────────────────────────── */
+
+.rte-output img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.25em 0;
+  display: block;
+}
+
+/* ─── Horizontal rule ────────────────────────────────────────────────────────── */
+
+.rte-output hr {
+  border: none;
+  border-top: 2px solid var(--color-border, hsl(220, 15%, 88%));
+  margin: 2em 0;
+}
+
+/* ─── Tables ─────────────────────────────────────────────────────────────────── */
+
+.rte-output table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.9375em;
+  overflow-x: auto;
+  display: block;
+}
+
+.rte-output thead { background: var(--color-surface-subtle, hsl(220, 20%, 97%)); }
+
+.rte-output th, .rte-output td {
+  border: 1px solid var(--color-border, hsl(220, 15%, 88%));
+  padding: 0.6em 0.9em;
+  text-align: left;
+}
+
+.rte-output th { font-weight: 600; }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .rte-output { font-size: 1rem; }
+  .rte-output h1 { font-size: 1.875em; }
+  .rte-output h2 { font-size: 1.5em; }
+  .rte-output h3 { font-size: 1.25em; }
+}

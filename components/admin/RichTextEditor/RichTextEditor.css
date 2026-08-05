@@ -1,0 +1,339 @@
+/**
+ * components/admin/RichTextEditor/RichTextEditor.css
+ *
+ * Editor UI styles — admin editing interface.
+ *
+ * Architecture:
+ * - Class names are defined in editorTheme.js and referenced here.
+ * - Uses CSS custom properties from the design token system (colors.css etc.).
+ * - Mobile-first responsive: base styles for mobile, enhanced for desktop.
+ * - No Tailwind — vanilla CSS for full control and no purge configuration needed.
+ */
+
+/* ─── Container ─────────────────────────────────────────────────────────────── */
+
+.editor-container {
+  position: relative;
+  width: 100%;
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  border-radius: 8px;
+  background: var(--color-surface, #fff);
+  font-family: var(--font-body, system-ui, -apple-system, sans-serif);
+  transition: border-color 0.15s ease;
+}
+
+.editor-container:focus-within {
+  border-color: var(--color-brand-500, hsl(220, 90%, 56%));
+  box-shadow: 0 0 0 3px hsla(220, 90%, 56%, 0.12);
+}
+
+.editor-inner {
+  position: relative;
+}
+
+/* ─── Toolbar ────────────────────────────────────────────────────────────────── */
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  background: var(--color-surface-subtle, hsl(220, 20%, 98%));
+  border-radius: 8px 8px 0 0;
+}
+
+.editor-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-text-primary, hsl(220, 20%, 10%));
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+  white-space: nowrap;
+}
+
+.editor-toolbar-btn:hover {
+  background: var(--color-border, hsl(220, 15%, 85%));
+}
+
+.editor-toolbar-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.editor-toolbar-btn--active,
+.editor-toolbar-btn[aria-pressed="true"] {
+  background: var(--color-brand-500, hsl(220, 90%, 56%));
+  color: #fff;
+  border-color: transparent;
+}
+
+.editor-toolbar-btn:focus-visible {
+  outline: 2px solid var(--color-brand-500, hsl(220, 90%, 56%));
+  outline-offset: 1px;
+}
+
+.editor-toolbar-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--color-border, hsl(220, 15%, 85%));
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.editor-toolbar-select {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  border-radius: 5px;
+  background: var(--color-surface, #fff);
+  color: var(--color-text-primary, hsl(220, 20%, 10%));
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+
+.editor-toolbar-select:focus-visible {
+  border-color: var(--color-brand-500, hsl(220, 90%, 56%));
+  box-shadow: 0 0 0 2px hsla(220, 90%, 56%, 0.2);
+}
+
+/* ─── ContentEditable area ───────────────────────────────────────────────────── */
+
+.editor-content-editable {
+  min-height: 280px;
+  padding: 1rem 1.25rem;
+  outline: none;
+  caret-color: var(--color-brand-500, hsl(220, 90%, 56%));
+  line-height: 1.7;
+  color: var(--color-text-primary, hsl(220, 20%, 10%));
+  font-size: 1rem;
+}
+
+.editor-placeholder {
+  position: absolute;
+  top: 1rem;
+  left: 1.25rem;
+  color: var(--color-text-muted, hsl(220, 10%, 60%));
+  pointer-events: none;
+  user-select: none;
+  font-size: 1rem;
+}
+
+/* ─── Typography nodes ───────────────────────────────────────────────────────── */
+
+.editor-h1 { font-size: 2em; font-weight: 700; margin: 0.75em 0 0.4em; line-height: 1.25; }
+.editor-h2 { font-size: 1.5em; font-weight: 600; margin: 0.7em 0 0.35em; line-height: 1.3; }
+.editor-h3 { font-size: 1.25em; font-weight: 600; margin: 0.65em 0 0.3em; line-height: 1.35; }
+.editor-h4 { font-size: 1.1em; font-weight: 600; margin: 0.6em 0 0.3em; }
+.editor-paragraph { margin: 0.35em 0; }
+.editor-paragraph:first-child { margin-top: 0; }
+
+.editor-quote {
+  border-left: 3px solid var(--color-brand-500, hsl(220, 90%, 56%));
+  padding-left: 1em;
+  color: var(--color-text-muted, hsl(220, 10%, 60%));
+  margin: 0.5em 0;
+  font-style: italic;
+}
+
+/* ─── Inline formatting ──────────────────────────────────────────────────────── */
+
+.editor-text-bold { font-weight: 700; }
+.editor-text-italic { font-style: italic; }
+.editor-text-underline { text-decoration: underline; }
+.editor-text-strikethrough { text-decoration: line-through; }
+.editor-text-underline-strikethrough { text-decoration: underline line-through; }
+
+.editor-text-code {
+  background: var(--color-surface-subtle, hsl(220, 20%, 97%));
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+  font-family: var(--font-mono, 'Courier New', Consolas, monospace);
+  font-size: 0.875em;
+}
+
+/* ─── Links ──────────────────────────────────────────────────────────────────── */
+
+.editor-link {
+  color: var(--color-brand-500, hsl(220, 90%, 56%));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.editor-link:hover { opacity: 0.8; }
+
+/* ─── Code block ─────────────────────────────────────────────────────────────── */
+
+.editor-code {
+  background: var(--color-surface-subtle, hsl(220, 20%, 97%));
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  border-radius: 6px;
+  padding: 0.85em 1.1em;
+  overflow-x: auto;
+  font-family: var(--font-mono, 'Courier New', Consolas, monospace);
+  font-size: 0.875em;
+  line-height: 1.6;
+  margin: 0.75em 0;
+  display: block;
+}
+
+/* ─── Lists ──────────────────────────────────────────────────────────────────── */
+
+.editor-list-ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.editor-list-ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.editor-listitem { margin: 0.2em 0; }
+.editor-nested-listitem { list-style-type: circle; }
+
+/* ─── Horizontal rule ────────────────────────────────────────────────────────── */
+
+.editor-hr {
+  border: none;
+  border-top: 2px solid var(--color-border, hsl(220, 15%, 85%));
+  margin: 1.5em 0;
+}
+
+.editor-hr-container { padding: 0.25em 0; }
+
+/* ─── Image ──────────────────────────────────────────────────────────────────── */
+
+.editor-image {
+  display: block;
+  max-width: 100%;
+  margin: 0.75em 0;
+}
+
+.editor-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.editor-image-skeleton {
+  width: 100%;
+  height: 200px;
+  background: var(--color-surface-subtle, hsl(220, 20%, 97%));
+  border-radius: 6px;
+  animation: editor-pulse 1.5s ease-in-out infinite;
+}
+
+/* ─── Loading skeleton ───────────────────────────────────────────────────────── */
+
+.editor-skeleton {
+  border: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.editor-skeleton-toolbar {
+  height: 46px;
+  background: var(--color-surface-subtle, hsl(220, 20%, 97%));
+  border-bottom: 1px solid var(--color-border, hsl(220, 15%, 85%));
+  animation: editor-pulse 1.5s ease-in-out infinite;
+}
+
+.editor-skeleton-body {
+  height: 280px;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface, #fff) 0%,
+    var(--color-surface-subtle, hsl(220, 20%, 97%)) 50%,
+    var(--color-surface, #fff) 100%
+  );
+  background-size: 200% 100%;
+  animation: editor-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes editor-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes editor-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── Error state ────────────────────────────────────────────────────────────── */
+
+.editor-error {
+  padding: 1rem 1.25rem;
+  background: hsl(0, 90%, 97%);
+  border: 1px solid hsl(0, 72%, 80%);
+  border-radius: 6px;
+  color: hsl(0, 72%, 35%);
+}
+
+.editor-error p { margin: 0 0 0.75rem; }
+
+.editor-error button {
+  padding: 0.4em 1em;
+  background: hsl(0, 72%, 51%);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875em;
+}
+
+/* ─── Mobile ─────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  /* Prevent iOS Safari zoom on focus (requires font-size >= 16px on inputs) */
+  .editor-content-editable {
+    font-size: 16px;
+    min-height: 180px;
+    padding: 0.75rem 1rem;
+  }
+
+  .editor-placeholder {
+    font-size: 16px;
+    top: 0.75rem;
+    left: 1rem;
+  }
+
+  /* Scrollable toolbar on narrow screens */
+  .editor-toolbar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    padding: 6px 8px;
+  }
+
+  .editor-toolbar::-webkit-scrollbar { display: none; }
+
+  /* Minimum touch target size (WCAG 2.5.5) */
+  .editor-toolbar-btn {
+    min-width: 36px;
+    min-height: 36px;
+    font-size: 14px;
+  }
+
+  /* Scroll editor into view when mobile keyboard opens */
+  .editor-container:focus-within {
+    scroll-margin-bottom: 320px;
+  }
+}
