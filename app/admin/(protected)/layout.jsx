@@ -1,7 +1,7 @@
 import { requireAuthPage } from '@/lib/auth';
-import AdminShell from '@/components/admin/AdminShell';
+import { AdminShellTemplate } from '@/components/templates/admin-shell';
 
 export default async function AdminLayout({ children }) {
   const adminInfo = await requireAuthPage();
-  return <AdminShell permissions={adminInfo.permissions || []}>{children}</AdminShell>;
+  return <AdminShellTemplate permissions={adminInfo.permissions || []}>{children}</AdminShellTemplate>;
 }

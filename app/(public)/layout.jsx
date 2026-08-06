@@ -1,14 +1,10 @@
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { getAllCategories } from "@/services/category.service";
-import FloatingContactButton from "@/components/ui/FloatingContactButton";
+import { StandardLayoutTemplate } from "@/components/templates/standard-layout";
+import { getAllCategories } from "@/modules/categories";
 
 export default async function PublicLayout({ children }) {
   let categories = [];
   try {
     const categoriesDocs = await getAllCategories();
-
-    // Serialize for client components
     categories = (categoriesDocs || []).map((c) => ({
       _id: String(c._id || ''),
       name: c.name,
@@ -22,11 +18,8 @@ export default async function PublicLayout({ children }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface relative">
-      <Navbar categories={categories} />
-      <main className="flex-grow">{children}</main>
-      <Footer categories={categories} />
-      <FloatingContactButton />
-    </div>
+    <StandardLayoutTemplate categories={categories}>
+      {children}
+    </StandardLayoutTemplate>
   );
 }

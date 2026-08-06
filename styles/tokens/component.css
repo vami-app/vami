@@ -1,0 +1,11 @@
+/* styles/tokens/component.css */
+:root {
+  --button-bg: var(--primary);
+  --button-fg: var(--primary-foreground);
+  --button-radius: var(--radius-full);
+  
+  --input-border: var(--input);
+  
+  --card-bg: var(--surface);
+  --sidebar-bg: var(--surface);
+}

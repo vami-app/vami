@@ -1,4 +1,4 @@
-import BlogClient from './BlogClient';
+import BlogClient from '@/features/admin/blog-list';
 
 export default function BlogPage() {
   return (

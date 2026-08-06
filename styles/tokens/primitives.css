@@ -1,0 +1,61 @@
+/* styles/tokens/primitives.css */
+:root {
+  /* Grays (Light & Neutral) */
+  --gray-0: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --gray-950: #030712;
+  --black: #000000;
+
+  /* Additional Dark Mode Scale */
+  --dark-surface: #121212;
+  --dark-surface-muted: #1e1e1e;
+  --dark-text-primary: #f8fafc;
+  --dark-text-secondary: #a1a1aa;
+  --dark-text-muted: #71717a;
+
+  /* Alpha Colors */
+  --alpha-black-5: rgba(0,0,0,0.05);
+  --alpha-black-10: rgba(0,0,0,0.1);
+  --alpha-white-10: rgba(255,255,255,0.1);
+  --alpha-white-20: rgba(255,255,255,0.2);
+
+  /* Destructive / Status */
+  --red-50: #fef2f2;
+  --red-100: #fee2e2;
+  --red-600: #dc2626;
+
+  /* Typography */
+  --font-family-sans: "Inter", system-ui, sans-serif;
+  --font-family-display: "Noto Serif", Georgia, serif;
+
+  /* Spacing */
+  --space-0: 0px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Radius */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+}

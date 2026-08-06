@@ -57,7 +57,7 @@ export const POST = withApiHandler(async (req) => {
     );
   }
 
-  const { MediaService } = await import('@/services/media.service');
+  const { MediaService } = await import('@/modules/media/media.service');
   const result = await MediaService.uploadMedia(file, folder);
 
   return NextResponse.json({

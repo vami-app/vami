@@ -1,4 +1,4 @@
-import ProductClient from './ProductClient';
+import ProductClient from '@/features/admin/product-list';
 
 export default function ProductsPage() {
   return (

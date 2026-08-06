@@ -4,9 +4,13 @@ import { Suspense } from "react";
 import "./globals.css";
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import PWAProvider from "@/components/pwa/PWAProvider";
+import { ToastProvider } from "@/components/providers/ToastProvider";
+import { PWAProvider } from "@/components/organisms/pwa/pwa-provider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-family-sans",
+});
 
 // ── Viewport ─────────────────────────────────────────────────────────────────
 // Exported separately per Next.js 16 convention (not inside metadata object).
@@ -48,7 +52,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.variable} font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/*
             PWAProvider must be inside <Suspense> in Next.js 16 with cacheComponents: true.
@@ -65,6 +69,7 @@ export default function RootLayout({ children }) {
               {children}
             </PWAProvider>
           </Suspense>
+          <ToastProvider />
         </ThemeProvider>
       </body>
     </html>

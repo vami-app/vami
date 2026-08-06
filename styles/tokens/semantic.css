@@ -1,0 +1,78 @@
+/* styles/tokens/semantic.css */
+:root {
+  /* shadcn/ui pairs mapping */
+  --background: var(--gray-50);
+  --foreground: #171717; /* match current #171717 */
+
+  /* brand surfaces */
+  --surface: var(--gray-0);
+  --surface-muted: var(--gray-50);
+  --surface-subtle: var(--gray-100);
+
+  /* primary (currently maps to text-primary in UI for CTAs) */
+  --primary: var(--gray-900);
+  --primary-foreground: var(--gray-0);
+
+  /* text semantic */
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-600);
+  --text-muted: var(--gray-500);
+  --text-inverse: var(--gray-0);
+
+  /* structural & borders */
+  --border-subtle: var(--alpha-black-5);
+  --border-base: var(--alpha-black-10);
+  --input: var(--alpha-black-10);
+  --ring: var(--alpha-black-10);
+  --border: var(--alpha-black-10);
+
+  /* destructive */
+  --destructive: var(--red-600);
+  --destructive-foreground: var(--gray-0);
+
+  /* layout semantics */
+  --max-width-layout: 80rem;
+  --nav-block-h: 4.5rem;
+  --space-section: clamp(3rem, 8vw, 7rem); /* used generally for sections */
+  --gap: clamp(0.75rem, 2vw, 1.25rem); /* current --gap from globals */
+
+  --outer-radius: 36px;
+  --padding: 16px;
+  --inner-radius: calc(var(--outer-radius) - var(--padding));
+  --radius-shell: var(--outer-radius);
+}
+
+.dark {
+  --background: var(--black);
+  --foreground: #ededed; /* match current #ededed */
+
+  --surface: var(--black);
+  --surface-muted: var(--dark-surface);
+  --surface-subtle: var(--dark-surface-muted);
+
+  --primary: var(--dark-text-primary);
+  --primary-foreground: var(--black);
+
+  --text-primary: var(--dark-text-primary);
+  --text-secondary: var(--dark-text-secondary);
+  --text-muted: var(--dark-text-muted);
+  --text-inverse: var(--black);
+
+  --border-subtle: var(--alpha-white-10);
+  --border-base: var(--alpha-white-20);
+  --input: var(--alpha-white-20);
+  --ring: var(--alpha-white-20);
+  --border: var(--alpha-white-20);
+
+  --destructive: var(--red-600);
+  --destructive-foreground: var(--gray-0);
+}
+
+@media (min-width: 640px) {
+  :root, .dark {
+    --outer-radius: 44px;
+    --padding: 24px;
+    --nav-block-h: 5rem;
+    --radius-shell: 44px;
+  }
+}

@@ -1,6 +1,7 @@
-import ProductForm from "../../ProductForm";
-import { getProductById } from "@/modules/products";
-import { notFound } from "next/navigation";
+import ProductForm from '@/features/admin/product-form';
+import { AdminPageFrame } from '@/components/templates/admin-page-frame';
+import { getProductById } from '@/modules/products';
+import { notFound } from 'next/navigation';
 
 export default async function EditProductPage({ params }) {
   const { id } = await params;
@@ -16,15 +17,8 @@ export default async function EditProductPage({ params }) {
   const product = JSON.parse(JSON.stringify(rawProduct));
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-xl font-semibold text-text-primary">
-          Edit Product: {product.name}
-        </h1>
-      </div>
-      {/* <div className="bg-surface shadow px-4 py-5 sm:rounded-lg sm:p-6"> */}
+    <AdminPageFrame title={`Edit Product: ${product.name}`}>
       <ProductForm initialData={product} />
-      {/* </div> */}
-    </div>
+    </AdminPageFrame>
   );
 }

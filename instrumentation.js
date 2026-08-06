@@ -16,7 +16,7 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { logger } = await import('@/lib/logger');
     const { on } = await import('@/lib/events');
-    const { MediaService } = await import('@/services/media.service');
+    const { MediaService } = await import('@/modules/media/media.service');
 
     // ── Register Domain Event Listeners ────────────────────────────────────
     // 'media:cleanup' is emitted by blog, product, and category delete mutations.

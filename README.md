@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Radhey Metal Alloys LLP — FAANG-Grade Web Application
 
-## Getting Started
+A scalable, high-performance web application serving both the public marketing site and the internal administrative portal for Radhey Metal Alloys LLP. 
 
-First, run the development server:
+Built with Next.js 16 (App Router), React 19, and Tailwind CSS v4, this repository utilizes an Enterprise-grade Feature Module architecture combined with Atomic Design patterns.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+*Note: The NPM package name is `smalloys` to distinguish the repo codebase from the product brand.*
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Architecture Overview
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+This project adheres to a strict "FAANG-grade" enterprise structure.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **`app/`**: Thin routing layer. Only route definitions, layouts, and page shells that orchestrate data fetching and render colocated feature components.
+2. **`components/`**: The shared Atomic Design UI Kit.
+   - `primitives/`: Unstyled behavior wrappers (e.g., Radix Slot).
+   - `atoms/`: Smallest building blocks (Button, Input, Text, Badge).
+   - `molecules/`: Composed atoms (FormField, Tabs, Pagination).
+   - `organisms/`: Complex distinct UI sections (Navbar, Footer, ConfirmModal).
+   - `templates/`: Page layouts with slots for content.
+3. **`features/`**: Route-colocated UI components containing feature-specific logic. 
+   - Split into `public/` and `admin/`.
+4. **`modules/`**: The domain layer (Services, Models, Actions). This is the single source of truth for business logic.
+5. **`styles/tokens/`**: Three-layer design token system (Primitives → Semantic → Component) mapped to Tailwind via CSS variables.
 
-## Learn More
+### Parity Rule (Crucial)
+This codebase relies on strict UI/UX parity for components. **Do not** redesign or restyle buttons, inputs, forms, layouts, or fonts outside of the token layers without explicit permission. The visual output must remain consistent with the original production build.
 
-To learn more about Next.js, take a look at the following resources:
+## How to add a new Component
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Identify its atomic level (Atom, Molecule, Organism, or Template).
+2. If it's a shared generic UI piece, place it in `components/[level]/`.
+3. If it's highly specific to a route or business feature, place it in `features/[public|admin]/[feature_name]/`.
+4. Import and use **only** tokens from the `styles/tokens/*` definitions for styling. Do not hardcode arbitrary spacing or hex colors.
+5. Provide comprehensive JSDoc annotations for props.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Technology Stack
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework**: Next.js 16
+- **UI Library**: React 19
+- **Styling**: Tailwind CSS v4 + CVA + Radix Primitives
+- **Data/DB**: Mongoose (MongoDB)
+- **Forms & State**: React DOM Hooks, standard React context.

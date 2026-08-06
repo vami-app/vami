@@ -16,7 +16,7 @@ export const POST = withApiHandler(async (req) => {
     return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
   }
 
-  const { authenticateAdmin } = await import('@/services/auth.service');
+  const { authenticateAdmin } = await import('@/modules/auth/auth.service');
   const result = await authenticateAdmin(email, password);
 
   if (result.error) {

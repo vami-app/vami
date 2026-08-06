@@ -1,16 +1,10 @@
-import BlogForm from "../BlogForm";
+import BlogForm from '@/features/admin/blog-form';
+import { AdminPageFrame } from '@/components/templates/admin-page-frame';
 
 export default function NewBlogPage() {
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-xl font-semibold text-text-primary">
-          Create New Post
-        </h1>
-      </div>
-      {/* <div className="bg-surface shadow px-4 py-5 sm:rounded-lg sm:p-6"> */}
+    <AdminPageFrame title="Create New Post">
       <BlogForm />
-      {/* </div> */}
-    </div>
+    </AdminPageFrame>
   );
 }

@@ -1,8 +1,15 @@
 {
   "compilerOptions": {
+    "checkJs": true,
+    "jsx": "preserve",
+    "maxNodeModuleJsDepth": 0,
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@/modules/*": ["./modules/*"]
+      "@/components/*": ["./components/*"],
+      "@/features/*": ["./features/*"],
+      "@/styles/*": ["./styles/*"]
     }
-  }
+  },
+  "include": ["**/*.js", "**/*.jsx"]
 }

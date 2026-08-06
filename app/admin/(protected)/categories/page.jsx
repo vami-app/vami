@@ -1,4 +1,4 @@
-import CategoryClient from './CategoryClient';
+import CategoryClient from '@/features/admin/category-list';
 
 export default function CategoriesPage() {
   return (
