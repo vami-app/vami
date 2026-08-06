@@ -4,13 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "next dev --webpack",
+    "build": "next build && serwist build && node scripts/copy-standalone-assets.mjs",
+    "start": "node --env-file=.env.local .next/standalone/server.js",
+    "lint": "eslint",
+    "dev:pwa": "serwist build && next dev --experimental-https",
+    "pwa:icons": "node scripts/generate-pwa-icons.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.3.3",
+    "@serwist/next": "^9.5.12",
     "@t3-oss/env-nextjs": "^0.13.11",
     "@tanstack/react-table": "^9.0.0",
     "@tiptap/pm": "^3.29.2",
@@ -35,10 +38,19 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@serwist/cli": "^9.5.12",
     "@tailwindcss/postcss": "^4",
     "dotenv": "^17.4.2",
+    "esbuild": "^0.25.12",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
+    "serwist": "^9.5.12",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.12.2": true
   }
 }

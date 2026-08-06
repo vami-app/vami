@@ -190,3 +190,28 @@ body {
   color: var(--color-foreground);
 }
 
+/* ── PWA / Standalone mode ───────────────────────────────────────────────── */
+
+body {
+  /* Prevent iOS rubber-band scroll revealing background colour in standalone */
+  overscroll-behavior-y: none;
+}
+
+@media (display-mode: standalone) {
+  /*
+   * Push the sticky navbar below the status bar / Dynamic Island on notched
+   * iPhones. Only applied in standalone to avoid affecting normal browser UX.
+   */
+  header {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /*
+   * Push the main content and footer above the home indicator.
+   */
+  .layout-main,
+  footer {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+

@@ -12,20 +12,14 @@
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://smalloys.com';
+import dbConnect from '@/lib/db';
+import Category from '@/models/Category';
+import Product from '@/models/Product';
+import BlogPost from '@/models/BlogPost';
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://radheymetalalloysllp.com';
 
 export default async function sitemap() {
-  // Lazy imports to avoid loading modules before DB is ready
-  const [
-    { getAllCategories } = {},
-    { getAllPublishedProducts } = {},
-    { getPublishedBlogPosts } = {},
-  ] = await Promise.all([
-    import('@/modules/categories'),
-    import('@/modules/products'),
-    import('@/modules/blog'),
-  ]);
-
   // ── Static routes ──────────────────────────────────────────────────────────
   const staticRoutes = [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: 'weekly', priority: 1.0 },
@@ -39,10 +33,13 @@ export default async function sitemap() {
   let blogRoutes = [];
 
   try {
+    await dbConnect();
+
+    // Fetch all needed data directly to avoid pagination/cache issues
     const [categories, products, posts] = await Promise.all([
-      getAllCategories(),
-      getAllPublishedProducts(),
-      getPublishedBlogPosts(),
+      Category.find({}).lean(),
+      Product.find({ status: 'published' }).populate('category', 'slug').lean(),
+      BlogPost.find({ status: 'published' }).lean(),
     ]);
 
     categoryRoutes = categories.map((cat) => ({
@@ -54,7 +51,7 @@ export default async function sitemap() {
 
     // Products are nested under category slugs
     productRoutes = products
-      .filter((p) => p.category?.slug)
+      .filter((p) => p.category && p.category.slug)
       .map((product) => ({
         url: `${BASE_URL}/products/${product.category.slug}/${product.slug}`,
         lastModified: new Date(product.updatedAt || product.createdAt),

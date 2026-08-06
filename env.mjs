@@ -20,7 +20,9 @@ export const env = createEnv({
    * Client-side environment variables schema.
    * Prefix with NEXT_PUBLIC_
    */
-  client: {},
+  client: {
+    NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
+  },
 
   /**
    * Destructure process.env manually.
@@ -34,6 +36,7 @@ export const env = createEnv({
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
     CLOUDINARY_URL: process.env.CLOUDINARY_URL,
     NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   },
   
   // By default, skip validation during CI tests if variables aren't set

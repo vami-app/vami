@@ -10,8 +10,10 @@ export function proxy(request) {
     style-src 'self' 'unsafe-inline' https://vercel.live;
     img-src 'self' blob: data: https://res.cloudinary.com https://images.unsplash.com https://vercel.live https://vercel.com;
     font-src 'self' https://assets.vercel.com https://vercel.live;
-    connect-src 'self' https://vercel.live wss://ws-us3.pusher.com;
-    frame-src 'self' https://www.google.com https://vercel.live;
+    connect-src 'self' https://res.cloudinary.com https://images.unsplash.com https://vercel.live wss://ws-us3.pusher.com;
+    frame-src 'self' https://www.google.com https://maps.google.com https://vercel.live;
+    worker-src 'self';
+    manifest-src 'self';
     object-src 'none';
     base-uri 'self';
     form-action 'self';
@@ -36,8 +38,10 @@ export function proxy(request) {
 }
 
 export const config = {
-  // Apply middleware to all routes except api, _next/static, _next/image, and favicon
+  // Apply middleware to all routes except:
+  //   api, _next/static, _next/image, favicon.ico — original exclusions
+  //   sw.js, manifest.webmanifest, icons/ — these get their own headers in next.config.mjs
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|sw\.js|manifest\.webmanifest|icons\/).*)',
   ],
 };

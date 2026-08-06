@@ -11,6 +11,7 @@ import { siteConfig } from '@/config/site';
 export default function Navbar({ categories = [] }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
+  const [isDesktopProductsOpen, setIsDesktopProductsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function Navbar({ categories = [] }) {
         <div className="flex items-center justify-between w-full min-h-[var(--nav-block-h)]">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-              <img src="/images/logo.png" alt={siteConfig.name} className="h-10 sm:h-12 w-auto object-contain" />
+              <img src="/images/logo.png" alt={siteConfig.name} className="h-12 sm:h-16 w-auto object-contain" />
               <span className="sr-only">{siteConfig.name}</span>
             </Link>
           </div>
@@ -60,9 +61,11 @@ export default function Navbar({ categories = [] }) {
                 return (
                   <div 
                     key={navItem.title} 
-                    className="relative group inline-block"
+                    className="relative inline-block"
+                    onMouseEnter={() => setIsDesktopProductsOpen(true)}
+                    onMouseLeave={() => setIsDesktopProductsOpen(false)}
                   >
-                    <button className={`relative px-4 py-2 rounded-full text-[var(--text-body)] font-medium inline-flex items-center transition-colors z-10 ${textColorClass}`}>
+                    <Link href={navItem.href} className={`relative px-4 py-2 rounded-full text-[var(--text-body)] font-medium inline-flex items-center transition-colors z-10 ${textColorClass}`}>
                       {isActive && (
                         <motion.div
                           layoutId="navbar-capsule"
@@ -74,9 +77,9 @@ export default function Navbar({ categories = [] }) {
                       <span className="relative z-10 flex items-center">
                         {navItem.title} <ChevronDown className="ml-1 h-4 w-4" />
                       </span>
-                    </button>
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50">
-                      <div className="w-64 bg-surface/95 backdrop-blur-xl border border-border-base rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.08)] p-2 transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.3,1)] opacity-0 -translate-y-2 scale-[0.98] pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:scale-100 group-hover:pointer-events-auto flex flex-col origin-top">
+                    </Link>
+                    <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50 ${isDesktopProductsOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+                      <div className={`w-64 bg-surface/95 backdrop-blur-xl border border-border-base rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.08)] p-2 transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.3,1)] flex flex-col origin-top ${isDesktopProductsOpen ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
                         <div className="space-y-1">
                           <Link
                             href={navItem.href}

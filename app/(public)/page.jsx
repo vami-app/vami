@@ -38,16 +38,16 @@ export default async function HomePage() {
     <div className="layout-main">
       {/* Hero Showcase Section */}
       <section className="hero-section" aria-label="Hero showcase">
-        <div className="relative w-full min-h-[85dvh] lg:min-h-[92dvh] rounded-[var(--outer-radius)] overflow-hidden shadow-2xl flex flex-col justify-center border border-border-subtle bg-surface">
+        <div className="relative w-full min-h-[85dvh] lg:min-h-[92dvh] rounded-[var(--outer-radius)] overflow-hidden flex flex-col justify-center border border-border-subtle bg-surface">
           <div className="absolute inset-0 z-0">
             <img
-              className="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 brightness-110 mix-blend-overlay opacity-80"
+              className="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 opacity-90"
               src="/images/copper_sheets_1785916944432.png"
               alt="High-quality non-ferrous metallurgy"
             />
           </div>
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-tr from-surface/95 via-surface/60 to-surface/20" />
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-surface/90 via-transparent to-surface/30" />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-tr from-surface/80 via-surface/40 to-transparent" />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-surface/70 via-transparent to-transparent" />
 
           <div className="relative z-20 flex flex-col items-center text-center p-[var(--space-6)] pt-28 lg:pt-[var(--space-6)] transform transition-transform duration-700 translate-y-0 opacity-100 mt-20">
             <h1 className="font-headline font-light text-text-primary leading-[1.1] tracking-tight max-w-4xl text-4xl sm:text-5xl md:text-6xl drop-shadow-sm">
@@ -96,7 +96,7 @@ export default async function HomePage() {
                 By combining exact chemical composition control with strict dimensional tolerances, we ensure your projects meet the toughest metallurgical standards.
               </p>
             </div>
-            <div className="relative rounded-[var(--inner-radius)] overflow-hidden shadow-2xl aspect-video lg:aspect-square">
+            <div className="relative rounded-[var(--inner-radius)] overflow-hidden border border-border-subtle aspect-video lg:aspect-square">
                <img
                 src="/images/brass_plates_1785916962925.png"
                 alt="Brass Plates"

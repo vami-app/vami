@@ -8,15 +8,17 @@
  * @see https://nextjs.org/docs/app/api-reference/file-conventions/metadata/robots
  */
 
+import { getBaseUrl } from '@/modules/pwa/pwa.config.js';
+
 export default function robots() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://smalloys.com';
+  const baseUrl = getBaseUrl();
 
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/'],
+        disallow: ['/admin/', '/api/', '/offline'],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
