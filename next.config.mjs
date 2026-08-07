@@ -61,7 +61,7 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self'",
-              "connect-src 'self' https://res.cloudinary.com https://images.unsplash.com",
+              "connect-src 'self' https://res.cloudinary.com https://images.unsplash.com https://vercel.live wss://ws-us3.pusher.com",
             ].join('; '),
           },
         ],

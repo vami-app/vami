@@ -39,19 +39,23 @@ export default async function HomePage() {
       {/* Hero Showcase Section */}
       <section className="hero-section" aria-label="Hero showcase">
         <div className="relative w-full min-h-[85dvh] lg:min-h-[92dvh] rounded-[var(--outer-radius)] overflow-hidden flex flex-col justify-center border border-border-subtle bg-surface">
-          <div className="absolute inset-0 z-0">
-            <video
-              className="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 opacity-90"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-            >
-              <source src="/videos/7341421-uhd_3840_2160_30fps.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
+          <div 
+            className="absolute inset-0 z-0"
+            dangerouslySetInnerHTML={{
+              __html: `
+                <video
+                  class="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 opacity-90"
+                  autoplay
+                  muted
+                  loop
+                  playsinline
+                  preload="auto"
+                >
+                  <source src="/videos/7341421-uhd_3840_2160_30fps.mp4" type="video/mp4" />
+                </video>
+              `
+            }}
+          />
           <div className="absolute inset-0 z-10 pointer-events-none bg-black/40" />
           <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-[#1b0a0a]/90 via-[#1b0a0a]/40 to-transparent" />
 

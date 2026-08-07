@@ -21,13 +21,10 @@ export default function Footer({ categories = [] }) {
               {/* Logo area */}
               <div className="flex flex-col items-center lg:items-start w-full lg:w-auto">
                 <Link href="/">
-                  <Image
+                  <img
                     src="/images/logo.png"
                     alt="Radhey Metal Alloys LLP"
-                    width={200}
-                    height={80}
                     className="h-20 sm:h-24 w-auto object-contain"
-                    style={{ width: 'auto' }}
                   />
                 </Link>
               </div>

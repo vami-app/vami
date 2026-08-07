@@ -47,7 +47,7 @@ export default function Navbar({ categories = [] }) {
         <div className="flex items-center justify-between w-full min-h-[var(--nav-block-h)]">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-              <Image src="/images/logo.png" alt={siteConfig.name} width={200} height={80} className="h-12 sm:h-16 w-auto object-contain" style={{ width: 'auto' }} priority />
+              <img src="/images/logo.png" alt={siteConfig.name} className="h-12 sm:h-16 w-auto object-contain" />
               <span className="sr-only">{siteConfig.name}</span>
             </Link>
           </div>
