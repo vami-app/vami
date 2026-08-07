@@ -103,7 +103,7 @@ export default function BlogClient() {
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Blog Posts</h2>
         <Link
           href="/admin/blog/new"
-          className="inline-flex items-center justify-center rounded-full bg-text-primary px-6 py-2.5 text-sm font-medium text-text-inverse shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300"
+          className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-primary-foreground shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300"
         >
           <Plus className="mr-2 h-4 w-4" /> New Post
         </Link>
@@ -135,14 +135,14 @@ export default function BlogClient() {
                       <dl className="font-normal md:hidden mt-1">
                         <dt className="sr-only">Status</dt>
                         <dd className="text-text-muted">
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${post.status === 'published' ? 'bg-text-primary text-text-inverse' : 'bg-surface-subtle text-text-secondary'}`}>
+                          <span className={`inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold uppercase tracking-wider ${post.status === 'published' ? 'bg-primary text-primary-foreground' : 'bg-surface-subtle text-text-secondary'}`}>
                             {post.status}
                           </span>
                         </dd>
                       </dl>
                     </td>
                     <td className="whitespace-nowrap px-3 py-5 text-sm text-text-muted hidden md:table-cell">
-                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium tracking-wide ${post.status === 'published' ? 'bg-text-primary text-text-inverse' : 'bg-surface-subtle text-text-secondary'}`}>
+                      <span className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-semibold uppercase tracking-widest ${post.status === 'published' ? 'bg-primary text-primary-foreground' : 'bg-surface-subtle text-text-secondary'}`}>
                         {post.status}
                       </span>
                     </td>
@@ -150,10 +150,10 @@ export default function BlogClient() {
                       {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}
                     </td>
                     <td className="relative whitespace-nowrap py-5 pl-3 pr-6 text-right text-sm font-medium space-x-3">
-                      <Link href={`/admin/blog/${post._id}/edit`} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
+                      <Link href={`/admin/blog/${post._id}/edit`} className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
                         <Pencil className="h-4 w-4" />
                       </Link>
-                      <button onClick={() => setDeleteTarget({ id: post._id, title: post.title })} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
+                      <button onClick={() => setDeleteTarget({ id: post._id, title: post.title })} className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>

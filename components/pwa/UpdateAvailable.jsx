@@ -81,7 +81,7 @@ export default function UpdateAvailable() {
       role="alert"
       aria-live="polite"
     >
-      <div className="bg-text-primary text-text-inverse px-4 py-3 flex items-center justify-between gap-4 shadow-lg">
+      <div className="bg-primary text-primary-foreground rounded-b-lg px-4 py-3 flex items-center justify-between gap-4 shadow-lg">
         <div className="flex items-center gap-3 text-sm">
           <RefreshCw className="w-4 h-4 shrink-0 animate-spin" aria-hidden="true" />
           <span>A new version of the site is available.</span>
@@ -95,7 +95,7 @@ export default function UpdateAvailable() {
           </button>
           <button
             onClick={dismiss}
-            className="p-1.5 text-text-inverse/70 hover:text-text-inverse transition-colors"
+            className="p-1.5 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
             aria-label="Dismiss update notification"
           >
             <X className="w-4 h-4" />

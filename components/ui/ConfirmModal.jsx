@@ -49,18 +49,18 @@ export default function ConfirmModal({
       />
 
       {/* Modal Dialog Box */}
-      <div className="relative bg-surface rounded-3xl p-6 sm:p-8 shadow-2xl max-w-md w-full border border-border-subtle z-10 animate-in zoom-in-95 duration-200">
+      <div className="relative bg-surface rounded-lg p-6 sm:p-8 shadow-2xl max-w-md w-full border border-border-subtle z-10 animate-in zoom-in-95 duration-200">
         <button
           onClick={onClose}
           disabled={isLoading}
-          className="absolute top-5 right-5 p-2 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors disabled:opacity-50"
+          className="absolute top-5 right-5 p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors disabled:opacity-50"
           aria-label="Close modal"
         >
           <X className="h-5 w-5" />
         </button>
 
         <div className="flex flex-col items-start">
-          <div className={`p-3.5 rounded-2xl mb-4 inline-flex items-center justify-center ${
+          <div className={`p-3.5 rounded-lg mb-4 inline-flex items-center justify-center ${
             isDanger ? 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400 border border-red-200/50 dark:border-red-900/50' : 'bg-surface-muted text-text-primary border border-border-subtle'
           }`}>
             {isDanger ? <AlertTriangle className="h-6 w-6" /> : <Trash2 className="h-6 w-6" />}
@@ -78,7 +78,7 @@ export default function ConfirmModal({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="w-full sm:w-auto inline-flex justify-center items-center rounded-full border border-border-base px-6 py-2.5 bg-surface text-sm font-medium text-text-secondary hover:bg-surface-muted transition-colors focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50"
+              className="w-full sm:w-auto inline-flex justify-center items-center rounded-lg border border-border-base px-6 py-2.5 bg-surface uppercase tracking-wider font-semibold text-xs text-text-secondary hover:bg-surface-muted transition-colors focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50"
             >
               {cancelText}
             </button>
@@ -86,10 +86,10 @@ export default function ConfirmModal({
               type="button"
               onClick={onConfirm}
               disabled={isLoading}
-              className={`w-full sm:w-auto inline-flex justify-center items-center rounded-full px-6 py-2.5 text-sm font-medium shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ${
+              className={`w-full sm:w-auto inline-flex justify-center items-center rounded-lg px-6 py-2.5 uppercase tracking-wider font-semibold text-xs shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ${
                 isDanger
                   ? 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-600'
-                  : 'bg-text-primary hover:opacity-90 text-text-inverse focus:ring-black'
+                  : 'bg-primary hover:bg-primary/90 text-primary-foreground focus:ring-primary'
               }`}
             >
               {isLoading ? (

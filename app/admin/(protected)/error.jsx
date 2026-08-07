@@ -10,7 +10,7 @@ export default function AdminError({ error, reset }) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] bg-surface rounded-[var(--outer-radius)] border border-border-base p-8">
-      <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-50 text-red-500 mb-6 shadow-sm border border-red-100">
+      <div className="inline-flex items-center justify-center h-16 w-16 rounded-lg bg-red-50 text-red-500 mb-6 shadow-sm border border-red-100">
         <AlertTriangle className="h-8 w-8" />
       </div>
       
@@ -24,7 +24,7 @@ export default function AdminError({ error, reset }) {
       
       <button
         onClick={() => reset()}
-        className="inline-flex items-center justify-center px-6 py-2.5 bg-text-primary text-text-inverse rounded-full font-medium hover:opacity-90 transition-opacity"
+        className="inline-flex items-center justify-center px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-xs uppercase tracking-wider font-semibold hover:opacity-90 transition-opacity"
       >
         <RefreshCw className="h-4 w-4 mr-2" />
         Retry Module

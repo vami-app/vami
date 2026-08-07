@@ -2,7 +2,7 @@ import { getPublishedBlogPosts } from '@/modules/blog';
 import BlogListInfinite from './BlogListInfinite';
 
 export const metadata = {
-  title: 'Journal | Smalloys Technical Insights',
+  title: 'Journal & Technical Insights',
   description: 'Deep dives into metallurgy, copper casting, and CNC machining from the engineers at Smalloys.',
 };
 

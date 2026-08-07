@@ -10,4 +10,5 @@ export const SiteSettingsSchema = z.object({
   website: z.string().url({ message: 'Invalid URL' }).optional().or(z.literal('')),
   seoTitle: z.string().max(60).optional(),
   seoDescription: z.string().max(160).optional(),
+  showProductImagesInList: z.boolean().optional(),
 });

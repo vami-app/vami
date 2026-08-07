@@ -29,8 +29,14 @@ export const metadata = {
   metadataBase: new URL(getBaseUrl()),
   manifest: "/manifest.webmanifest",
   applicationName: "Radhey Metal Alloys LLP",
-  title:
-    "Radhey Metal Alloys LLP | Non-Ferrous Sheet, Plate & Casting Manufacturer",
+  title: {
+    default: "Radhey Metal Alloys LLP | Non-Ferrous Sheet, Plate & Casting Manufacturer",
+    template: "%s | Radhey Metal Alloys LLP",
+  },
+  icons: {
+    icon: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
   description:
     "Radhey Metal Alloys LLP manufactures NABL certified Copper, Brass & Phosphor Bronze sheets, plates, circles, ingots, and custom castings. Contact Kevin Shah, Arth Joshi, or Aditya Joshi at +91 9081358107 for custom technical quotes. Certified Company TC & Ultrasonic reports provided.",
   keywords:

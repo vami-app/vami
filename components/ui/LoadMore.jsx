@@ -14,7 +14,7 @@ export default function LoadMore({ onLoadMore, hasNext, isLoading }) {
       <button
         onClick={onLoadMore}
         disabled={isLoading || !hasNext}
-        className="inline-flex items-center justify-center rounded-full bg-surface px-8 py-3 text-sm font-medium text-text-primary shadow-sm ring-1 ring-inset ring-border hover:bg-surface-subtle disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
+        className="inline-flex items-center justify-center rounded-lg bg-surface px-8 py-3 text-xs uppercase tracking-wider font-semibold text-primary shadow-sm ring-1 ring-inset ring-border hover:bg-surface-subtle disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95"
       >
         {isLoading ? (
           <>

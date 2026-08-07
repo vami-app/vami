@@ -14,7 +14,7 @@ export default function LogoutPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center items-center px-4">
       <div className="text-center animate-in fade-in zoom-in-95 duration-300">
-        <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-surface border border-border-subtle shadow-sm mb-4">
+        <div className="inline-flex items-center justify-center h-14 w-14 rounded-lg bg-surface border border-border-subtle shadow-sm mb-4">
           <LogOut className="h-6 w-6 text-text-muted animate-pulse" />
         </div>
         <h1 className="text-xl font-headline font-bold text-text-primary tracking-tight">

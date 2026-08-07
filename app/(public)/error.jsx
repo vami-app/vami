@@ -12,7 +12,7 @@ export default function Error({ error, reset }) {
   return (
     <div className="layout-main min-h-[70vh] flex items-center justify-center py-16 px-4">
       <div className="text-center max-w-lg w-full">
-        <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-50 text-red-500 mb-6 shadow-sm border border-red-100">
+        <div className="inline-flex items-center justify-center h-16 w-16 rounded-lg bg-red-50 text-red-500 mb-6 shadow-sm border border-red-100">
           <AlertTriangle className="h-8 w-8" />
         </div>
         
@@ -27,7 +27,7 @@ export default function Error({ error, reset }) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={() => reset()}
-            className="inline-flex items-center justify-center px-6 py-3 bg-text-primary text-background rounded-full font-medium hover:opacity-90 transition-opacity w-full sm:w-auto"
+            className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg text-xs uppercase tracking-wider font-semibold hover:opacity-90 transition-opacity w-full sm:w-auto"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Try again
@@ -35,7 +35,7 @@ export default function Error({ error, reset }) {
           
           <Link
             href="/"
-            className="inline-flex items-center justify-center px-6 py-3 bg-surface border border-border-base text-text-primary rounded-full font-medium hover:bg-surface-muted transition-colors w-full sm:w-auto"
+            className="inline-flex items-center justify-center px-6 py-3 bg-surface border border-border-base text-text-secondary rounded-lg text-xs uppercase tracking-wider font-semibold hover:bg-surface-muted transition-colors w-full sm:w-auto"
           >
             Return to Homepage
           </Link>

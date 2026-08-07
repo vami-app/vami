@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { motion, LayoutGroup } from 'framer-motion';
@@ -40,13 +41,13 @@ export default function Navbar({ categories = [] }) {
   return (
     <header className={`sticky top-[var(--gap)] mt-[var(--gap)] z-50 w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)] pointer-events-none ${isHome ? 'h-0' : 'h-[calc(var(--nav-block-h)+var(--padding))] mb-[var(--gap)]'}`}>
       <nav 
-        className={`pointer-events-auto relative w-[calc(100%-(var(--padding)*2))] mx-auto bg-surface border border-border-base rounded-[var(--inner-radius)] px-4 sm:px-[var(--space-6)] shadow-sm transition-all duration-[350ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] mt-[var(--padding)] flex flex-col ${isScrolled && isHome ? '-translate-y-6' : 'translate-y-0'}`}
+        className={`pointer-events-auto relative w-[calc(100%-(var(--padding)*2))] mx-auto bg-surface border border-border-base rounded-2xl px-4 sm:px-[var(--space-6)] shadow-sm transition-all duration-[350ms] ease-[cubic-bezier(0.2,0.7,0.3,1)] mt-[var(--padding)] flex flex-col ${isScrolled && isHome ? '-translate-y-6' : 'translate-y-0'}`}
         aria-label="Top"
       >
         <div className="flex items-center justify-between w-full min-h-[var(--nav-block-h)]">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
-              <img src="/images/logo.png" alt={siteConfig.name} className="h-12 sm:h-16 w-auto object-contain" />
+              <Image src="/images/logo.png" alt={siteConfig.name} width={200} height={80} className="h-12 sm:h-16 w-auto object-contain" style={{ width: 'auto' }} priority />
               <span className="sr-only">{siteConfig.name}</span>
             </Link>
           </div>
@@ -55,7 +56,7 @@ export default function Navbar({ categories = [] }) {
             <LayoutGroup>
             {siteConfig.mainNav.map((navItem) => {
               const isActive = activeNavItem === navItem.title;
-              const textColorClass = isActive ? 'text-text-inverse' : 'text-text-secondary hover:text-text-primary hover:bg-surface-subtle';
+              const textColorClass = isActive ? 'text-primary-foreground' : 'text-text-secondary hover:text-primary hover:bg-surface-subtle';
 
               if (navItem.hasDropdown) {
                 return (
@@ -65,11 +66,11 @@ export default function Navbar({ categories = [] }) {
                     onMouseEnter={() => setIsDesktopProductsOpen(true)}
                     onMouseLeave={() => setIsDesktopProductsOpen(false)}
                   >
-                    <Link href={navItem.href} className={`relative px-4 py-2 rounded-full text-[var(--text-body)] font-medium inline-flex items-center transition-colors z-10 ${textColorClass}`}>
+                    <Link href={navItem.href} className={`relative px-4 py-2 rounded-lg text-[var(--text-body)] font-medium inline-flex items-center transition-colors z-10 ${textColorClass}`}>
                       {isActive && (
                         <motion.div
                           layoutId="navbar-capsule"
-                          className="absolute inset-0 rounded-full -z-10 bg-text-primary shadow-md"
+                          className="absolute inset-0 rounded-lg -z-10 bg-primary shadow-md"
                           transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                           initial={false}
                         />
@@ -79,11 +80,11 @@ export default function Navbar({ categories = [] }) {
                       </span>
                     </Link>
                     <div className={`absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50 ${isDesktopProductsOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
-                      <div className={`w-64 bg-surface/95 backdrop-blur-xl border border-border-base rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.08)] p-2 transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.3,1)] flex flex-col origin-top ${isDesktopProductsOpen ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
+                      <div className={`w-64 bg-surface/95 backdrop-blur-xl border border-border-base rounded-lg shadow-[0_16px_40px_rgba(0,0,0,0.08)] p-2 transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.3,1)] flex flex-col origin-top ${isDesktopProductsOpen ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
                         <div className="space-y-1">
                           <Link
                             href={navItem.href}
-                            className="block w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-text-primary hover:bg-surface-subtle shadow-sm"
+                            className="block w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-text-primary hover:bg-surface-subtle shadow-sm"
                           >
                             View All {navItem.title}
                           </Link>
@@ -93,7 +94,7 @@ export default function Navbar({ categories = [] }) {
                               <Link
                                 key={category._id}
                                 href={`${navItem.href}/${category.slug}`}
-                                className="block w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 text-text-secondary hover:bg-surface-subtle hover:text-text-primary"
+                                className="block w-full text-left px-4 py-3 rounded-lg text-sm transition-all duration-200 text-text-secondary hover:bg-surface-subtle hover:text-text-primary"
                               >
                                 {category.name}
                               </Link>
@@ -116,12 +117,12 @@ export default function Navbar({ categories = [] }) {
                 >
                   <Link 
                     href={navItem.href} 
-                    className={`relative block px-4 py-2 rounded-full text-[var(--text-body)] font-medium transition-colors z-10 ${textColorClass}`}
+                    className={`relative block px-4 py-2 rounded-lg text-[var(--text-body)] font-medium transition-colors z-10 ${textColorClass}`}
                   >
                     {isActive && (
                       <motion.div
                         layoutId="navbar-capsule"
-                        className="absolute inset-0 rounded-full -z-10 bg-text-primary shadow-md"
+                        className="absolute inset-0 rounded-lg -z-10 bg-primary shadow-md"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                         initial={false}
                       />
@@ -140,7 +141,7 @@ export default function Navbar({ categories = [] }) {
             
             <button
               type="button"
-              className="lg:hidden bg-surface-muted p-2.5 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-subtle flex-shrink-0 transition-colors"
+              className="lg:hidden bg-surface-muted p-2.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-subtle flex-shrink-0 transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <span className="sr-only">Open menu</span>
@@ -164,7 +165,7 @@ export default function Navbar({ categories = [] }) {
                     <button 
                       type="button" 
                       onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
-                      className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary rounded-2xl transition-colors"
+                      className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary rounded-lg transition-colors"
                     >
                       {navItem.title}
                       <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
@@ -175,7 +176,7 @@ export default function Navbar({ categories = [] }) {
                         <Link
                           href={navItem.href}
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className="block px-4 py-2.5 rounded-xl text-sm font-semibold text-text-primary hover:bg-surface-muted transition-colors"
+                          className="block px-4 py-2.5 rounded-lg text-sm font-semibold text-text-primary hover:bg-surface-muted transition-colors"
                         >
                           View All {navItem.title}
                         </Link>
@@ -184,7 +185,7 @@ export default function Navbar({ categories = [] }) {
                             key={category._id}
                             href={`${navItem.href}/${category.slug}`}
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="block px-4 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors"
+                            className="block px-4 py-2.5 rounded-lg text-sm font-medium text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors"
                           >
                             {category.name}
                           </Link>
@@ -196,7 +197,7 @@ export default function Navbar({ categories = [] }) {
               }
 
               return (
-                <Link key={navItem.title} href={navItem.href} onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-2xl text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
+                <Link key={navItem.title} href={navItem.href} onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-lg text-base font-medium text-text-secondary hover:bg-surface-muted hover:text-text-primary transition-colors">
                   {navItem.title}
                 </Link>
               );
@@ -206,7 +207,7 @@ export default function Navbar({ categories = [] }) {
                <Link
                   href="/contact"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full inline-flex items-center justify-center bg-text-primary px-6 h-12 rounded-full text-base font-medium text-text-inverse hover:opacity-90 transition-colors"
+                  className="w-full inline-flex items-center justify-center bg-primary px-6 h-12 rounded-lg text-base font-medium text-primary-foreground hover:opacity-90 transition-colors uppercase tracking-wider"
                 >
                   Request Quote
                 </Link>

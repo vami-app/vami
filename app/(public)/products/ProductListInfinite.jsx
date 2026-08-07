@@ -6,7 +6,7 @@ import { loadMoreProducts } from '@/modules/products/product.actions';
 import LoadMore from '@/components/ui/LoadMore';
 import toast from 'react-hot-toast';
 
-export default function ProductListInfinite({ initialEdges, initialPageInfo }) {
+export default function ProductListInfinite({ initialEdges, initialPageInfo, showImages = true }) {
   const [edges, setEdges] = useState(initialEdges);
   const [pageInfo, setPageInfo] = useState(initialPageInfo);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,34 +37,40 @@ export default function ProductListInfinite({ initialEdges, initialPageInfo }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
         {edges.map(({ node: product }) => (
-          <Link key={product._id.toString()} href={`/products/${product.category?.slug || 'uncategorized'}/${product.slug}`} className="relative group block">
-            <div className="w-full aspect-[5/4] sm:aspect-square rounded-[var(--inner-radius)] overflow-hidden bg-surface-muted border border-border-subtle relative shadow-sm">
-              {product.images && product.images.length > 0 ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={product.images[0]} alt={product.name} className="absolute inset-0 w-full h-full object-center object-cover transition-transform duration-700 group-hover:scale-105" />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-text-muted font-light">No image</span>
-                </div>
-              )}
+          <Link key={product._id.toString()} href={`/products/${product.category?.slug || 'uncategorized'}/${product.slug}`} className="relative group block h-full">
+            <div className="w-full h-full bg-surface border border-border-subtle rounded-lg p-5 sm:p-6 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row gap-6 items-center">
               
-              {/* Top Badge */}
-              {product.category && (
-                <div className="absolute top-3 left-3 max-w-[calc(100%-1.5rem)] truncate block bg-surface/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-semibold text-text-primary uppercase tracking-wider shadow-sm border border-border-subtle z-10" title={product.category.name}>
-                  {product.category.name}
+              {/* Left Side: Content */}
+              <div className="flex-1 w-full flex flex-col justify-center text-left order-2 sm:order-1">
+                {/* Pill Badge */}
+                {product.category && (
+                  <div className="mb-3">
+                    <span className="inline-flex items-center px-3 py-1 rounded-lg border border-primary text-[10px] font-semibold text-primary uppercase tracking-widest bg-transparent">
+                      {product.category.name}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Product Name */}
+                <h3 className="text-lg sm:text-xl font-medium text-text-primary mb-2 line-clamp-2 tracking-tight group-hover:text-primary transition-colors">
+                  {product.name}
+                </h3>
+                
+                {/* Product Description */}
+                <p className="text-sm text-text-muted font-light leading-relaxed line-clamp-3">
+                  {product.shortDescription || "Contact us for detailed specifications and sizing options."}
+                </p>
+              </div>
+
+              {/* Right Side: Image with margin/padding wrapper effect */}
+              {showImages && product.images && product.images.length > 0 && (
+                <div className="w-full sm:w-1/3 xl:w-2/5 aspect-video sm:aspect-square md:aspect-[4/3] rounded-lg overflow-hidden relative order-1 sm:order-2 shrink-0 border border-border-subtle">
+                  <img src={product.images[0]} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 </div>
               )}
 
-              {/* Gradient Overlay for Sub-card Contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-surface/80 via-surface/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-              {/* Glassmorphism Sub-card */}
-              <div className="absolute bottom-3 left-3 right-3 bg-surface/95 backdrop-blur-md border border-border-subtle p-4 rounded-[calc(var(--inner-radius)-8px)] shadow-lg transform transition-all duration-500 group-hover:-translate-y-1 z-10">
-                <h3 className="text-sm sm:text-base font-medium text-text-primary tracking-tight line-clamp-1">{product.name}</h3>
-                <p className="mt-1 text-xs text-text-muted font-light leading-relaxed line-clamp-1 sm:line-clamp-2">{product.shortDescription}</p>
-              </div>
             </div>
           </Link>
         ))}

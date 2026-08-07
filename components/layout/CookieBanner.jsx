@@ -31,7 +31,7 @@ export default function CookieBanner() {
         show ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
       }`}
     >
-      <div className="bg-background/80 backdrop-blur-xl border border-border-subtle shadow-2xl rounded-2xl p-5 sm:p-6 flex flex-col gap-4 relative">
+      <div className="bg-background/80 backdrop-blur-xl border border-border-subtle shadow-2xl rounded-lg p-5 sm:p-6 flex flex-col gap-4 relative">
         <button 
           onClick={dismiss}
           className="absolute top-4 right-4 text-text-muted hover:text-text-primary transition-colors"
@@ -41,7 +41,7 @@ export default function CookieBanner() {
         </button>
 
         <div className="flex items-start gap-3">
-          <div className="p-2 bg-surface-muted rounded-full shrink-0">
+          <div className="p-2 bg-surface-muted rounded-lg shrink-0">
             <Cookie className="w-5 h-5 text-text-primary" />
           </div>
           <div>
@@ -57,13 +57,13 @@ export default function CookieBanner() {
         <div className="flex items-center gap-3 w-full mt-2">
           <button 
             onClick={accept} 
-            className="flex-1 px-4 py-2.5 bg-text-primary text-text-inverse text-sm font-medium rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-transform"
+            className="flex-1 px-4 py-2.5 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider rounded-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
           >
             Accept
           </button>
           <Link 
             href="/privacy" 
-            className="flex-1 px-4 py-2.5 bg-surface text-text-primary text-sm font-medium rounded-xl border border-border-subtle hover:bg-surface-muted transition-colors text-center"
+            className="flex-1 px-4 py-2.5 bg-surface text-text-primary text-[10px] font-semibold uppercase tracking-wider rounded-lg border border-border-subtle hover:bg-surface-muted transition-colors text-center"
           >
             Learn More
           </Link>

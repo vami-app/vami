@@ -81,8 +81,8 @@ export default function AboutPage() {
             <div className="w-full aspect-[4/3] sm:aspect-video lg:aspect-square rounded-[var(--outer-radius)] overflow-hidden relative shadow-sm border border-border-subtle group bg-surface">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
-                src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
-                alt="Molten copper being poured in a precision foundry"
+                src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                alt="Precision pouring of molten metal in advanced foundry"
                 className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80 transition-transform duration-1000 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-surface/95 via-surface/40 to-transparent"></div>
@@ -116,9 +116,9 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {/* Card 1 */}
             <div className="bg-surface rounded-[var(--outer-radius)] p-8 sm:p-10 border border-border-subtle shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-surface-muted rounded-full group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-surface-muted rounded-lg group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
               <div className="relative z-10">
-                <div className="h-14 w-14 rounded-2xl bg-text-primary text-text-inverse flex items-center justify-center mb-8">
+                <div className="h-14 w-14 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-8">
                   <Droplets className="h-6 w-6" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-xl font-medium text-text-primary mb-4 tracking-tight">
@@ -134,9 +134,9 @@ export default function AboutPage() {
 
             {/* Card 2 */}
             <div className="bg-surface rounded-[var(--outer-radius)] p-8 sm:p-10 border border-border-subtle shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-surface-muted rounded-full group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-surface-muted rounded-lg group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
               <div className="relative z-10">
-                <div className="h-14 w-14 rounded-2xl bg-text-primary text-text-inverse flex items-center justify-center mb-8">
+                <div className="h-14 w-14 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-8">
                   <ShieldCheck className="h-6 w-6" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-xl font-medium text-text-primary mb-4 tracking-tight">
@@ -152,9 +152,9 @@ export default function AboutPage() {
 
             {/* Card 3 */}
             <div className="bg-surface rounded-[var(--outer-radius)] p-8 sm:p-10 border border-border-subtle shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
-              <div className="absolute -right-8 -top-8 w-32 h-32 bg-surface-muted rounded-full group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
+              <div className="absolute -right-8 -top-8 w-32 h-32 bg-surface-muted rounded-lg group-hover:scale-150 transition-transform duration-700 ease-out z-0"></div>
               <div className="relative z-10">
-                <div className="h-14 w-14 rounded-2xl bg-text-primary text-text-inverse flex items-center justify-center mb-8">
+                <div className="h-14 w-14 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-8">
                   <Settings className="h-6 w-6" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-xl font-medium text-text-primary mb-4 tracking-tight">
@@ -250,7 +250,7 @@ export default function AboutPage() {
                   href="https://maps.google.com/?q=43,+Vardhmaan+Nagar,+Kalol,+Gandhinagar,+Gujarat,+India"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-full bg-text-primary text-text-inverse rounded-full py-3 px-4 text-sm font-medium hover:opacity-90 transition-colors"
+                  className="inline-flex items-center justify-center w-full bg-primary text-primary-foreground rounded-lg py-3 px-4 text-sm font-semibold uppercase tracking-wider hover:opacity-90 transition-colors"
                 >
                   Get Directions
                 </a>

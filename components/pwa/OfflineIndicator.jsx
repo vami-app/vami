@@ -27,7 +27,7 @@ export default function OfflineIndicator() {
       aria-live="polite"
       aria-label={isOnline ? undefined : 'You are currently offline'}
     >
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-text-primary text-text-inverse text-xs font-medium rounded-full shadow-xl">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground text-[10px] font-semibold uppercase tracking-wider rounded-lg shadow-xl">
         <WifiOff className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
         <span>You&apos;re offline</span>
       </div>

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }) {
   const { product } = data;
 
   return {
-    title: product.seoTitle || `${product.name} | Smalloys`,
+    title: product.seoTitle || product.name,
     description:
       product.seoDescription ||
       product.shortDescription ||
@@ -153,7 +153,7 @@ export default async function ProductDetailPage({ params }) {
               <div className="mt-12 flex">
                 <Link
                   href="/contact"
-                  className="w-full sm:w-auto inline-flex justify-center items-center px-10 py-5 bg-text-primary text-text-inverse rounded-full text-[var(--text-cta)] font-medium shadow-cta hover:opacity-90 transition-colors"
+                  className="w-full sm:w-auto inline-flex justify-center items-center px-10 py-5 bg-primary text-primary-foreground rounded-lg text-[var(--text-cta)] uppercase tracking-wider font-semibold shadow-cta hover:opacity-90 transition-colors"
                 >
                   Request a Quote
                 </Link>
@@ -201,7 +201,7 @@ export default async function ProductDetailPage({ params }) {
                             )}
                           </div>
                           <div>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-surface-subtle text-text-primary">
+                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold uppercase tracking-widest bg-surface-subtle text-primary">
                               Available
                             </span>
                           </div>

@@ -29,9 +29,9 @@ function SidebarNavLinks({ showLabel, pathname, allowedNavigation }) {
               href={href}
               title={name}
               className={[
-                "flex items-center justify-center w-11 h-11 rounded-full transition-all duration-300",
+                "flex items-center justify-center w-11 h-11 rounded-lg transition-all duration-300",
                 active
-                  ? "bg-text-primary text-text-inverse shadow-md"
+                  ? "bg-primary text-primary-foreground shadow-md"
                   : "text-text-muted hover:bg-surface-muted hover:text-text-primary hover:scale-110",
               ].join(" ")}
             >
@@ -45,9 +45,9 @@ function SidebarNavLinks({ showLabel, pathname, allowedNavigation }) {
             key={name}
             href={href}
             className={[
-              "group flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300",
+              "group flex items-center gap-3 w-full px-4 py-3 text-sm font-medium rounded-lg transition-all duration-300",
               active
-                ? "bg-text-primary text-text-inverse shadow-md scale-[1.02]"
+                ? "bg-primary text-primary-foreground shadow-md scale-[1.02]"
                 : "text-text-secondary hover:bg-surface-subtle hover:text-text-primary hover:scale-[1.02]",
             ].join(" ")}
           >
@@ -55,7 +55,7 @@ function SidebarNavLinks({ showLabel, pathname, allowedNavigation }) {
               className={[
                 "flex-shrink-0 h-5 w-5 transition-colors",
                 active
-                  ? "text-text-inverse"
+                  ? "text-primary-foreground"
                   : "text-text-muted group-hover:text-text-primary",
               ].join(" ")}
               aria-hidden="true"
@@ -82,8 +82,8 @@ function SidebarSignOut({ compact }) {
         title="Sign Out"
         className={
           compact
-            ? "flex items-center justify-center w-11 h-11 rounded-full text-text-muted hover:bg-red-50 hover:text-red-600 transition-all duration-300 hover:scale-110"
-            : "group flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-text-muted hover:bg-red-50 hover:text-red-700 transition-all duration-300 hover:scale-[1.02]"
+            ? "flex items-center justify-center w-11 h-11 rounded-lg text-text-muted hover:bg-red-50 hover:text-red-600 transition-all duration-300 hover:scale-110"
+            : "group flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-text-muted hover:bg-red-50 hover:text-red-700 transition-all duration-300 hover:scale-[1.02]"
         }
       >
         <svg
@@ -131,10 +131,10 @@ export default function AdminShell({ children, permissions = [] }) {
       <aside className="hidden lg:flex lg:w-72 lg:flex-col lg:fixed lg:inset-y-0 p-[var(--gap)]">
         <div className="flex flex-col flex-grow bg-surface/90 backdrop-blur-md border border-border-subtle rounded-[var(--outer-radius)] overflow-hidden shadow-sm">
           <div className="flex items-center flex-shrink-0 px-6 py-7 border-b border-border-subtle">
-            <span className="text-xl font-headline font-light text-text-primary tracking-tight">
-              Smalloys
-              <span className="text-text-muted font-light ml-2">Admin</span>
-            </span>
+            <div className="flex items-center gap-3">
+              <img src="/images/logo.png" alt="Radhey Metal Alloys" className="h-8 w-auto object-contain dark:invert" />
+              <span className="text-text-muted font-medium text-xs tracking-widest uppercase mt-1">Admin</span>
+            </div>
           </div>
           <div className="flex flex-col flex-1 overflow-hidden">
             <div className="flex-1 overflow-y-auto hide-scrollbar">
@@ -168,14 +168,14 @@ export default function AdminShell({ children, permissions = [] }) {
             ].join(" ")}
           >
             {tabletExpanded && (
-              <span className="text-sm font-headline font-light text-text-primary tracking-tight whitespace-nowrap">
-                Smalloys
-                <span className="text-text-muted font-light ml-1">Admin</span>
-              </span>
+              <div className="flex items-center gap-2">
+                <img src="/images/logo.png" alt="Radhey" className="h-6 w-auto object-contain dark:invert" />
+                <span className="text-text-muted font-medium text-[10px] tracking-widest uppercase mt-0.5">Admin</span>
+              </div>
             )}
             <button
               onClick={() => setTabletExpanded((v) => !v)}
-              className="flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors flex-shrink-0"
+              className="flex items-center justify-center h-8 w-8 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-muted transition-colors flex-shrink-0"
               aria-label={
                 tabletExpanded ? "Collapse sidebar" : "Expand sidebar"
               }
@@ -252,14 +252,14 @@ export default function AdminShell({ children, permissions = [] }) {
               >
                 <span
                   className={[
-                    "flex items-center justify-center w-12 h-8 rounded-full transition-all duration-200",
-                    active ? "bg-text-primary" : "bg-transparent",
+                    "flex items-center justify-center w-12 h-8 rounded-lg transition-all duration-200",
+                    active ? "bg-primary" : "bg-transparent",
                   ].join(" ")}
                 >
                   <Icon
                     className={[
                       "h-5 w-5 transition-colors duration-200",
-                      active ? "text-text-inverse" : "text-text-muted",
+                      active ? "text-primary-foreground" : "text-text-muted",
                     ].join(" ")}
                     aria-hidden="true"
                   />
@@ -282,7 +282,7 @@ export default function AdminShell({ children, permissions = [] }) {
             className="flex flex-col items-center gap-0.5 flex-1 py-1 transition-opacity active:opacity-70"
             aria-label="Sign Out"
           >
-            <span className="flex items-center justify-center w-12 h-8 rounded-full bg-transparent hover:bg-red-50 transition-all duration-200">
+            <span className="flex items-center justify-center w-12 h-8 rounded-lg bg-transparent hover:bg-red-50 transition-all duration-200">
               <LogOut
                 className="h-5 w-5 text-text-muted hover:text-red-500 transition-colors duration-200"
                 aria-hidden="true"

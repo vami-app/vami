@@ -26,7 +26,7 @@ export function Tabs({ defaultValue, value, onValueChange, children, className }
 
 export function TabsList({ children, className }) {
   return (
-    <div className={cn("flex gap-1 bg-surface-muted rounded-2xl p-1 w-fit", className)}>
+    <div className={cn("flex gap-1 bg-surface-muted rounded-lg p-1 w-fit", className)}>
       {children}
     </div>
   )
@@ -43,7 +43,7 @@ export function TabsTrigger({ value, children, className }) {
       type="button"
       onClick={() => context.onValueChange(value)}
       className={cn(
-        "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200",
+        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
         isActive
           ? "bg-surface text-text-primary shadow-sm border border-border-subtle"
           : "text-text-muted hover:text-text-primary",

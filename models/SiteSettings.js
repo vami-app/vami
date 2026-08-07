@@ -13,6 +13,7 @@ const SiteSettingsSchema = new mongoose.Schema(
     website:         { type: String, default: '' },
     seoTitle:        { type: String, default: '' },
     seoDescription:  { type: String, default: '' },
+    showProductImagesInList: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

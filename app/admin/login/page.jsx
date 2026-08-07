@@ -45,10 +45,10 @@ export default function AdminLogin() {
 
       <div className="w-full max-w-md animate-in fade-in zoom-in-95 duration-500 ease-out">
         {/* Brand Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-headline font-light text-text-primary tracking-tight">
-            Smalloys
-            <span className="text-text-muted font-light ml-2">Admin</span>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img src="/images/logo.png" alt="Radhey Metal Alloys" className="h-16 w-auto object-contain dark:invert mb-4" />
+          <h1 className="text-xl font-medium text-text-primary tracking-tight">
+            Admin Portal
           </h1>
           <p className="mt-2 text-sm text-text-muted font-light">
             Sign in to manage catalog, categories, and content
@@ -70,10 +70,10 @@ export default function AdminLogin() {
                   type="email"
                   required
                   autoComplete="email"
-                  placeholder="admin@smalloys.com"
+                  placeholder="radhemetalalloysllp@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-4 py-3 bg-background border border-border-base rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface"
+                  className="block w-full pl-10 pr-4 py-3 bg-background border border-border-base rounded-lg text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface"
                 />
               </div>
             </div>
@@ -93,7 +93,7 @@ export default function AdminLogin() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-10 py-3 bg-background border border-border-base rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface"
+                  className="block w-full pl-10 pr-10 py-3 bg-background border border-border-base rounded-lg text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-border-focus transition-all hover:bg-surface"
                 />
                 <button
                   type="button"
@@ -114,7 +114,7 @@ export default function AdminLogin() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus disabled:opacity-50 transition-all duration-300 shadow-xl group"
+                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-lg bg-primary text-primary-foreground text-xs uppercase tracking-wider font-semibold hover:opacity-90 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-all duration-300 shadow-xl group"
               >
                 {loading ? (
                   <span>Authenticating...</span>
@@ -131,7 +131,7 @@ export default function AdminLogin() {
 
         {/* Footer */}
         <p className="mt-8 text-center text-xs text-text-muted font-light">
-          Protected Portal &bull; Smalloys Metallurgical Foundry
+          Protected Portal &bull; Radhey Metal Alloys LLP
         </p>
       </div>
     </div>

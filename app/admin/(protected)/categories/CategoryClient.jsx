@@ -120,7 +120,7 @@ export default function CategoryClient() {
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Categories</h2>
         <button
           onClick={() => handleOpenModal()}
-          className="inline-flex items-center justify-center rounded-full bg-text-primary px-6 py-2.5 text-sm font-medium text-text-inverse shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300"
+          className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-primary-foreground shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Category
         </button>
@@ -154,11 +154,11 @@ export default function CategoryClient() {
                       </dl>
                     </td>
                     <td className="whitespace-nowrap px-3 py-5 text-sm text-text-muted hidden md:table-cell">{category.slug}</td>
-                    <td className="relative whitespace-nowrap py-5 pl-3 pr-6 text-right text-sm font-medium space-x-3">
-                      <button onClick={() => handleOpenModal(category)} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
+                    <td className="relative whitespace-nowrap py-5 pl-3 pr-6 text-right uppercase tracking-wider font-semibold text-xs space-x-3">
+                      <button onClick={() => handleOpenModal(category)} className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-subtle transition-colors">
                         <Pencil className="h-4 w-4" />
                       </button>
-                      <button onClick={() => setDeleteTarget({ id: category._id, name: category.name })} className="inline-flex items-center justify-center h-8 w-8 rounded-full text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
+                      <button onClick={() => setDeleteTarget({ id: category._id, name: category.name })} className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-text-muted hover:text-red-600 hover:bg-red-50 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </td>
@@ -182,7 +182,7 @@ export default function CategoryClient() {
           <div className="fixed inset-0 bg-surface/80 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)} aria-hidden="true" />
 
           {/* Modal Content Box */}
-          <div className="relative bg-surface rounded-2xl p-6 sm:p-8 shadow-2xl max-w-lg w-full max-h-[calc(100dvh-7.5rem)] md:max-h-[90vh] overflow-y-auto hide-scrollbar border border-border-subtle z-10 animate-in zoom-in-95 duration-200">
+          <div className="relative bg-surface rounded-lg p-6 sm:p-8 shadow-2xl max-w-lg w-full max-h-[calc(100dvh-7.5rem)] md:max-h-[90vh] overflow-y-auto hide-scrollbar border border-border-subtle z-10 animate-in zoom-in-95 duration-200">
             <h3 className="text-2xl font-headline font-light text-text-primary tracking-tight" id="modal-title">
               {currentCategory ? 'Edit Category' : 'New Category'}
             </h3>
@@ -193,7 +193,7 @@ export default function CategoryClient() {
                   <input
                     type="text"
                     required
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.name}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -210,7 +210,7 @@ export default function CategoryClient() {
                   <input
                     type="text"
                     required
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                   />
@@ -218,7 +218,7 @@ export default function CategoryClient() {
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Description</label>
                   <textarea
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
@@ -227,7 +227,7 @@ export default function CategoryClient() {
                   <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Title</label>
                   <input
                     type="text"
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.seoTitle}
                     onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
                   />
@@ -236,7 +236,7 @@ export default function CategoryClient() {
                 <div>
                   <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Description</label>
                   <textarea
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.seoDescription}
                     onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
                   />
@@ -246,14 +246,14 @@ export default function CategoryClient() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className="w-full sm:w-auto inline-flex justify-center rounded-full border border-transparent shadow-xl px-6 py-2.5 bg-text-primary text-sm font-medium text-text-inverse hover:opacity-90 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus"
+                    className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent shadow-xl px-6 py-2.5 bg-primary text-xs uppercase tracking-wider font-semibold text-primary-foreground hover:opacity-90 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                   >
                     {isSaving ? 'Saving...' : 'Save Category'}
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="w-full sm:w-auto inline-flex justify-center rounded-full border border-border-base shadow-sm px-6 py-2.5 bg-surface text-sm font-medium text-text-secondary hover:bg-surface-subtle hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus"
+                    className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-border-base shadow-sm px-6 py-2.5 bg-surface text-xs uppercase tracking-wider font-semibold text-text-secondary hover:bg-surface-subtle hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus"
                   >
                     Cancel
                   </button>

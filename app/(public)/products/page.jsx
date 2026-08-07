@@ -1,17 +1,19 @@
-
 import { getAllPublishedProducts } from '@/modules/products';
+import { getSiteSettings } from '@/services/settings.service';
 import ProductListInfinite from './ProductListInfinite';
 
 export const metadata = {
-  title: 'All Products | Smalloys',
+  title: 'All Products',
   description: 'Browse our complete catalog of premium industrial materials, alloys, and composites.',
 };
 
 export default async function AllProductsPage() {
   let productsData = { edges: [], pageInfo: { hasNextPage: false, endCursor: null } };
+  let settings = {};
   try {
     // Fetch initial page with a limit of 12 for the grid
     productsData = await getAllPublishedProducts({ limit: 12 });
+    settings = await getSiteSettings();
   } catch (error) {
     console.error('Database connection failed on Products page render:', error.message);
   }
@@ -30,7 +32,11 @@ export default async function AllProductsPage() {
             </p>
           </div>
 
-          <ProductListInfinite initialEdges={productsData.edges} initialPageInfo={productsData.pageInfo} />
+          <ProductListInfinite 
+            initialEdges={productsData.edges} 
+            initialPageInfo={productsData.pageInfo} 
+            showImages={settings.showProductImagesInList !== false} 
+          />
         </div>
       </section>
     </div>

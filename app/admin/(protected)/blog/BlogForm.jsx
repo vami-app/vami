@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud, ChevronDown } from 'lucide-react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
@@ -29,7 +29,7 @@ export default function BlogForm({ initialData = null }) {
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[300px] border border-border-subtle rounded-xl bg-surface-muted hover:bg-surface transition-colors p-6',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[400px] border border-border-subtle rounded-lg bg-surface hover:bg-surface-subtle transition-colors p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)]',
       },
     },
   });
@@ -112,149 +112,188 @@ export default function BlogForm({ initialData = null }) {
   };
 
   return (
-    <div className="bg-surface rounded-[var(--outer-radius)] p-8 sm:p-10 border border-border-subtle shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.06)] transition-shadow duration-500 mb-12">
-      <form onSubmit={handleSubmit} className="space-y-8 divide-y divide-border-subtle">
-        <Toaster position="top-right" />
-        <div className="space-y-8 divide-y divide-border-subtle">
-        
+    <form onSubmit={handleSubmit} className="relative pb-24 lg:pb-12 max-w-7xl mx-auto">
+      <Toaster position="top-right" />
+      
+      {/* Header & Desktop Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <div>
-            <h3 className="text-2xl font-headline font-light text-text-primary tracking-tight">Blog Post Details</h3>
-          </div>
-          <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <div className="sm:col-span-4">
-              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Title</label>
-              <div className="mt-1">
-                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
+          <h1 className="text-2xl font-headline font-semibold text-text-primary uppercase tracking-wider">
+            {initialData ? 'Edit Post' : 'Add New Post'}
+          </h1>
+          <p className="mt-1 text-sm text-text-muted">Draft and publish company news or industry insights.</p>
+        </div>
+        <div className="hidden lg:flex items-center space-x-3">
+          <button 
+            type="button" 
+            onClick={() => router.push('/admin/blog')} 
+            className="inline-flex justify-center rounded-lg border border-border-base shadow-sm px-6 py-2.5 bg-surface text-xs uppercase tracking-wider font-semibold text-text-secondary hover:bg-surface-subtle hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus"
+          >
+            Discard
+          </button>
+          <button 
+            type="submit" 
+            disabled={isSaving} 
+            className="inline-flex justify-center rounded-lg border border-transparent shadow-xl px-6 py-2.5 bg-primary text-xs uppercase tracking-wider font-semibold text-primary-foreground hover:opacity-90 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            {isSaving ? 'Saving...' : 'Save Post'}
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Main Column */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          {/* Card 1: Content Info */}
+          <div className="bg-surface rounded-lg p-6 sm:p-8 border border-border-subtle shadow-sm">
+            <h3 className="text-lg font-headline font-semibold text-text-primary tracking-tight mb-6">Content Details</h3>
+            
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Title</label>
+                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" placeholder="Post Title" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Slug URL</label>
+                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Excerpt</label>
+                <textarea name="excerpt" rows={3} value={formData.excerpt} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" placeholder="A brief summary of the post..." />
               </div>
             </div>
+            
+            <div className="mt-8">
+              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Article Body</label>
+              {editor && (
+                <div className="mb-4 flex space-x-2 border-b border-border-subtle pb-3">
+                  <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`px-3 py-1.5 border border-border-subtle rounded-lg text-sm font-medium transition-colors ${editor.isActive('bold') ? 'bg-surface-subtle text-text-primary' : 'bg-surface text-text-secondary hover:bg-surface-subtle'}`}>Bold</button>
+                  <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`px-3 py-1.5 border border-border-subtle rounded-lg text-sm font-medium transition-colors ${editor.isActive('italic') ? 'bg-surface-subtle text-text-primary' : 'bg-surface text-text-secondary hover:bg-surface-subtle'}`}>Italic</button>
+                  <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`px-3 py-1.5 border border-border-subtle rounded-lg text-sm font-medium transition-colors ${editor.isActive('heading', { level: 2 }) ? 'bg-surface-subtle text-text-primary' : 'bg-surface text-text-secondary hover:bg-surface-subtle'}`}>H2</button>
+                </div>
+              )}
+              <EditorContent editor={editor} />
+            </div>
+          </div>
 
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Status</label>
-              <div className="mt-1">
-                {isStatusOpen && (
-                  <div className="fixed inset-0 z-10" onClick={() => setIsStatusOpen(false)}></div>
-                )}
+          {/* Card 2: Media */}
+          <div className="bg-surface rounded-lg p-6 sm:p-8 border border-border-subtle shadow-sm">
+            <h3 className="text-lg font-headline font-semibold text-text-primary tracking-tight mb-6">Cover Image</h3>
+            
+            {formData.coverImage && (
+              <div className="mb-6 rounded-lg overflow-hidden border border-border-subtle">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={formData.coverImage} alt="Cover" className="w-full h-auto max-h-[400px] object-cover" />
+              </div>
+            )}
+            
+            <label className="inline-flex justify-center items-center px-4 py-4 border-2 border-dashed border-border-subtle hover:border-border-base rounded-lg text-text-secondary bg-surface-muted hover:bg-surface cursor-pointer transition-all duration-300 w-full">
+              <UploadCloud className="mr-2 h-5 w-5" /> 
+              <span className="uppercase tracking-wider font-semibold text-xs">{formData.coverImage ? 'Replace Image' : 'Upload Image'}</span>
+              <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+            </label>
+          </div>
+
+          {/* Card 3: SEO (Collapsible) */}
+          <details className="group bg-surface rounded-lg border border-border-subtle shadow-sm overflow-hidden mb-8 lg:mb-0">
+            <summary className="p-6 sm:p-8 cursor-pointer list-none flex justify-between items-center outline-none hover:bg-surface-subtle transition-colors">
+              <h3 className="text-lg font-headline font-semibold text-text-primary tracking-tight">Search Engine Optimization</h3>
+              <ChevronDown className="h-5 w-5 text-text-muted group-open:rotate-180 transition-transform duration-300" />
+            </summary>
+            <div className="p-6 sm:p-8 border-t border-border-subtle space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Title</label>
+                <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-text-primary" />
+                <p className="mt-2 text-xs text-text-muted font-medium">{formData.seoTitle.length}/60 characters</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Meta Description</label>
+                <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-text-primary" />
+                <p className="mt-2 text-xs text-text-muted font-medium">{formData.seoDescription.length}/160 characters</p>
+              </div>
+            </div>
+          </details>
+
+        </div>
+
+        {/* Sidebar (Right Column) */}
+        <div className="lg:col-span-1 space-y-8">
+          
+          {/* Organization Card */}
+          <div className="bg-surface rounded-lg p-6 border border-border-subtle shadow-sm sticky top-8">
+            <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-6">Organization</h3>
+            
+            <div className="space-y-6">
+              
+              {/* Tags Input */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">Tags (Comma Separated)</label>
+                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="block w-full py-3 px-4 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-sm text-text-primary" placeholder="News, Guides, Insights" />
+              </div>
+
+              {/* Status Dropdown */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">Status</label>
+                {isStatusOpen && <div className="fixed inset-0 z-10" onClick={() => setIsStatusOpen(false)}></div>}
                 <div className={`relative ${isStatusOpen ? 'z-30' : 'z-10'}`}>
                   <input type="hidden" name="status" value={formData.status} />
                   <button 
                     type="button" 
                     onClick={() => setIsStatusOpen(!isStatusOpen)}
-                    className={`w-full py-3.5 px-5 bg-surface/50 border ${isStatusOpen ? 'border-text-primary ring-1 ring-text-primary bg-surface' : 'border-border-subtle hover:border-border-base'} rounded-2xl transition-all duration-300 outline-none text-left flex justify-between items-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]`}
+                    className={`w-full py-3 px-4 bg-surface/50 border ${isStatusOpen ? 'border-text-primary ring-1 ring-text-primary' : 'border-border-subtle hover:border-border-base'} rounded-lg transition-all text-sm outline-none text-left flex justify-between items-center`}
                   >
                     <span className="text-text-primary font-medium capitalize">{formData.status}</span>
-                    <svg className={`h-4 w-4 text-text-muted transition-transform duration-300 ease-out ${isStatusOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <ChevronDown className={`h-4 w-4 text-text-muted transition-transform ${isStatusOpen ? 'rotate-180' : ''}`} />
                   </button>
                   
-                  <div className={`absolute top-[calc(100%+8px)] left-0 w-full bg-surface/95 backdrop-blur-xl border border-border-base rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.08)] overflow-hidden p-2 transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.3,1)] ${isStatusOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
+                  <div className={`absolute top-[calc(100%+8px)] left-0 w-full bg-surface/95 backdrop-blur border border-border-base rounded-lg shadow-xl overflow-hidden p-1.5 transition-all ${isStatusOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
                     <div className="space-y-1">
-                      {['draft', 'published'].map((option) => {
-                        const isSelected = formData.status === option;
-                        return (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() => {
-                              setFormData({ ...formData, status: option });
-                              setIsStatusOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-200 flex items-center justify-between capitalize ${isSelected ? 'bg-text-primary text-text-inverse font-medium shadow-md' : 'text-text-secondary hover:bg-surface-subtle hover:text-text-primary'}`}
-                          >
-                            {option}
-                            {isSelected && (
-                              <svg className="h-4 w-4 text-text-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
-                            )}
-                          </button>
-                        );
-                      })}
+                      {['draft', 'published'].map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, status: option });
+                            setIsStatusOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all capitalize ${formData.status === option ? 'bg-primary text-primary-foreground font-semibold' : 'text-text-secondary hover:bg-surface-subtle'}`}
+                        >
+                          {option}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Slug</label>
-              <div className="mt-1">
-                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
-              </div>
-            </div>
-
-            <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Excerpt</label>
-              <div className="mt-1">
-                <textarea name="excerpt" rows={2} value={formData.excerpt} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
-              </div>
-            </div>
-            
-            <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Tags (comma separated)</label>
-              <div className="mt-1">
-                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
-              </div>
             </div>
           </div>
-        </div>
 
-        <div className="pt-8">
-          <h3 className="text-lg leading-6 font-medium text-text-primary mb-4">Content</h3>
-          {editor && (
-            <div className="mb-4 flex space-x-2 border-b pb-2">
-              <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`px-2 py-1 border border-border-subtle rounded ${editor.isActive('bold') ? 'bg-surface-subtle' : 'bg-surface'}`}>Bold</button>
-              <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`px-2 py-1 border border-border-subtle rounded ${editor.isActive('italic') ? 'bg-surface-subtle' : 'bg-surface'}`}>Italic</button>
-              <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`px-2 py-1 border border-border-subtle rounded ${editor.isActive('heading', { level: 2 }) ? 'bg-surface-subtle' : 'bg-surface'}`}>H2</button>
-            </div>
-          )}
-          <EditorContent editor={editor} />
-        </div>
-
-        {/* Media */}
-        <div className="pt-8">
-          <div>
-            <h3 className="text-lg leading-6 font-medium text-text-primary">Cover Image</h3>
-          </div>
-          <div className="mt-6 flex items-center space-x-6">
-            {formData.coverImage && (
-              <img src={formData.coverImage} alt="Cover" className="h-32 w-48 object-cover rounded-md border" />
-            )}
-            <label className="inline-flex items-center px-4 py-2 border border-border-base shadow-sm text-sm font-medium rounded-md text-text-secondary bg-surface hover:bg-surface-muted cursor-pointer">
-              <UploadCloud className="-ml-1 mr-2 h-5 w-5 text-text-muted" /> Upload Image
-              <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-            </label>
-          </div>
-        </div>
-
-        {/* SEO */}
-        <div className="pt-8">
-          <div>
-            <h3 className="text-lg leading-6 font-medium text-text-primary">SEO Settings</h3>
-          </div>
-          <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Title</label>
-              <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
-              <p className="mt-1 text-xs text-text-muted">{formData.seoTitle.length}/60</p>
-            </div>
-            <div className="sm:col-span-6">
-              <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Description</label>
-              <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-2xl focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
-              <p className="mt-1 text-xs text-text-muted">{formData.seoDescription.length}/160</p>
-            </div>
-          </div>
         </div>
       </div>
 
-      <div className="pt-8 pb-10 border-t border-surface-subtle">
-        <div className="flex justify-end space-x-3">
-          <button type="button" onClick={() => router.push('/admin/blog')} className="inline-flex justify-center rounded-full border border-border-base shadow-sm px-6 py-2.5 bg-surface text-sm font-medium text-text-secondary hover:bg-surface-subtle hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus">
-            Cancel
-          </button>
-          <button type="submit" disabled={isSaving} className="inline-flex justify-center rounded-full border border-transparent shadow-xl px-6 py-2.5 bg-text-primary text-sm font-medium text-text-inverse hover:opacity-90 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus">
-            {isSaving ? 'Saving...' : 'Save Post'}
-          </button>
-        </div>
+      {/* Mobile Sticky Action Bar */}
+      <div className="lg:hidden fixed bottom-[68px] left-0 right-0 p-4 bg-surface/90 backdrop-blur-md border-t border-border-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-40 flex justify-end space-x-3 sm:px-6">
+        <button 
+          type="button" 
+          onClick={() => router.push('/admin/blog')} 
+          className="flex-1 sm:flex-none inline-flex justify-center rounded-lg border border-border-base shadow-sm px-6 py-3 bg-surface text-xs uppercase tracking-wider font-semibold text-text-secondary active:scale-[0.98] transition-transform"
+        >
+          Discard
+        </button>
+        <button 
+          type="submit" 
+          disabled={isSaving} 
+          className="flex-1 sm:flex-none inline-flex justify-center rounded-lg border border-transparent shadow-xl px-6 py-3 bg-primary text-xs uppercase tracking-wider font-semibold text-primary-foreground active:scale-[0.98] transition-transform"
+        >
+          {isSaving ? 'Saving...' : 'Save Post'}
+        </button>
       </div>
-      </form>
-    </div>
+
+    </form>
   );
 }

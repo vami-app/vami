@@ -23,8 +23,8 @@ export default async function AdminDashboard() {
                 <p className="text-sm font-medium text-text-muted tracking-wide uppercase">{item.name}</p>
                 <p className="mt-4 text-4xl sm:text-5xl font-headline font-light text-text-primary tracking-tight">{item.stat}</p>
               </div>
-              <div className="bg-surface-muted rounded-2xl p-4 border border-border-subtle group-hover:bg-text-primary group-hover:border-text-primary transition-colors duration-300 flex items-center justify-center">
-                <item.icon className="h-6 w-6 text-text-muted group-hover:text-text-inverse transition-colors duration-300" aria-hidden="true" />
+              <div className="bg-surface-muted rounded-lg p-4 border border-border-subtle group-hover:bg-primary group-hover:border-primary transition-colors duration-300 flex items-center justify-center">
+                <item.icon className="h-6 w-6 text-text-muted group-hover:text-primary-foreground transition-colors duration-300" aria-hidden="true" />
               </div>
             </div>
           </Link>

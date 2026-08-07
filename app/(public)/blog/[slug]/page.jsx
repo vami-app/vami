@@ -10,7 +10,7 @@ export async function generateMetadata({ params }) {
   if (!post) return { title: 'Post Not Found' };
   
   return {
-    title: post.seoTitle || `${post.title} | Smalloys Journal`,
+    title: post.seoTitle || post.title,
     description: post.seoDescription || post.excerpt || `Read ${post.title} on the Smalloys blog.`,
     openGraph: {
       images: post.coverImage ? [post.coverImage] : [],
@@ -59,7 +59,7 @@ export default async function BlogDetailPage({ params }) {
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {post.tags.map((tag, idx) => (
-                  <span key={idx} className="inline-block px-3 py-1 rounded-full bg-surface border border-border-base text-xs font-medium text-text-secondary tracking-wide">
+                  <span key={idx} className="inline-block px-3 py-1 rounded-lg bg-surface border border-border-base text-[10px] uppercase font-semibold text-text-secondary tracking-wider">
                     {tag}
                   </span>
                 ))}

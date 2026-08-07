@@ -7,14 +7,15 @@
  * @see https://serwist.pages.dev/docs/next/config
  */
 
-import { spawnSync } from 'node:child_process';
-import { serwist } from '@serwist/next/config';
+import { spawnSync } from "node:child_process";
+import { serwist } from "@serwist/next/config";
 
 // Use the current git commit hash as the revision for additionalPrecacheEntries.
 // This ensures /offline is re-cached whenever the codebase changes.
 const revision =
-  spawnSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf-8' }).stdout?.trim() ||
-  crypto.randomUUID();
+  spawnSync("git", ["rev-parse", "HEAD"], {
+    encoding: "utf-8",
+  }).stdout?.trim() || crypto.randomUUID();
 
 /**
  * Admin/API exclusion — THREE independent layers (defense in depth).
@@ -45,15 +46,14 @@ const ADMIN_API_REGEX = /(?:^|\/)admin(\.html|\/|$)|(?:^|\/)api\//;
 // Note: serwist() is async — it loads next.config internally.
 // Top-level await is valid because package.json has "type": "module".
 export default await serwist({
-  swSrc: 'modules/pwa/service-worker/sw.js',
-  swDest: 'public/sw.js',
+  swSrc: "modules/pwa/service-worker/sw.js",
+  swDest: "public/sw.js",
 
-  /**
-   * Automatically precache all prerendered HTML routes (.next/server/app/**\/*.html).
-   * This is the main difference between configurator mode and classic withSerwistInit.
-   */
   precachePrerendered: true,
 
+  // Increase the maximum file size limit for precaching to 50MB
+  // This allows large assets like the 13.7MB 4K hero video to be precached for offline use.
+  maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
 
   // Layer 1 — dist-relative glob ignores (before any transforms run)
   // Serwist already ignores: _not-found.html, _global-error*, 404.html, 500.html
@@ -61,9 +61,9 @@ export default await serwist({
   // NOTE: /admin maps to .next/server/app/admin.html (a file, not inside admin/),
   // so admin/**/*.html alone misses it. We must include admin.html explicitly.
   globIgnores: [
-    '.next/server/app/admin.html',       // the /admin root page
-    '.next/server/app/admin/**/*.html',  // all nested /admin/* pages
-    '.next/server/app/api/**',
+    ".next/server/app/admin.html", // the /admin root page
+    ".next/server/app/admin/**/*.html", // all nested /admin/* pages
+    ".next/server/app/api/**",
   ],
 
   // Layer 2 — filter both dist path form and rewritten URL form

@@ -65,7 +65,7 @@ export default function BlogListInfinite({ initialEdges, initialPageInfo }) {
                 {post.tags && post.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-4">
                     {post.tags.map((tag, idx) => (
-                      <span key={idx} className="inline-block px-3 py-1 rounded-full bg-surface-muted border border-border-subtle text-xs font-medium text-text-secondary tracking-wide">
+                      <span key={idx} className="inline-block px-3 py-1 rounded-lg bg-surface-muted border border-border-subtle text-[10px] font-semibold text-text-secondary uppercase tracking-wider">
                         {tag}
                       </span>
                     ))}

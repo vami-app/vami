@@ -82,7 +82,7 @@ export default function InstallPrompt() {
         role="region"
         aria-label="Install app"
       >
-        <div className="bg-background/90 backdrop-blur-xl border border-border-subtle shadow-2xl rounded-2xl p-5 flex flex-col gap-4 relative">
+        <div className="bg-background/90 backdrop-blur-xl border border-border-subtle shadow-2xl rounded-lg p-5 flex flex-col gap-4 relative">
           {/* Dismiss */}
           <button
             onClick={dismiss}
@@ -94,7 +94,7 @@ export default function InstallPrompt() {
 
           <div className="flex items-start gap-3 pr-6">
             {/* App icon */}
-            <div className="shrink-0 w-12 h-12 rounded-2xl overflow-hidden border border-border-subtle shadow-sm">
+            <div className="shrink-0 w-12 h-12 rounded-lg overflow-hidden border border-border-subtle shadow-sm">
               <img
                 src="/icons/icon-192.png"
                 alt="Radhey Alloys icon"
@@ -118,7 +118,7 @@ export default function InstallPrompt() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleInstall}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-text-primary text-text-inverse text-sm font-medium rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-transform"
+              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider rounded-lg hover:scale-[1.02] active:scale-[0.98] transition-transform"
             >
               {isIOS ? (
                 <>
@@ -134,7 +134,7 @@ export default function InstallPrompt() {
             </button>
             <button
               onClick={dismiss}
-              className="px-4 py-2.5 bg-surface text-text-secondary text-sm font-medium rounded-xl border border-border-subtle hover:bg-surface-muted transition-colors"
+              className="px-4 py-2.5 bg-surface text-text-secondary text-sm font-medium rounded-lg border border-border-subtle hover:bg-surface-muted transition-colors"
             >
               Not now
             </button>
@@ -164,7 +164,7 @@ export default function InstallPrompt() {
 
             <ol className="space-y-4">
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-text-primary text-text-inverse text-xs font-bold flex items-center justify-center mt-0.5">1</span>
+                <span className="flex-shrink-0 w-6 h-6 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center mt-0.5">1</span>
                 <p className="text-sm text-text-secondary">
                   Tap the{' '}
                   <Share className="inline w-4 h-4 text-blue-500 mx-0.5" aria-label="Share" />{' '}
@@ -172,7 +172,7 @@ export default function InstallPrompt() {
                 </p>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-text-primary text-text-inverse text-xs font-bold flex items-center justify-center mt-0.5">2</span>
+                <span className="flex-shrink-0 w-6 h-6 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center mt-0.5">2</span>
                 <p className="text-sm text-text-secondary">
                   Scroll down and tap{' '}
                   <strong className="text-text-primary inline-flex items-center gap-1">
@@ -182,7 +182,7 @@ export default function InstallPrompt() {
                 </p>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-text-primary text-text-inverse text-xs font-bold flex items-center justify-center mt-0.5">3</span>
+                <span className="flex-shrink-0 w-6 h-6 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center mt-0.5">3</span>
                 <p className="text-sm text-text-secondary">
                   Tap <strong className="text-text-primary">Add</strong> in the top-right corner
                 </p>
@@ -191,7 +191,7 @@ export default function InstallPrompt() {
 
             <button
               onClick={() => { setShowIOSSheet(false); dismiss(); }}
-              className="mt-6 w-full py-3 rounded-2xl bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 transition-opacity"
+              className="mt-6 w-full py-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity"
             >
               Got it
             </button>

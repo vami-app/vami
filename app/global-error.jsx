@@ -12,7 +12,7 @@ export default function GlobalError({ error, reset }) {
     <html lang="en">
       <body className="bg-background text-text-primary min-h-screen flex flex-col justify-center items-center px-4 py-16 font-sans antialiased">
         <div className="w-full max-w-lg text-center animate-in fade-in zoom-in-95 duration-500 ease-out">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-red-50 border border-red-100 text-red-600 mb-6 shadow-sm">
+          <div className="inline-flex items-center justify-center h-16 w-16 rounded-lg bg-red-50 border border-red-100 text-red-600 mb-6 shadow-sm">
             <AlertTriangle className="h-8 w-8" />
           </div>
 
@@ -26,7 +26,7 @@ export default function GlobalError({ error, reset }) {
 
           <button
             onClick={() => reset()}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-text-primary text-text-inverse text-sm font-medium hover:opacity-90 transition-all shadow-sm"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground text-xs uppercase tracking-wider font-semibold hover:opacity-90 transition-all shadow-sm"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Reload Application</span>

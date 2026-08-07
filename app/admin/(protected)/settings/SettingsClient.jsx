@@ -32,7 +32,7 @@ export default function SettingsClient() {
   const [settings, setSettings] = useState({
     siteName: '', tagline: '', contactEmail: '', contactPhone: '',
     address: '', linkedIn: '', website: '',
-    seoTitle: '', seoDescription: '',
+    seoTitle: '', seoDescription: '', showProductImagesInList: true,
   });
 
   // Password change
@@ -152,7 +152,7 @@ export default function SettingsClient() {
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Branding</h2>
                 <div className="space-y-4">
                   <FormField label="Site Name">
-                    <Input value={settings.siteName} onChange={set('siteName')} placeholder="Smalloys" />
+                    <Input value={settings.siteName} onChange={set('siteName')} placeholder="Radhey Metal Alloys LLP" />
                   </FormField>
                   <FormField label="Tagline" hint="Displayed on the public homepage">
                     <Input value={settings.tagline} onChange={set('tagline')} placeholder="Precision copper casting for demanding industries" />
@@ -166,7 +166,7 @@ export default function SettingsClient() {
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Contact</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField label="Email">
-                    <Input type="email" value={settings.contactEmail} onChange={set('contactEmail')} placeholder="info@smalloys.com" />
+                    <Input type="email" value={settings.contactEmail} onChange={set('contactEmail')} placeholder="radhemetalalloysllp@gmail.com" />
                   </FormField>
                   <FormField label="Phone">
                     <Input type="tel" value={settings.contactPhone} onChange={set('contactPhone')} placeholder="+91 00000 00000" />
@@ -183,10 +183,10 @@ export default function SettingsClient() {
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Links</h2>
                 <div className="space-y-4">
                   <FormField label="Website URL">
-                    <Input type="url" value={settings.website} onChange={set('website')} placeholder="https://smalloys.com" />
+                    <Input type="url" value={settings.website} onChange={set('website')} placeholder="https://radheymetalalloys.com" />
                   </FormField>
                   <FormField label="LinkedIn URL">
-                    <Input type="url" value={settings.linkedIn} onChange={set('linkedIn')} placeholder="https://linkedin.com/company/smalloys" />
+                    <Input type="url" value={settings.linkedIn} onChange={set('linkedIn')} placeholder="https://linkedin.com/company/radheymetalalloys" />
                   </FormField>
                 </div>
               </section>
@@ -214,7 +214,7 @@ export default function SettingsClient() {
                       value={settings.seoTitle}
                       onChange={set('seoTitle')}
                       maxLength={60}
-                      placeholder="Smalloys — Precision Copper Castings"
+                      placeholder="Radhey Metal Alloys LLP — Precision Copper Castings"
                     />
                   </FormField>
                   <FormField
@@ -225,7 +225,7 @@ export default function SettingsClient() {
                       value={settings.seoDescription}
                       onChange={set('seoDescription')}
                       maxLength={160}
-                      placeholder="Smalloys manufactures high-quality copper and bronze castings for marine, industrial, and precision engineering applications."
+                      placeholder="Radhey Metal Alloys LLP manufactures high-quality copper and bronze castings for marine, industrial, and precision engineering applications."
                     />
                   </FormField>
                 </div>
@@ -245,7 +245,7 @@ export default function SettingsClient() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <button
                       onClick={() => setTheme('light')}
-                      className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${
+                      className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
                         theme === 'light' ? 'border-text-primary bg-surface-muted' : 'border-border-subtle bg-surface hover:border-border-base'
                       }`}
                     >
@@ -254,7 +254,7 @@ export default function SettingsClient() {
                     </button>
                     <button
                       onClick={() => setTheme('dark')}
-                      className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${
+                      className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
                         theme === 'dark' ? 'border-text-primary bg-surface-muted' : 'border-border-subtle bg-surface hover:border-border-base'
                       }`}
                     >
@@ -263,7 +263,7 @@ export default function SettingsClient() {
                     </button>
                     <button
                       onClick={() => setTheme('system')}
-                      className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all ${
+                      className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
                         theme === 'system' ? 'border-text-primary bg-surface-muted' : 'border-border-subtle bg-surface hover:border-border-base'
                       }`}
                     >
@@ -272,10 +272,36 @@ export default function SettingsClient() {
                     </button>
                   </div>
                 )}
-                {!mounted && (
-                  <div className="h-[104px] rounded-2xl bg-surface-muted animate-pulse border border-border-subtle"></div>
-                )}
               </section>
+              
+              <div className="border-t border-border-subtle my-6" />
+
+              <section>
+                <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Product Catalog</h2>
+                <label className="flex items-start sm:items-center space-x-3 cursor-pointer">
+                  <div className="relative shrink-0 mt-0.5 sm:mt-0">
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={settings.showProductImagesInList ?? true}
+                      onChange={(e) => setSettings(prev => ({ ...prev, showProductImagesInList: e.target.checked }))}
+                    />
+                    <div className={`block w-10 h-6 rounded-full transition-colors ${settings.showProductImagesInList ? 'bg-primary' : 'bg-surface-muted border border-border-subtle'}`}></div>
+                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow transition-transform ${settings.showProductImagesInList ? 'transform translate-x-4' : ''}`}></div>
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-text-primary">Show Product Images</div>
+                    <div className="text-xs text-text-muted mt-0.5">Display thumbnail images on product listing cards. If disabled, product text will span the full width of the card.</div>
+                  </div>
+                </label>
+              </section>
+            </div>
+            
+            <div className="mt-8">
+               <Button type="button" disabled={saving} onClick={saveSettings} className="w-fit">
+                 <Save className="h-4 w-4" />
+                 {saving ? 'Saving…' : 'Save Changes'}
+               </Button>
             </div>
           </TabsContent>
 

@@ -16,14 +16,14 @@ export function ThemeToggle({ className = '' }) {
 
   if (!mounted) {
     return (
-      <div className={`w-8 h-8 rounded-full border border-border-subtle bg-surface-muted ${className}`} />
+      <div className={`w-8 h-8 rounded-lg border border-border-subtle bg-surface-muted ${className}`} />
     );
   }
 
   return (
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className={`relative inline-flex items-center justify-center w-8 h-8 rounded-full border border-border-subtle bg-surface hover:bg-surface-muted text-text-secondary hover:text-text-primary transition-colors ${className}`}
+      className={`relative inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border-subtle bg-surface hover:bg-surface-muted text-text-secondary hover:text-text-primary transition-colors ${className}`}
       aria-label="Toggle theme"
     >
       <Sun className={`h-4 w-4 absolute transition-all ${theme === 'dark' ? 'scale-0 -rotate-90' : 'scale-100 rotate-0'}`} />

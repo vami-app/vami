@@ -40,21 +40,27 @@ export default async function HomePage() {
       <section className="hero-section" aria-label="Hero showcase">
         <div className="relative w-full min-h-[85dvh] lg:min-h-[92dvh] rounded-[var(--outer-radius)] overflow-hidden flex flex-col justify-center border border-border-subtle bg-surface">
           <div className="absolute inset-0 z-0">
-            <img
+            <video
               className="absolute inset-0 w-full h-full object-cover object-center saturate-150 contrast-110 opacity-90"
-              src="/images/copper_sheets_1785916944432.png"
-              alt="High-quality non-ferrous metallurgy"
-            />
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+            >
+              <source src="/videos/7341421-uhd_3840_2160_30fps.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
           </div>
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-tr from-surface/80 via-surface/40 to-transparent" />
-          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-surface/70 via-transparent to-transparent" />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-black/40" />
+          <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-[#1b0a0a]/90 via-[#1b0a0a]/40 to-transparent" />
 
           <div className="relative z-20 flex flex-col items-center text-center p-[var(--space-6)] pt-28 lg:pt-[var(--space-6)] transform transition-transform duration-700 translate-y-0 opacity-100 mt-20">
-            <h1 className="font-headline font-light text-text-primary leading-[1.1] tracking-tight max-w-4xl text-4xl sm:text-5xl md:text-6xl drop-shadow-sm">
+            <h1 className="font-headline font-light text-white leading-[1.1] tracking-tight max-w-4xl text-4xl sm:text-5xl md:text-6xl drop-shadow-md">
               Engineering Excellence in Non-Ferrous Metallurgy & Casting
             </h1>
             <p
-              className="text-text-secondary max-w-3xl font-light leading-relaxed mt-6 mb-8 text-lg md:text-xl"
+              className="text-gray-200 max-w-3xl font-light leading-relaxed mt-6 mb-8 text-lg md:text-xl drop-shadow"
             >
               Radhey Metal Alloys LLP manufactures high-purity Copper, Brass, and Phosphor Bronze Sheets, Plates, Circles, Ingots, and Custom Castings—supplied with complete Company Test Certificates and NABL laboratory reports.
             </p>
@@ -62,14 +68,14 @@ export default async function HomePage() {
               <div className="transition-all duration-500 ease-in-out overflow-hidden flex justify-center lg:opacity-100 lg:max-w-xl lg:max-h-24 max-w-0 max-h-0 opacity-0">
                 <Link
                   href="/contact"
-                  className="inline-flex justify-center items-center px-8 py-4 bg-text-primary text-text-inverse rounded-full text-[var(--text-cta)] font-medium shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300 whitespace-nowrap"
+                  className="inline-flex justify-center items-center px-8 py-4 bg-primary text-primary-foreground rounded-lg text-sm font-semibold uppercase tracking-wider shadow-lg hover:bg-primary/90 hover:-translate-y-1 transition-all duration-300 whitespace-nowrap"
                 >
                   Request a Technical Quote <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </div>
               <Link
                 href="/products"
-                className="inline-flex justify-center items-center px-8 py-4 rounded-full text-[var(--text-cta)] font-medium transition-all duration-500 bg-surface text-text-primary shadow-xl hover:bg-surface-subtle hover:scale-105 lg:bg-surface/40 lg:text-text-primary lg:border lg:border-border-base lg:shadow-none lg:hover:scale-100 lg:hover:bg-surface/60 lg:backdrop-blur-md whitespace-nowrap"
+                className="inline-flex justify-center items-center px-8 py-4 rounded-lg text-sm font-semibold uppercase tracking-wider transition-all duration-300 bg-surface text-text-primary shadow-lg border border-border-base hover:bg-surface-subtle hover:-translate-y-1 lg:bg-surface/40 lg:backdrop-blur-md whitespace-nowrap"
               >
                 Browse Products
               </Link>
@@ -163,7 +169,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             {/* Electrical */}
             <div className="bg-background rounded-[var(--inner-radius)] border border-border-base p-8 sm:p-10 shadow-sm flex flex-col items-start hover:shadow-md transition-shadow">
-              <div className="bg-surface-muted p-4 rounded-full mb-6 text-text-primary">
+              <div className="bg-surface-muted p-4 rounded-lg mb-6 text-primary">
                 <Zap className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-medium text-text-primary mb-4">Electrical & Power Distribution</h3>
@@ -179,7 +185,7 @@ export default async function HomePage() {
 
             {/* Marine */}
             <div className="bg-background rounded-[var(--inner-radius)] border border-border-base p-8 sm:p-10 shadow-sm flex flex-col items-start hover:shadow-md transition-shadow">
-              <div className="bg-surface-muted p-4 rounded-full mb-6 text-text-primary">
+              <div className="bg-surface-muted p-4 rounded-lg mb-6 text-primary">
                 <Anchor className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-medium text-text-primary mb-4">Marine & Defense</h3>
@@ -195,7 +201,7 @@ export default async function HomePage() {
 
             {/* Automotive */}
             <div className="bg-background rounded-[var(--inner-radius)] border border-border-base p-8 sm:p-10 shadow-sm flex flex-col items-start hover:shadow-md transition-shadow">
-              <div className="bg-surface-muted p-4 rounded-full mb-6 text-text-primary">
+              <div className="bg-surface-muted p-4 rounded-lg mb-6 text-primary">
                 <Car className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-medium text-text-primary mb-4">Automotive & Radiators</h3>
@@ -211,7 +217,7 @@ export default async function HomePage() {
 
             {/* Foundries */}
             <div className="bg-background rounded-[var(--inner-radius)] border border-border-base p-8 sm:p-10 shadow-sm flex flex-col items-start hover:shadow-md transition-shadow">
-              <div className="bg-surface-muted p-4 rounded-full mb-6 text-text-primary">
+              <div className="bg-surface-muted p-4 rounded-lg mb-6 text-primary">
                 <Wrench className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-medium text-text-primary mb-4">Foundries & Precision Machining</h3>
