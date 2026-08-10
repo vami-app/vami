@@ -19,7 +19,9 @@ export default function TermsPage() {
             scrape the site in a way that impairs service.
           </p>
           <p>
-            Replace this placeholder with client-approved legal terms before production launch.
+            All content, trademarks and product imagery on this site remain the property of
+            Radhey Metal Alloys LLP unless otherwise stated. We may update these terms from time to
+            time; continued use of the site constitutes acceptance of the revised terms.
           </p>
         </div>
       </article>

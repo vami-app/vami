@@ -1,4 +1,5 @@
 import CmsMarketingPage from '@/components/layout/CmsMarketingPage';
+import { INDUSTRIES_SECTIONS } from '@/config/marketing-content';
 
 export const metadata = {
   title: 'Industries & Applications',
@@ -11,8 +12,9 @@ export default function IndustriesPage() {
     <CmsMarketingPage
       contentKey="industries"
       fallbackTitle="Industries & Applications"
-      fallbackSubtitle="Application pages publish only for industries RMA actually serves."
-      fallbackBody={`Candidate industries (verify before publish):\n• Electrical & Power\n• Automotive\n• General Engineering\n• Pumps & Valves\n• Bearings & Bushes\n• Industrial Machinery`}
+      fallbackSubtitle="Non-ferrous products for the sectors we actively serve."
+      fallbackBody="Application-focused supply for electrical, automotive, engineering and industrial buyers."
+      fallbackSections={INDUSTRIES_SECTIONS}
     />
   );
 }

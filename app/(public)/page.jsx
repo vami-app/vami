@@ -1,9 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, Box, FileText, CheckCircle, ShieldCheck, Zap, Anchor, Car, Wrench } from "lucide-react";
+import { ArrowRight, FileText, CheckCircle, ShieldCheck, Zap, Anchor, Car, Wrench } from "lucide-react";
 import { getFeaturedProducts } from "@/modules/products";
 import { getAllCategories } from "@/modules/categories";
+import { WHY_RMA_SECTIONS, HOME_GALLERY_ITEMS } from "@/config/marketing-content";
 
 export default async function HomePage() {
   let featuredProducts = [];
@@ -114,6 +114,36 @@ export default async function HomePage() {
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why RMA */}
+      <section className="py-16 sm:py-20 lg:py-28 w-full bg-background border-t border-border-subtle">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+          <div className="max-w-3xl mb-12 sm:mb-16">
+            <span className="text-xs font-semibold text-text-muted tracking-[0.2em] uppercase">
+              Why RMA
+            </span>
+            <h2 className="font-headline font-light text-text-primary mt-4 leading-tight text-3xl sm:text-4xl lg:text-5xl">
+              Built for industrial buyers who need proof, not promises.
+            </h2>
+            <p className="mt-6 text-lg text-text-muted font-light">
+              Claims we stand behind for chemistry, dimensions, documentation and delivery.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {WHY_RMA_SECTIONS.map((item) => (
+              <div
+                key={item.title}
+                className="border border-border-subtle rounded-[var(--inner-radius)] bg-surface p-8"
+              >
+                <h3 className="text-xl font-medium text-text-primary">{item.title}</h3>
+                <p className="mt-3 text-text-muted font-light leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -266,6 +296,35 @@ export default async function HomePage() {
           </div>
         </section>
       ) : null}
+
+      {/* Factory / product gallery */}
+      <section className="py-16 sm:py-20 w-full bg-surface border-t border-border-subtle">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+          <span className="text-xs font-semibold text-text-muted tracking-[0.2em] uppercase">
+            Gallery
+          </span>
+          <h2 className="font-headline font-light text-text-primary mt-4 leading-tight text-3xl sm:text-4xl">
+            Products &amp; Materials
+          </h2>
+          <div className="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {HOME_GALLERY_ITEMS.map((item) => (
+              <div
+                key={item.title}
+                className="relative aspect-square rounded-[var(--inner-radius)] overflow-hidden border border-border-subtle"
+              >
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                  <p className="text-sm font-medium text-white">{item.title}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Capabilities teaser + Custom casting CTA + RFQ strip */}
       <section className="py-16 sm:py-20 w-full bg-background border-t border-border-subtle">

@@ -20,8 +20,9 @@ export default function DisclaimerPage() {
             certificates.
           </p>
           <p>
-            Replace this placeholder with client-approved disclaimer language before production
-            launch.
+            Sample certificates and catalogue stubs on this site are illustrative. Binding
+            commercial and metallurgical commitments are issued only through a formal quotation
+            and order acknowledgement from Radhey Metal Alloys LLP.
           </p>
         </div>
       </article>

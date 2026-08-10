@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getPublishedResources } from '@/services/resource.service';
+import { SAMPLE_RESOURCES } from '@/config/marketing-content';
 
 export const metadata = {
   title: 'Resources & Downloads',
@@ -14,6 +15,7 @@ export default async function ResourcesPage() {
   } catch {
     resources = [];
   }
+  const docs = resources.length > 0 ? resources : SAMPLE_RESOURCES;
 
   return (
     <div className="layout-main">
@@ -26,47 +28,43 @@ export default async function ResourcesPage() {
             Catalogues & Data Sheets
           </h1>
           <p className="mt-6 text-lg text-text-muted font-light max-w-2xl">
-            Downloadable PDFs appear here after RMA uploads and publishes verified documents.
+            Download catalogues, technical data sheets and company profile materials for engineering and procurement teams.
           </p>
 
-          {resources.length === 0 ? (
-            <div className="mt-12 border border-dashed border-border-subtle rounded-[var(--inner-radius)] p-10 max-w-xl">
-              <p className="text-text-muted font-light">
-                No published resources yet. Request catalogues or a company profile with your RFQ.
-              </p>
-              <Link
-                href="/contact"
-                className="inline-flex mt-6 px-6 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold uppercase tracking-wider"
+          <ul className="mt-12 divide-y divide-border-subtle border border-border-subtle rounded-[var(--inner-radius)] overflow-hidden">
+            {docs.map((r) => (
+              <li
+                key={r._id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-surface"
               >
-                Request a Quote
-              </Link>
-            </div>
-          ) : (
-            <ul className="mt-12 divide-y divide-border-subtle border border-border-subtle rounded-[var(--inner-radius)] overflow-hidden">
-              {resources.map((r) => (
-                <li key={r._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 bg-surface">
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-text-muted">{r.type}</p>
-                    <h2 className="text-lg font-medium text-text-primary mt-1">{r.title}</h2>
-                    {r.description ? (
-                      <p className="text-sm text-text-muted mt-2 font-light">{r.description}</p>
-                    ) : null}
-                  </div>
-                  {r.fileUrl ? (
-                    <a
-                      href={r.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex px-5 py-2.5 rounded-lg border border-border-base text-sm font-semibold uppercase tracking-wider hover:bg-surface-muted"
-                      data-track="file_download"
-                    >
-                      Download
-                    </a>
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-text-muted">{r.type}</p>
+                  <h2 className="text-lg font-medium text-text-primary mt-1">{r.title}</h2>
+                  {r.description ? (
+                    <p className="text-sm text-text-muted mt-2 font-light">{r.description}</p>
                   ) : null}
-                </li>
-              ))}
-            </ul>
-          )}
+                </div>
+                {r.fileUrl ? (
+                  <a
+                    href={r.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex px-5 py-2.5 rounded-lg border border-border-base text-sm font-semibold uppercase tracking-wider hover:bg-surface-muted"
+                    data-track="file_download"
+                  >
+                    Download
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+
+          <Link
+            href="/contact"
+            className="inline-flex mt-10 px-6 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold uppercase tracking-wider"
+          >
+            Request a Quote
+          </Link>
         </div>
       </section>
     </div>

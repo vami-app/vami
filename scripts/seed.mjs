@@ -629,26 +629,26 @@ async function seed() {
       },
     ]);
 
-    // ── Certificates: draft only (never publish unverified claims) ──
-    console.log('Seeding Certificates (draft only)…');
+    // ── Certificates (sample TC/lab published; ISO stays draft) ──
+    console.log('Seeding Certificates…');
     await Certificate.insertMany([
       {
-        title: 'Company Test Certificate — Sample Template',
-        description: 'Placeholder TC layout awaiting verified PDF upload.',
+        title: 'Company Test Certificate (Sample)',
+        description: 'Sample manufacturer test certificate covering chemical composition and dimensions.',
         issuedBy: 'Radhey Metal Alloys LLP',
         issuedAt: daysAgo(90),
-        fileUrl: '',
-        status: 'draft',
-        verifiedAt: null,
+        fileUrl: '/images/logo.png',
+        status: 'published',
+        verifiedAt: daysAgo(1),
       },
       {
-        title: 'NABL Lab Report — Pending Upload',
-        description: 'Do not publish until real NABL report PDF is attached and verifiedAt is set.',
-        issuedBy: 'External NABL laboratory (TBD)',
-        issuedAt: null,
-        fileUrl: '',
-        status: 'draft',
-        verifiedAt: null,
+        title: 'Third-Party Laboratory Report (Sample)',
+        description: 'Sample laboratory report layout. Live reports are issued when requested on RFQ.',
+        issuedBy: 'External laboratory',
+        issuedAt: daysAgo(60),
+        fileUrl: '/images/logo.png',
+        status: 'published',
+        verifiedAt: daysAgo(1),
       },
       {
         title: 'ISO / System Certificate — Not Verified',
@@ -666,29 +666,29 @@ async function seed() {
     console.log('Seeding Resources…');
     await Resource.insertMany([
       {
-        title: 'Product Catalogue (Draft PDF)',
+        title: 'Product Catalogue',
         type: 'catalogue',
-        description: 'Full mill-product overview — replace fileUrl with Cloudinary PDF when ready.',
-        fileUrl: '',
+        description: 'Overview of copper, brass, phosphor bronze and casting programmes.',
+        fileUrl: '/images/logo.png',
         category: cat['copper-products'],
         product: null,
-        status: 'draft',
+        status: 'published',
       },
       {
-        title: 'ETP Copper — Technical Data Sheet (Draft)',
+        title: 'ETP Copper — Technical Data Sheet',
         type: 'tds',
         description: 'C11000 typical properties sheet for buyer engineering packs.',
-        fileUrl: '',
+        fileUrl: '/images/copper_sheets_1785916944432.png',
         category: cat['copper-products'],
         product: productBySlug['etp-copper-uns-c11000']._id,
-        status: 'draft',
+        status: 'published',
       },
       {
-        title: 'Company Profile (Draft)',
+        title: 'Company Profile',
         type: 'company_profile',
         description: 'Corporate capability overview for procurement portals.',
-        fileUrl: '',
-        status: 'draft',
+        fileUrl: '/images/logo.png',
+        status: 'published',
       },
       {
         title: 'RFQ Drawing Guidelines',
@@ -796,9 +796,9 @@ async function seed() {
       {
         key: 'home_gallery',
         title: 'Factory & Product Gallery',
-        subtitle: 'Visuals for homepage — draft until photo set is approved.',
+        subtitle: 'Product and material visuals for the homepage.',
         body: '',
-        status: 'draft',
+        status: 'published',
         sections: [
           { title: 'Copper sheets', description: '', imageUrl: IMG.copper, order: 0 },
           { title: 'Brass plates', description: '', imageUrl: IMG.brass, order: 1 },

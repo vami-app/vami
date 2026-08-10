@@ -8,5 +8,5 @@
  * runtime data — correct place is a Client Component.
  */
 export function FooterYear() {
-  return <>{new Date().getFullYear()}</>;
+  return <span suppressHydrationWarning>{new Date().getFullYear()}</span>;
 }

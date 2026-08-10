@@ -1,4 +1,5 @@
 import CmsMarketingPage from '@/components/layout/CmsMarketingPage';
+import { CAPABILITIES_SECTIONS } from '@/config/marketing-content';
 
 export const metadata = {
   title: 'Manufacturing Capabilities',
@@ -11,8 +12,9 @@ export default function CapabilitiesPage() {
     <CmsMarketingPage
       contentKey="capabilities"
       fallbackTitle="Manufacturing Capabilities"
-      fallbackSubtitle="From raw material selection through packing and dispatch — verified process details publish here after review."
-      fallbackBody={`Recommended process presentation (confirm with RMA before publishing details):\n\nRaw Material Selection → Melting & Alloying → Casting → Rolling / Forming → Machining / Finishing → Quality Inspection → Packing & Dispatch.`}
+      fallbackSubtitle="From raw material selection through packing and dispatch."
+      fallbackBody="Radhey Metal Alloys LLP manufactures and supplies precision non-ferrous mill products and custom castings from Kalol, Gujarat — copper, brass, phosphor bronze and related alloys."
+      fallbackSections={CAPABILITIES_SECTIONS}
     />
   );
 }

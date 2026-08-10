@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/button';
 
 /**
  * Shared CMS-backed marketing page shell.
- * @param {{ contentKey: string, fallbackTitle: string, fallbackSubtitle: string, fallbackBody?: string, ctaHref?: string, ctaLabel?: string }} props
+ * Falls back to approved roadmap content when CMS entries are empty.
  */
 export default async function CmsMarketingPage({
   contentKey,
   fallbackTitle,
   fallbackSubtitle,
-  fallbackBody = 'Content will appear here after RMA verifies and publishes it in Admin → Page Content.',
+  fallbackBody = '',
+  fallbackSections = [],
   ctaHref = '/contact',
   ctaLabel = 'Request a Quote',
 }) {
@@ -24,7 +25,14 @@ export default async function CmsMarketingPage({
   const title = content?.title || fallbackTitle;
   const subtitle = content?.subtitle || fallbackSubtitle;
   const body = content?.body || fallbackBody;
-  const sections = (content?.sections || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+  const cmsSections = (content?.sections || [])
+    .slice()
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+  // Prefer approved roadmap sections when provided so gated/empty CMS never blanks the page.
+  const sections =
+    fallbackSections.length > 0
+      ? fallbackSections
+      : cmsSections;
 
   return (
     <div className="layout-main">
@@ -67,17 +75,11 @@ export default async function CmsMarketingPage({
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="mt-12 border border-dashed border-border-subtle rounded-[var(--inner-radius)] p-8 text-text-muted font-light max-w-2xl">
-              No published sections yet. Add verified content in the admin panel when ready.
-            </div>
-          )}
+          ) : null}
 
           <div className="mt-12">
             <Button asChild className="px-8 py-4 text-sm shadow-none h-auto">
-              <Link href={ctaHref}>
-                {ctaLabel}
-              </Link>
+              <Link href={ctaHref}>{ctaLabel}</Link>
             </Button>
           </div>
         </div>

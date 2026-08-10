@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown } from 'lucide-react';
-import { motion, LayoutGroup } from 'framer-motion';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { siteConfig } from '@/config/site';
@@ -34,6 +33,16 @@ function NavLinkClasses(isActive) {
   return isActive
     ? 'text-primary-foreground'
     : 'text-text-secondary hover:text-primary hover:bg-surface-subtle';
+}
+
+function ActivePill({ active }) {
+  if (!active) return null;
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute inset-0 rounded-lg -z-10 bg-primary shadow-md"
+    />
+  );
 }
 
 function DropdownPanel({ open, children, className }) {
@@ -161,111 +170,85 @@ export default function Navbar({ categories = [] }) {
     const isActive = activeNavItem === navItem.title;
     const textColorClass = NavLinkClasses(isActive);
     const isOpen = openMenu === navItem.title;
-
-    if (!navItem.hasDropdown) {
-      return (
-        <div key={navItem.title} className="relative inline-block">
-          <Link
-            href={navItem.href}
-            className={cn(
-              'relative block px-3 py-1.5 rounded-lg text-sm font-medium transition-colors z-10',
-              textColorClass
-            )}
-          >
-            {isActive && (
-              <motion.div
-                layoutId="navbar-capsule"
-                className="absolute inset-0 rounded-lg -z-10 bg-primary shadow-md"
-                transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                initial={false}
-              />
-            )}
-            <span className="relative z-10">{navItem.title}</span>
-          </Link>
-        </div>
-      );
-    }
-
-    const panelId = `nav-panel-${navItem.title.toLowerCase()}`;
+    const hasDropdown = Boolean(navItem.hasDropdown);
+    const panelId = hasDropdown
+      ? `nav-panel-${navItem.title.toLowerCase().replace(/\s+/g, '-')}`
+      : undefined;
 
     return (
       <div
         key={navItem.title}
         className="relative inline-block"
-        onMouseEnter={() => scheduleOpen(navItem.title)}
-        onMouseLeave={scheduleClose}
+        onMouseEnter={hasDropdown ? () => scheduleOpen(navItem.title) : undefined}
+        onMouseLeave={hasDropdown ? scheduleClose : undefined}
       >
-        <div className="inline-flex items-center">
-          <Link
-            href={navItem.href}
-            className={cn(
-              'relative px-3 py-1.5 rounded-lg text-sm font-medium inline-flex items-center transition-colors z-10',
-              textColorClass
-            )}
-            aria-expanded={isOpen}
-            aria-controls={panelId}
-            onFocus={() => setOpenMenu(navItem.title)}
-          >
-            {isActive && (
-              <motion.div
-                layoutId="navbar-capsule"
-                className="absolute inset-0 rounded-lg -z-10 bg-primary shadow-md"
-                transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                initial={false}
-              />
-            )}
-            <span className="relative z-10 flex items-center">
-              {navItem.title}
+        <Link
+          href={navItem.href}
+          className={cn(
+            'relative px-3 py-1.5 rounded-lg text-sm font-medium inline-flex items-center transition-colors z-10',
+            textColorClass
+          )}
+          aria-expanded={hasDropdown ? isOpen : undefined}
+          aria-controls={panelId}
+          onFocus={hasDropdown ? () => setOpenMenu(navItem.title) : undefined}
+        >
+          <ActivePill active={isActive} />
+          <span className="relative z-10 flex items-center">
+            {navItem.title}
+            {hasDropdown ? (
               <ChevronDown
                 className={cn(
                   'ml-1 h-4 w-4 transition-transform duration-200',
                   isOpen && 'rotate-180'
                 )}
+                aria-hidden="true"
               />
-            </span>
-          </Link>
-        </div>
+            ) : null}
+          </span>
+        </Link>
 
-        <div id={panelId} role="region" aria-label={`${navItem.title} submenu`}>
-          {navItem.dropdown === 'categories' ? (
-            <DropdownPanel open={isOpen} className="w-64 max-w-none">
-              <div className="space-y-1">
-                <DropdownItem href={navItem.href} emphasized>
-                  View All {navItem.title}
-                </DropdownItem>
-                <div className="h-px bg-border-subtle my-1 mx-2" />
-                <div
-                  className="overflow-y-auto max-h-[60vh] space-y-1"
-                  style={{ scrollbarWidth: 'thin' }}
-                >
-                  {categories.map((category) => (
-                    <DropdownItem
-                      key={category._id}
-                      href={`${navItem.href}/${category.slug}`}
-                    >
-                      {category.name}
+        {hasDropdown ? (
+          <div id={panelId} role="region" aria-label={`${navItem.title} submenu`}>
+            {navItem.dropdown === 'categories' ? (
+              <DropdownPanel open={isOpen} className="w-64 max-w-none">
+                <div className="space-y-1">
+                  <DropdownItem href={navItem.href} emphasized>
+                    View All {navItem.title}
+                  </DropdownItem>
+                  <div className="h-px bg-border-subtle my-1 mx-2" />
+                  <div
+                    className="overflow-y-auto max-h-[60vh] space-y-1"
+                    style={{ scrollbarWidth: 'thin' }}
+                  >
+                    {categories.map((category) => (
+                      <DropdownItem
+                        key={category._id}
+                        href={`${navItem.href}/${category.slug}`}
+                      >
+                        {category.name}
+                      </DropdownItem>
+                    ))}
+                    {categories.length === 0 ? (
+                      <span className="block px-4 py-3 text-sm text-text-muted">
+                        No categories
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              </DropdownPanel>
+            ) : (
+              <DropdownPanel open={isOpen}>
+                <div className="space-y-1">
+                  {(navItem.children || []).map((child) => (
+                    <DropdownItem key={child.href + child.title} href={child.href}>
+                      {child.title}
                     </DropdownItem>
                   ))}
-                  {categories.length === 0 && (
-                    <span className="block px-4 py-3 text-sm text-text-muted">
-                      No categories
-                    </span>
-                  )}
                 </div>
-              </div>
-            </DropdownPanel>
-          ) : (
-            <DropdownPanel open={isOpen}>
-              <div className="space-y-1">
-                {(navItem.children || []).map((child) => (
-                  <DropdownItem key={child.href + child.title} href={child.href}>
-                    {child.title}
-                  </DropdownItem>
-                ))}
-              </div>
-            </DropdownPanel>
-          )}
-        </div>
+              </DropdownPanel>
+            )}
+          </div>
+        ) : null}
       </div>
     );
   };
@@ -312,6 +295,7 @@ export default function Navbar({ categories = [] }) {
               'h-4 w-4 transition-transform duration-200',
               expanded && 'rotate-180'
             )}
+            aria-hidden="true"
           />
         </button>
 
@@ -384,7 +368,7 @@ export default function Navbar({ categories = [] }) {
           </div>
 
           <div className="hidden xl:flex space-x-1 absolute left-1/2 -translate-x-1/2">
-            <LayoutGroup>{siteConfig.mainNav.map(renderDesktopItem)}</LayoutGroup>
+            {siteConfig.mainNav.map(renderDesktopItem)}
           </div>
 
           <div className="flex items-center space-x-2 sm:space-x-4">

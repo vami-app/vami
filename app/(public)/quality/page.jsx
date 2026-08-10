@@ -1,6 +1,7 @@
 import CmsMarketingPage from '@/components/layout/CmsMarketingPage';
 import Link from 'next/link';
 import { getPublishedCertificates } from '@/services/certificate.service';
+import { QUALITY_SECTIONS, SAMPLE_CERTIFICATES } from '@/config/marketing-content';
 
 export const metadata = {
   title: 'Quality & Testing',
@@ -15,33 +16,33 @@ export default async function QualityPage() {
   } catch {
     certificates = [];
   }
+  const docs = certificates.length > 0 ? certificates : SAMPLE_CERTIFICATES;
 
   return (
     <>
       <CmsMarketingPage
         contentKey="quality"
         fallbackTitle="Quality Assurance & Testing"
-        fallbackSubtitle="Publish only tests and wording RMA can substantiate. Distinguish NABL laboratory reports from NABL accreditation."
-        fallbackBody={`Typical quality pillars (confirm before publish):\n• Chemical Analysis\n• Mechanical Testing\n• Dimensional Inspection\n• Visual Inspection\n• Material Traceability\n• Third-Party Testing\n• Material Test Certificates\n• Inspection Reports`}
+        fallbackSubtitle="Documentation and testing options for industrial buyers. Laboratory reports are distinct from laboratory accreditation."
+        fallbackBody="We publish only tests and documentation RMA can substantiate."
+        fallbackSections={QUALITY_SECTIONS}
         ctaHref="/certificates"
         ctaLabel="View Certificates"
       />
-      {certificates.length > 0 ? (
-        <section className="pb-20">
-          <div className="max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
-            <h2 className="font-headline text-3xl text-text-primary mb-6">Published documentation</h2>
-            <ul className="space-y-3">
-              {certificates.map((c) => (
-                <li key={c._id}>
-                  <Link href="/certificates" className="text-text-primary underline underline-offset-4">
-                    {c.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      ) : null}
+      <section className="pb-20">
+        <div className="max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+          <h2 className="font-headline text-3xl text-text-primary mb-6">Documentation</h2>
+          <ul className="space-y-3">
+            {docs.map((c) => (
+              <li key={c._id}>
+                <Link href="/certificates" className="text-text-primary underline underline-offset-4">
+                  {c.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </>
   );
 }

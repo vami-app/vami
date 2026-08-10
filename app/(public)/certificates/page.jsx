@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { getPublishedCertificates } from '@/services/certificate.service';
+import { SAMPLE_CERTIFICATES } from '@/config/marketing-content';
 
 export const metadata = {
   title: 'Certificates & Quality Documentation',
   description:
-    'Download verified quality documentation from Radhey Metal Alloys LLP. Certificates appear here only after verification.',
+    'Download quality documentation from Radhey Metal Alloys LLP including sample MTCs and laboratory report formats.',
 };
 
 export default async function CertificatesPage() {
@@ -14,6 +15,7 @@ export default async function CertificatesPage() {
   } catch {
     certificates = [];
   }
+  const docs = certificates.length > 0 ? certificates : SAMPLE_CERTIFICATES;
 
   return (
     <div className="layout-main bg-surface">
@@ -26,58 +28,51 @@ export default async function CertificatesPage() {
             Certificates &amp; Documentation
           </h1>
           <p className="mt-5 text-lg text-text-muted font-light leading-relaxed">
-            Verified certificates and quality documents are published here after review.
-            Unverified claims are never shown.
+            Sample and verified quality documents for buyer review. Request order-specific certificates with your RFQ.
           </p>
         </div>
 
-        {certificates.length === 0 ? (
-          <div className="mt-16 max-w-xl mx-auto text-center border border-border-subtle rounded-[var(--inner-radius)] bg-surface-muted px-8 py-12">
-            <p className="text-text-muted font-light leading-relaxed">
-              No verified certificates are published yet. Contact our team for sample MTCs,
-              inspection reports, or laboratory documentation related to your enquiry.
-            </p>
-            <Link
-              href="/contact"
-              className="inline-flex mt-8 px-6 py-3 rounded-full bg-primary text-primary-foreground text-sm font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity"
+        <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {docs.map((cert) => (
+            <div
+              key={cert._id}
+              className="bg-surface-muted rounded-[var(--inner-radius)] px-6 py-8 border border-border-subtle text-center"
             >
-              Request a Quote
-            </Link>
-          </div>
-        ) : (
-          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {certificates.map((cert) => (
-              <div
-                key={cert._id}
-                className="bg-surface-muted rounded-[var(--inner-radius)] px-6 py-8 border border-border-subtle text-center"
-              >
-                <h2 className="text-lg font-medium text-text-primary tracking-tight">
-                  {cert.title}
-                </h2>
-                {cert.description ? (
-                  <p className="mt-4 text-base text-text-muted font-light">{cert.description}</p>
-                ) : null}
-                {cert.issuedBy ? (
-                  <p className="mt-3 text-sm text-text-muted">Issued by {cert.issuedBy}</p>
-                ) : null}
-                {cert.fileUrl ? (
-                  <div className="mt-6">
-                    <a
-                      href={cert.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-base font-medium text-text-primary underline underline-offset-4 hover:opacity-80"
-                      data-track="file_download"
-                      data-resource={cert.title}
-                    >
-                      Download PDF →
-                    </a>
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        )}
+              <h2 className="text-lg font-medium text-text-primary tracking-tight">
+                {cert.title}
+              </h2>
+              {cert.description ? (
+                <p className="mt-4 text-base text-text-muted font-light">{cert.description}</p>
+              ) : null}
+              {cert.issuedBy ? (
+                <p className="mt-3 text-sm text-text-muted">Issued by {cert.issuedBy}</p>
+              ) : null}
+              {cert.fileUrl ? (
+                <div className="mt-6">
+                  <a
+                    href={cert.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-base font-medium text-text-primary underline underline-offset-4 hover:opacity-80"
+                    data-track="file_download"
+                    data-resource={cert.title}
+                  >
+                    Download →
+                  </a>
+                </div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <Link
+            href="/contact"
+            className="inline-flex px-6 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity"
+          >
+            Request a Quote
+          </Link>
+        </div>
       </div>
     </div>
   );
