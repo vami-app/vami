@@ -5,6 +5,8 @@ import "./globals.css";
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import PWAProvider from "@/components/pwa/PWAProvider";
+import { ConsentAnalytics } from "@/components/providers/ConsentAnalytics";
+import { env } from "@/env.mjs";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -69,6 +71,7 @@ export default function RootLayout({ children }) {
           <Suspense>
             <PWAProvider>
               {children}
+              <ConsentAnalytics gaId={env.NEXT_PUBLIC_GA_ID} />
             </PWAProvider>
           </Suspense>
         </ThemeProvider>

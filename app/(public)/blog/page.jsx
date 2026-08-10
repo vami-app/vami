@@ -3,7 +3,7 @@ import BlogListInfinite from './BlogListInfinite';
 
 export const metadata = {
   title: 'Journal & Technical Insights',
-  description: 'Deep dives into metallurgy, copper casting, and CNC machining from the engineers at Smalloys.',
+  description: 'Deep dives into metallurgy, copper casting, and CNC machining from Radhey Metal Alloys LLP.',
 };
 
 export default async function BlogListingPage() {

@@ -5,7 +5,7 @@ const Table = React.forwardRef(({ className, ...props }, ref) => (
   <div className="w-full overflow-auto hide-scrollbar">
     <table
       ref={ref}
-      className={cn("min-w-full divide-y divide-black/5", className)}
+      className={cn("min-w-full divide-y divide-border-subtle", className)}
       {...props}
     />
   </div>
@@ -20,7 +20,7 @@ TableHeader.displayName = "TableHeader"
 const TableBody = React.forwardRef(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn("divide-y divide-black/5 bg-surface", className)}
+    className={cn("divide-y divide-border-subtle bg-surface", className)}
     {...props}
   />
 ))
@@ -30,7 +30,7 @@ const TableRow = React.forwardRef(({ className, ...props }, ref) => (
   <tr
     ref={ref}
     className={cn(
-      "hover:bg-gray-50/50 transition-colors",
+      "hover:bg-surface-muted/50 transition-colors",
       className
     )}
     {...props}

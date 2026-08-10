@@ -15,9 +15,11 @@
   
   --border-subtle: rgba(0,0,0,0.05);
   --border-base: rgba(0,0,0,0.1);
+  --border-focus: rgba(0,0,0,0.35);
 
   --primary: #D32F2F;
   --primary-foreground: #ffffff;
+  --cta-shadow: 0 10px 30px rgba(211, 47, 47, 0.25);
 
   --space-2: clamp(0.5rem, 1vw, 0.75rem);
   --space-3: clamp(0.75rem, 2vw, 1.25rem);
@@ -33,7 +35,7 @@
   --inner-radius: calc(var(--outer-radius) - var(--padding));
   --gap: var(--space-3);
 
-  --nav-block-h: 4.5rem;
+  --nav-block-h: 4.25rem;
   --max-width-layout: 80rem;
 }
 
@@ -52,9 +54,11 @@
   
   --border-subtle: rgba(255,255,255,0.1);
   --border-base: rgba(255,255,255,0.2);
+  --border-focus: rgba(255,255,255,0.45);
 
   --primary: #D32F2F;
   --primary-foreground: #ffffff;
+  --cta-shadow: 0 10px 30px rgba(211, 47, 47, 0.35);
 }
 
 @media (min-width: 640px) {
@@ -77,8 +81,10 @@
   --color-text-inverse: var(--text-inverse);
   --color-border-subtle: var(--border-subtle);
   --color-border-base: var(--border-base);
+  --color-border-focus: var(--border-focus);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --shadow-cta: var(--cta-shadow);
   --font-sans: "Manrope", var(--font-geist-sans), -apple-system, sans-serif;
   --font-headline: "Noto Serif", Georgia, serif;
 }
@@ -136,7 +142,8 @@ body {
 
 /* Raw HTML typography (Prose) */
 .prose {
-  color: var(--text-body);
+  color: var(--text-secondary);
+  font-size: var(--text-body);
   max-width: 65ch;
   line-height: 1.75;
 }

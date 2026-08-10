@@ -16,19 +16,23 @@ export async function getProductBySlug(categorySlug, productSlug) {
   'use cache';
   cacheTag('products', 'categories', `product:${categorySlug}:${productSlug}`);
   cacheLife('hours');
-  await dbConnect();
+  try {
+    await dbConnect();
 
-  const category = await Category.findOne({ slug: categorySlug }).lean();
-  if (!category) return null;
+    const category = await Category.findOne({ slug: categorySlug }).lean();
+    if (!category) return null;
 
-  const product = await Product.findOne({
-    slug: productSlug,
-    category: category._id,
-    status: 'published',
-  }).lean();
+    const product = await Product.findOne({
+      slug: productSlug,
+      category: category._id,
+      status: 'published',
+    }).lean();
 
-  if (!product) return null;
-  return { product: serializeDoc(product), category: serializeDoc(category) };
+    if (!product) return null;
+    return { product: serializeDoc(product), category: serializeDoc(category) };
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -38,9 +42,13 @@ export async function getProductsByCategory(categoryId) {
   'use cache';
   cacheTag('products', `category-products:${categoryId}`);
   cacheLife('hours');
-  await dbConnect();
-  const products = await Product.find({ category: categoryId, status: 'published' }).lean();
-  return serializeDocs(products);
+  try {
+    await dbConnect();
+    const products = await Product.find({ category: categoryId, status: 'published' }).lean();
+    return serializeDocs(products);
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -51,20 +59,23 @@ export async function getAllPublishedProducts({ cursor = null, limit = 20 } = {}
   'use cache';
   cacheTag('products', 'categories');
   cacheLife('hours');
-  await dbConnect();
-  
-  const baseQuery = { status: 'published' };
-  const cursorQuery = cursor ? buildCursorQuery(cursor, 'createdAt', true) : {};
-  const query = { ...baseQuery, ...cursorQuery };
+  try {
+    await dbConnect();
 
-  // Fetch limit + 1 to determine if there's a next page
-  const products = await Product.find(query)
-    .populate('category', 'name slug')
-    .sort({ createdAt: -1, _id: -1 })
-    .limit(limit + 1)
-    .lean();
-    
-  return buildRelayConnection(serializeDocs(products), limit, 'createdAt');
+    const baseQuery = { status: 'published' };
+    const cursorQuery = cursor ? buildCursorQuery(cursor, 'createdAt', true) : {};
+    const query = { ...baseQuery, ...cursorQuery };
+
+    const products = await Product.find(query)
+      .populate('category', 'name slug')
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(limit + 1)
+      .lean();
+
+    return buildRelayConnection(serializeDocs(products), limit, 'createdAt');
+  } catch {
+    return { edges: [], pageInfo: { hasNextPage: false, endCursor: null } };
+  }
 }
 
 /**
@@ -74,12 +85,16 @@ export async function getFeaturedProducts(limit = 4) {
   'use cache';
   cacheTag('products', 'categories');
   cacheLife('hours');
-  await dbConnect();
-  const products = await Product.find({ status: 'published', featured: true })
-    .populate('category', 'name slug')
-    .limit(limit)
-    .lean();
-  return serializeDocs(products);
+  try {
+    await dbConnect();
+    const products = await Product.find({ status: 'published', featured: true })
+      .populate('category', 'name slug')
+      .limit(limit)
+      .lean();
+    return serializeDocs(products);
+  } catch {
+    return [];
+  }
 }
 
 /**

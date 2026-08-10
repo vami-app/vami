@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function AdminError({ error, reset }) {
   useEffect(() => {
@@ -22,13 +23,13 @@ export default function AdminError({ error, reset }) {
         {error.message || 'An error occurred while loading this admin module.'}
       </p>
       
-      <button
+      <Button
         onClick={() => reset()}
-        className="inline-flex items-center justify-center px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-xs uppercase tracking-wider font-semibold hover:opacity-90 transition-opacity"
+        className="shadow-none"
       >
         <RefreshCw className="h-4 w-4 mr-2" />
         Retry Module
-      </button>
+      </Button>
     </div>
   );
 }

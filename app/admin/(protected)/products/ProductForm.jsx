@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { Plus, Trash2, UploadCloud, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 export default function ProductForm({ initialData = null }) {
   const router = useRouter();
@@ -26,6 +31,16 @@ export default function ProductForm({ initialData = null }) {
     featured: initialData?.featured || false,
     seoTitle: initialData?.seoTitle || '',
     seoDescription: initialData?.seoDescription || '',
+    grades: (initialData?.grades || []).join(', '),
+    thicknessRange: initialData?.thicknessRange || '',
+    widthRange: initialData?.widthRange || '',
+    lengthRange: initialData?.lengthRange || '',
+    temper: initialData?.temper || '',
+    surfaceFinish: initialData?.surfaceFinish || '',
+    standards: (initialData?.standards || []).join(', '),
+    applications: (initialData?.applications || []).join(', '),
+    availableForms: (initialData?.availableForms || []).join(', '),
+    qualityDocs: (initialData?.qualityDocs || []).join(', '),
   });
 
   async function fetchCategories() {
@@ -140,11 +155,26 @@ export default function ProductForm({ initialData = null }) {
     const method = initialData ? 'PUT' : 'POST';
     const url = initialData ? `/api/products/${initialData._id}` : '/api/products';
 
+    const splitList = (value) =>
+      String(value || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+    const payload = {
+      ...formData,
+      grades: splitList(formData.grades),
+      standards: splitList(formData.standards),
+      applications: splitList(formData.applications),
+      availableForms: splitList(formData.availableForms),
+      qualityDocs: splitList(formData.qualityDocs),
+    };
+
     try {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -175,20 +205,21 @@ export default function ProductForm({ initialData = null }) {
           <p className="mt-1 text-sm text-text-muted">Manage product details, pricing, and media.</p>
         </div>
         <div className="hidden lg:flex items-center space-x-3">
-          <button 
+          <Button 
             type="button" 
+            variant="outline"
             onClick={() => router.push('/admin/products')} 
-            className="inline-flex justify-center rounded-lg border border-border-base shadow-sm px-6 py-2.5 bg-surface text-xs uppercase tracking-wider font-semibold text-text-secondary hover:bg-surface-subtle hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus"
+            className="border-border-base shadow-sm bg-surface text-text-secondary hover:bg-surface-subtle hover:text-text-secondary hover:border-border-base hover:scale-[1.02] focus-visible:ring-border-focus"
           >
             Discard
-          </button>
-          <button 
+          </Button>
+          <Button 
             type="submit" 
             disabled={isSaving} 
-            className="inline-flex justify-center rounded-lg border border-transparent shadow-xl px-6 py-2.5 bg-primary text-xs uppercase tracking-wider font-semibold text-primary-foreground hover:opacity-90 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            className="shadow-xl hover:scale-105 focus-visible:ring-offset-2"
           >
             {isSaving ? 'Saving...' : 'Save Product'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -204,22 +235,22 @@ export default function ProductForm({ initialData = null }) {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Product Name</label>
-                <input type="text" name="name" required value={formData.name} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" placeholder="e.g. Stainless Steel Pipe" />
+                <Input type="text" name="name" required value={formData.name} onChange={handleChange} placeholder="e.g. Stainless Steel Pipe" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Slug URL</label>
-                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
+                <Input type="text" name="slug" required value={formData.slug} onChange={handleChange} />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Short Description</label>
-                <textarea name="shortDescription" rows={2} value={formData.shortDescription} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" placeholder="A brief summary of the product..." />
+                <Textarea name="shortDescription" rows={2} value={formData.shortDescription} onChange={handleChange} placeholder="A brief summary of the product..." />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Long Description (HTML Supported)</label>
-                <textarea name="longDescription" rows={5} value={formData.longDescription} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" placeholder="Detailed product specifications and features..." />
+                <Textarea name="longDescription" rows={5} value={formData.longDescription} onChange={handleChange} placeholder="Detailed product specifications and features..." />
               </div>
             </div>
           </div>
@@ -254,8 +285,8 @@ export default function ProductForm({ initialData = null }) {
             <div className="space-y-4">
               {formData.specs.map((spec, index) => (
                 <div key={index} className="flex items-center space-x-3">
-                  <input type="text" placeholder="Key (e.g. Material)" required value={spec.key} onChange={(e) => updateSpec(index, 'key', e.target.value)} className="block w-1/3 py-2.5 px-4 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-sm text-text-primary" />
-                  <input type="text" placeholder="Value (e.g. Aluminum)" required value={spec.value} onChange={(e) => updateSpec(index, 'value', e.target.value)} className="block w-full py-2.5 px-4 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-sm text-text-primary" />
+                  <Input type="text" placeholder="Key (e.g. Material)" required value={spec.key} onChange={(e) => updateSpec(index, 'key', e.target.value)} className="w-1/3 py-2.5 px-4 text-sm" />
+                  <Input type="text" placeholder="Value (e.g. Aluminum)" required value={spec.value} onChange={(e) => updateSpec(index, 'value', e.target.value)} className="py-2.5 px-4 text-sm" />
                   <button type="button" onClick={() => removeSpec(index)} className="inline-flex items-center p-2.5 border border-border-subtle rounded-lg text-text-muted hover:text-red-600 hover:bg-red-50 hover:border-red-100 transition-colors">
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -281,11 +312,11 @@ export default function ProductForm({ initialData = null }) {
                   <div className="grid grid-cols-1 gap-y-4 gap-x-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">Variant Name</label>
-                      <input type="text" required value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} className="block w-full py-2.5 px-4 bg-surface border border-border-subtle rounded-lg focus:ring-1 focus:ring-text-primary outline-none text-sm text-text-primary" placeholder="e.g. 10mm Thickness" />
+                      <Input type="text" required value={variant.name} onChange={(e) => updateVariant(index, 'name', e.target.value)} className="py-2.5 px-4 text-sm shadow-none bg-surface" placeholder="e.g. 10mm Thickness" />
                     </div>
                     <div>
                       <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">Price / Note</label>
-                      <input type="text" value={variant.priceNote} onChange={(e) => updateVariant(index, 'priceNote', e.target.value)} className="block w-full py-2.5 px-4 bg-surface border border-border-subtle rounded-lg focus:ring-1 focus:ring-text-primary outline-none text-sm text-text-primary" placeholder="e.g. Contact for Price" />
+                      <Input type="text" value={variant.priceNote} onChange={(e) => updateVariant(index, 'priceNote', e.target.value)} className="py-2.5 px-4 text-sm shadow-none bg-surface" placeholder="e.g. Contact for Price" />
                     </div>
                   </div>
                 </div>
@@ -293,6 +324,43 @@ export default function ProductForm({ initialData = null }) {
               <button type="button" onClick={addVariant} className="inline-flex items-center px-4 py-2.5 border border-border-base shadow-sm uppercase tracking-wider font-semibold text-xs rounded-lg text-text-secondary bg-surface hover:bg-surface-muted transition-colors">
                 <Plus className="-ml-1 mr-2 h-4 w-4 text-text-muted" /> Add Variant
               </button>
+            </div>
+          </div>
+
+          {/* Card 4b: Technical catalogue (verified fields only) */}
+          <div className="bg-surface rounded-lg p-6 sm:p-8 border border-border-subtle shadow-sm">
+            <h3 className="text-lg font-headline font-semibold text-text-primary tracking-tight mb-2">
+              Technical Catalogue
+            </h3>
+            <p className="text-sm text-text-muted mb-6">
+              Leave blank until RMA verifies values — empty fields stay hidden on the public site.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                ['grades', 'Grades (comma-separated)'],
+                ['thicknessRange', 'Thickness range'],
+                ['widthRange', 'Width range'],
+                ['lengthRange', 'Length range'],
+                ['temper', 'Temper / hardness'],
+                ['surfaceFinish', 'Surface finish'],
+                ['standards', 'Standards (comma-separated)'],
+                ['availableForms', 'Available forms (comma-separated)'],
+                ['applications', 'Applications (comma-separated)'],
+                ['qualityDocs', 'Quality documentation (comma-separated)'],
+              ].map(([name, label]) => (
+                <div key={name} className={name === 'applications' || name === 'qualityDocs' ? 'sm:col-span-2' : ''}>
+                  <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">
+                    {label}
+                  </label>
+                  <Input
+                    type="text"
+                    name={name}
+                    value={formData[name]}
+                    onChange={handleChange}
+                    className="py-2.5 px-4 text-sm shadow-none"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -305,12 +373,12 @@ export default function ProductForm({ initialData = null }) {
             <div className="p-6 sm:p-8 border-t border-border-subtle space-y-6">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Title</label>
-                <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-text-primary" />
+                <Input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} />
                 <p className="mt-2 text-xs text-text-muted font-medium">{formData.seoTitle.length}/60 characters</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Meta Description</label>
-                <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-text-primary" />
+                <Textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} />
                 <p className="mt-2 text-xs text-text-muted font-medium">{formData.seoDescription.length}/160 characters</p>
               </div>
             </div>
@@ -328,77 +396,35 @@ export default function ProductForm({ initialData = null }) {
             <div className="space-y-6">
               {/* Category Dropdown */}
               <div>
-                <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">Category</label>
-                {isCategoryOpen && <div className="fixed inset-0 z-10" onClick={() => setIsCategoryOpen(false)}></div>}
-                <div className={`relative ${isCategoryOpen ? 'z-30' : 'z-10'}`}>
-                  <input type="hidden" name="category" value={formData.category} />
-                  <button 
-                    type="button" 
-                    onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                    className={`w-full py-3 px-4 bg-surface/50 border ${isCategoryOpen ? 'border-text-primary ring-1 ring-text-primary' : 'border-border-subtle hover:border-border-base'} rounded-lg transition-all text-sm outline-none text-left flex justify-between items-center`}
-                  >
-                    <span className="text-text-primary font-medium">
-                      {loadingCategories ? 'Loading...' : (categories.find(c => c._id === formData.category)?.name || 'Select Category')}
-                    </span>
-                    <ChevronDown className={`h-4 w-4 text-text-muted transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  <div className={`absolute top-[calc(100%+8px)] left-0 w-full bg-surface/95 backdrop-blur border border-border-base rounded-lg shadow-xl overflow-hidden p-1.5 transition-all ${isCategoryOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
-                    <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar">
-                      {categories.map((c) => {
-                        const isSelected = formData.category === c._id;
-                        return (
-                          <button
-                            key={c._id}
-                            type="button"
-                            onClick={() => {
-                              setFormData({ ...formData, category: c._id });
-                              setIsCategoryOpen(false);
-                            }}
-                            className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all flex items-center justify-between ${isSelected ? 'bg-primary text-primary-foreground font-semibold' : 'text-text-secondary hover:bg-surface-subtle'}`}
-                          >
-                            {c.name}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+                <Label className="text-xs uppercase tracking-wider font-semibold mb-2 ml-1">Category</Label>
+                <input type="hidden" name="category" value={formData.category} />
+                <Select
+                  value={formData.category}
+                  options={categories.map((c) => ({ value: c._id, label: c.name }))}
+                  open={isCategoryOpen}
+                  onOpenChange={setIsCategoryOpen}
+                  onChange={(value) => setFormData({ ...formData, category: value })}
+                  placeholder={loadingCategories ? 'Loading...' : 'Select Category'}
+                  disabled={loadingCategories}
+                  size="sm"
+                />
               </div>
 
               {/* Status Dropdown */}
               <div>
-                <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">Status</label>
-                {isStatusOpen && <div className="fixed inset-0 z-10" onClick={() => setIsStatusOpen(false)}></div>}
-                <div className={`relative ${isStatusOpen ? 'z-30' : 'z-10'}`}>
-                  <input type="hidden" name="status" value={formData.status} />
-                  <button 
-                    type="button" 
-                    onClick={() => setIsStatusOpen(!isStatusOpen)}
-                    className={`w-full py-3 px-4 bg-surface/50 border ${isStatusOpen ? 'border-text-primary ring-1 ring-text-primary' : 'border-border-subtle hover:border-border-base'} rounded-lg transition-all text-sm outline-none text-left flex justify-between items-center`}
-                  >
-                    <span className="text-text-primary font-medium capitalize">{formData.status}</span>
-                    <ChevronDown className={`h-4 w-4 text-text-muted transition-transform ${isStatusOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  <div className={`absolute top-[calc(100%+8px)] left-0 w-full bg-surface/95 backdrop-blur border border-border-base rounded-lg shadow-xl overflow-hidden p-1.5 transition-all ${isStatusOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
-                    <div className="space-y-1">
-                      {['draft', 'published'].map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => {
-                            setFormData({ ...formData, status: option });
-                            setIsStatusOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all capitalize ${formData.status === option ? 'bg-primary text-primary-foreground font-semibold' : 'text-text-secondary hover:bg-surface-subtle'}`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <Label className="text-xs uppercase tracking-wider font-semibold mb-2 ml-1">Status</Label>
+                <input type="hidden" name="status" value={formData.status} />
+                <Select
+                  value={formData.status}
+                  options={[
+                    { value: 'draft', label: 'Draft' },
+                    { value: 'published', label: 'Published' },
+                  ]}
+                  open={isStatusOpen}
+                  onOpenChange={setIsStatusOpen}
+                  onChange={(value) => setFormData({ ...formData, status: value })}
+                  size="sm"
+                />
               </div>
 
             </div>
@@ -409,20 +435,21 @@ export default function ProductForm({ initialData = null }) {
 
       {/* Mobile Sticky Action Bar */}
       <div className="lg:hidden fixed bottom-[68px] left-0 right-0 p-4 bg-surface/90 backdrop-blur-md border-t border-border-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-40 flex justify-end space-x-3 sm:px-6">
-        <button 
+        <Button 
           type="button" 
+          variant="outline"
           onClick={() => router.push('/admin/products')} 
-          className="flex-1 sm:flex-none inline-flex justify-center rounded-lg border border-border-base shadow-sm px-6 py-3 bg-surface text-xs uppercase tracking-wider font-semibold text-text-secondary active:scale-[0.98] transition-transform"
+          className="flex-1 sm:flex-none border-border-base shadow-sm bg-surface text-text-secondary hover:bg-surface hover:text-text-secondary hover:border-border-base py-3 active:scale-[0.98]"
         >
           Discard
-        </button>
-        <button 
+        </Button>
+        <Button 
           type="submit" 
           disabled={isSaving} 
-          className="flex-1 sm:flex-none inline-flex justify-center rounded-lg border border-transparent shadow-xl px-6 py-3 bg-primary text-xs uppercase tracking-wider font-semibold text-primary-foreground active:scale-[0.98] transition-transform"
+          className="flex-1 sm:flex-none shadow-xl py-3 active:scale-[0.98]"
         >
           {isSaving ? 'Saving...' : 'Save Product'}
-        </button>
+        </Button>
       </div>
 
     </form>

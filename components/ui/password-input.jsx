@@ -11,10 +11,7 @@ export const PasswordInput = React.forwardRef(({ className, ...props }, ref) => 
     <div className="relative">
       <Input
         type={showPassword ? "text" : "password"}
-        className={cn(
-          "block w-full py-3.5 pl-5 pr-10 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary placeholder:text-text-muted disabled:cursor-not-allowed disabled:opacity-50 shadow-[0_2px_10px_rgba(0,0,0,0.02)]",
-          className
-        )}
+        className={cn("pr-10", className)}
         ref={ref}
         {...props}
       />

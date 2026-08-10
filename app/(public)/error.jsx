@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function Error({ error, reset }) {
   useEffect(() => {
@@ -25,20 +26,19 @@ export default function Error({ error, reset }) {
         </p>
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button
+          <Button
             onClick={() => reset()}
-            className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg text-xs uppercase tracking-wider font-semibold hover:opacity-90 transition-opacity w-full sm:w-auto"
+            className="w-full sm:w-auto py-3 shadow-none"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Try again
-          </button>
+          </Button>
           
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center px-6 py-3 bg-surface border border-border-base text-text-secondary rounded-lg text-xs uppercase tracking-wider font-semibold hover:bg-surface-muted transition-colors w-full sm:w-auto"
-          >
-            Return to Homepage
-          </Link>
+          <Button asChild variant="outline" className="w-full sm:w-auto py-3 border-border-base bg-surface text-text-secondary hover:bg-surface-muted hover:text-text-secondary hover:border-border-base">
+            <Link href="/">
+              Return to Homepage
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

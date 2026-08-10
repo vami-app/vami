@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { RefreshCw, Home, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Error({ error, reset }) {
   useEffect(() => {
@@ -37,20 +38,19 @@ export default function Error({ error, reset }) {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button
+          <Button
             onClick={() => reset()}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground text-xs uppercase tracking-wider font-semibold hover:opacity-90 transition-all shadow-sm group"
+            className="w-full sm:w-auto py-3 shadow-sm group"
           >
             <RefreshCw className="h-4 w-4 group-hover:rotate-180 transition-transform duration-500" />
             <span>Try Again</span>
-          </button>
-          <Link
-            href="/"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-border-base bg-surface text-text-secondary text-xs uppercase tracking-wider font-semibold hover:bg-surface-muted transition-all shadow-sm"
-          >
-            <Home className="h-4 w-4 text-text-muted" />
-            <span>Return Home</span>
-          </Link>
+          </Button>
+          <Button asChild variant="outline" className="w-full sm:w-auto py-3 border-border-base bg-surface text-text-secondary hover:bg-surface-muted hover:text-text-secondary hover:border-border-base shadow-sm">
+            <Link href="/">
+              <Home className="h-4 w-4 text-text-muted" />
+              <span>Return Home</span>
+            </Link>
+          </Button>
         </div>
 
         {/* Footer */}
@@ -61,3 +61,4 @@ export default function Error({ error, reset }) {
     </div>
   );
 }
+

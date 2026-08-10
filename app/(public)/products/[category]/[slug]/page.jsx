@@ -2,6 +2,7 @@ import { getProductBySlug } from "@/services/product.service";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Check, Info } from "lucide-react";
+import { getTechnicalSpecRows } from "@/lib/publish";
 
 export async function generateMetadata({ params }) {
   const { category: categorySlug, slug: productSlug } = await params;
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }) {
     description:
       product.seoDescription ||
       product.shortDescription ||
-      `Buy ${product.name} at Smalloys.`,
+      `Buy ${product.name} from Radhey Metal Alloys LLP.`,
     openGraph: {
       images:
         product.images && product.images.length > 0 ? [product.images[0]] : [],
@@ -152,7 +153,7 @@ export default async function ProductDetailPage({ params }) {
 
               <div className="mt-12 flex">
                 <Link
-                  href="/contact"
+                  href={`/contact?product=${encodeURIComponent(product.slug || product.name)}&category=${encodeURIComponent(category.slug || category.name || '')}`}
                   className="w-full sm:w-auto inline-flex justify-center items-center px-10 py-5 bg-primary text-primary-foreground rounded-lg text-[var(--text-cta)] uppercase tracking-wider font-semibold shadow-cta hover:opacity-90 transition-colors"
                 >
                   Request a Quote
@@ -164,6 +165,34 @@ export default async function ProductDetailPage({ params }) {
           {/* Specs and Variants */}
           <div className="mt-16 lg:mt-24 pt-16 lg:pt-24 border-t border-border-base lg:grid lg:grid-cols-3 lg:gap-x-12">
             <div className="lg:col-span-2">
+              {(() => {
+                const techRows = getTechnicalSpecRows(product);
+                if (!techRows.length) return null;
+                return (
+                  <div className="mb-16">
+                    <h2 className="font-headline font-light text-3xl sm:text-4xl text-text-primary tracking-tight mb-8">
+                      Technical Specifications
+                    </h2>
+                    <div className="overflow-hidden border border-border-subtle rounded-[var(--inner-radius)]">
+                      <table className="min-w-full divide-y divide-border-subtle">
+                        <tbody className="divide-y divide-border-subtle">
+                          {techRows.map((row) => (
+                            <tr key={row.label}>
+                              <th className="px-4 py-3 text-left text-sm font-semibold text-text-primary bg-surface-muted w-1/3">
+                                {row.label}
+                              </th>
+                              <td className="px-4 py-3 text-sm text-text-muted font-light">
+                                {row.value}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
+
               {product.longDescription && (
                 <div className="mb-16">
                   <h2 className="font-headline font-light text-3xl sm:text-4xl text-text-primary tracking-tight mb-8">

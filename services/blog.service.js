@@ -16,18 +16,22 @@ export async function getPublishedBlogPosts({ cursor = null, limit = 20 } = {}) 
   'use cache';
   cacheTag('blog');
   cacheLife('hours');
-  await dbConnect();
-  
-  const baseQuery = { status: 'published' };
-  const cursorQuery = cursor ? buildCursorQuery(cursor, 'publishedAt', true) : {};
-  const query = { ...baseQuery, ...cursorQuery };
+  try {
+    await dbConnect();
 
-  const posts = await BlogPost.find(query)
-    .sort({ publishedAt: -1, _id: -1 })
-    .limit(limit + 1)
-    .lean();
-    
-  return buildRelayConnection(serializeDocs(posts), limit, 'publishedAt');
+    const baseQuery = { status: 'published' };
+    const cursorQuery = cursor ? buildCursorQuery(cursor, 'publishedAt', true) : {};
+    const query = { ...baseQuery, ...cursorQuery };
+
+    const posts = await BlogPost.find(query)
+      .sort({ publishedAt: -1, _id: -1 })
+      .limit(limit + 1)
+      .lean();
+
+    return buildRelayConnection(serializeDocs(posts), limit, 'publishedAt');
+  } catch {
+    return { edges: [], pageInfo: { hasNextPage: false, endCursor: null } };
+  }
 }
 
 /**
@@ -38,9 +42,13 @@ export async function getBlogPostBySlug(slug) {
   'use cache';
   cacheTag('blog', `post:${slug}`);
   cacheLife('hours');
-  await dbConnect();
-  const post = await BlogPost.findOne({ slug, status: 'published' }).lean();
-  return serializeDoc(post);
+  try {
+    await dbConnect();
+    const post = await BlogPost.findOne({ slug, status: 'published' }).lean();
+    return serializeDoc(post);
+  } catch {
+    return null;
+  }
 }
 
 /**

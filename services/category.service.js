@@ -10,20 +10,28 @@ export async function getAllCategories(limit = 0) {
   'use cache';
   cacheTag('categories');
   cacheLife('hours');
-  await dbConnect();
-  let query = Category.find({}).sort({ createdAt: -1 });
-  if (limit) query = query.limit(limit);
-  const categories = await query.lean();
-  return serializeDocs(categories);
+  try {
+    await dbConnect();
+    let query = Category.find({}).sort({ createdAt: -1 });
+    if (limit) query = query.limit(limit);
+    const categories = await query.lean();
+    return serializeDocs(categories);
+  } catch {
+    return [];
+  }
 }
 
 export async function getCategoryBySlug(slug) {
   'use cache';
   cacheTag('categories', `category:${slug}`);
   cacheLife('hours');
-  await dbConnect();
-  const category = await Category.findOne({ slug }).lean();
-  return serializeDoc(category);
+  try {
+    await dbConnect();
+    const category = await Category.findOne({ slug }).lean();
+    return serializeDoc(category);
+  } catch {
+    return null;
+  }
 }
 
 // ─── ADMIN QUERIES (Uncached) ─────────────────────────────────────────────────

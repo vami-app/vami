@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Radhey Metal Alloys LLP
 
-## Getting Started
+Next.js 16 App Router site + admin CMS for catalogue, blog, RFQ leads, certificates, and resources.
 
-First, run the development server:
+## Quick start
 
 ```bash
+npm install
+cp .env.example .env.local
+# Start MongoDB, then:
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Key docs
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- [`CLIENT_DELIVERABLES.md`](CLIENT_DELIVERABLES.md) — what RMA must provide before publishing claims
+- [`docs/CONTENT_PUBLISH_RUNBOOK.md`](docs/CONTENT_PUBLISH_RUNBOOK.md) — publish gates & ops checklist
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture
 
-## Learn More
+- `app/(public)/` — public pages (single RFQ at `/contact`)
+- `app/admin/` — existing admin panel (products, blog, leads, certificates, resources, content)
+- `services/` — domain services; `modules/` — thin re-exports + Zod schemas
+- `models/` — Mongoose models
 
-To learn more about Next.js, take a look at the following resources:
+## RFQ / email
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Set optional `RESEND_API_KEY`, `LEADS_INBOX_EMAIL`, `LEADS_FROM_EMAIL`. Leads always persist to Mongo even if email is not configured.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Analytics
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Set `NEXT_PUBLIC_GA_ID`. GA loads only after cookie consent = `accepted`.

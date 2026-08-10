@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { AlertTriangle, Trash2, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function ConfirmModal({
   isOpen,
@@ -41,14 +42,12 @@ export default function ConfirmModal({
       role="dialog"
       aria-modal="true"
     >
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
         onClick={() => !isLoading && onClose()}
         aria-hidden="true"
       />
 
-      {/* Modal Dialog Box */}
       <div className="relative bg-surface rounded-lg p-6 sm:p-8 shadow-2xl max-w-md w-full border border-border-subtle z-10 animate-in zoom-in-95 duration-200">
         <button
           onClick={onClose}
@@ -74,22 +73,23 @@ export default function ConfirmModal({
           </p>
 
           <div className="mt-8 w-full flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={onClose}
               disabled={isLoading}
-              className="w-full sm:w-auto inline-flex justify-center items-center rounded-lg border border-border-base px-6 py-2.5 bg-surface uppercase tracking-wider font-semibold text-xs text-text-secondary hover:bg-surface-muted transition-colors focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50"
+              className="w-full sm:w-auto border-border-base text-text-secondary bg-surface hover:bg-surface-muted hover:text-text-secondary hover:border-border-base focus-visible:ring-black"
             >
               {cancelText}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={onConfirm}
               disabled={isLoading}
-              className={`w-full sm:w-auto inline-flex justify-center items-center rounded-lg px-6 py-2.5 uppercase tracking-wider font-semibold text-xs shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 ${
+              className={`w-full sm:w-auto shadow-sm focus-visible:ring-offset-2 ${
                 isDanger
-                  ? 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-600'
-                  : 'bg-primary hover:bg-primary/90 text-primary-foreground focus:ring-primary'
+                  ? 'bg-red-600 hover:bg-red-700 text-white focus-visible:ring-red-600 shadow-none'
+                  : ''
               }`}
             >
               {isLoading ? (
@@ -101,7 +101,7 @@ export default function ConfirmModal({
                   Processing…
                 </span>
               ) : confirmText}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

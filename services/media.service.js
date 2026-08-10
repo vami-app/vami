@@ -1,5 +1,5 @@
 import { unstable_after as after } from 'next/server';
-import { deleteImage, uploadImage } from '@/lib/cloudinary';
+import { deleteImage, uploadImage, uploadRaw } from '@/lib/cloudinary';
 import { logger } from '@/lib/logger';
 
 /**
@@ -20,6 +20,16 @@ export const MediaService = {
    */
   async uploadMedia(fileBase64, folder = 'general') {
     return uploadImage(fileBase64, folder);
+  },
+
+  /**
+   * Upload a raw file (PDF/DWG/DXF/etc.) to Cloudinary.
+   * @param {string} fileBase64
+   * @param {string} [folder='leads']
+   * @param {string} [filename]
+   */
+  async uploadRawMedia(fileBase64, folder = 'leads', filename) {
+    return uploadRaw(fileBase64, folder, filename);
   },
 
   /**

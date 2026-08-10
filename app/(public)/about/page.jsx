@@ -81,7 +81,7 @@ export default function AboutPage() {
             <div className="w-full aspect-[4/3] sm:aspect-video lg:aspect-square rounded-[var(--outer-radius)] overflow-hidden relative shadow-sm border border-border-subtle group bg-surface">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
-                src="https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" 
+                src="https://dawangmetals.com/wp-content/uploads/2025/12/99-10.png" 
                 alt="Precision pouring of molten metal in advanced foundry"
                 className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80 transition-transform duration-1000 group-hover:scale-105"
               />

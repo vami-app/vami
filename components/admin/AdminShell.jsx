@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
-import { adminConfig } from "@/config/admin";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { adminConfig, isAdminNavActive } from "@/config/admin";
+import MobileMoreSheet from "@/components/admin/MobileMoreSheet";
 
 const navigation = adminConfig.navigation;
 
@@ -20,7 +21,7 @@ function SidebarNavLinks({ showLabel, pathname, allowedNavigation }) {
       }
     >
       {allowedNavigation.map(({ name, href, icon: Icon }) => {
-        const active = pathname === href;
+        const active = isAdminNavActive(pathname, href);
 
         if (!labeled) {
           return (
@@ -106,9 +107,71 @@ function SidebarSignOut({ compact }) {
   );
 }
 
+function MobileTabItem({ href, name, icon: Icon, active, onClick, expanded }) {
+  const className = [
+    "flex flex-col items-center gap-0.5 flex-1 py-1 transition-opacity active:opacity-70 min-w-0",
+  ].join(" ");
+
+  const inner = (
+    <>
+      <span
+        className={[
+          "flex items-center justify-center w-12 h-8 rounded-lg transition-all duration-200",
+          active ? "bg-primary" : "bg-transparent",
+        ].join(" ")}
+      >
+        <Icon
+          className={[
+            "h-5 w-5 transition-colors duration-200",
+            active ? "text-primary-foreground" : "text-text-muted",
+          ].join(" ")}
+          aria-hidden="true"
+        />
+      </span>
+      <span
+        className={[
+          "text-[10px] font-medium tracking-wide transition-colors duration-200 leading-tight truncate max-w-full px-0.5",
+          active ? "text-text-primary" : "text-text-muted",
+        ].join(" ")}
+      >
+        {name}
+      </span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className={className}
+        aria-label={name}
+        aria-current={active ? "page" : undefined}
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className={className}
+      aria-label={name}
+      aria-expanded={Boolean(expanded)}
+      aria-haspopup="dialog"
+      onClick={onClick}
+    >
+      {inner}
+    </button>
+  );
+}
+
 export default function AdminShell({ children, permissions = [] }) {
   const [tabletExpanded, setTabletExpanded] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const pathname = usePathname();
+
+  const closeMore = useCallback(() => setMoreOpen(false), []);
 
   // If permissions prop is empty or not provided, fallback to all navigation items so nav is never blank
   const effectivePermissions =
@@ -116,9 +179,31 @@ export default function AdminShell({ children, permissions = [] }) {
       ? permissions
       : navigation.map((nav) => nav.permission);
 
-  const allowedNavigation = navigation.filter((nav) =>
-    effectivePermissions.includes(nav.permission),
+  const allowedNavigation = useMemo(
+    () =>
+      navigation.filter((nav) => effectivePermissions.includes(nav.permission)),
+    [effectivePermissions]
   );
+
+  const primaryTabs = useMemo(
+    () => allowedNavigation.filter((nav) => nav.mobilePrimary),
+    [allowedNavigation]
+  );
+
+  const moreItems = useMemo(
+    () => allowedNavigation.filter((nav) => !nav.mobilePrimary),
+    [allowedNavigation]
+  );
+
+  const moreActive = useMemo(
+    () => moreItems.some((nav) => isAdminNavActive(pathname, nav.href)),
+    [moreItems, pathname]
+  );
+
+  // Close overflow sheet after navigation (and on route change while open).
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [pathname]);
 
   /* ── Layout ──────────────────────────────────────────── */
 
@@ -231,69 +316,38 @@ export default function AdminShell({ children, permissions = [] }) {
 
       {/* ══════════════════════════════════════════════════
           MOBILE BOTTOM TAB BAR (< md)
-          Fixed to bottom edge. 5 icons with labels below.
-          Active item: black filled circle behind the icon.
+          3 primary destinations + More (≤4 controls).
           ══════════════════════════════════════════════════ */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-surface/90 backdrop-blur-md border-t border-border-subtle shadow-[0_-4px_24px_rgba(0,0,0,0.06)]"
         aria-label="Mobile navigation"
       >
-        {/* Safe area spacer for phones with home indicator */}
         <div className="flex items-start justify-around px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-          {/* Navigation items */}
-          {allowedNavigation.map(({ name, href, icon: Icon }) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={name}
-                href={href}
-                className="flex flex-col items-center gap-0.5 flex-1 py-1 transition-opacity active:opacity-70"
-                aria-label={name}
-              >
-                <span
-                  className={[
-                    "flex items-center justify-center w-12 h-8 rounded-lg transition-all duration-200",
-                    active ? "bg-primary" : "bg-transparent",
-                  ].join(" ")}
-                >
-                  <Icon
-                    className={[
-                      "h-5 w-5 transition-colors duration-200",
-                      active ? "text-primary-foreground" : "text-text-muted",
-                    ].join(" ")}
-                    aria-hidden="true"
-                  />
-                </span>
-                <span
-                  className={[
-                    "text-[10px] font-medium tracking-wide transition-colors duration-200 leading-tight",
-                    active ? "text-text-primary" : "text-text-muted",
-                  ].join(" ")}
-                >
-                  {name}
-                </span>
-              </Link>
-            );
-          })}
-
-          {/* Logout tab */}
-          <Link
-            href="/admin/logout"
-            className="flex flex-col items-center gap-0.5 flex-1 py-1 transition-opacity active:opacity-70"
-            aria-label="Sign Out"
-          >
-            <span className="flex items-center justify-center w-12 h-8 rounded-lg bg-transparent hover:bg-red-50 transition-all duration-200">
-              <LogOut
-                className="h-5 w-5 text-text-muted hover:text-red-500 transition-colors duration-200"
-                aria-hidden="true"
-              />
-            </span>
-            <span className="text-[10px] font-medium tracking-wide text-text-muted leading-tight">
-              Logout
-            </span>
-          </Link>
+          {primaryTabs.map(({ name, href, icon }) => (
+            <MobileTabItem
+              key={href}
+              href={href}
+              name={name}
+              icon={icon}
+              active={isAdminNavActive(pathname, href)}
+            />
+          ))}
+          <MobileTabItem
+            name="More"
+            icon={MoreHorizontal}
+            active={moreOpen || moreActive}
+            expanded={moreOpen}
+            onClick={() => setMoreOpen((open) => !open)}
+          />
         </div>
       </nav>
+
+      <MobileMoreSheet
+        open={moreOpen}
+        onClose={closeMore}
+        items={moreItems}
+        pathname={pathname}
+      />
     </div>
   );
 }

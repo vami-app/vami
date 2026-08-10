@@ -6,6 +6,8 @@ import { Pencil, Trash2, Plus } from 'lucide-react';
 import Link from 'next/link';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import CursorPagination from '@/components/ui/CursorPagination';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 export default function BlogClient() {
   const [posts, setPosts] = useState([]);
@@ -101,12 +103,11 @@ export default function BlogClient() {
       />
       <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Blog Posts</h2>
-        <Link
-          href="/admin/blog/new"
-          className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-primary-foreground shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300"
-        >
-          <Plus className="mr-2 h-4 w-4" /> New Post
-        </Link>
+        <Button asChild className="shadow-xl hover:scale-105">
+          <Link href="/admin/blog/new">
+            <Plus className="mr-2 h-4 w-4" /> New Post
+          </Link>
+        </Button>
       </div>
 
       {loading ? (
@@ -135,16 +136,16 @@ export default function BlogClient() {
                       <dl className="font-normal md:hidden mt-1">
                         <dt className="sr-only">Status</dt>
                         <dd className="text-text-muted">
-                          <span className={`inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-semibold uppercase tracking-wider ${post.status === 'published' ? 'bg-primary text-primary-foreground' : 'bg-surface-subtle text-text-secondary'}`}>
+                          <Badge variant={post.status === 'published' ? 'primary' : 'default'} size="sm">
                             {post.status}
-                          </span>
+                          </Badge>
                         </dd>
                       </dl>
                     </td>
                     <td className="whitespace-nowrap px-3 py-5 text-sm text-text-muted hidden md:table-cell">
-                      <span className={`inline-flex items-center rounded-lg px-3 py-1 text-xs font-semibold uppercase tracking-widest ${post.status === 'published' ? 'bg-primary text-primary-foreground' : 'bg-surface-subtle text-text-secondary'}`}>
+                      <Badge variant={post.status === 'published' ? 'primary' : 'default'}>
                         {post.status}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="whitespace-nowrap px-3 py-5 text-sm text-text-muted hidden lg:table-cell">
                       {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : 'N/A'}

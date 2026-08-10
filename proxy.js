@@ -6,12 +6,12 @@ export function proxy(request) {
   // Define strict Content Security Policy (PPR-compatible)
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://vercel.live https://c.vercel-scripts.com ${isDev ? "'unsafe-eval'" : ''};
+    script-src 'self' 'unsafe-inline' https://vercel.live https://c.vercel-scripts.com https://www.googletagmanager.com https://www.google-analytics.com ${isDev ? "'unsafe-eval'" : ''};
     style-src 'self' 'unsafe-inline' https://vercel.live;
-    img-src 'self' blob: data: https://res.cloudinary.com https://images.unsplash.com https://vercel.live https://vercel.com;
+    img-src 'self' blob: data: https://res.cloudinary.com https://images.unsplash.com https://vercel.live https://vercel.com https://www.googletagmanager.com https://www.google-analytics.com;
     font-src 'self' https://assets.vercel.com https://vercel.live;
-    connect-src 'self' https://res.cloudinary.com https://images.unsplash.com https://vercel.live wss://ws-us3.pusher.com;
-    frame-src 'self' https://www.google.com https://maps.google.com https://vercel.live;
+    connect-src 'self' https://res.cloudinary.com https://images.unsplash.com https://vercel.live wss://ws-us3.pusher.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com;
+    frame-src 'self' https://www.google.com https://maps.google.com https://www.youtube.com https://www.youtube-nocookie.com https://vercel.live;
     worker-src 'self';
     manifest-src 'self';
     object-src 'none';

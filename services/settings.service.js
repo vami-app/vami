@@ -9,9 +9,13 @@ export async function getSiteSettings() {
   'use cache';
   cacheTag('settings');
   cacheLife('hours');
-  await dbConnect();
-  const settings = await SiteSettings.findById('site').lean();
-  return serializeDoc(settings) || {};
+  try {
+    await dbConnect();
+    const settings = await SiteSettings.findById('site').lean();
+    return serializeDoc(settings) || {};
+  } catch {
+    return {};
+  }
 }
 
 // ─── ADMIN QUERIES (Uncached) ─────────────────────────────────────────────────

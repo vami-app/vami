@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
 import { UploadCloud, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 
@@ -124,20 +129,21 @@ export default function BlogForm({ initialData = null }) {
           <p className="mt-1 text-sm text-text-muted">Draft and publish company news or industry insights.</p>
         </div>
         <div className="hidden lg:flex items-center space-x-3">
-          <button 
+          <Button 
             type="button" 
+            variant="outline"
             onClick={() => router.push('/admin/blog')} 
-            className="inline-flex justify-center rounded-lg border border-border-base shadow-sm px-6 py-2.5 bg-surface text-xs uppercase tracking-wider font-semibold text-text-secondary hover:bg-surface-subtle hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus"
+            className="border-border-base shadow-sm bg-surface text-text-secondary hover:bg-surface-subtle hover:text-text-secondary hover:border-border-base hover:scale-[1.02] focus-visible:ring-border-focus"
           >
             Discard
-          </button>
-          <button 
+          </Button>
+          <Button 
             type="submit" 
             disabled={isSaving} 
-            className="inline-flex justify-center rounded-lg border border-transparent shadow-xl px-6 py-2.5 bg-primary text-xs uppercase tracking-wider font-semibold text-primary-foreground hover:opacity-90 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            className="shadow-xl hover:scale-105 focus-visible:ring-offset-2"
           >
             {isSaving ? 'Saving...' : 'Save Post'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -153,17 +159,17 @@ export default function BlogForm({ initialData = null }) {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Title</label>
-                <input type="text" name="title" required value={formData.title} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" placeholder="Post Title" />
+                <Input type="text" name="title" required value={formData.title} onChange={handleChange} placeholder="Post Title" />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Slug URL</label>
-                <input type="text" name="slug" required value={formData.slug} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" />
+                <Input type="text" name="slug" required value={formData.slug} onChange={handleChange} />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Excerpt</label>
-                <textarea name="excerpt" rows={3} value={formData.excerpt} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]" placeholder="A brief summary of the post..." />
+                <Textarea name="excerpt" rows={3} value={formData.excerpt} onChange={handleChange} placeholder="A brief summary of the post..." />
               </div>
             </div>
             
@@ -207,12 +213,12 @@ export default function BlogForm({ initialData = null }) {
             <div className="p-6 sm:p-8 border-t border-border-subtle space-y-6">
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Title</label>
-                <input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-text-primary" />
+                <Input type="text" name="seoTitle" value={formData.seoTitle} onChange={handleChange} />
                 <p className="mt-2 text-xs text-text-muted font-medium">{formData.seoTitle.length}/60 characters</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Meta Description</label>
-                <textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-text-primary" />
+                <Textarea name="seoDescription" rows={3} value={formData.seoDescription} onChange={handleChange} />
                 <p className="mt-2 text-xs text-text-muted font-medium">{formData.seoDescription.length}/160 characters</p>
               </div>
             </div>
@@ -232,42 +238,24 @@ export default function BlogForm({ initialData = null }) {
               {/* Tags Input */}
               <div>
                 <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">Tags (Comma Separated)</label>
-                <input type="text" name="tags" value={formData.tags} onChange={handleChange} className="block w-full py-3 px-4 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary outline-none text-sm text-text-primary" placeholder="News, Guides, Insights" />
+                <Input type="text" name="tags" value={formData.tags} onChange={handleChange} className="py-3 px-4 text-sm" placeholder="News, Guides, Insights" />
               </div>
 
               {/* Status Dropdown */}
               <div>
-                <label className="block text-xs uppercase tracking-wider font-semibold text-text-secondary mb-2 ml-1">Status</label>
-                {isStatusOpen && <div className="fixed inset-0 z-10" onClick={() => setIsStatusOpen(false)}></div>}
-                <div className={`relative ${isStatusOpen ? 'z-30' : 'z-10'}`}>
-                  <input type="hidden" name="status" value={formData.status} />
-                  <button 
-                    type="button" 
-                    onClick={() => setIsStatusOpen(!isStatusOpen)}
-                    className={`w-full py-3 px-4 bg-surface/50 border ${isStatusOpen ? 'border-text-primary ring-1 ring-text-primary' : 'border-border-subtle hover:border-border-base'} rounded-lg transition-all text-sm outline-none text-left flex justify-between items-center`}
-                  >
-                    <span className="text-text-primary font-medium capitalize">{formData.status}</span>
-                    <ChevronDown className={`h-4 w-4 text-text-muted transition-transform ${isStatusOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  <div className={`absolute top-[calc(100%+8px)] left-0 w-full bg-surface/95 backdrop-blur border border-border-base rounded-lg shadow-xl overflow-hidden p-1.5 transition-all ${isStatusOpen ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-[0.98] pointer-events-none'}`}>
-                    <div className="space-y-1">
-                      {['draft', 'published'].map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => {
-                            setFormData({ ...formData, status: option });
-                            setIsStatusOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all capitalize ${formData.status === option ? 'bg-primary text-primary-foreground font-semibold' : 'text-text-secondary hover:bg-surface-subtle'}`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                <Label className="text-xs uppercase tracking-wider font-semibold mb-2 ml-1">Status</Label>
+                <input type="hidden" name="status" value={formData.status} />
+                <Select
+                  value={formData.status}
+                  options={[
+                    { value: 'draft', label: 'Draft' },
+                    { value: 'published', label: 'Published' },
+                  ]}
+                  open={isStatusOpen}
+                  onOpenChange={setIsStatusOpen}
+                  onChange={(value) => setFormData({ ...formData, status: value })}
+                  size="sm"
+                />
               </div>
 
             </div>
@@ -278,20 +266,21 @@ export default function BlogForm({ initialData = null }) {
 
       {/* Mobile Sticky Action Bar */}
       <div className="lg:hidden fixed bottom-[68px] left-0 right-0 p-4 bg-surface/90 backdrop-blur-md border-t border-border-subtle shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-40 flex justify-end space-x-3 sm:px-6">
-        <button 
+        <Button 
           type="button" 
+          variant="outline"
           onClick={() => router.push('/admin/blog')} 
-          className="flex-1 sm:flex-none inline-flex justify-center rounded-lg border border-border-base shadow-sm px-6 py-3 bg-surface text-xs uppercase tracking-wider font-semibold text-text-secondary active:scale-[0.98] transition-transform"
+          className="flex-1 sm:flex-none border-border-base shadow-sm bg-surface text-text-secondary hover:bg-surface hover:text-text-secondary hover:border-border-base py-3 active:scale-[0.98]"
         >
           Discard
-        </button>
-        <button 
+        </Button>
+        <Button 
           type="submit" 
           disabled={isSaving} 
-          className="flex-1 sm:flex-none inline-flex justify-center rounded-lg border border-transparent shadow-xl px-6 py-3 bg-primary text-xs uppercase tracking-wider font-semibold text-primary-foreground active:scale-[0.98] transition-transform"
+          className="flex-1 sm:flex-none shadow-xl py-3 active:scale-[0.98]"
         >
           {isSaving ? 'Saving...' : 'Save Post'}
-        </button>
+        </Button>
       </div>
 
     </form>

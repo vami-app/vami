@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { SearchX } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function NotFound() {
   return (
@@ -22,18 +23,16 @@ export default function NotFound() {
         </p>
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center px-8 py-3.5 bg-primary text-primary-foreground rounded-lg text-xs uppercase tracking-wider font-semibold hover:opacity-90 transition-opacity w-full sm:w-auto"
-          >
-            Return to Home
-          </Link>
-          <Link
-            href="/products"
-            className="inline-flex items-center justify-center px-8 py-3.5 bg-surface border border-border-base text-text-secondary rounded-lg text-xs uppercase tracking-wider font-semibold hover:bg-surface-muted transition-colors w-full sm:w-auto"
-          >
-            Browse Products
-          </Link>
+          <Button asChild className="w-full sm:w-auto px-8 py-3.5 shadow-none h-auto">
+            <Link href="/">
+              Return to Home
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="w-full sm:w-auto px-8 py-3.5 border-border-base bg-surface text-text-secondary hover:bg-surface-muted hover:text-text-secondary hover:border-border-base h-auto">
+            <Link href="/products">
+              Browse Products
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

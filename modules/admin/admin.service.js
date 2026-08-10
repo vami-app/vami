@@ -21,13 +21,37 @@ export async function getDashboardStats() {
   // Short TTL — dashboard stats should update within minutes, not hours
   cacheLife({ revalidate: 300, expire: 600 }); // 5 min revalidate, 10 min expire
 
-  await dbConnect();
+  try {
+    await dbConnect();
 
-  const [productCount, blogCount, categoryCount] = await Promise.all([
-    Product.countDocuments(),
-    BlogPost.countDocuments(),
-    Category.countDocuments(),
-  ]);
+    const [productCount, blogCount, categoryCount, leadStats] = await Promise.all([
+      Product.countDocuments(),
+      BlogPost.countDocuments(),
+      Category.countDocuments(),
+      (async () => {
+        try {
+          const { countLeadsByStatus } = await import('@/services/lead.service');
+          return countLeadsByStatus();
+        } catch {
+          return { newCount: 0, total: 0 };
+        }
+      })(),
+    ]);
 
-  return { productCount, blogCount, categoryCount };
+    return {
+      productCount,
+      blogCount,
+      categoryCount,
+      leadNewCount: leadStats.newCount || 0,
+      leadTotal: leadStats.total || 0,
+    };
+  } catch {
+    return {
+      productCount: 0,
+      blogCount: 0,
+      categoryCount: 0,
+      leadNewCount: 0,
+      leadTotal: 0,
+    };
+  }
 }

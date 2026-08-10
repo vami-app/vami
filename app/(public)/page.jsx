@@ -61,27 +61,28 @@ export default async function HomePage() {
 
           <div className="relative z-20 flex flex-col items-center text-center p-[var(--space-6)] pt-28 lg:pt-[var(--space-6)] transform transition-transform duration-700 translate-y-0 opacity-100 mt-20">
             <h1 className="font-headline font-light text-white leading-[1.1] tracking-tight max-w-4xl text-4xl sm:text-5xl md:text-6xl drop-shadow-md">
-              Engineering Excellence in Non-Ferrous Metallurgy & Casting
+              Precision Non-Ferrous Metal Products &amp; Custom Castings
             </h1>
+            <p className="text-gray-200 max-w-3xl font-light leading-relaxed mt-4 text-base md:text-lg drop-shadow tracking-wide">
+              Copper • Brass • Phosphor Bronze • Custom Alloys
+            </p>
             <p
               className="text-gray-200 max-w-3xl font-light leading-relaxed mt-6 mb-8 text-lg md:text-xl drop-shadow"
             >
-              Radhey Metal Alloys LLP manufactures high-purity Copper, Brass, and Phosphor Bronze Sheets, Plates, Circles, Ingots, and Custom Castings—supplied with complete Company Test Certificates and NABL laboratory reports.
+              Manufacturer and supplier of precision-engineered sheets, plates, circles, ingots and custom castings for demanding industrial applications — with Company Test Certificates and laboratory reports as required.
             </p>
-            <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 w-full sm:w-auto mt-4">
-              <div className="transition-all duration-500 ease-in-out overflow-hidden flex justify-center lg:opacity-100 lg:max-w-xl lg:max-h-24 max-w-0 max-h-0 opacity-0">
-                <Link
-                  href="/contact"
-                  className="inline-flex justify-center items-center px-8 py-4 bg-primary text-primary-foreground rounded-lg text-sm font-semibold uppercase tracking-wider shadow-lg hover:bg-primary/90 hover:-translate-y-1 transition-all duration-300 whitespace-nowrap"
-                >
-                  Request a Technical Quote <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-4 justify-center">
               <Link
                 href="/products"
-                className="inline-flex justify-center items-center px-8 py-4 rounded-lg text-sm font-semibold uppercase tracking-wider transition-all duration-300 bg-surface text-text-primary shadow-lg border border-border-base hover:bg-surface-subtle hover:-translate-y-1 lg:bg-surface/40 lg:backdrop-blur-md whitespace-nowrap"
+                className="inline-flex justify-center items-center px-8 py-4 bg-primary text-primary-foreground rounded-lg text-sm font-semibold uppercase tracking-wider shadow-lg hover:bg-primary/90 transition-all duration-300 whitespace-nowrap"
               >
-                Browse Products
+                View Products
+              </Link>
+              <Link
+                href="/contact"
+                className="inline-flex justify-center items-center px-8 py-4 rounded-lg text-sm font-semibold uppercase tracking-wider transition-all duration-300 bg-surface/90 text-text-primary shadow-lg border border-border-base hover:bg-surface whitespace-nowrap"
+              >
+                Request a Quote <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </div>
           </div>
@@ -139,9 +140,9 @@ export default async function HomePage() {
             </div>
             <div className="bg-surface p-8 rounded-[var(--inner-radius)] border border-border-base shadow-sm hover:shadow-md transition-shadow">
               <ShieldCheck className="w-10 h-10 text-text-primary mb-6" />
-              <h3 className="text-xl font-medium text-text-primary mb-4">NABL Certified Testing</h3>
+              <h3 className="text-xl font-medium text-text-primary mb-4">NABL Laboratory Reports</h3>
               <p className="text-text-muted font-light leading-relaxed">
-                All materials are thoroughly tested mechanically and chemically via NABL-accredited laboratories to ensure 100% grade compliance.
+                Where required, materials can be supported with third-party laboratory reports. We distinguish laboratory reports from laboratory accreditation — only verified claims are published.
               </p>
             </div>
             <div className="bg-surface p-8 rounded-[var(--inner-radius)] border border-border-base shadow-sm hover:shadow-md transition-shadow">
@@ -235,6 +236,75 @@ export default async function HomePage() {
               </ul>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Featured products */}
+      {featuredProducts.length > 0 ? (
+        <section className="py-16 sm:py-20 w-full bg-surface border-t border-border-subtle">
+          <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)]">
+            <span className="text-xs font-semibold text-text-muted tracking-[0.2em] uppercase">
+              Featured
+            </span>
+            <h2 className="font-headline font-light text-text-primary mt-4 leading-tight text-3xl sm:text-4xl">
+              Featured Products
+            </h2>
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((p) => (
+                <Link
+                  key={p._id}
+                  href={p.category?.slug ? `/products/${p.category.slug}/${p.slug}` : '/products'}
+                  className="border border-border-subtle rounded-[var(--inner-radius)] p-5 hover:shadow-md transition-shadow bg-background"
+                >
+                  <h3 className="text-lg font-medium text-text-primary">{p.name}</h3>
+                  <p className="mt-2 text-sm text-text-muted font-light line-clamp-3">
+                    {p.shortDescription}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {/* Capabilities teaser + Custom casting CTA + RFQ strip */}
+      <section className="py-16 sm:py-20 w-full bg-background border-t border-border-subtle">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)] grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div className="border border-border-subtle rounded-[var(--inner-radius)] p-8 sm:p-10 bg-surface">
+            <h2 className="font-headline text-3xl text-text-primary font-light">Manufacturing Capabilities</h2>
+            <p className="mt-4 text-text-muted font-light leading-relaxed">
+              Explore our process from melting and alloying through inspection and dispatch.
+            </p>
+            <Link href="/capabilities" className="inline-flex mt-6 text-sm font-semibold uppercase tracking-wider text-text-primary hover:underline">
+              View capabilities <ArrowRight className="w-4 h-4 ml-1" />
+            </Link>
+          </div>
+          <div className="border border-border-subtle rounded-[var(--inner-radius)] p-8 sm:p-10 bg-surface">
+            <h2 className="font-headline text-3xl text-text-primary font-light">Custom Castings</h2>
+            <p className="mt-4 text-text-muted font-light leading-relaxed">
+              Have a custom casting or component requirement? Upload your drawing or specification on our quote form.
+            </p>
+            <Link href="/contact?product=Custom%20Castings" className="inline-flex mt-6 text-sm font-semibold uppercase tracking-wider text-text-primary hover:underline">
+              Upload drawing / RFQ <ArrowRight className="w-4 h-4 ml-1" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 sm:py-20 w-full bg-surface border-t border-border-subtle">
+        <div className="w-full max-w-[var(--max-width-layout)] mx-auto px-[var(--gap)] text-center">
+          <h2 className="font-headline text-3xl sm:text-4xl text-text-primary font-light">
+            Request a Quote
+          </h2>
+          <p className="mt-4 text-text-muted font-light max-w-2xl mx-auto">
+            Get a quote in about 60 seconds — one form for products, grades, and custom castings.
+          </p>
+          <Link
+            href="/contact"
+            className="inline-flex mt-8 px-8 py-4 rounded-lg bg-primary text-primary-foreground text-sm font-semibold uppercase tracking-wider hover:opacity-90"
+          >
+            Go to RFQ form <ArrowRight className="ml-2 h-5 w-5" />
+          </Link>
         </div>
       </section>
 

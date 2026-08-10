@@ -31,8 +31,11 @@ export default function SettingsClient() {
   // General + SEO settings
   const [settings, setSettings] = useState({
     siteName: '', tagline: '', contactEmail: '', contactPhone: '',
-    address: '', linkedIn: '', website: '',
-    seoTitle: '', seoDescription: '', showProductImagesInList: true,
+    contactPhones: '', contactPersons: '', whatsappNumber: '',
+    address: '', manufacturingAddress: '', mapsQuery: '', mapsEmbedUrl: '',
+    linkedIn: '', website: '',
+    seoTitle: '', seoDescription: '', ogImageUrl: '', youtubeVideoId: '',
+    showProductImagesInList: true,
   });
 
   // Password change
@@ -46,7 +49,14 @@ export default function SettingsClient() {
     fetch('/api/settings')
       .then((r) => r.json())
       .then((data) => {
-        if (data) setSettings((prev) => ({ ...prev, ...data }));
+        if (data) {
+          setSettings((prev) => ({
+            ...prev,
+            ...data,
+            contactPhones: Array.isArray(data.contactPhones) ? data.contactPhones.join(', ') : (data.contactPhones || ''),
+            contactPersons: Array.isArray(data.contactPersons) ? data.contactPersons.join(', ') : (data.contactPersons || ''),
+          }));
+        }
       })
       .finally(() => setLoadingSettings(false));
   }, []);
@@ -58,10 +68,21 @@ export default function SettingsClient() {
     e.preventDefault();
     setSaving(true);
     try {
+      const payload = {
+        ...settings,
+        contactPhones: String(settings.contactPhones || '')
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+        contactPersons: String(settings.contactPersons || '')
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+      };
       const res = await fetch('/api/settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(payload),
       });
       if (res.ok) toast.success('Settings saved');
       else toast.error('Failed to save settings');
@@ -166,13 +187,31 @@ export default function SettingsClient() {
                 <h2 className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-4">Contact</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField label="Email">
-                    <Input type="email" value={settings.contactEmail} onChange={set('contactEmail')} placeholder="radhemetalalloysllp@gmail.com" />
+                    <Input type="email" value={settings.contactEmail} onChange={set('contactEmail')} placeholder="quotes@yourdomain.com" />
                   </FormField>
-                  <FormField label="Phone">
+                  <FormField label="Primary Phone">
                     <Input type="tel" value={settings.contactPhone} onChange={set('contactPhone')} placeholder="+91 00000 00000" />
                   </FormField>
-                  <FormField label="Address" className="sm:col-span-2">
+                  <FormField label="All phones (comma-separated)" className="sm:col-span-2">
+                    <Input value={settings.contactPhones} onChange={set('contactPhones')} placeholder="+91 …, +91 …" />
+                  </FormField>
+                  <FormField label="Contact persons (comma-separated)" className="sm:col-span-2">
+                    <Input value={settings.contactPersons} onChange={set('contactPersons')} />
+                  </FormField>
+                  <FormField label="WhatsApp number (digits)">
+                    <Input value={settings.whatsappNumber} onChange={set('whatsappNumber')} placeholder="919081358107" />
+                  </FormField>
+                  <FormField label="Maps query">
+                    <Input value={settings.mapsQuery} onChange={set('mapsQuery')} placeholder="Kalol Gandhinagar" />
+                  </FormField>
+                  <FormField label="Registered address" className="sm:col-span-2">
                     <Textarea value={settings.address} onChange={set('address')} placeholder="123 Industrial Area, City, State" />
+                  </FormField>
+                  <FormField label="Manufacturing address" className="sm:col-span-2">
+                    <Textarea value={settings.manufacturingAddress} onChange={set('manufacturingAddress')} />
+                  </FormField>
+                  <FormField label="Maps embed URL (optional)" className="sm:col-span-2">
+                    <Input value={settings.mapsEmbedUrl} onChange={set('mapsEmbedUrl')} />
                   </FormField>
                 </div>
               </section>

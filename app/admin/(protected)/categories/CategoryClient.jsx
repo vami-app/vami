@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { Pencil, Trash2, Plus } from 'lucide-react';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 export default function CategoryClient() {
   const [categories, setCategories] = useState([]);
@@ -118,12 +122,12 @@ export default function CategoryClient() {
       />
       <div className="mb-6 flex justify-between items-center animate-in fade-in slide-in-from-top-4 duration-700 ease-out">
         <h2 className="text-2xl font-headline font-light text-text-primary tracking-tight">Categories</h2>
-        <button
+        <Button
           onClick={() => handleOpenModal()}
-          className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-xs uppercase tracking-wider font-semibold text-primary-foreground shadow-xl hover:opacity-90 hover:scale-105 transition-all duration-300"
+          className="shadow-xl hover:scale-105"
         >
           <Plus className="mr-2 h-4 w-4" /> Add Category
-        </button>
+        </Button>
       </div>
 
       {loading ? (
@@ -189,11 +193,10 @@ export default function CategoryClient() {
             <div className="mt-6">
               <form onSubmit={handleSave} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Name</label>
-                  <input
+                  <Label className="mb-2 ml-1">Name</Label>
+                  <Input
                     type="text"
                     required
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.name}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -206,57 +209,54 @@ export default function CategoryClient() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Slug</label>
-                  <input
+                  <Label className="mb-2 ml-1">Slug</Label>
+                  <Input
                     type="text"
                     required
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">Description</label>
-                  <textarea
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                  <Label className="mb-2 ml-1">Description</Label>
+                  <Textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Title</label>
-                  <input
+                  <Label className="mb-2 ml-1">SEO Title</Label>
+                  <Input
                     type="text"
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                     value={formData.seoTitle}
                     onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
                   />
                   <p className="mt-1 text-xs text-text-muted">{formData.seoTitle.length}/60</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">SEO Description</label>
-                  <textarea
-                    className="block w-full py-3.5 px-5 bg-surface/50 border border-border-subtle rounded-lg focus:bg-surface focus:ring-1 focus:ring-text-primary focus:border-text-primary transition-all duration-300 hover:border-border-base outline-none text-text-primary shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                  <Label className="mb-2 ml-1">SEO Description</Label>
+                  <Textarea
                     value={formData.seoDescription}
                     onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
                   />
                   <p className="mt-1 text-xs text-text-muted">{formData.seoDescription.length}/160</p>
                 </div>
                 <div className="mt-8 pt-6 border-t border-surface-subtle flex flex-col sm:flex-row-reverse gap-3">
-                  <button
+                  <Button
                     type="submit"
                     disabled={isSaving}
-                    className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent shadow-xl px-6 py-2.5 bg-primary text-xs uppercase tracking-wider font-semibold text-primary-foreground hover:opacity-90 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                    className="w-full sm:w-auto shadow-xl hover:scale-105"
                   >
                     {isSaving ? 'Saving...' : 'Save Category'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => setIsModalOpen(false)}
-                    className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-border-base shadow-sm px-6 py-2.5 bg-surface text-xs uppercase tracking-wider font-semibold text-text-secondary hover:bg-surface-subtle hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border-focus"
+                    className="w-full sm:w-auto border-border-base shadow-sm bg-surface text-text-secondary hover:bg-surface-subtle hover:text-text-secondary hover:border-border-base hover:scale-[1.02] focus-visible:ring-border-focus"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
